@@ -1,6 +1,7 @@
 # Expectations for fixtures/rules/*.pptx. One [[case]] per (deck, mode).
 #   must     = findings that must appear:     "rule@shape_name[:severity]" or "rule@-" (no shape)
 #   must_not = rule ids (optionally "rule@shape") that must not appear at warning or error
+#   absent   = rule ids (optionally "rule@shape") that must not appear at any severity
 # Built by fixtures/rules/src/build_rules.py; checked by tests/rules/test_rule_fixtures.py.
 
 [[case]]
@@ -23,3 +24,19 @@ must = [
 [[case]]
 deck = "edge-margin--neg.pptx"
 must_not = ["edge-margin"]
+
+[[case]]
+deck = "dead-band--pos.pptx"
+must = ["dead-band@-:warning"]
+
+[[case]]
+deck = "dead-band--neg.pptx"
+must_not = ["dead-band"]
+
+[[case]]
+deck = "box-overlap--pos.pptx"
+must = ["box-overlap@first:advisory"]
+
+[[case]]
+deck = "box-overlap--neg.pptx"
+absent = ["box-overlap"]

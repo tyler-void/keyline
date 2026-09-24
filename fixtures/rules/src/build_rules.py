@@ -90,6 +90,54 @@ def edge_margin_neg():
     return prs
 
 
+# ---------- dead-band ----------
+def _top_heavy(s):
+    d.text(s, 2, 1.5, 29.867, 2, "A title in the top band", size=36, name="title")
+    d.rect(s, 2, 4, 29.867, 4.5, "CADCFC", name="block")
+
+
+@deck("dead-band--pos")
+def dead_band_pos():
+    prs = d.new_deck()
+    _top_heavy(d.slide(prs, bg="FFFFFF", notes="cover"))
+    _top_heavy(d.slide(prs, bg="FFFFFF", notes="content"))  # bottom 10.55 cm empty (55%)
+    return prs
+
+
+@deck("dead-band--neg")
+def dead_band_neg():
+    prs = d.new_deck()
+    _top_heavy(d.slide(prs, bg="FFFFFF", notes="cover"))  # slide 1 is the cover: exempt
+    s = d.slide(prs, bg="FFFFFF", notes="content")
+    d.rect(s, 0, 0, 33.867, 19.05, "F2F2F0", name="full-background")  # does not count
+    d.text(s, 2, 1.5, 29.867, 2.5, "Spread evenly", size=36, name="title")
+    d.rect(s, 2, 5, 29.867, 4, "CADCFC", name="band-1")
+    d.rect(s, 2, 10, 29.867, 4, "CADCFC", name="band-2")
+    d.text(s, 2, 15, 29.867, 2.5, "A closing line near the bottom", name="footer")
+    return prs
+
+
+# ---------- box-overlap ----------
+@deck("box-overlap--pos")
+def box_overlap_pos():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    d.text(s, 3, 3, 8, 3, "First text box", name="first")
+    d.text(s, 10, 5, 8, 3, "Second text box overlapping", name="second")  # 1.0 x 1.0 cm
+    return prs
+
+
+@deck("box-overlap--neg")
+def box_overlap_neg():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    d.text(s, 3, 3, 8, 3, "Left box", name="left")
+    d.text(s, 10.95, 3, 8, 3, "Right box touching", name="right")  # 0.05 cm overlap on x
+    d.rect(s, 3, 9, 10, 5, "1E2761", name="card")
+    d.text(s, 3.5, 10, 9, 2, "Inside a card", color="FFFFFF", name="in-card")
+    return prs
+
+
 def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []

@@ -43,6 +43,10 @@ def test_rule_fixture(case):
             f for f in result.findings if f.severity in FAILING and _matches(f, rule, shape, None)
         ]
         assert not bad, f"unexpected {spec}: {[(f.shape_name, f.message) for f in bad]}"
+    for spec in case.get("absent", []):
+        rule, shape, _ = _parse(spec)
+        bad = [f for f in result.findings if _matches(f, rule, shape, None)]
+        assert not bad, f"unexpected {spec} (any severity): {[f.message for f in bad]}"
 
 
 def test_every_rule_has_positive_and_negative_fixture():
@@ -54,5 +58,9 @@ def test_every_rule_has_positive_and_negative_fixture():
         if spec.check is None:
             continue
         pos = [c for c in CASES if any(_parse(m)[0] == spec.id for m in c.get("must", []))]
-        neg = [c for c in CASES if any(_parse(m)[0] == spec.id for m in c.get("must_not", []))]
+        neg = [
+            c
+            for c in CASES
+            if any(_parse(m)[0] == spec.id for m in c.get("must_not", []) + c.get("absent", []))
+        ]
         assert pos and neg, f"{spec.id} needs a positive and a negative fixture"

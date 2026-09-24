@@ -5,6 +5,8 @@ from importlib import import_module
 RULE_MODULES = (
     "off_slide",
     "edge_margin",
+    "dead_band",
+    "box_overlap",
 )
 
 
