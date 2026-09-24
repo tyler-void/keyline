@@ -91,3 +91,27 @@ must_not = ["notes-missing"]
 [[case]]
 deck = "notes-missing--neg.pptx"
 absent = ["notes-missing"]
+
+[[case]]
+deck = "font-count--pos.pptx"
+must = ["font-count@-:warning"]
+
+[[case]]
+deck = "font-count--neg.pptx"
+must_not = ["font-count"]
+
+[[case]]
+deck = "title-underline--pos.pptx"
+must = ["title-underline@underline:warning"]
+
+[[case]]
+deck = "title-underline--neg.pptx"
+must_not = ["title-underline"]
+
+[[case]]
+deck = "equal-card-row--pos.pptx"
+must = ["equal-card-row@card-a:warning", "equal-card-row@kpi-a:warning"]
+
+[[case]]
+deck = "equal-card-row--neg.pptx"
+must_not = ["equal-card-row"]

@@ -11,6 +11,9 @@ RULE_MODULES = (
     "title_not_dominant",
     "text_contrast",
     "notes_missing",
+    "font_count",
+    "title_underline",
+    "equal_card_row",
 )
 
 

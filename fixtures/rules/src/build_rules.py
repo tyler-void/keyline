@@ -240,6 +240,93 @@ def notes_missing_neg():
     return prs
 
 
+# ---------- font-count ----------
+@deck("font-count--pos")
+def font_count_pos():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    d.text(s, 2, 2, 20, 2.5, "Georgia title", size=40, font="Georgia")
+    d.text(s, 2, 6, 20, 2, "Calibri body", size=20, font="Calibri")
+    d.text(s, 2, 9, 20, 2, "Arial caption", size=20, font="Arial")
+    return prs
+
+
+@deck("font-count--neg")
+def font_count_neg():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    d.text(s, 2, 2, 20, 2.5, "Georgia title", size=40, font="Georgia")
+    d.text(s, 2, 6, 20, 2, "Calibri body", size=20, font="Calibri")
+    d.text(s, 2, 8.5, 20, 2, "Calibri Light is the same family", size=20, font="Calibri Light")
+    d.text(s, 2, 11, 20, 2, "Theme minor font", size=20, font="+mn-lt")  # -> Calibri
+    chart = _chart(s, 22, 6, 10, 8, name="chart")
+    chart.chart.font.name = "Arial"  # chart text is not counted
+    return prs
+
+
+# ---------- title-underline ----------
+def _titled(prs):
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 2, 20, 2.5, "A title with an accent", size=40, name="title")
+    d.text(s, 2, 8, 29.867, 3, "Body text that is long enough to be body", size=20)
+    return s
+
+
+@deck("title-underline--pos")
+def title_underline_pos():
+    prs = d.new_deck()
+    s = _titled(prs)
+    d.rect(s, 2, 4.9, 3, 0.15, "E8422E", name="underline")  # 0.40 cm below the title
+    return prs
+
+
+@deck("title-underline--neg")
+def title_underline_neg():
+    prs = d.new_deck()
+    d.rect(_titled(prs), 2, 4.9, 29.867, 0.03, "C9C9C2", name="hairline")  # full width
+    d.rect(_titled(prs), 2, 1.5, 3, 0.15, "E8422E", name="above")
+    d.rect(_titled(prs), 2, 6.0, 3, 0.15, "E8422E", name="far-below")  # 1.5 cm below
+    d.rect(_titled(prs), 4, 4.9, 3, 0.15, "E8422E", name="offset")  # 2 cm right
+    return prs
+
+
+# ---------- equal-card-row ----------
+def _cards(s, widths=(9, 9, 9), gaps=(1, 1), own_text=True, prefix="card"):
+    x, shapes = 2.0, []
+    for i, w in enumerate(widths):
+        name = f"{prefix}-{'abcd'[i]}"
+        if own_text:
+            shapes.append(d.rect(s, x, 6, w, 6, "1E2761", name=name, body=f"Point {i + 1}"))
+        else:
+            shapes.append(d.rect(s, x, 6, w, 6, "1E2761", name=name))
+            d.text(s, x, 7, w, 2, str(i + 1), size=60, color="FFFFFF", align="ctr")
+            d.text(s, x, 9.5, w, 1, "label", size=14, color="CADCFC", align="ctr")
+        if i < len(gaps):
+            x += w + gaps[i]
+    return shapes
+
+
+@deck("equal-card-row--pos")
+def equal_card_row_pos():
+    prs = d.new_deck()
+    _cards(d.slide(prs, bg="FFFFFF"))
+    _cards(d.slide(prs, bg="FFFFFF", notes="n"), own_text=False, prefix="kpi")
+    return prs
+
+
+@deck("equal-card-row--neg")
+def equal_card_row_neg():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    a, b, c = _cards(s)
+    d.connector(s, a, b)
+    d.connector(s, b, c)
+    _cards(d.slide(prs, bg="FFFFFF", notes="n"), widths=(9, 9.9, 9))
+    _cards(d.slide(prs, bg="FFFFFF", notes="n"), widths=(9, 9, 9), gaps=(0.5, 1.5))
+    _cards(d.slide(prs, bg="FFFFFF", notes="n"), widths=(9, 9), gaps=(1,))
+    return prs
+
+
 def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []
