@@ -238,3 +238,65 @@ PASS or FAIL.
 ## Amendment log
 
 - 2026-09-24: created.
+- **A-1 (2026-09-24, audit 01).** Title selection. If a slide has a `title` or
+  `ctrTitle` placeholder with text, that shape is the title. Otherwise use the plan's
+  P-18 heuristic: the largest max run size among non-KPI text-bearing shapes, with
+  ties going to the earliest in z-order.
+- **A-2 (2026-09-24, audit 01).** One body definition. A body paragraph is a paragraph
+  with `words > caption_exempt_words`. It applies to both `body-too-small` and
+  `title-not-dominant`, and replaces the hard-coded "> 4 words". The title shape is
+  never body.
+- **A-3 (2026-09-24, audit 01).** `edge-margin` candidates are the plan's *visible*
+  shapes: text-bearing, fill ≠ none, `pic`, or any `graphicFrame`. Background shapes
+  and connectors are excluded. The plan's P-19 keyed on fill ≠ none, which excluded
+  charts: a chart 0.5 cm from an edge would have passed.
+- **A-4 (2026-09-24, audit 01).** Text property cascade:
+  1. the run's `rPr`
+  2. the shape's `lstStyle`
+  3. the layout placeholder's `lstStyle`
+  4. the master placeholder's `lstStyle`
+  5. the master `txStyles` (`titleStyle` for title and ctrTitle, `bodyStyle` for
+     other placeholders, `otherStyle` for non-placeholders)
+  6. `presentation.xml` `defaultTextStyle`
+
+  `a:pPr/a:defRPr` is dropped from the cascade (plan R-1). This follows the plan's
+  statement of PowerPoint behavior, which the auditor could not verify against
+  PowerPoint. `docs/adapter.md` records it as unverified.
+- **A-5 (2026-09-24, audit 01).** Background default. If no `p:bg` exists on the
+  slide, layout or master, or if `p:bgPr/a:noFill` is set, the background is
+  `#FFFFFF`, plus one `adapter-unresolved` advisory (`what = background-default`).
+  Reason: `unknown` would silently switch off `text-contrast` on every deck without
+  an explicit background. PowerPoint paints these white.
+- **A-6 (2026-09-24, audit 01).** Placeholder matching.
+  - Slide to layout: match by `idx` first. If there is no idx match, fall back to the
+    same `type`.
+  - Layout to master: match by type, using the plan's type map.
+
+  This is python-pptx 1.0.2's behavior (`SlidePlaceholder._base_placeholder` uses
+  `layout.placeholders.get(idx=…)`; `LayoutPlaceholder._base_placeholder` maps the
+  type). The AC-5 oracle and the adapter must share the same semantics, or AC-5 only
+  tests python-pptx. The type fallback is keyline-only; document it.
+- **A-7 (2026-09-24, audit 01).** Word counting. `words(text)` counts
+  whitespace-separated tokens that contain at least one letter or digit, so
+  separators such as `·`, `|`, `—` are not words.
+- **A-8 (2026-09-24, audit 01).** Font family normalization.
+  - Case-fold the name.
+  - Strip one trailing token from `{thin, extralight, ultralight, light, regular,
+    book, medium, semibold, demibold, bold, extrabold, ultrabold, black, heavy,
+    condensed, narrow}`. Examples: "Calibri Light" → `calibri`, "Arial Narrow" →
+    `arial`.
+
+  Reason: weights and widths belong to one family. Counting them separately makes the
+  Office default theme (Calibri Light + Calibri) look like two families before a
+  second face has even been added.
+- **A-9 (2026-09-24, audit 01).** `title-underline` window. The bar's top must lie in
+  `[title.top + 0.5·title.h, title.bottom + 1.0 cm]`. That catches a bar drawn
+  inside the lower half of an oversized title box. The other conditions are
+  unchanged.
+- **A-10 (2026-09-24, audit 01).** `check` exit code.
+  - The exit code is lint's.
+  - Render is best effort. If OfficeCLI is missing or render fails, print
+    `render: skipped (<reason>)` to stderr and keep lint's code.
+  - `--require-render` turns a render failure into exit 1.
+
+  Reason: constitution II. The gate has to be passable where the skill runs.
