@@ -1,0 +1,383 @@
+"""Build the normalized Deck model from a .pptx package (spec §2, plan §2).
+
+Parts are reached only through relationships, and shapes only through spTree order and
+their ids, never by position in any other tool's numbering (L-001).
+"""
+
+from __future__ import annotations
+
+from collections.abc import Iterator
+from dataclasses import dataclass, field
+from pathlib import Path
+
+from lxml import etree
+
+from keyline.findings import Finding
+from keyline.model import Deck, Shape, Slide
+from keyline.ooxml.color import ColorContext, apply_override, parse_clr_map
+from keyline.ooxml.fill import background, shape_fill
+from keyline.ooxml.geometry import (
+    Placement,
+    Xfrm,
+    apply_group,
+    parse_xfrm,
+    xfrm_element,
+)
+from keyline.ooxml.ns import (
+    NS,
+    RT_NOTES_SLIDE,
+    RT_SLIDE_LAYOUT,
+    RT_SLIDE_MASTER,
+    RT_THEME,
+    q,
+)
+from keyline.ooxml.package import Package, ScanError
+from keyline.ooxml.placeholders import MASTER_TYPE, Ph, match_layout, match_master, ph_of
+from keyline.ooxml.text import TextSources, paragraphs
+from keyline.ooxml.theme import Theme, parse_theme
+from keyline.registry import RuleSpec, register
+
+UNRESOLVED = register(
+    RuleSpec(
+        id="adapter-unresolved",
+        category="quality",
+        severity="advisory",
+        scope="slide",
+        basis="structure",
+        since="0.1.0",
+        summary="The adapter could not resolve a property; rules that need it skip it",
+        rationale="L-001",
+    )
+)
+UNSUPPORTED = register(
+    RuleSpec(
+        id="unsupported-content",
+        category="quality",
+        severity="advisory",
+        scope="slide",
+        basis="structure",
+        since="0.1.0",
+        summary="Content the M1 model does not read (SmartArt, OLE, table text, ...)",
+        rationale="L-001",
+    )
+)
+
+CHART_URI = "http://schemas.openxmlformats.org/drawingml/2006/chart"
+TABLE_URI = "http://schemas.openxmlformats.org/drawingml/2006/table"
+LEAF_TAGS = {q("p:sp"): "sp", q("p:pic"): "pic", q("p:cxnSp"): "cxnSp", q("p:graphicFrame"): "gf"}
+NV_TAGS = ("p:nvSpPr", "p:nvPicPr", "p:nvCxnSpPr", "p:nvGraphicFramePr", "p:nvGrpSpPr")
+
+WHAT_TEXT = {
+    "geometry": "position and size could not be resolved",
+    "size": "text size could not be resolved; the rules skip these runs",
+    "font": "latin font could not be resolved",
+    "background-default": "no background found; assuming white (A-5)",
+}
+
+
+@dataclass
+class MasterInfo:
+    root: etree._Element
+    theme: Theme
+    clr_map: dict[str, str]
+
+
+@dataclass
+class _Ctx:
+    """Per-slide state while walking the shape tree."""
+
+    slide: int
+    layout: etree._Element | None
+    master: MasterInfo
+    default_text_style: etree._Element | None
+    color: ColorContext
+    diags: list[Finding] = field(default_factory=list)
+    seen: set[tuple] = field(default_factory=set)
+    z: int = 0
+
+    def diag(self, spec: RuleSpec, shape: Shape | None, what: str, message: str) -> None:
+        key = (spec.id, None if shape is None else shape.id, what)
+        if key in self.seen:
+            return
+        self.seen.add(key)
+        self.diags.append(spec.finding(self.slide, shape, message))
+
+
+def _unresolved_message(what: str) -> str:
+    if what in WHAT_TEXT:
+        return WHAT_TEXT[what]
+    if what.startswith("transform:"):
+        return f"color transform {what.split(':', 1)[1]} is not supported"
+    if what.startswith("color:") or what == "color":
+        return f"color could not be resolved ({what})"
+    if what.startswith("font:"):
+        return f"theme font {what.split(':', 1)[1]} is not supported"
+    if what.startswith("background"):
+        return f"background is not a solid fill ({what}); background rules skip this slide"
+    return f"could not resolve {what}"
+
+
+def _nv(el: etree._Element) -> etree._Element | None:
+    for tag in NV_TAGS:
+        nv = el.find(tag, NS)
+        if nv is not None:
+            return nv
+    return None
+
+
+def _id_name(el: etree._Element) -> tuple[int, str]:
+    nv = _nv(el)
+    c = nv.find("p:cNvPr", NS) if nv is not None else None
+    if c is None:
+        return 0, ""
+    try:
+        sid = int(c.get("id", "0"))
+    except ValueError:
+        sid = 0
+    return sid, c.get("name", "")
+
+
+def _txstyle(master: etree._Element, ph: Ph | None) -> etree._Element | None:
+    styles = master.find("p:txStyles", NS)
+    if styles is None:
+        return None
+    if ph is None:
+        return styles.find("p:otherStyle", NS)
+    if ph.is_title:
+        return styles.find("p:titleStyle", NS)
+    return styles.find("p:bodyStyle", NS)
+
+
+def _lststyle(el: etree._Element | None) -> etree._Element | None:
+    return None if el is None else el.find("p:txBody/a:lstStyle", NS)
+
+
+def _sppr(el: etree._Element | None) -> etree._Element | None:
+    return None if el is None else el.find("p:spPr", NS)
+
+
+def _iter_tree(
+    parent: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, ctx: _Ctx
+) -> Iterator[tuple[etree._Element, tuple[Xfrm, ...], str]]:
+    """Leaves of the shape tree in document (z) order, with their enclosing groups
+    (innermost first) and the nearest group fill."""
+    for child in parent:
+        if not isinstance(child.tag, str):
+            continue
+        if child.tag in LEAF_TAGS:
+            yield child, groups, group_fill
+        elif child.tag == q("p:grpSp"):
+            g = parse_xfrm(xfrm_element(child))
+            gfill = shape_fill(
+                [child.find("p:grpSpPr", NS)], None, ctx.master.theme, ctx.color, group_fill
+            ).fill
+            inner = ((g,) if g is not None else ()) + groups
+            yield from _iter_tree(child, inner, gfill, ctx)
+        elif child.tag == q("mc:AlternateContent"):
+            fallback = child.find("mc:Fallback", NS)
+            first = None
+            if fallback is not None:
+                for sub in _iter_tree(fallback, groups, group_fill, ctx):
+                    first = first or sub[0]
+                    yield sub
+            sid, name = _id_name(first) if first is not None else (0, "")
+            stub = Shape(id=sid, name=name, kind="sp", z=ctx.z) if first is not None else None
+            ctx.diag(
+                UNSUPPORTED,
+                stub,
+                "alternate-content",
+                "mc:AlternateContent: only the mc:Fallback content was read",
+            )
+        elif child.tag == q("p:contentPart"):
+            ctx.diag(UNSUPPORTED, None, "contentPart", "p:contentPart (ink) is not read")
+
+
+def _kind(el: etree._Element) -> str:
+    tag = LEAF_TAGS[el.tag]
+    if tag != "gf":
+        return tag
+    data = el.find("a:graphic/a:graphicData", NS)
+    uri = data.get("uri", "") if data is not None else ""
+    if uri == CHART_URI:
+        return "graphicFrame:chart"
+    if uri == TABLE_URI:
+        return "graphicFrame:table"
+    return "graphicFrame:other"
+
+
+def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, ctx: _Ctx) -> Shape:
+    sid, name = _id_name(el)
+    kind = _kind(el)
+    shape = Shape(id=sid, name=name, kind=kind, z=ctx.z)
+    ctx.z += 1
+
+    ph = ph_of(el)
+    layout_ph = master_ph = None
+    if ph is not None:
+        shape.ph_type, shape.ph_idx = ph.type, ph.idx
+        layout_ph = match_layout(ph, ctx.layout)
+        master_key = ph_of(layout_ph) if layout_ph is not None else ph
+        master_ph = match_master(master_key or ph, ctx.master.root)
+
+    # geometry
+    xfrm = parse_xfrm(xfrm_element(el))
+    if xfrm is None:
+        for inherited in (layout_ph, master_ph):
+            if inherited is not None:
+                xfrm = parse_xfrm(xfrm_element(inherited))
+                if xfrm is not None:
+                    break
+    if xfrm is None:
+        ctx.diag(UNRESOLVED, shape, "geometry", _unresolved_message("geometry"))
+    else:
+        p = Placement.from_xfrm(xfrm)
+        for g in groups:
+            p = apply_group(p, g)
+        shape.x, shape.y, shape.w, shape.h = p.rect()
+        shape.rot = p.rot
+        shape.box = p.box()
+
+    sppr = el.find("p:spPr", NS)
+    prst = sppr.find("a:prstGeom", NS) if sppr is not None else None
+    if prst is not None:
+        shape.geometry = prst.get("prst")
+    elif sppr is not None and sppr.find("a:custGeom", NS) is not None:
+        shape.geometry = "custom"
+
+    # fill
+    if kind == "pic":
+        shape.fill = "unknown"
+    elif kind.startswith("graphicFrame"):
+        shape.fill = "none"
+    else:
+        r = shape_fill(
+            [sppr, _sppr(layout_ph), _sppr(master_ph)],
+            el.find("p:style", NS),
+            ctx.master.theme,
+            ctx.color,
+            group_fill,
+        )
+        shape.fill = r.fill
+        if r.problem:
+            ctx.diag(UNRESOLVED, shape, r.problem, _unresolved_message(r.problem))
+
+    # connectors
+    if kind == "cxnSp":
+        cnv = el.find("p:nvCxnSpPr/p:cNvCxnSpPr", NS)
+        if cnv is not None:
+            st, end = cnv.find("a:stCxn", NS), cnv.find("a:endCxn", NS)
+            shape.st_cxn = int(st.get("id")) if st is not None and st.get("id") else None
+            shape.end_cxn = int(end.get("id")) if end is not None and end.get("id") else None
+
+    # text
+    if kind == "sp":
+        style = el.find("p:style", NS)
+        src = TextSources(
+            shape_lststyle=_lststyle(el),
+            layout_lststyle=_lststyle(layout_ph),
+            master_lststyle=_lststyle(master_ph),
+            master_txstyle=_txstyle(ctx.master.root, ph),
+            default_text_style=ctx.default_text_style,
+            font_ref=style.find("a:fontRef", NS) if style is not None else None,
+            theme=ctx.master.theme,
+            color_ctx=ctx.color,
+        )
+        shape.paragraphs = paragraphs(el.find("p:txBody", NS), src)
+        for what in dict.fromkeys(src.problems):
+            ctx.diag(UNRESOLVED, shape, what, _unresolved_message(what))
+    elif kind == "graphicFrame:table":
+        ctx.diag(UNSUPPORTED, shape, "table", "table text is not read in M1")
+    elif kind == "graphicFrame:other":
+        ctx.diag(UNSUPPORTED, shape, "graphicFrame", "SmartArt, OLE or media frame is not read")
+    return shape
+
+
+def _notes_text(pkg: Package, slide_part: str) -> bool:
+    for part in pkg.rel_targets(slide_part, RT_NOTES_SLIDE):
+        if not pkg.has(part):
+            continue
+        root = pkg.xml(part)
+        for sp in root.iter(q("p:sp")):
+            ph = ph_of(sp)
+            if ph is None or ph.type != "body":
+                continue
+            text = "".join(t.text or "" for t in sp.iter(q("a:t")))
+            if text.strip():
+                return True
+    return False
+
+
+def _one(pkg: Package, part: str, rel_type: str, what: str) -> str:
+    targets = pkg.rel_targets(part, rel_type)
+    if not targets or not pkg.has(targets[0]):
+        raise ScanError(f"{part} has no {what}")
+    return targets[0]
+
+
+def load_deck(path: str | Path) -> tuple[Deck, list[Finding]]:
+    with Package(path) as pkg:
+        return build_deck(pkg)
+
+
+def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
+    pres = pkg.xml(pkg.main_part)
+    size = pres.find("p:sldSz", NS)
+    try:
+        width, height = int(size.get("cx")), int(size.get("cy"))
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise ScanError("presentation.xml has no valid p:sldSz") from exc
+    default_text_style = pres.find("p:defaultTextStyle", NS)
+
+    masters: dict[str, MasterInfo] = {}
+    deck = Deck(width=width, height=height)
+    diags: list[Finding] = []
+    pres_rels = pkg.rels(pkg.main_part)
+
+    slide_ids = pres.findall("p:sldIdLst/p:sldId", NS)
+    for index, sld in enumerate(slide_ids, start=1):
+        rid = sld.get(q("r:id"))
+        rel = pres_rels.get(rid or "")
+        if rel is None or not pkg.has(rel.target):
+            raise ScanError(f"slide {index} ({rid}) is missing from the package")
+        slide_part = rel.target
+        slide_root = pkg.xml(slide_part)
+        layout_part = _one(pkg, slide_part, RT_SLIDE_LAYOUT, "slide layout")
+        layout_root = pkg.xml(layout_part)
+        master_part = _one(pkg, layout_part, RT_SLIDE_MASTER, "slide master")
+        if master_part not in masters:
+            mroot = pkg.xml(master_part)
+            theme_targets = pkg.rel_targets(master_part, RT_THEME)
+            theme_root = pkg.xml(theme_targets[0]) if theme_targets else None
+            masters[master_part] = MasterInfo(
+                mroot, parse_theme(theme_root), parse_clr_map(mroot.find("p:clrMap", NS))
+            )
+        master = masters[master_part]
+        if index == 1:
+            deck.theme_colors = dict(master.theme.colors)
+            deck.major_font, deck.minor_font = master.theme.major_latin, master.theme.minor_latin
+
+        clr_map = apply_override(master.clr_map, layout_root.find("p:clrMapOvr", NS))
+        clr_map = apply_override(clr_map, slide_root.find("p:clrMapOvr", NS))
+        color = ColorContext(master.theme.colors, clr_map)
+        ctx = _Ctx(index, layout_root, master, default_text_style, color)
+
+        bg = background([slide_root, layout_root, master.root], master.theme, color)
+        if bg.problem:
+            ctx.diag(UNRESOLVED, None, bg.problem, _unresolved_message(bg.problem))
+        cSld = layout_root.find("p:cSld", NS)
+        slide = Slide(
+            index=index,
+            layout_name=cSld.get("name") if cSld is not None else None,
+            background=bg.fill,
+            has_notes=_notes_text(pkg, slide_part),
+        )
+        tree = slide_root.find("p:cSld/p:spTree", NS)
+        if tree is not None:
+            for el, groups, gfill in list(_iter_tree(tree, (), "none", ctx)):
+                slide.shapes.append(_build_shape(el, groups, gfill, ctx))
+        deck.slides.append(slide)
+        diags.extend(ctx.diags)
+    return deck, diags
+
+
+__all__ = ["MASTER_TYPE", "UNRESOLVED", "UNSUPPORTED", "build_deck", "load_deck"]
