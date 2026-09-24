@@ -85,10 +85,7 @@ def test_member_cap(tmp_path):
 
 
 def test_xxe_is_rejected(tmp_path):
-    evil = (
-        '<?xml version="1.0"?><!DOCTYPE p [<!ENTITY x SYSTEM "file:///etc/passwd">]>'
-        "<p>&x;</p>"
-    )
+    evil = '<?xml version="1.0"?><!DOCTYPE p [<!ENTITY x SYSTEM "file:///etc/passwd">]><p>&x;</p>'
     pkg = Package(minimal_pptx(tmp_path / "xxe.pptx", evil))
     with pytest.raises(ScanError, match="DOCTYPE"):
         pkg.xml("ppt/presentation.xml")
