@@ -2,15 +2,15 @@
 
 Order is the build order. Each task lands as its own commit(s), with its tests, on
 `001-lint-core`. "Done when" names the check an auditor can re-run.
-Tasks marked ⚑ depend on an open question in `plan.md` §9 and follow whatever Tyler
-decides.
+Tasks marked ⚑ touched an open question in `plan.md` §9. Audit 01 resolved all of them
+(see plan §9); each ⚑ task implements the ACCEPTED or AMENDED behavior.
 
 ## M0: skeleton
 
 | id | task | done when |
 |---|---|---|
-| T-01 | `pyproject.toml` (hatchling, `src/` layout, `keyline` console script, Python ≥ 3.10, runtime `lxml` + `Pillow`, dev extra `pytest ruff python-pptx`), `ruff.toml`, `src/keyline/__init__.py` (`__version__ = "0.1.0"`), `__main__.py`, a stub `cli.py` whose `--version` works | `pip install -e .[dev] && keyline --version` prints `0.1.0`; `ruff check` is clean |
-| T-02 | `.github/workflows/ci.yml`: ubuntu-latest, matrix 3.10 / 3.12, `ruff check`, `ruff format --check`, `pytest -q` | CI is green on the branch (AC-11, partial) |
+| T-01 | `pyproject.toml` (hatchling, `src/` layout, `keyline` console script, Python ≥ 3.11 (D-012), runtime `lxml` + `Pillow`, dev extra `pytest ruff python-pptx`), `ruff.toml`, `src/keyline/__init__.py` (`__version__ = "0.1.0"`), `__main__.py`, a stub `cli.py` whose `--version` works | `pip install -e .[dev] && keyline --version` prints `0.1.0`; `ruff check` is clean |
+| T-02 | `.github/workflows/ci.yml`: ubuntu-latest, matrix 3.11 / 3.13 (D-012), `ruff check`, `ruff format --check`, `pytest -q` | CI is green on the branch (AC-11, partial) |
 | T-03 | README: status "pre-alpha", install, the three commands, and the L-002 limitation. CHANGELOG entry | Review |
 
 ## Core plumbing
@@ -18,7 +18,7 @@ decides.
 | id | task | done when |
 |---|---|---|
 | T-04 | `units.py` (EMU/cm/pt, `round2` with Decimal half-up) and `geom.py` (Box, intersect, contains inclusive, slide coverage, rotated AABB with exact 90° cases) | `tests/unit/test_units.py`, `test_geom.py` |
-| T-05 | ⚑ `config.py` + `thresholds.toml` (both modes, `calibrated = false`) + the flat-TOML reader for 3.10, with a parity test against `tomllib` on ≥ 3.11 | `tests/unit/test_config.py` |
+| T-05 | ⚑ `config.py` + `thresholds.toml` (both modes, `calibrated = false`, `large_text_pt` + `large_text_bold_pt`), read with stdlib `tomllib` (D-012; no custom reader, no parity test) | `tests/unit/test_config.py` |
 | T-06 | ⚑ `findings.py`: ordered Finding, sort key, JSON writer, stderr writer + summary, exit-code logic. `registry.py`: RuleSpec, `@rule`, duplicate-id guard | `tests/unit/test_findings.py` (ordering, null shape_id, advisory never exits 2, byte-stable JSON) |
 
 ## OOXML adapter
@@ -56,7 +56,7 @@ listed in plan §5.2.
 | T-21 | ⚑ `fixtures/golden/src/editorial-fixed.sh` (a copy of `editorial.sh` with only the re-spacing and the `l3` color changed) → `editorial-fixed.pptx` built with OfficeCLI 1.0.152 | `git diff --no-index editorial.sh editorial-fixed.sh` shows only those lines; `test_ac04_editorial_fixed.py` exits 0 |
 | T-22 | Golden acceptance tests + reviewed JSON snapshots in `fixtures/expected/` | `test_ac01_kpi.py`, `test_ac02_editorial_read.py`, `test_ac03_editorial_presented.py` |
 | T-23 | `render.py` + `keyline render` ⚑ + `keyline check` ⚑ | `test_ac10_render.py` (marked `officecli`, runs locally); the missing-binary path is tested with an empty `PATH` |
-| T-24 | ⚑ `test_ac12_hygiene.py` (commit identities, fixture docProps, NOTICE) | Passes on the branch |
+| T-24 | ⚑ `test_ac12_hygiene.py`: commit identities against the D-014 allowlist (names `Tyler`/`tyler-void` with `code@tyler-void.dev`; Claude `Co-Authored-By` trailers per D-013; committer `GitHub <noreply@github.com>`), fixture docProps, NOTICE | Passes on the branch |
 | T-25 | `specs/001-lint-core/report.md`: each AC with its command, an output excerpt and PASS/FAIL; Deviations; Open questions | Review by Tyler; audit by the external session |
 
 ## Acceptance map
@@ -74,4 +74,4 @@ listed in plan §5.2.
 | AC-9 | T-19 |
 | AC-10 | T-23 |
 | AC-11 | T-02 and everything else |
-| AC-12 | T-24 + the Tyler decision on R-12 |
+| AC-12 | T-24 (D-013, D-014) |

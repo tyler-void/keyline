@@ -1,13 +1,15 @@
 # Plan 001: lint core
 
 - **Spec:** [`spec.md`](spec.md) (M0 + M1)
-- **Status:** awaiting Tyler's approval. Nothing is implemented yet.
+- **Status:** approved with amendments by [audit 01](audit-01-plan.md) (2026-09-24).
+  Every proposal below is marked **ACCEPTED** or **AMENDED (A-x)**; amendments are in
+  the spec's amendment log, decisions D-012…D-014 in `docs/decisions.md`.
 - **Branch:** `001-lint-core`
 
-This plan says how the spec gets built. Where the spec is silent or ambiguous, the plan
-makes a **proposal**, marked **[P-n]**. Each proposal is also listed under
-[Open questions](#9-open-questions). Proposals are not spec amendments: if Tyler
-rejects one, the plan changes and the spec stays as written.
+This plan says how the spec gets built. Where the spec was silent or ambiguous, the
+plan made a **proposal**, marked **[P-n]**. Audit 01 ruled on every one of them
+(see [§9](#9-resolution-of-open-questions)). Where a proposal was amended, the text
+below already describes the amended behavior.
 
 Facts about the golden decks quoted below were read from their XML on 2026-09-24
 (`unzip -p fixtures/golden/<deck>.pptx ppt/slides/slideN.xml`). Contrast ratios
@@ -33,7 +35,7 @@ src/keyline/
   geom.py            (added)    Box ops on integer EMU: intersect, contains, coverage, AABB
   findings.py                   Finding (ordered keys), sort, JSON/human writers, exit code
   registry.py                   RuleSpec, @rule decorator, REGISTRY (sorted by id)
-  config.py                     loads thresholds.toml for a mode (see R-6 for 3.10)
+  config.py                     loads thresholds.toml for a mode (stdlib tomllib, D-012)
   thresholds.toml               the spec §5 table; calibrated = false
   render.py                     OfficeCLI screenshots + Pillow contact sheet
   ooxml/
@@ -67,7 +69,7 @@ fixtures/
   foreign/ pptx-default-placeholders.pptx  nested-groups.pptx
            src/build_foreign.py
   expected/ <deck>.<mode>.json  lint output snapshots for goldens (reviewed by hand)
-.github/workflows/ci.yml        ruff + pytest, ubuntu-latest, Python 3.10 and 3.12
+.github/workflows/ci.yml        ruff + pytest, ubuntu-latest, Python 3.11 and 3.13 (D-012)
 docs/adapter.md                 supported OOXML subset, transforms, known gaps (spec §2.4)
 ```
 
@@ -99,7 +101,7 @@ filename or position (L-001).
    have one `…/theme` target.
 4. **Notes.** The slide rels may have a `…/notesSlide` target. `has_notes` is true
    when that part's `p:sp` elements with `p:ph@type="body"` hold non-whitespace
-   `a:t` text. **[P-1]** Only body placeholders count. A slide-number field
+   `a:t` text. **[P-1 · ACCEPTED]** Only body placeholders count. A slide-number field
    (`sldNum` placeholder) is not a note.
 
 ### 2.2 Geometry
@@ -111,10 +113,11 @@ Per shape, in this order:
 2. **Placeholder inheritance** (spec §2.1). When the transform is missing and the
    shape has `p:nvPr/p:ph`, match a placeholder on the layout and use its `a:xfrm`.
    If that is missing too, match on the master and use the master's `a:xfrm`.
-   Matching follows `placeholders.py` **[P-2]**:
+   Matching follows `placeholders.py` **[P-2 · AMENDED (A-6)]**:
    - The slide `ph@type` defaults to `obj` and `ph@idx` defaults to `0`.
-   - **Layout:** (a) the same type and the same idx; else (b) the same type, first in
-     document order; else (c) the same idx.
+   - **Layout:** match by `idx` first (python-pptx 1.0.2 semantics). If no layout
+     placeholder has that idx, fall back to the first with the same `type`. The type
+     fallback is keyline-only and documented in `docs/adapter.md`.
    - **Master:** match by type after mapping to master types: `ctrTitle→title`;
      `subTitle, obj, body, tbl, chart, dgm, media, clipArt, pic→body`; `dt, ftr,
      sldNum, hdr` stay the same.
@@ -127,7 +130,7 @@ Per shape, in this order:
    `w' = w · ext.cx / chExt.cx`, `h' = h · ext.cy / chExt.cy`. A zero `chExt` gives
    scale 1. The arithmetic uses `fractions.Fraction` and rounds to int once at the
    end (half away from zero), so AC-6 holds to ±1 EMU.
-   **[P-3]** Group rotation is applied by rotating the child's center about the
+   **[P-3 · ACCEPTED]** Group rotation is applied by rotating the child's center about the
    group's center and adding the rotations. Group flips mirror the child's center.
    The spec does not cover either case.
 5. **Rotation** (spec §2.7). `rot` is in 60000ths of a degree. The final box is the
@@ -140,21 +143,23 @@ AABB. Rules use `box`.
 
 ### 2.3 Text properties (size, bold, italic, caps, spacing, latin font, color)
 
-Each run property resolves through one cascade. Size follows the spec's order
-(§2.2, steps 1–5 below). The other properties use the same cascade, because the
-spec gives no order for them **[P-4]**. `N` is `a:pPr@lvl + 1` (default 1).
+Each run property resolves through one cascade: the A-4 order for size, which the
+other properties share **[P-4 · ACCEPTED]**. `N` is `a:pPr@lvl + 1` (default 1).
+Steps 3–4 apply to placeholders only.
 
 | step | source | OOXML |
 |---|---|---|
 | 1 | run | `a:r/a:rPr@sz` (`@b @i @cap @spc`, `a:latin@typeface`, `a:solidFill`) |
-| 2 | paragraph | `a:p/a:pPr/a:defRPr` (same attributes and children) |
-| 3 | shape list style | `p:txBody/a:lstStyle/a:lvlNpPr/a:defRPr` |
-| 4 | layout | matched layout placeholder `p:txBody/a:lstStyle/a:lvlNpPr/a:defRPr` (placeholders only) |
-| 4b | master placeholder **[P-5]** | matched master placeholder `p:txBody/a:lstStyle/a:lvlNpPr/a:defRPr` |
+| 2 | shape list style | `p:txBody/a:lstStyle/a:lvlNpPr/a:defRPr` |
+| 3 | layout placeholder | matched layout placeholder `p:txBody/a:lstStyle/a:lvlNpPr/a:defRPr` |
+| 4 | master placeholder **[P-5 · AMENDED (A-4)]** | matched master placeholder `p:txBody/a:lstStyle/a:lvlNpPr/a:defRPr` |
 | 5 | master text styles | `p:txStyles/p:titleStyle` for `title`/`ctrTitle`; `p:bodyStyle` for other placeholders; `p:otherStyle` for non-placeholder shapes, each `a:lvlNpPr/a:defRPr` |
-| 6 | presentation default **[P-6]** | `p:presentation/p:defaultTextStyle/a:lvlNpPr/a:defRPr` |
-| 7 | shape style (color and font only) **[P-7]** | `p:style/a:fontRef` (`@idx` major/minor → theme font; child color) |
-| 8 | fallback | size: `None` → `adapter-unresolved` (spec). Color: **[P-7]** `tx1` through the clrMap. Font: `None` → `adapter-unresolved` |
+| 6 | presentation default **[P-6 · AMENDED (A-4)]** | `p:presentation/p:defaultTextStyle/a:lvlNpPr/a:defRPr` |
+| 7 | shape style (color and font only) **[P-7 · ACCEPTED]** | `p:style/a:fontRef` (`@idx` major/minor → theme font; child color) |
+| 8 | fallback | size: `None` → `adapter-unresolved` (spec). Color: `tx1` through the clrMap. Font: `None` → `adapter-unresolved` |
+
+A-4 drops `a:pPr/a:defRPr` from the cascade. `docs/adapter.md` records this as
+PowerPoint behavior that has not been verified against PowerPoint.
 
 - **Units.** `sz` is in hundredths of a point and is stored as an int (`size_pt` is
   `sz / 100`). `spc` is in hundredths of a point.
@@ -173,11 +178,11 @@ A color element resolves like this:
 - `a:schemeClr@val`:
   - `bg1 tx1 bg2 tx2` map through the clrMap. The clrMap is the master's `p:clrMap`,
     overridden by `p:clrMapOvr/a:overrideClrMapping` on the layout or the slide
-    **[P-8]**. (The spec says "master's clrMap". Overrides are rare but real.)
+    **[P-8 · ACCEPTED]**. (The spec says "master's clrMap". Overrides are rare but real.)
   - Then the theme's `a:clrScheme` (`dk1 lt1 dk2 lt2 accent1-6 hlink folHlink`).
   - `phClr` takes the color that the referencing `a:fillRef`/`a:fontRef`/`a:bgRef`
     carries.
-- `a:prstClr`, `a:hslClr`, `a:scrgbClr` → `None` plus an advisory **[P-9]**.
+- `a:prstClr`, `a:hslClr`, `a:scrgbClr` → `None` plus an advisory **[P-9 · ACCEPTED]**.
 
 **Transforms**, applied in document order:
 
@@ -186,7 +191,7 @@ A color element resolves like this:
 | `lumMod`, `lumOff` | RGB→HSL; `L = L·lumMod + lumOff`, clamped to [0,1]; HSL→RGB |
 | `tint` | per sRGB channel: `c + (1 − c)·(1 − tint)` (LibreOffice/python-pptx convention, see R-4) |
 | `shade` | per channel: `c · shade` |
-| `alpha` | **[P-9]** `alpha = 100%` is ignored. Anything lower → `None` plus an advisory (an unblended color would give a false contrast) |
+| `alpha` | **[P-9 · ACCEPTED]** `alpha = 100%` is ignored. Anything lower → `None` plus an advisory (an unblended color would give a false contrast) |
 | anything else | `None` + `adapter-unresolved` naming the transform |
 
 ### 2.5 Shape fill
@@ -213,21 +218,25 @@ treat it as visible content through its kind.
 2. Inside `p:bg`:
    - `p:bgPr/a:solidFill` → solid.
    - `p:bgPr` with `a:gradFill`, `a:blipFill` or `a:pattFill` → `unknown`.
-   - `p:bgPr/a:noFill` → `unknown` **[P-10]**.
+   - `p:bgPr/a:noFill` → `#FFFFFF` plus `adapter-unresolved` (`what =
+     background-default`) **[P-10 · AMENDED (A-5)]**.
    - `p:bgRef@idx` plus a child color: 1–999 index `a:fillStyleLst`; ≥1001 index
      `a:bgFillStyleLst` (idx − 1000); 0 means none. A solid entry with `phClr` → the
-     bgRef color, so it counts as **solid** **[P-10]**. Anything else → `unknown`.
-3. If no `p:bg` is found anywhere → `unknown` plus an advisory **[P-10]**.
-   (PowerPoint would paint white. The spec's list has no default.) Both goldens set
-   `p:bg` on every slide, and neither their layouts nor their masters have one.
+     bgRef color, so it counts as **solid** **[P-10 · ACCEPTED]**. Anything else → `unknown`.
+3. If no `p:bg` is found anywhere → `#FFFFFF` plus one `adapter-unresolved`
+   advisory (`what = background-default`) **[P-10 · AMENDED (A-5)]**. PowerPoint
+   paints these white. Both goldens set `p:bg` on every slide, and neither their
+   layouts nor their masters have one.
 
 ### 2.7 Adapter diagnostics
 
 - `adapter-unresolved` is emitted once per `(slide, shape_id, what)`. `what` is one
-  of: `geometry`, `size`, `font`, `color`, `background`, `transform:<name>`.
+  of: `geometry`, `size`, `font`, `color`, `background`, `background-default`,
+  `transform:<name>`.
 - `unsupported-content` is emitted once per `(slide, shape_id)` for:
   - `graphicFrame:other` (SmartArt, OLE, media);
-  - `mc:AlternateContent` (the adapter reads `mc:Fallback`, **[P-11]**);
+  - `mc:AlternateContent` (the adapter reads `mc:Fallback`, **[P-11 · ACCEPTED]**: audit 01 approved the
+    plan with no separate ruling on this one);
   - `a:tbl` text, which is not modeled in M1;
   - `p:contentPart`.
 
@@ -236,28 +245,28 @@ treat it as visible content through its kind.
 ## 3. Findings, registry, config
 
 - **Finding keys.** `rule, category, severity, slide, shape_id, shape_name, message,
-  measured, threshold`, built as an ordered dict. **[P-12]** `measured` and
+  measured, threshold`, built as an ordered dict. **[P-12 · ACCEPTED]** `measured` and
   `threshold` are JSON numbers in the unit the message states: cm with 2 decimals,
   pt with up to 2 decimals, ratios with 2 decimals, counts as ints. `null` when not
   applicable.
-- **Sort key.** `(slide, rule, shape_id with null first, message)` **[P-13]**. The
+- **Sort key.** `(slide, rule, shape_id with null first, message)` **[P-13 · ACCEPTED]**. The
   spec's key `(slide, rule, shape_id)` has ties: kpi slide 4 gets two `dead-band`
   findings with `shape_id` null. `message` breaks ties deterministically.
 - **JSON.** `json.dumps(list, ensure_ascii=False, indent=2) + "\n"` on stdout. Floats
   come only from `units.round2()`, which uses `Decimal` quantize with
-  `ROUND_HALF_UP`, so their repr is stable across 3.10 and 3.12.
+  `ROUND_HALF_UP`, so their repr is stable across 3.11 and 3.13.
 - **Stderr.** One line per finding (`slide 2 · edge-margin · T2 · 1.20 cm from top
   edge (min 1.27 cm)`), then a summary (`14 findings: 1 error, 11 warning, 2
   advisory`).
 - **Exit codes.** 1 is for a scan failure, with a one-line reason. 2 means there is at
   least one `warning` or `error`. 0 otherwise.
 - **Registry.** A `RuleSpec` has `id category severity scope basis since summary
-  rationale`. **[P-14]** Some findings need a different severity by mode or case
+  rationale`. **[P-14 · ACCEPTED]** Some findings need a different severity by mode or case
   (`notes-missing` is advisory in read mode; `off-slide` is an advisory for bleed;
   some rules emit advisories when they have to skip). For these, `RuleSpec.severity`
   is the default, and findings carry their actual severity. A `severity_notes`
   string in `keyline rules` output documents the overrides.
-  **[P-15]** `adapter-unresolved` and `unsupported-content` are registered too
+  **[P-15 · ACCEPTED]** `adapter-unresolved` and `unsupported-content` are registered too
   (category `quality`, basis `structure`, severity `advisory`), so `keyline rules`
   lists everything that can appear in the output.
 - **Rationale** per rule: `off-slide` L-003; `edge-margin` L-006; `dead-band` L-003;
@@ -269,7 +278,8 @@ treat it as visible content through its kind.
 - **Config.** `thresholds.toml` has `calibrated = false` and one table each for
   `[presented]` and `[read]`. `large_text` becomes two keys, `large_text_pt = 18` and
   `large_text_bold_pt = 14`. Thresholds are read as strings of decimals into
-  `Decimal`/`Fraction`, so boundary comparisons are exact. See R-6 for Python 3.10.
+  `Decimal`/`Fraction`, so boundary comparisons are exact. The file is read with the
+  stdlib `tomllib` (D-012: Python ≥ 3.11).
 
 ---
 
@@ -278,36 +288,40 @@ treat it as visible content through its kind.
 Definitions shared through `rules/_common.py`:
 
 - **text-bearing:** a `sp` with at least one run of non-whitespace text.
-  **[P-16]** Charts and tables are not text-bearing in M1. Their text is not modeled.
+  **[P-16 · ACCEPTED]** Charts and tables are not text-bearing in M1. Their text is not modeled.
 - **visible:** text-bearing, or fill ≠ `none`, or kind `pic`, `graphicFrame:*`.
 - **background shape:** a visible shape whose box, clipped to the slide, covers
-  ≥ 95% of the slide area **[P-17]**.
+  ≥ 95% of the slide area **[P-17 · ACCEPTED]**.
 - **content slide:** slide index > 1 (spec §5 cover rule).
-- **words(text):** `len(text.split())` on whitespace, so `·` counts as a word.
-- **title (`pick_title`)** **[P-18]**: among the slide's text-bearing shapes that are
-  not KPI numerals, the one with the largest max run size. Ties go to the earliest in
-  z-order. A shape is a **KPI numeral** when its max run size ≥ 48 pt and its whole
-  text has ≤ 5 words. None of the goldens use placeholders, so title detection cannot
-  rely on `ph@type`.
+- **words(text)** **[AMENDED (A-7)]**: the number of whitespace-separated tokens
+  that contain at least one letter or digit, so `·`, `|` and `—` are not words.
+- **title (`pick_title`)** **[P-18 · AMENDED (A-1)]**: if the slide has a `title` or
+  `ctrTitle` placeholder with text, that shape. Otherwise, among the slide's
+  text-bearing shapes that are not KPI numerals, the one with the largest max run
+  size, with ties going to the earliest in z-order. A shape is a **KPI numeral** when
+  its max run size ≥ 48 pt and its whole text has ≤ 5 words (Q3 accepted: per shape).
+- **body paragraph** **[AMENDED (A-2)]**: a paragraph with `words >
+  caption_exempt_words`, in a text-bearing shape that is not the title. It is shared
+  by `body-too-small` and `title-not-dominant`.
 - All comparisons use integer EMU. Thresholds in cm are converted once
   (`1 cm = 360000 EMU`).
 
 | rule | measurement |
 |---|---|
 | `off-slide` | For each shape with a box: `overrun = max(0, −left, −top, right − W, bottom − H)`. It fires when `overrun > 18000 EMU` (0.05 cm). Text-bearing → `error`. Otherwise → `advisory` ("possible bleed"). `measured` = overrun in cm. |
-| `edge-margin` | Candidates are shapes that are text-bearing or have fill ≠ `none` (including `pic`) **[P-19]**. Background shapes and `cxnSp` are excluded. Shapes already reported by `off-slide` are skipped **[P-20]**. For each side, margin = the distance to that edge. It fires when `min(margins) < 439200 EMU` (1.27 − 0.05 cm). **One finding per shape** **[P-21]**: it names the worst side, `measured` = that margin, `threshold` = 1.27. |
-| `dead-band` | On content slides: collect `[top, bottom]` of every visible non-background shape, including `cxnSp`, even at zero height **[P-22]**. Clip to `[0, H]` and merge overlapping or touching intervals. The gaps are `[0, first]`, the gaps between intervals, and `[last, H]`. It fires for each gap `> 0.25·H` (strict), with `shape_id` null, `measured` = gap/H and the band's cm span in the message. On kpi slide 4 this also fires for the middle band (3.20 to 8.00 cm = 25.2%), not only the bottom one. |
-| `box-overlap` | For every pair of text-bearing shapes: `ox = min(r) − max(l)`, `oy = min(b) − max(t)`. It fires when both are `> 36000 EMU` (0.1 cm). Severity is `advisory`. **[P-23]** The spec's exemption ("a text shape inside a non-text backing shape") can't occur between two text-bearing shapes. The plan treats it as documentation. Kpi's backing cards have no text, so they are never in a pair. `shape_id` is the lower id of the pair, and both names appear in the message. |
-| `body-too-small` | For each text-bearing `sp` (charts, tables and notes are never in the model's slide text): for each paragraph with `words > caption_exempt_words`, look at its runs whose size is known. It fires if any of them is `< body_min_pt`. **One finding per shape** **[P-24]**, with `measured` = the smallest such size. Runs with unknown size are skipped (the adapter already reported them). |
-| `title-not-dominant` | `t` = the title's max run size. `b` = the max run size over paragraphs with > 4 words in text-bearing shapes **other than the title** **[P-25]**. It skips when there is no title or no such paragraph. It fires when `t < title_ratio_min · b` (exact `Fraction`). `measured` = `t/b`. Without excluding the title, kpi slide 2 would fire: its title "What a text-only gate cannot see" has 6 words, and AC-1 forbids that finding. |
-| `text-contrast` | For each text-bearing shape, for each run with text: fg = the resolved color. bg = the first shape found walking **down** the z-order from **this shape itself** **[P-26]** whose box **contains the shape's box, edges inclusive** **[P-27]**, and whose fill ≠ `none`. With no such shape, bg is the slide background. Solid → WCAG 2.x ratio. `gradient`/`unknown`/`pic`, or an unknown fg → `advisory` under this rule id. Large text = size ≥ `large_text_pt`, or bold and ≥ `large_text_bold_pt`. It fires when `ratio < contrast_large or contrast_normal`. One finding per shape, for the worst run. `measured` = ratio (2 dp). This finds `l3` (3.57 < 4.5). It does not flag `n3` (76 pt bold, so the 3.0 threshold applies). |
+| `edge-margin` | Candidates are the *visible* shapes: text-bearing, fill ≠ `none`, `pic`, or any `graphicFrame` **[P-19 · AMENDED (A-3)]**. Background shapes and `cxnSp` are excluded. Shapes already reported by `off-slide` are skipped **[P-20 · ACCEPTED]**. For each side, margin = the distance to that edge. It fires when `min(margins) < 439200 EMU` (1.27 − 0.05 cm). **One finding per shape** **[P-21 · ACCEPTED]**: it names the worst side, `measured` = that margin, `threshold` = 1.27. |
+| `dead-band` | On content slides: collect `[top, bottom]` of every visible non-background shape, including `cxnSp`, even at zero height **[P-22 · ACCEPTED]**. Clip to `[0, H]` and merge overlapping or touching intervals. The gaps are `[0, first]`, the gaps between intervals, and `[last, H]`. It fires for each gap `> 0.25·H` (strict), with `shape_id` null, `measured` = gap/H and the band's cm span in the message. On kpi slide 4 this also fires for the middle band (3.20 to 8.00 cm = 25.2%), not only the bottom one. |
+| `box-overlap` | For every pair of text-bearing shapes: `ox = min(r) − max(l)`, `oy = min(b) − max(t)`. It fires when both are `> 36000 EMU` (0.1 cm). Severity is `advisory`. **[P-23 · ACCEPTED]** The spec's exemption ("a text shape inside a non-text backing shape") can't occur between two text-bearing shapes, and audit 01 removed it as a spec error. Kpi's backing cards have no text, so they are never in a pair. `shape_id` is the lower id of the pair, and both names appear in the message. |
+| `body-too-small` | For each text-bearing `sp` (charts, tables and notes are never in the model's slide text): for each body paragraph (A-2), look at its runs whose size is known. It fires if any of them is `< body_min_pt`. **One finding per shape** **[P-24 · ACCEPTED]**, with `measured` = the smallest such size. Runs with unknown size are skipped (the adapter already reported them). |
+| `title-not-dominant` | `t` = the title's max run size. `b` = the max run size over body paragraphs, which by definition exclude the title **[P-25 · AMENDED (A-2)]**. It skips when there is no title or no body paragraph. It fires when `t < title_ratio_min · b` (exact `Fraction`). `measured` = `t/b`. Without excluding the title, kpi slide 2 would fire: its title "What a text-only gate cannot see" has 6 words, and AC-1 forbids that finding. |
+| `text-contrast` | For each text-bearing shape, for each run with text: fg = the resolved color. bg = the first shape found walking **down** the z-order from **this shape itself** **[P-26 · ACCEPTED]** whose box **contains the shape's box, edges inclusive** **[P-27 · ACCEPTED]**, and whose fill ≠ `none`. With no such shape, bg is the slide background. Solid → WCAG 2.x ratio. `gradient`/`unknown`/`pic`, or an unknown fg → `advisory` under this rule id. Large text = size ≥ `large_text_pt`, or bold and ≥ `large_text_bold_pt`. It fires when `ratio < contrast_large or contrast_normal`. One finding per shape, for the worst run. `measured` = ratio (2 dp). This finds `l3` (3.57 < 4.5). It does not flag `n3` (76 pt bold, so the 3.0 threshold applies). |
 | `notes-missing` | On content slides with `has_notes == false`: `warning` in presented mode, `advisory` in read mode. `shape_id` is null. |
-| `font-count` | Deck level (`slide` 0). The set of resolved `latin` typefaces over runs with text, in every slide shape (groups flattened, notes excluded, charts and tables not modeled). Families compare **case-folded exact strings** **[P-28]**, so `Calibri` and `Calibri Light` are two families. It fires when the count > `font_family_max`. The message lists them sorted. |
-| `title-underline` | The title comes from `pick_title` **[P-18]**. Candidates are `sp` shapes with no text, fill ≠ `none`, and `h ≤ 0.35 cm`, where `0 ≤ top − title.bottom ≤ 1.0 cm` and `|left − title.left| ≤ 1.0 cm` and `w < 0.5 · content_width`. **[P-29]** `content_width = W − 2·edge_margin_cm`. In editorial, `rule2` (29.47 cm ≥ 15.67 cm) is exempt under any reasonable definition. |
-| `equal-card-row` | Candidates: visible non-background `sp` with fill ≠ `none`. **Rows** **[P-30]**: sort by (top, left). A shape joins the current row if its top is within ±0.2 cm of the row's first shape. Otherwise it starts a new row. Within a row, sort by left and scan for maximal runs of ≥ 3 consecutive shapes where each `w`, `h` is within ±3% of the run's first shape, each gap (`left[i+1] − right[i]`, ≥ 0) is within ±0.3 cm of the first gap, and every shape **carries text or has a text-bearing shape over it**. "Over it" means that shape's box is inside the card, edges inclusive, and its horizontal center is within ±3% of the card's width from the card's center **[P-31]**. **Exempt** **[P-32]** if the `cxnSp` shapes whose `stCxn`/`endCxn` both point at run members connect all members into one component. One finding per run: `shape_id` = the first card, `measured` = the count. |
+| `font-count` | Deck level (`slide` 0). The set of resolved `latin` typefaces over runs with text, in every slide shape (groups flattened, notes excluded, charts and tables not modeled). Families are normalized **[P-28 · AMENDED (A-8)]**: case-fold, then strip one trailing token from `{thin, extralight, ultralight, light, regular, book, medium, semibold, demibold, bold, extrabold, ultrabold, black, heavy, condensed, narrow}`. So `Calibri` and `Calibri Light` are one family. It fires when the count > `font_family_max`. The message lists them sorted. |
+| `title-underline` | The title comes from `pick_title` (A-1). Candidates are `sp` shapes with no text, fill ≠ `none`, and `h ≤ 0.35 cm`, where `title.top + 0.5·title.h ≤ top ≤ title.bottom + 1.0 cm` **[P-29 · AMENDED (A-9)]** and `|left − title.left| ≤ 1.0 cm` and `w < 0.5 · content_width`, with `content_width = W − 2·edge_margin_cm` (accepted). Outline-only lines are out of scope for M1 (backlog). In editorial, `rule2` (29.47 cm ≥ 15.67 cm) is exempt under any reasonable definition. |
+| `equal-card-row` | Candidates: visible non-background `sp` with fill ≠ `none`. **Rows** **[P-30 · ACCEPTED]**: sort by (top, left). A shape joins the current row if its top is within ±0.2 cm of the row's first shape. Otherwise it starts a new row. Within a row, sort by left and scan for maximal runs of ≥ 3 consecutive shapes where each `w`, `h` is within ±3% of the run's first shape, each gap (`left[i+1] − right[i]`, ≥ 0) is within ±0.3 cm of the first gap, and every shape **carries text or has a text-bearing shape over it**. "Over it" means that shape's box is inside the card, edges inclusive, and its horizontal center is within ±3% of the card's width from the card's center **[P-31 · ACCEPTED]**. **Exempt** **[P-32 · ACCEPTED]** if the `cxnSp` shapes whose `stCxn`/`endCxn` both point at run members connect all members into one component. One finding per run: `shape_id` = the first card, `measured` = the count. |
 
 Advisories that rules emit when they have to skip (spec §2.6, text-contrast exempt)
-use the rule's own id with severity `advisory` [P-14].
+use the rule's own id with severity `advisory` (P-14, accepted).
 
 ---
 
@@ -328,7 +342,8 @@ use the rule's own id with severity `advisory` [P-14].
   - Candidate: `rule3` 12.85, `ftlab` 13.15, row pitch 1.05 → 1.00 (`r1*` 14.00, `hr1`
     14.80, `r2*` 15.00, `hr2` 15.80, `r3*` 16.00), `verdicttx` 16.90 (ends at 17.75,
     margin 1.30), and `verdict` 16.99.
-  - Shape heights do not change. The final numbers are chosen during T-14. Evidence:
+  - Audit 01 accepted this as re-spacing and judges "no new warning" in read mode.
+  - Shape heights do not change. The final numbers are chosen during T-21. Evidence:
     the lint JSON (AC-4) and one OfficeCLI screenshot, which is committed only to the
     report, not as a fixture.
 - `fixtures/expected/*.json` hold reviewed lint output for each golden in each mode.
@@ -373,7 +388,7 @@ use the rule's own id with severity `advisory` [P-14].
     independent implementation, so it serves as the oracle.
   - Sizes resolve from the master `txStyles` (title 44 pt, body lvl1 32 pt). The
     background resolves through `p:bgRef idx=1001` → `bg1` → `lt1`, so this deck
-    also exercises [P-10].
+    also exercises the `bgRef` path of P-10.
 - **`nested-groups.pptx` (AC-6).**
   - python-pptx only writes identity group transforms, so the builder writes raw
     `p:grpSp` XML with lxml instead.
@@ -383,8 +398,8 @@ use the rule's own id with severity `advisory` [P-14].
     known positions.
   - The expected absolute values are worked out by hand in the builder's docstring
     and pinned as literals in the test.
-  - A third, rotated (90°) inner group is included only if [P-3] is approved.
-    Otherwise the builder leaves it out.
+  - A third, rotated (90°) inner group is included (P-3 accepted; audit 01 asked
+    for it in the AC-6 fixture).
 - **Adapter unit fixtures.** Small XML packages built in memory by
   `tests/adapter/_pkg.py` cover these cases: the text cascade, including `lvl`;
   clrMap and overrides; each transform; `bgRef`; `fillRef`; `grpFill`; `sysClr`;
@@ -410,10 +425,10 @@ python-docx is not needed.
   - Always prints L-002 to stderr.
 - **`check`**
   - Runs lint and then render. With `--json`, stdout holds the lint JSON only, and
-    the PNG paths go to stderr **[P-33]**.
-  - The exit code is lint's, or 1 if render fails. As specified, this means `check`
-    always exits 1 where OfficeCLI is absent, including the claude.ai sandbox (see
-    open question).
+    the PNG paths go to stderr **[P-33 · AMENDED (A-10)]**.
+  - The exit code is lint's. Render is best effort: if OfficeCLI is missing or render
+    fails, `check` prints `render: skipped (<reason>)` to stderr and keeps lint's
+    code. `--require-render` turns a render failure into exit 1.
 
 ---
 
@@ -421,14 +436,17 @@ python-docx is not needed.
 
 - **pytest markers.** `officecli` (skipped when the binary is missing) and `slow`.
 - **CI.** `.github/workflows/ci.yml` runs on `ubuntu-latest` with the matrix
-  `["3.10", "3.12"]`. Steps: `pip install -e .[dev]`, `ruff check`, `ruff format
+  `["3.11", "3.13"]` (D-012). Steps: `pip install -e .[dev]`, `ruff check`, `ruff format
   --check`, `pytest -q`.
 - **AC-9.** The test times `subprocess.run([sys.executable, "-m", "keyline", "lint",
   kpi])` with `time.perf_counter`, so interpreter start is included. The budget is
   < 1.0 s.
 - **AC-12.** `tests/acceptance/test_ac12_hygiene.py` checks four things:
-  - `git log --format='%an <%ae>%n%cn <%ce>'` and every trailer against an allowlist.
-    The test skips when there is no `.git`.
+  - `git log --format='%an <%ae>%n%cn <%ce>'` and every trailer against the D-014
+    allowlist: names `Tyler`/`tyler-void` with `code@tyler-void.dev`; Claude
+    `Co-Authored-By` trailers with `noreply@anthropic.com` (D-013); and
+    `GitHub <noreply@github.com>` as committer. The test skips when there is no
+    `.git`.
   - Every fixture's `docProps/core.xml` creator and `lastModifiedBy`.
   - There is no file whose name or content hash matches an `anthropics/skills`
     file. This is a manual audit step in the report, because the lint core makes no
@@ -441,78 +459,46 @@ python-docx is not needed.
 
 | id | risk | mitigation |
 |---|---|---|
-| R-1 | **Inheritance fidelity.** PowerPoint's real cascade differs from the spec's in places. PowerPoint ignores `pPr/defRPr` for runs, uses the master placeholder `lstStyle`, and styles text boxes from `defaultTextStyle`. Neither golden has `txStyles` or `defaultTextStyle`. They pass only because every run has an explicit `sz`. Foreign decks will expose any gap. | [P-5], [P-6]. The foreign fixtures. `docs/adapter.md` lists the known gaps. |
+| R-1 | **Inheritance fidelity.** PowerPoint's real cascade differs from the spec's in places. PowerPoint ignores `pPr/defRPr` for runs, uses the master placeholder `lstStyle`, and styles text boxes from `defaultTextStyle`. Neither golden has `txStyles` or `defaultTextStyle`. They pass only because every run has an explicit `sz`. Foreign decks will expose any gap. | A-4. The foreign fixtures. `docs/adapter.md` lists the known gaps. |
 | R-2 | **Autofit ignored.** `normAutofit@fontScale` shrinks the rendered text. `body-too-small` would under-report on shrunk decks. | Documented. Proposed for M2+ as a separate `autofit-shrunk` rule, not built now. |
 | R-3 | **Boundary values in the goldens.** kpi slide 3 title/body is exactly 2.00. kpi slide 4 middle band is 25.2%. `6E6E68` on F2F2F0 is 4.58 (vs 4.5). kpi labels share card edges exactly. `mark` is at 1.25 vs 1.22. `l1`/`n1` overlap is exactly 0.10 cm. | Integer EMU and exact `Fraction`/`Decimal` comparisons everywhere. No float in any threshold test. The snapshot JSON makes drift visible. |
 | R-4 | **tint/shade semantics.** Implementations disagree (sRGB vs linear, HSL vs RGB). There is no PowerPoint available to arbitrate. | Pick one convention and document it. Unit-test the formula, not "PowerPoint parity". The report lists it as uncalibrated. |
 | R-5 | **Fixture metadata identity.** python-pptx's default template may carry third-party author metadata. OfficeCLI decks say `OfficeCLI` (a tool, not a person). | The builders overwrite `author`/`last_modified_by`. The AC-12 test scans every fixture. |
-| R-6 | **Python 3.10 has no `tomllib`**, and runtime deps are limited to lxml and Pillow. | A ~60-line parser for the flat subset `thresholds.toml` uses (tables, key = number/bool/string). A test on 3.12 asserts it equals `tomllib`'s parse. The alternative needs Tyler: ship JSON, or require 3.11. |
+| R-6 | ~~Python 3.10 has no `tomllib`.~~ **Closed by D-012**: Python ≥ 3.11, stdlib `tomllib`. | — |
 | R-7 | **Untrusted input.** A zip bomb, XXE, or an XML billion-laughs attack. | The safe parser (§1), an uncompressed-size cap, and a ZIP member count cap. A test exercises each one. |
 | R-8 | **Box heuristics on foreign decks.** Title detection without placeholders, card detection and containment are uncalibrated (constitution V). | Every threshold lives in config. The report says "uncalibrated". No tuning to the goldens (CLAUDE hard rule). |
 | R-9 | **OfficeCLI drift.** `render` is tested only locally (1.0.152 here), never in CI. | AC-10 is marked `officecli`. The report records the version used. |
 | R-10 | **`mc:AlternateContent`, SmartArt, OLE, tables.** Content the model can't see creates silent false negatives. | `unsupported-content` advisories make the gap visible. |
 | R-11 | **Speed.** AC-9 includes interpreter start and lxml import (~0.1–0.2 s). | Parts are parsed once and cached. No per-shape XPath compilation. Profiled in T-19. |
-| R-12 | **Commit identity** (see the reply to Tyler). The bootstrap commit carries a `Co-Authored-By` trailer and a non-allowlisted email. AC-12 would fail on it. | Needs Tyler's decision. Amending means a force-push to `main`. |
+| R-12 | ~~Commit identity.~~ **Closed by D-013 and D-014**: trailers allowed, current identity kept, no rewrite. | AC-12 uses the D-014 allowlist. |
 
 ---
 
-## 9. Open questions
+## 9. Resolution of open questions
 
-These decisions need Tyler. Each one names the proposal it affects. They are the
-ambiguities reported with this plan.
+Audit 01 ruled on every open question. Nothing is pending. The table shows where each
+proposal ended up; the rulings themselves are in [`audit-01-plan.md`](audit-01-plan.md).
 
-1. [P-18] What is "the title" when there are no placeholders? It is used by
-   `title-not-dominant`, `title-underline`, and AC-1's "the titles".
-2. [P-25] Does `title-not-dominant`'s body exclude the title shape? It has to, or AC-1
-   slide 2 fails. And why is its word count "> 4" hard-coded while `body-too-small`
-   uses `caption_exempt_words` (5)?
-3. KPI numeral: is it measured per shape or per paragraph? Which size counts (the max
-   run)?
-4. [P-26]/[P-27] text-contrast: does a shape's own fill count as its background? Is
-   containment edge-inclusive? The kpi goldens need both to be yes.
-5. [P-14] The registry declares one severity per rule, but the spec needs findings of
-   a different severity by mode or case.
-6. [P-20] A filled shape that bleeds off the edge gets an `off-slide` advisory. Does
-   it also get an `edge-margin` warning?
-7. [P-21]/[P-17] `edge-margin`: one finding per shape or per side? Is "covering ≥ 95%
-   of the slide" an area test or a per-dimension test?
-8. [P-19]/[P-16] Do pictures, charts and tables count as having a "visible fill" or
-   being "text-bearing"?
-9. [P-13] The sort key `(slide, rule, shape_id)` has ties. How does null `shape_id`
-   order?
-10. [P-12] The types and units of `measured` and `threshold`.
-11. [P-5]/[P-6] Text-size cascade: `pPr/defRPr` (which PowerPoint ignores), the
-    master placeholder `lstStyle`, and `defaultTextStyle` are missing or differ from
-    PowerPoint.
-12. [P-4]/[P-7] The resolution order for color, font, bold and caps is unspecified.
-    What is the fallback color?
-13. [P-8] Honor `clrMapOvr`, or strictly "the master's clrMap"?
-14. [P-9] `alpha` and other transforms; `prstClr`/`hslClr`/`scrgbClr`.
-15. [P-10] Is a `bgRef` background "solid"? What is the default when no `p:bg` exists
-    anywhere, and what does `bgPr/noFill` mean?
-16. [P-2] What exactly does "matched by type, then idx" mean? The `obj`→`body` mapping
-    at the master.
-17. [P-3] Group rotation and flips are not specified.
-18. [P-22] `dead-band`: which shapes count (invisible empty text boxes, connectors,
-    zero height)? Do the top and bottom bands count? The kpi slide 4 middle band
-    (25.2%) also fires.
-19. [P-23] The `box-overlap` exemption is vacuous as written.
-20. [P-24] `body-too-small`: per run, paragraph or shape? How are words counted?
-21. [P-28] `font-count`: family normalization; which text is in scope.
-22. [P-29] `title-underline`: "content width" is undefined. A bar overlapping the
-    title box is missed. Outline-only lines are not in the model.
-23. [P-30]/[P-31]/[P-32] `equal-card-row`: row clustering; ±3% relative to what;
-    "centered over it" (the kpi labels are centered only horizontally); does "linked
-    by connectors" mean all members or any?
-24. R-6: `thresholds.toml` on 3.10; the shape of the `large_text` key.
-25. [P-15] Are the adapter findings registry entries?
-26. [P-33] `check` without OfficeCLI always exits 1, so the gate can never pass in the
-    claude.ai sandbox (constitution II). What does `check --json` print?
-27. §5.1 `editorial-fixed`: the fix needs compressing the internal gaps, not just
-    shifting. Is that within "re-space"? Should "no new warning" be checked in read
-    mode only?
-28. AC-5: the source of the expected EMU values (this plan uses python-pptx as the
-    oracle).
-29. [P-1] Which notes text counts for `has_notes`?
-30. AC-9: is the 1 s budget for the process or in-process?
-31. R-12: commit identity.
+| P | status | | P | status |
+|---|---|---|---|---|
+| P-1 | ACCEPTED | | P-18 | AMENDED (A-1) |
+| P-2 | AMENDED (A-6) | | P-19 | AMENDED (A-3) |
+| P-3 | ACCEPTED (rotated group in AC-6 fixture) | | P-20 | ACCEPTED |
+| P-4 | ACCEPTED | | P-21 | ACCEPTED |
+| P-5 | AMENDED (A-4) | | P-22 | ACCEPTED |
+| P-6 | AMENDED (A-4) | | P-23 | ACCEPTED (exemption removed) |
+| P-7 | ACCEPTED (fallback `tx1`) | | P-24 | ACCEPTED (word counting: A-7) |
+| P-8 | ACCEPTED | | P-25 | AMENDED (A-2) |
+| P-9 | ACCEPTED | | P-26 | ACCEPTED |
+| P-10 | AMENDED (A-5); `bgRef` solid accepted | | P-27 | ACCEPTED |
+| P-11 | ACCEPTED (no separate ruling; plan approved) | | P-28 | AMENDED (A-8) |
+| P-12 | ACCEPTED | | P-29 | AMENDED (A-9); `content_width` accepted |
+| P-13 | ACCEPTED | | P-30 | ACCEPTED |
+| P-14 | ACCEPTED | | P-31 | ACCEPTED |
+| P-15 | ACCEPTED | | P-32 | ACCEPTED ("linked" = one connected component) |
+| P-16 | ACCEPTED | | P-33 | AMENDED (A-10); JSON behavior accepted |
+| P-17 | ACCEPTED | | | |
+
+Other questions: KPI numeral per shape (Q3), editorial-fixed re-spacing and read-mode
+judgment (Q27), the python-pptx oracle for AC-5 (Q28) and a whole-process AC-9 budget
+(Q30) were accepted. R-6 is closed by D-012; R-12 by D-013 and D-014.
