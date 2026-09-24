@@ -1,0 +1,38 @@
+# keyline thresholds (spec 001 §5). Values are data, not code (constitution V).
+# None of these has been measured against human-labelled decks yet.
+calibrated = false
+
+# Keys that do not depend on the mode. A mode table may override any of them.
+[common]
+caption_exempt_words = 5        # a paragraph needs more words than this to be body text
+edge_margin_cm = 1.27
+edge_margin_tolerance_cm = 0.05 # explicit, so 1.25 cm is not a finding
+dead_band_ratio = 0.25
+contrast_normal = 4.5           # WCAG 2.x
+contrast_large = 3.0
+large_text_pt = 18              # WCAG 2.x large text: >= 18 pt ...
+large_text_bold_pt = 14         # ... or >= 14 pt bold
+font_family_max = 2
+# Fixed values from the spec's rule table (§6), kept here so every number is data.
+off_slide_tolerance_cm = 0.05
+background_coverage_min = 0.95
+box_overlap_min_cm = 0.1
+kpi_numeral_min_pt = 48
+kpi_numeral_max_words = 5
+underline_max_height_cm = 0.35
+underline_max_gap_cm = 1.0
+underline_max_left_offset_cm = 1.0
+underline_max_width_ratio = 0.5
+card_min_count = 3
+card_size_tolerance = 0.03
+card_row_tolerance_cm = 0.2
+card_gap_tolerance_cm = 0.3
+card_center_tolerance = 0.03
+
+[presented]
+body_min_pt = 18
+title_ratio_min = 2.0
+
+[read]
+body_min_pt = 11
+title_ratio_min = 1.6
