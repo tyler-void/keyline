@@ -1,0 +1,112 @@
+[
+  {
+    "rule": "body-too-small",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 100008,
+    "shape_name": "d1",
+    "message": "12.5 pt text in a 9-word paragraph (min 18 pt in presented mode)",
+    "measured": 12.5,
+    "threshold": 18.0
+  },
+  {
+    "rule": "body-too-small",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 100012,
+    "shape_name": "d2",
+    "message": "12.5 pt text in a 13-word paragraph (min 18 pt in presented mode)",
+    "measured": 12.5,
+    "threshold": 18.0
+  },
+  {
+    "rule": "body-too-small",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 100016,
+    "shape_name": "d3",
+    "message": "12.5 pt text in a 12-word paragraph (min 18 pt in presented mode)",
+    "measured": 12.5,
+    "threshold": 18.0
+  },
+  {
+    "rule": "body-too-small",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 100031,
+    "shape_name": "verdicttx",
+    "message": "11 pt text in a 10-word paragraph (min 18 pt in presented mode)",
+    "measured": 11.0,
+    "threshold": 18.0
+  },
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 100007,
+    "shape_name": "n1",
+    "message": "box overlaps d1 by 8.60 × 0.30 cm (boxes, not ink)",
+    "measured": 0.3,
+    "threshold": 0.1
+  },
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 100011,
+    "shape_name": "n2",
+    "message": "box overlaps d2 by 8.60 × 0.30 cm (boxes, not ink)",
+    "measured": 0.3,
+    "threshold": 0.1
+  },
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 100015,
+    "shape_name": "n3",
+    "message": "box overlaps d3 by 8.60 × 0.30 cm (boxes, not ink)",
+    "measured": 0.3,
+    "threshold": 0.1
+  },
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 100019,
+    "shape_name": "r1a",
+    "message": "box overlaps r1b by 0.20 × 0.85 cm (boxes, not ink)",
+    "measured": 0.2,
+    "threshold": 0.1
+  },
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 100023,
+    "shape_name": "r2a",
+    "message": "box overlaps r2b by 0.20 × 0.85 cm (boxes, not ink)",
+    "measured": 0.2,
+    "threshold": 0.1
+  },
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 100027,
+    "shape_name": "r3a",
+    "message": "box overlaps r3b by 0.20 × 0.85 cm (boxes, not ink)",
+    "measured": 0.2,
+    "threshold": 0.1
+  }
+]
