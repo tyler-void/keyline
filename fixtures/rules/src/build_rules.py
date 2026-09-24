@@ -196,6 +196,50 @@ def title_not_dominant_neg():
     return prs
 
 
+# ---------- text-contrast ----------
+@deck("text-contrast--pos")
+def text_contrast_pos():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="F2F2F0")
+    d.text(s, 2, 2, 10, 1, "THEN IT STOPS", size=9.5, color="E8422E", name="label")
+    s = d.slide(prs, bg="1E2761", notes="n")
+    d.rect(s, 3, 3, 12, 6, "FFFFFF", name="white-card")
+    # CADCFC reads well on the dark slide but not on the white card beneath it
+    d.text(s, 4, 4, 10, 2, "Pale text on a white card", size=14, color="CADCFC", name="on-card")
+    return prs
+
+
+@deck("text-contrast--neg")
+def text_contrast_neg():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="F2F2F0")
+    d.text(s, 2, 2, 8, 4, "3", size=76, bold=True, color="E8422E", name="large")  # 3.57 >= 3.0
+    d.rect(s, 12, 2, 10, 7, "1E2761", name="card")
+    d.text(s, 12, 2, 10, 3, "White on navy", size=14, color="FFFFFF", name="card-text")
+    s = d.slide(prs, notes="n")
+    s.background.fill.gradient()
+    d.text(s, 2, 2, 20, 2, "Text on a gradient", size=14, color="777777", name="on-gradient")
+    return prs
+
+
+# ---------- notes-missing ----------
+@deck("notes-missing--pos")
+def notes_missing_pos():
+    prs = d.new_deck()
+    d.text(d.slide(prs, bg="FFFFFF"), 2, 2, 20, 3, "Cover", size=40)
+    d.text(d.slide(prs, bg="FFFFFF"), 2, 2, 20, 3, "No notes", size=40)
+    d.text(d.slide(prs, bg="FFFFFF", notes="   "), 2, 2, 20, 3, "Blank notes", size=40)
+    return prs
+
+
+@deck("notes-missing--neg")
+def notes_missing_neg():
+    prs = d.new_deck()
+    d.text(d.slide(prs, bg="FFFFFF"), 2, 2, 20, 3, "Cover without notes", size=40)
+    d.text(d.slide(prs, bg="FFFFFF", notes="Say this."), 2, 2, 20, 3, "With notes", size=40)
+    return prs
+
+
 def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []

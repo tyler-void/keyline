@@ -67,3 +67,27 @@ must = ["title-not-dominant@title:warning"]
 [[case]]
 deck = "title-not-dominant--neg.pptx"
 must_not = ["title-not-dominant"]
+
+[[case]]
+deck = "text-contrast--pos.pptx"
+must = ["text-contrast@label:warning", "text-contrast@on-card:warning"]
+
+[[case]]
+deck = "text-contrast--neg.pptx"
+must = ["text-contrast@on-gradient:advisory"]
+must_not = ["text-contrast"]
+
+[[case]]
+deck = "notes-missing--pos.pptx"
+mode = "presented"
+must = ["notes-missing@-:warning"]
+
+[[case]]
+deck = "notes-missing--pos.pptx"
+mode = "read"
+must = ["notes-missing@-:advisory"]
+must_not = ["notes-missing"]
+
+[[case]]
+deck = "notes-missing--neg.pptx"
+absent = ["notes-missing"]

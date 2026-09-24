@@ -9,6 +9,8 @@ RULE_MODULES = (
     "box_overlap",
     "body_too_small",
     "title_not_dominant",
+    "text_contrast",
+    "notes_missing",
 )
 
 
