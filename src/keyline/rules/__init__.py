@@ -7,6 +7,8 @@ RULE_MODULES = (
     "edge_margin",
     "dead_band",
     "box_overlap",
+    "body_too_small",
+    "title_not_dominant",
 )
 
 

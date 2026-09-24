@@ -138,6 +138,64 @@ def box_overlap_neg():
     return prs
 
 
+# ---------- body-too-small ----------
+EIGHT = "Eight words of body text sit on this slide"
+
+
+@deck("body-too-small--pos")
+def body_too_small_pos():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    d.text(s, 2, 2, 29.867, 2.5, "A clear title", size=40, name="title")
+    d.text(s, 2, 6, 29.867, 2, EIGHT, size=14, name="body")  # presented floor is 18 pt
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 2, 29.867, 2.5, "A clear title", size=40, name="title")
+    d.text(s, 2, 6, 29.867, 2, EIGHT, size=12, name="read-body")  # read floor is 11 pt
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 2, 29.867, 2.5, "A clear title", size=40, name="title")
+    d.text(s, 2, 6, 29.867, 2, EIGHT, size=10, name="tiny")  # below both floors
+    return prs
+
+
+@deck("body-too-small--neg")
+def body_too_small_neg():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    d.text(s, 2, 2, 29.867, 2.5, "A clear title", size=40, name="title")
+    d.text(s, 2, 6, 29.867, 2, "Only five words in caption", size=14, name="caption")
+    d.text(s, 2, 9, 29.867, 2, "a · b | c — d · e", size=10, name="separators")
+    return prs
+
+
+# ---------- title-not-dominant ----------
+TEN = "Ten words of body text that compete with the title"
+
+
+@deck("title-not-dominant--pos")
+def title_not_dominant_pos():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    d.text(s, 2, 2, 29.867, 2.5, "A timid title", size=24, name="title")
+    d.text(s, 2, 6, 29.867, 3, TEN, size=18, name="body")  # 24 < 2.0 x 18
+    return prs
+
+
+@deck("title-not-dominant--neg")
+def title_not_dominant_neg():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF")
+    d.text(s, 2, 2, 29.867, 2.5, "A dominant title", size=44, name="title")
+    d.text(s, 2, 6, 29.867, 3, TEN, size=18, name="body")
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 2, 10, 4, "61", size=72, bold=True, name="kpi")  # a KPI is not the title
+    d.text(s, 14, 2, 17.867, 2.5, "The real title", size=24, name="title")
+    d.text(s, 2, 8, 29.867, 3, TEN, size=10, name="body")  # 24 >= 2.0 x 10
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 2, 29.867, 2.5, "Title", size=20, name="title")
+    d.text(s, 2, 6, 29.867, 3, "Short label only", size=20, name="label")  # no body
+    return prs
+
+
 def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []

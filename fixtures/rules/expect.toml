@@ -40,3 +40,30 @@ must = ["box-overlap@first:advisory"]
 [[case]]
 deck = "box-overlap--neg.pptx"
 absent = ["box-overlap"]
+
+[[case]]
+deck = "body-too-small--pos.pptx"
+mode = "presented"
+must = [
+  "body-too-small@body:warning",
+  "body-too-small@read-body:warning",
+  "body-too-small@tiny:warning",
+]
+
+[[case]]
+deck = "body-too-small--pos.pptx"
+mode = "read"
+must = ["body-too-small@tiny:warning"]
+must_not = ["body-too-small@body", "body-too-small@read-body"]
+
+[[case]]
+deck = "body-too-small--neg.pptx"
+must_not = ["body-too-small"]
+
+[[case]]
+deck = "title-not-dominant--pos.pptx"
+must = ["title-not-dominant@title:warning"]
+
+[[case]]
+deck = "title-not-dominant--neg.pptx"
+must_not = ["title-not-dominant"]
