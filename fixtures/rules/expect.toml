@@ -2,3 +2,24 @@
 #   must     = findings that must appear:     "rule@shape_name[:severity]" or "rule@-" (no shape)
 #   must_not = rule ids (optionally "rule@shape") that must not appear at warning or error
 # Built by fixtures/rules/src/build_rules.py; checked by tests/rules/test_rule_fixtures.py.
+
+[[case]]
+deck = "off-slide--pos.pptx"
+must = ["off-slide@over-right:error", "off-slide@rotated:error", "off-slide@bleed:advisory"]
+
+[[case]]
+deck = "off-slide--neg.pptx"
+must_not = ["off-slide"]
+
+[[case]]
+deck = "edge-margin--pos.pptx"
+must = [
+  "edge-margin@near-left:warning",
+  "edge-margin@near-bottom:warning",
+  "edge-margin@pic-top:warning",
+  "edge-margin@chart-right:warning",
+]
+
+[[case]]
+deck = "edge-margin--neg.pptx"
+must_not = ["edge-margin"]

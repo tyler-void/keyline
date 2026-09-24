@@ -2,7 +2,10 @@
 
 from importlib import import_module
 
-RULE_MODULES = ()
+RULE_MODULES = (
+    "off_slide",
+    "edge_margin",
+)
 
 
 def load_all() -> None:

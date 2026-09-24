@@ -4,6 +4,7 @@ python-pptx writes zip timestamps, so the zips differ byte-wise; each XML part i
 compared after canonicalization instead (docProps excluded)."""
 
 import importlib.util
+import io
 import sys
 import zipfile
 
@@ -23,16 +24,20 @@ def _load(path, name):
     return mod
 
 
-def _parts(path):
+def _parts(source, prefix=""):
+    """Canonical parts of a zip; nested zips (embedded workbooks) are expanded too."""
     out = {}
-    with zipfile.ZipFile(path) as z:
+    with zipfile.ZipFile(source) as z:
         for n in sorted(z.namelist()):
             if n.startswith("docProps/"):
                 continue
             data = z.read(n)
+            if data[:2] == b"PK":
+                out.update(_parts(io.BytesIO(data), f"{prefix}{n}!"))
+                continue
             if n.endswith((".xml", ".rels")):
                 data = etree.tostring(etree.fromstring(data), method="c14n")
-            out[n] = data
+            out[prefix + n] = data
     return out
 
 
