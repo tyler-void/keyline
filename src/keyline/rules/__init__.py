@@ -18,5 +18,7 @@ RULE_MODULES = (
 
 
 def load_all() -> None:
+    # The adapter registers its own advisory findings (P-15).
+    import_module("keyline.ooxml.adapter")
     for name in RULE_MODULES:
         import_module(f"keyline.rules.{name}")
