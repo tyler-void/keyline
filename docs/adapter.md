@@ -32,3 +32,71 @@ Transforms, applied in document order (`val` is in 1/1000 of a percent):
 **Uncalibrated (plan R-4).** Implementations disagree on `tint` and `shade` (sRGB vs
 linear light). keyline applies them per sRGB channel. Nobody has compared the results
 with PowerPoint yet.
+
+## Text properties (A-4)
+
+Size, bold, italic, caps, spacing, latin font and color resolve through one cascade.
+`N` is `a:pPr@lvl + 1`.
+
+1. the run's `a:rPr` (also `a:fld` runs)
+2. the shape's `p:txBody/a:lstStyle/a:lvlNpPr/a:defRPr`
+3. the matched layout placeholder's `lstStyle` (placeholders only)
+4. the matched master placeholder's `lstStyle` (placeholders only)
+5. the master `p:txStyles`: `titleStyle` for `title`/`ctrTitle`, `bodyStyle` for other
+   placeholders, `otherStyle` for non-placeholder shapes
+6. `p:presentation/p:defaultTextStyle`
+7. font and color only: the shape's `p:style/a:fontRef` (`major`/`minor` theme font,
+   and its color)
+8. color only: `tx1` through the clrMap
+
+`+mj-lt` and `+mn-lt` map to the theme's major and minor latin fonts. Other theme font
+tokens are unresolved. A size that is still unknown is `None`, and the adapter
+reports `adapter-unresolved` (`size`). Rules skip those runs.
+
+**Unverified against PowerPoint.** A-4 leaves `a:pPr/a:defRPr` out of the cascade.
+The plan says PowerPoint ignores it for runs, and that text boxes take their defaults
+from `defaultTextStyle`. Nobody has checked either claim in PowerPoint.
+
+**Not applied:** `a:bodyPr/a:normAutofit@fontScale`. Sizes are nominal (plan R-2).
+
+## Shape fill
+
+1. the shape's `p:spPr`: `solidFill` → solid; `gradFill` → `gradient`; `noFill` →
+   `none`; `blipFill`/`pattFill` → `unknown`; `grpFill` → the enclosing group's fill
+2. the matched layout placeholder's `p:spPr`, then the master placeholder's
+3. `p:style/a:fillRef`: `idx="0"` → none; otherwise the theme `fillStyleLst` entry
+   (1-based; ≥ 1001 uses `bgFillStyleLst`). `phClr` takes the fillRef's color
+4. `none`
+
+A picture's fill is `unknown`. A `graphicFrame` has no fill; rules treat it as visible
+content by its kind.
+
+## Background (A-5)
+
+The first `p:cSld/p:bg` on the slide, then the layout, then the master:
+
+- `p:bgPr` with `solidFill` → solid.
+- `p:bgRef` with a solid theme background style → solid (`phClr` is the bgRef color).
+- `gradFill`, `blipFill`, `pattFill` → `unknown`; rules that need the background skip
+  it with an advisory.
+- `p:bgPr/a:noFill`, or no `p:bg` anywhere → `#FFFFFF`, plus one `adapter-unresolved`
+  advisory (`background-default`). PowerPoint paints these white.
+
+## Placeholders (A-6)
+
+- Slide → layout: by `idx` first. If no layout placeholder has that idx, the first with
+  the same `type` (keyline-only fallback; python-pptx 1.0.2 matches by idx only).
+- Layout → master: by type, after mapping `ctrTitle→title` and `subTitle, obj, body,
+  tbl, chart, dgm, media, clipArt, pic→body` (`dt ftr sldNum hdr` unchanged).
+- The slide `ph@type` defaults to `obj`, `ph@idx` to `0`.
+
+## Geometry
+
+- The shape's own `a:xfrm` (`p:xfrm` for graphic frames), else the matched layout
+  placeholder's, else the master's. Still missing → `adapter-unresolved` (`geometry`).
+- Groups compose from the innermost out: `x' = off.x + (x − chOff.x) · ext.cx /
+  chExt.cx` (a zero `chExt` means scale 1), with exact fractions. Group flips mirror
+  the child's center, and group rotation turns it about the group's center and adds to
+  the child's rotation.
+- Rules use the axis-aligned bounding box of the rotated rectangle. Multiples of 90°
+  are exact; other angles use float trig once, and each edge is rounded to EMU.
