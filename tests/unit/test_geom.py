@@ -35,5 +35,5 @@ def test_rotated_aabb_quarter_turns_exact():
 
 def test_rotated_aabb_45():
     b = rotated_aabb(0, 0, 100, 100, 45 * 60000)
-    assert b.w == b.h == 141  # 100·√2 = 141.42
-    assert (b.x, b.y) == (-21, -21)
+    # edges are rounded, not the size: 50 ∓ 70.71 -> -21 and 121
+    assert (b.left, b.top, b.right, b.bottom) == (-21, -21, 121, 121)

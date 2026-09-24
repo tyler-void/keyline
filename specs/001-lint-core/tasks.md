@@ -27,7 +27,7 @@ Tasks marked ⚑ touched an open question in `plan.md` §9. Audit 01 resolved al
 |---|---|---|
 | T-07 | `ooxml/package.py` + `ns.py`: safe parser, zip checks (not a zip / no presentation part / size and member caps), rels resolution, part cache. `ScanError` → exit 1 with a one-line reason | `tests/adapter/test_package.py`: random bytes, `.docx`, a zip bomb, XXE |
 | T-08 | `ooxml/theme.py` + `color.py` ⚑: clrScheme, sysClr, clrMap(+ovr), `lumMod lumOff tint shade`, alpha policy, unsupported → None + diagnostic. Transforms documented in `docs/adapter.md` | `tests/adapter/test_color.py`, one case per transform and per unsupported path |
-| T-09 | `ooxml/placeholders.py` ⚑ + `geometry.py` ⚑: own xfrm, layout/master inheritance, group composition with Fraction, rotation AABB, group rot/flip if approved | `tests/adapter/test_geometry.py` + AC-6 fixture (T-16) |
+| T-09 | `ooxml/placeholders.py` ⚑ + `geometry.py` ⚑: own xfrm, layout/master inheritance, group composition with Fraction, rotation AABB, group rot/flip (P-3 accepted) | `tests/adapter/test_geometry.py` + AC-6 fixture (T-20) |
 | T-10 | `ooxml/text.py` ⚑: the §2.3 cascade for size, b, i, cap, spc, latin (theme `+mj-lt`/`+mn-lt`), color. `ooxml/fill.py` ⚑: shape fill and background (§2.5, §2.6) | `tests/adapter/test_text.py`, `test_fill.py` on in-memory packages |
 | T-11 | `model.py` + `ooxml/adapter.py`: build the Deck (slides in `sldIdLst` order, spTree z-order with groups flattened, kinds, connectors' stCxn/endCxn, `has_notes` ⚑), emit `adapter-unresolved` / `unsupported-content` | `tests/adapter/test_adapter_golden.py` asserts the model of both goldens (shape counts, T2 box = 540000/432000/10800000/720000 EMU, slide-4 connector ids) |
 

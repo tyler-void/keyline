@@ -67,20 +67,25 @@ def slide_coverage(box: Box, width: int, height: int) -> Fraction:
 
 def rotated_aabb(x: int, y: int, w: int, h: int, rot: int) -> Box:
     """Bounding box of a w×h rectangle at (x, y) rotated by `rot` (60000ths of a degree)
-    about its center. Multiples of 90° are exact; other angles use float trig once."""
+    about its center."""
+    return aabb_about_center(Fraction(2 * x + w, 2), Fraction(2 * y + h, 2), w, h, rot)
+
+
+def aabb_about_center(
+    cx: Fraction, cy: Fraction, w: Fraction | int, h: Fraction | int, rot: int
+) -> Box:
+    """Bounding box of a w×h rectangle centered on (cx, cy), rotated by `rot`.
+    Multiples of 90° are exact; other angles use float trig once, then round."""
     rot %= 360 * ROT_UNITS_PER_DEGREE
-    cx = Fraction(2 * x + w, 2)
-    cy = Fraction(2 * y + h, 2)
+    w, h = Fraction(w), Fraction(h)
     if rot % (90 * ROT_UNITS_PER_DEGREE) == 0:
         quarter = rot // (90 * ROT_UNITS_PER_DEGREE)
         bw, bh = (w, h) if quarter % 2 == 0 else (h, w)
-        bx = round_half_away(cx - Fraction(bw, 2))
-        by = round_half_away(cy - Fraction(bh, 2))
-        return Box(bx, by, bw, bh)
-    theta = math.radians(rot / ROT_UNITS_PER_DEGREE)
-    c, s = abs(math.cos(theta)), abs(math.sin(theta))
-    bw_f = w * c + h * s
-    bh_f = w * s + h * c
-    bx = round_half_away(cx - Fraction(repr(bw_f)) / 2)
-    by = round_half_away(cy - Fraction(repr(bh_f)) / 2)
-    return Box(bx, by, round_half_away(repr(bw_f)), round_half_away(repr(bh_f)))
+    else:
+        theta = math.radians(rot / ROT_UNITS_PER_DEGREE)
+        c, s = abs(math.cos(theta)), abs(math.sin(theta))
+        bw = Fraction(repr(float(w) * c + float(h) * s))
+        bh = Fraction(repr(float(w) * s + float(h) * c))
+    left = round_half_away(cx - bw / 2)
+    top = round_half_away(cy - bh / 2)
+    return Box(left, top, round_half_away(cx + bw / 2) - left, round_half_away(cy + bh / 2) - top)
