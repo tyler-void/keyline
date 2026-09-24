@@ -57,7 +57,7 @@ listed in plan §5.2.
 | T-22 | Golden acceptance tests + reviewed JSON snapshots in `fixtures/expected/` | `test_ac01_kpi.py`, `test_ac02_editorial_read.py`, `test_ac03_editorial_presented.py` |
 | T-23 | `render.py` + `keyline render` ⚑ + `keyline check` ⚑ | `test_ac10_render.py` (marked `officecli`, runs locally); the missing-binary path is tested with an empty `PATH` |
 | T-24 | ⚑ `test_ac12_hygiene.py`: commit identities against the D-014 allowlist (names `Tyler`/`tyler-void` with `code@tyler-void.dev`; Claude `Co-Authored-By` trailers per D-013; committer `GitHub <noreply@github.com>`), fixture docProps, NOTICE | Passes on the branch |
-| T-25 | `specs/001-lint-core/report.md`: each AC with its command, an output excerpt and PASS/FAIL; Deviations; Open questions | Review by Tyler; audit by the external session |
+| T-25 | ✅ `specs/001-lint-core/report.md`: each AC with its command, an output excerpt and PASS/FAIL; Deviations; Open questions | Review by Tyler; audit by the external session |
 
 ## Acceptance map
 
