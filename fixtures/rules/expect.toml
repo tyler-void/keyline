@@ -1,0 +1,4 @@
+# Expectations for fixtures/rules/*.pptx. One [[case]] per (deck, mode).
+#   must     = findings that must appear:     "rule@shape_name[:severity]" or "rule@-" (no shape)
+#   must_not = rule ids (optionally "rule@shape") that must not appear at warning or error
+# Built by fixtures/rules/src/build_rules.py; checked by tests/rules/test_rule_fixtures.py.
