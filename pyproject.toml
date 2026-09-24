@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "keyline"
+dynamic = ["version"]
+description = "Deterministic design checks and a render loop for AI-generated PowerPoint decks"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Tyler (@tyler-void)" }]
+requires-python = ">=3.11"
+dependencies = ["lxml>=5", "Pillow>=10"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Programming Language :: Python :: 3",
+  "Topic :: Office/Business :: Office Suites",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6", "python-pptx==1.0.2"]
+
+[project.scripts]
+keyline = "keyline.cli:main"
+
+[tool.hatch.version]
+path = "src/keyline/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/keyline"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+  "officecli: needs the officecli binary; skipped when it is absent",
+  "slow: slower tests",
+]
