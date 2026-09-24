@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# keyline render output (fixtures are committed explicitly)
+out/
+renders/
+*.contact.png
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
+
+# PowerPoint lock files
+~$*.pptx
