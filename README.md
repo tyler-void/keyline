@@ -2,8 +2,33 @@
 
 Deterministic design checks and a render loop for AI-generated PowerPoint decks.
 
-**Status: pre-alpha. Nothing here is usable yet.** Work in progress:
+**Status: pre-alpha.** Thresholds are uncalibrated, rule IDs may still change before
+0.1.0 is released, and nothing is published to PyPI. Work in progress:
 [`specs/001-lint-core`](specs/001-lint-core/spec.md).
+
+## Install (from source)
+
+Python 3.11 or newer.
+
+```sh
+git clone https://github.com/tyler-void/keyline && cd keyline
+python -m pip install -e '.[dev]'
+```
+
+## Commands
+
+| command | what it does |
+|---|---|
+| `keyline lint deck.pptx [--mode presented\|read] [--json]` | Reads the `.pptx` directly and runs the rule registry. JSON findings go to stdout, readable lines to stderr. Exit 0 = clean, 2 = warnings or errors, 1 = could not scan |
+| `keyline rules [--json]` | Lists every rule with its category, severity, basis and rationale |
+| `keyline render deck.pptx -o DIR` | One PNG per slide plus `contact.png`, via [OfficeCLI](https://github.com/iOfficeAI/OfficeCLI) |
+| `keyline check deck.pptx [--mode] [-o DIR]` | Lint, then a best-effort render. Exits with lint's code |
+
+`keyline lint` needs only `lxml` and `Pillow`: no network, no model calls, no OfficeCLI.
+Rendering needs `npm install -g @officecli/officecli`.
+
+**Known limitation (L-002):** OfficeCLI screenshots fall back to a sans-serif font for
+any font that isn't installed, so renders cannot verify typography yet.
 
 ## Why
 
