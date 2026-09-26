@@ -30,9 +30,9 @@ def worst_overrun(box: Box, width: int, height: int) -> tuple[int, str]:
     scope="slide",
     basis="geometry",
     since="0.1.0",
-    summary="A text-bearing shape extends more than 0.05 cm beyond the slide",
+    summary="A text-bearing shape, table or chart extends more than 0.05 cm beyond the slide",
     rationale=RESEARCH_NICHE,
-    severity_notes="advisory for a non-text shape (possible bleed)",
+    severity_notes="advisory for a picture or a text-free shape (possible bleed)",
 )
 def check(deck, cfg):
     tol = cm_emu(cfg.off_slide_tolerance_cm)
@@ -43,7 +43,8 @@ def check(deck, cfg):
             amount, side = worst_overrun(s.box, deck.width, deck.height)
             if amount <= tol:
                 continue
-            text = is_text_bearing(s)
+            # A-13: tables and charts carry text; only pictures and text-free sp may bleed
+            text = is_text_bearing(s) or s.kind in ("graphicFrame:table", "graphicFrame:chart")
             msg = f"runs {fmt_cm(amount)} cm past the {side} edge"
             if not text:
                 msg += " (non-text shape: possible bleed)"
