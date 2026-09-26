@@ -219,9 +219,9 @@ def _run(text: str, rpr: etree._Element | None, level: int, src: TextSources) ->
     )
 
 
-def _font_scale(tx_body: etree._Element) -> int | None:
+def _font_scale(body_pr: etree._Element | None) -> int | None:
     """A-14: bodyPr/normAutofit@fontScale in 1/1000 % (100000 = 100%); None at 100%."""
-    fit = tx_body.find(clark("a:bodyPr/a:normAutofit"))
+    fit = body_pr.find(_NORMAUTOFIT) if body_pr is not None and len(body_pr) else None
     if fit is None:
         return None
     scale = integer(fit.get("fontScale"), "normAutofit@fontScale", percent=True)
@@ -240,15 +240,18 @@ def _scaled(run: Run, scale: int | None) -> Run:
 
 _P, _PPR, _T, _RPR, _BR = (q(n) for n in ("a:p", "a:pPr", "a:t", "a:rPr", "a:br"))
 _RUN_TAGS = frozenset((q("a:r"), q("a:fld")))
+_BODYPR, _NORMAUTOFIT = q("a:bodyPr"), q("a:normAutofit")
 
 
 def paragraphs(tx_body: etree._Element | None, src: TextSources) -> list[Paragraph]:
     if tx_body is None:
         return []
-    scale = _font_scale(tx_body)
+    scale = _font_scale(tx_body.find(_BODYPR))
     out = []
-    for p in tx_body.iterfind(_P):
-        ppr = p.find(_PPR)
+    for p in tx_body:
+        if p.tag != _P:
+            continue
+        ppr = p[0] if len(p) and p[0].tag == _PPR else p.find(_PPR)  # pPr usually first
         level = 0
         if ppr is not None:
             level = max(0, min(8, integer(ppr.get("lvl"), "pPr@lvl") or 0))
@@ -259,9 +262,14 @@ def paragraphs(tx_body: etree._Element | None, src: TextSources) -> list[Paragra
         for child in p:
             tag = child.tag
             if tag in _RUN_TAGS:
-                t = child.find(_T)
+                rpr = t = None
+                for part in child:
+                    if part.tag == _RPR and rpr is None:
+                        rpr = part
+                    elif part.tag == _T and t is None:
+                        t = part
                 text = (t.text or "") if t is not None else ""
-                runs.append(_scaled(_run(text, child.find(_RPR), level, src), scale))
+                runs.append(_scaled(_run(text, rpr, level, src), scale))
             elif tag == _BR:
                 runs.append(Run(text="\n", size=None))
         out.append(Paragraph(runs=tuple(runs), align=align or "l", level=level))

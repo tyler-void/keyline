@@ -33,6 +33,7 @@ from keyline.ooxml.ns import (
     RT_SLIDE_MASTER,
     RT_THEME,
     clark,
+    kids,
     q,
 )
 from keyline.ooxml.numbers import collect, integer
@@ -135,6 +136,12 @@ def _unresolved_message(what: str) -> str:
 
 
 _NV_QNAMES = frozenset(q(t) for t in NV_TAGS)
+_CNVPR, _SPPR, _STYLE, _TXBODY, _PXFRM = (
+    q(n) for n in ("p:cNvPr", "p:spPr", "p:style", "p:txBody", "p:xfrm")
+)
+_AXFRM, _PRSTGEOM, _CUSTGEOM, _LSTSTYLE = (
+    q(n) for n in ("a:xfrm", "a:prstGeom", "a:custGeom", "a:lstStyle")
+)
 
 
 def _nv(el: etree._Element) -> etree._Element | None:
@@ -147,9 +154,17 @@ def _nv(el: etree._Element) -> etree._Element | None:
     return None
 
 
-def _id_name(el: etree._Element) -> tuple[int, str]:
+def _cnvpr(el: etree._Element) -> etree._Element | None:
     nv = _nv(el)
-    c = nv.find(clark("p:cNvPr")) if nv is not None else None
+    if nv is None:
+        return None
+    if len(nv) and nv[0].tag == _CNVPR:  # first child in valid OOXML
+        return nv[0]
+    return nv.find(_CNVPR)
+
+
+def _id_name(el: etree._Element) -> tuple[int, str]:
+    c = _cnvpr(el)
     if c is None:
         return 0, ""
     sid = integer(c.get("id"), "cNvPr@id")
@@ -216,8 +231,7 @@ def _iter_tree(
 
 def _is_hidden(el: etree._Element) -> bool:
     """A-12: cNvPr/@hidden="1" removes the shape (or the whole group) from the model."""
-    nv = _nv(el)
-    c = nv.find(clark("p:cNvPr")) if nv is not None else None
+    c = _cnvpr(el)
     return c is not None and c.get("hidden") in ("1", "true")
 
 
@@ -254,8 +268,14 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
         master_key = ph_of(layout_ph) if layout_ph is not None else ph
         master_ph = match_master(master_key or ph, ctx.master.root)
 
+    k = kids(el)
+    sppr = k.get(_SPPR)
+    sk = kids(sppr) if sppr is not None else {}
+    style = k.get(_STYLE)
+    tx_body = k.get(_TXBODY)
+
     # geometry
-    xfrm = parse_xfrm(xfrm_element(el))
+    xfrm = parse_xfrm(k.get(_PXFRM) if kind.startswith("graphicFrame") else sk.get(_AXFRM))
     if xfrm is None:
         for inherited in (layout_ph, master_ph):
             if inherited is not None:
@@ -281,11 +301,10 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
             shape.rot = p.rot
             shape.box = p.box()
 
-    sppr = el.find(clark("p:spPr"))
-    prst = sppr.find(clark("a:prstGeom")) if sppr is not None else None
+    prst = sk.get(_PRSTGEOM)
     if prst is not None:
         shape.geometry = prst.get("prst")
-    elif sppr is not None and sppr.find(clark("a:custGeom")) is not None:
+    elif _CUSTGEOM in sk:
         shape.geometry = "custom"
 
     # fill
@@ -296,7 +315,7 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
     else:
         r = shape_fill(
             [sppr, _sppr(layout_ph), _sppr(master_ph)],
-            el.find(clark("p:style")),
+            style,
             ctx.master.theme,
             ctx.color,
             group_fill,
@@ -315,9 +334,8 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
 
     # text
     if kind == "sp":
-        style = el.find(clark("p:style"))
         src = TextSources(
-            shape_lststyle=_lststyle(el),
+            shape_lststyle=tx_body.find(_LSTSTYLE) if tx_body is not None else None,
             layout_lststyle=_lststyle(layout_ph),
             master_lststyle=_lststyle(master_ph),
             master_txstyle=ctx.txstyle(ph),
@@ -327,7 +345,7 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
             color_ctx=ctx.color,
             level_cache=ctx.level_cache,
         )
-        shape.paragraphs = paragraphs(el.find(clark("p:txBody")), src)
+        shape.paragraphs = paragraphs(tx_body, src)
         for what in dict.fromkeys(src.problems):
             ctx.diag(UNRESOLVED, shape, what, _unresolved_message(what))
     elif kind == "graphicFrame:table":

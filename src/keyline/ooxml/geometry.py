@@ -16,7 +16,7 @@ from fractions import Fraction
 from lxml import etree
 
 from keyline.geom import ROT_UNITS_PER_DEGREE, Box, aabb_about_center
-from keyline.ooxml.ns import clark, q
+from keyline.ooxml.ns import clark, kids, q
 from keyline.ooxml.numbers import integer
 from keyline.units import round_half_away
 
@@ -44,18 +44,19 @@ def _int(el: etree._Element | None, attr: str) -> int | None:
     return integer(el.get(attr), f"{etree.QName(el).localname}@{attr}")
 
 
+_OFF, _EXT, _CHOFF, _CHEXT = (q(n) for n in ("a:off", "a:ext", "a:chOff", "a:chExt"))
+
+
 def parse_xfrm(el: etree._Element | None) -> Xfrm | None:
     """`a:xfrm`, `p:xfrm` or `a:xfrm` inside grpSpPr. None unless off and ext are complete."""
     if el is None:
         return None
-    off, ext = el.find(q("a:off")), el.find(q("a:ext"))
+    k = kids(el)
+    off, ext = k.get(_OFF), k.get(_EXT)
     x, y, cx, cy = _int(off, "x"), _int(off, "y"), _int(ext, "cx"), _int(ext, "cy")
     if None in (x, y, cx, cy):
         return None
-    if len(el) > 2:  # only group transforms carry chOff/chExt
-        ch_off, ch_ext = el.find(q("a:chOff")), el.find(q("a:chExt"))
-    else:
-        ch_off = ch_ext = None
+    ch_off, ch_ext = k.get(_CHOFF), k.get(_CHEXT)
     return Xfrm(
         x=x,
         y=y,

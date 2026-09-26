@@ -55,3 +55,14 @@ def clark(path: str) -> str:
     """'p:spPr/a:xfrm' -> Clark notation. lxml finds Clark paths faster than prefixed
     paths with a namespace map (A-18)."""
     return "/".join(q(step) if ":" in step else step for step in path.split("/"))
+
+
+def kids(el) -> dict:
+    """The first direct child of `el` for each tag: one pass instead of several finds
+    (A-18). Same result as el.find(tag) for a single-step Clark tag."""
+    out: dict = {}
+    for child in el:
+        tag = child.tag
+        if tag not in out:
+            out[tag] = child
+    return out
