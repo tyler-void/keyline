@@ -1,15 +1,16 @@
 """WCAG 2.x contrast of each run against its effective background.
 
 The effective background is the first shape found walking down the z-order from the
-text's own shape (P-26) whose box contains the text shape's box, edges included (P-27),
-and whose fill is not none; otherwise the slide background.
+text's own shape (P-26) whose box covers at least `backing_coverage_min` of the text
+shape's box, edges included (A-15, replacing P-27's full containment), and whose fill is
+not none; otherwise the slide background.
 """
 
 from __future__ import annotations
 
 from fractions import Fraction
 
-from keyline.geom import contains
+from keyline.geom import coverage
 from keyline.registry import rule
 from keyline.rules._common import is_text_bearing
 from keyline.units import autofit_note, fmt_num, round3
@@ -30,11 +31,11 @@ def contrast(a: str, b: str) -> float:
     return (la + 0.05) / (lb + 0.05)
 
 
-def effective_background(shape, slide) -> tuple[str | None, str]:
+def effective_background(shape, slide, cfg) -> tuple[str | None, str]:
     """(rgb or None, description)."""
     below = sorted((s for s in slide.shapes if s.z <= shape.z), key=lambda s: -s.z)
     for s in below:
-        if s.box is None or not contains(s.box, shape.box):
+        if s.box is None or coverage(s.box, shape.box) < cfg.backing_coverage_min:
             continue
         if s.kind == "pic":
             return None, f"picture {s.name or s.id}"
@@ -65,7 +66,7 @@ def check(deck, cfg):
         for shape in slide.shapes:
             if shape.box is None or not is_text_bearing(shape):
                 continue
-            bg, where = effective_background(shape, slide)
+            bg, where = effective_background(shape, slide, cfg)
             runs = [r for r in shape.runs if r.has_ink and r.size is not None]
             if not runs:
                 continue

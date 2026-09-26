@@ -31,6 +31,7 @@ KEYS = (
     "font_family_max",
     "off_slide_tolerance_cm",
     "background_coverage_min",
+    "backing_coverage_min",
     "box_overlap_min_cm",
     "kpi_numeral_min_pt",
     "kpi_numeral_max_words",

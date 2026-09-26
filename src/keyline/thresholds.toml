@@ -16,6 +16,7 @@ font_family_max = 2
 # Fixed values from the spec's rule table (§6), kept here so every number is data.
 off_slide_tolerance_cm = 0.05
 background_coverage_min = 0.95
+backing_coverage_min = 0.90     # A-15: contrast backing covers this much of the text box
 box_overlap_min_cm = 0.1
 kpi_numeral_min_pt = 48
 kpi_numeral_max_words = 5

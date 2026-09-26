@@ -56,6 +56,17 @@ def contains(outer: Box, inner: Box) -> bool:
     )
 
 
+def coverage(outer: Box, inner: Box) -> Fraction:
+    """Fraction of `inner`'s area that `outer` covers (edges inclusive). A box with no
+    area counts as covered when `outer` contains it."""
+    if inner.area == 0:
+        return Fraction(1) if contains(outer, inner) else Fraction(0)
+    ox, oy = overlap(outer, inner)
+    if ox <= 0 or oy <= 0:
+        return Fraction(0)
+    return Fraction(ox * oy, inner.area)
+
+
 def slide_coverage(box: Box, width: int, height: int) -> Fraction:
     """Fraction of the slide area covered by `box` after clipping it to the slide."""
     ox = min(box.right, width) - max(box.left, 0)
