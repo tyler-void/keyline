@@ -55,3 +55,10 @@ mode `title-not-dominant`, because the 44 pt title is only 1.38× the 32 pt body
 floor is 1.6×). Both measurements are correct (report 001, Q3; audit 02 ruling 3).
 → This is calibration data, not a defect. Thresholds stay as they are until they are
 measured against human-labelled decks (constitution V, M6 calibration).
+
+**L-010 · 2026-09-26 · A stored autofit scale is trusted.** keyline applies
+`normAutofit@fontScale` as written. A generator that writes a scale without
+re-fitting the text, or an app that re-fits on open (LibreOffice does), can make
+keyline report a size that the viewer won't show. Example: d17 slide 6, where the
+stored scale is 55% and LibreOffice shows full size. Only a render-based size check
+(a backlog item) can settle this.

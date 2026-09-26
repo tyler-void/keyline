@@ -34,6 +34,10 @@ python perf_shapes.py /tmp/perf perf_1000 perf_150_x60
 `tests/rules/test_fixture_repro.py` rebuilds the 12 decks made with python-pptx and
 compares every part with the committed deck (`docProps` excluded).
 
+**d18:** SHA-256 `b61e0580a91c63e0fabef2691072fd851bc3ac845313aa4c8a72e3470c5b296f`, built with
+LibreOffice 24.2.7.2; not reproducible on 26.8. The committed deck is the evidence for
+AC-18, and it stays out of the reproducibility test (audit 03).
+
 **Version-dependent:** `d18` holds whatever `normAutofit@fontScale` LibreOffice computes.
 The committed deck comes from LibreOffice 24.2.7.2 (`fontScale="28122"`). LibreOffice
 26.8.0.3 writes `fontScale="40000"` for the same input. AC-18's "about 9.0 pt" refers
