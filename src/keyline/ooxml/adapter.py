@@ -12,6 +12,7 @@ from pathlib import Path
 
 from lxml import etree
 
+from keyline import progress
 from keyline.findings import Finding
 from keyline.model import Deck, Shape, Slide
 from keyline.ooxml.color import ColorContext, apply_override, parse_clr_map
@@ -31,6 +32,7 @@ from keyline.ooxml.ns import (
     RT_THEME,
     q,
 )
+from keyline.ooxml.numbers import collect, integer
 from keyline.ooxml.package import Package, ScanError
 from keyline.ooxml.placeholders import MASTER_TYPE, Ph, match_layout, match_master, ph_of
 from keyline.ooxml.text import TextSources, paragraphs
@@ -62,6 +64,7 @@ UNSUPPORTED = register(
     )
 )
 
+STRICT_P = "http://purl.oclc.org/ooxml/presentationml/main"
 CHART_URI = "http://schemas.openxmlformats.org/drawingml/2006/chart"
 TABLE_URI = "http://schemas.openxmlformats.org/drawingml/2006/table"
 LEAF_TAGS = {q("p:sp"): "sp", q("p:pic"): "pic", q("p:cxnSp"): "cxnSp", q("p:graphicFrame"): "gf"}
@@ -106,6 +109,8 @@ class _Ctx:
 def _unresolved_message(what: str) -> str:
     if what in WHAT_TEXT:
         return WHAT_TEXT[what]
+    if what.startswith("number:"):
+        return f"could not parse {what.split(':', 1)[1]}; the value was dropped (A-17)"
     if what.startswith("transform:"):
         return f"color transform {what.split(':', 1)[1]} is not supported"
     if what.startswith("color:") or what == "color":
@@ -130,11 +135,8 @@ def _id_name(el: etree._Element) -> tuple[int, str]:
     c = nv.find("p:cNvPr", NS) if nv is not None else None
     if c is None:
         return 0, ""
-    try:
-        sid = int(c.get("id", "0"))
-    except ValueError:
-        sid = 0
-    return sid, c.get("name", "")
+    sid = integer(c.get("id"), "cNvPr@id")
+    return sid or 0, c.get("name", "")
 
 
 def _txstyle(master: etree._Element, ph: Ph | None) -> etree._Element | None:
@@ -266,8 +268,8 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
         cnv = el.find("p:nvCxnSpPr/p:cNvCxnSpPr", NS)
         if cnv is not None:
             st, end = cnv.find("a:stCxn", NS), cnv.find("a:endCxn", NS)
-            shape.st_cxn = int(st.get("id")) if st is not None and st.get("id") else None
-            shape.end_cxn = int(end.get("id")) if end is not None and end.get("id") else None
+            shape.st_cxn = integer(st.get("id"), "stCxn@id") if st is not None else None
+            shape.end_cxn = integer(end.get("id"), "endCxn@id") if end is not None else None
 
     # text
     if kind == "sp":
@@ -320,12 +322,15 @@ def load_deck(path: str | Path) -> tuple[Deck, list[Finding]]:
 
 
 def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
+    progress.reading.set(pkg.main_part)
     pres = pkg.xml(pkg.main_part)
+    if etree.QName(pres).namespace == STRICT_P or pres.get("conformance") == "strict":
+        raise ScanError("Strict Open XML (ISO/IEC 29500 Strict) is not supported yet")
     size = pres.find("p:sldSz", NS)
-    try:
-        width, height = int(size.get("cx")), int(size.get("cy"))
-    except (AttributeError, TypeError, ValueError) as exc:
-        raise ScanError("presentation.xml has no valid p:sldSz") from exc
+    width = integer(size.get("cx"), "sldSz@cx") if size is not None else None
+    height = integer(size.get("cy"), "sldSz@cy") if size is not None else None
+    if not width or not height or width <= 0 or height <= 0:
+        raise ScanError("presentation.xml has no valid p:sldSz")
     default_text_style = pres.find("p:defaultTextStyle", NS)
 
     masters: dict[str, MasterInfo] = {}
@@ -340,6 +345,7 @@ def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
         if rel is None or not pkg.has(rel.target):
             raise ScanError(f"slide {index} ({rid}) is missing from the package")
         slide_part = rel.target
+        progress.reading.set(slide_part)
         slide_root = pkg.xml(slide_part)
         layout_part = _one(pkg, slide_part, RT_SLIDE_LAYOUT, "slide layout")
         layout_root = pkg.xml(layout_part)
@@ -361,7 +367,10 @@ def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
         color = ColorContext(master.theme.colors, clr_map)
         ctx = _Ctx(index, layout_root, master, default_text_style, color)
 
-        bg = background([slide_root, layout_root, master.root], master.theme, color)
+        with collect() as dropped:
+            bg = background([slide_root, layout_root, master.root], master.theme, color)
+        for what in dict.fromkeys(dropped):
+            ctx.diag(UNRESOLVED, None, f"number:{what}", _unresolved_message(f"number:{what}"))
         if bg.problem:
             ctx.diag(UNRESOLVED, None, bg.problem, _unresolved_message(bg.problem))
         cSld = layout_root.find("p:cSld", NS)
@@ -374,7 +383,13 @@ def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
         tree = slide_root.find("p:cSld/p:spTree", NS)
         if tree is not None:
             for el, groups, gfill in list(_iter_tree(tree, (), "none", ctx)):
-                slide.shapes.append(_build_shape(el, groups, gfill, ctx))
+                with collect() as dropped:
+                    shape = _build_shape(el, groups, gfill, ctx)
+                for what in dict.fromkeys(dropped):
+                    ctx.diag(
+                        UNRESOLVED, shape, f"number:{what}", _unresolved_message(f"number:{what}")
+                    )
+                slide.shapes.append(shape)
         deck.slides.append(slide)
         diags.extend(ctx.diags)
     return deck, diags

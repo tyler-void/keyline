@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from keyline import config as config_mod
+from keyline import progress
 from keyline.findings import Finding, exit_code, sort_findings
 from keyline.model import Deck
 from keyline.ooxml.adapter import load_deck
@@ -24,6 +25,7 @@ def lint_deck(deck: Deck, diagnostics: list[Finding], cfg: config_mod.Config) ->
     out = list(diagnostics)
     for spec in all_rules():
         if spec.check is not None:
+            progress.reading.set(f"rule {spec.id}")
             out.extend(spec.check(deck, cfg))
     return sort_findings(out)
 

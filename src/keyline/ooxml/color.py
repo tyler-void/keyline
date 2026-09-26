@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from lxml import etree
 
 from keyline.ooxml.ns import q
+from keyline.ooxml.numbers import number
 from keyline.units import round_half_away
 
 CLR_MAP_KEYS = (
@@ -94,8 +95,10 @@ def _rgb_to_hex(rgb: tuple[float, float, float]) -> str:
     return "".join(f"{min(255, max(0, round_half_away(repr(c * 255)))):02X}" for c in rgb)
 
 
-def _pct(el: etree._Element) -> float:
-    return int(el.get("val", "0")) / 100000
+def _pct(el: etree._Element) -> float | None:
+    """A transform's val as a fraction (1.0 == 100%); None when it cannot be parsed."""
+    v = number(el.get("val", "0"), f"{etree.QName(el).localname}@val", percent=True)
+    return None if v is None else float(v / 100000)
 
 
 def find_color(parent: etree._Element | None) -> etree._Element | None:
@@ -134,6 +137,8 @@ def resolve(el: etree._Element | None, ctx: ColorContext) -> Resolved:
         return Resolved(None, f"color:bad-value-{base or 'empty'}")
     for t in el:
         name = etree.QName(t).localname
+        if name in ("lumMod", "lumOff", "tint", "shade", "alpha") and _pct(t) is None:
+            continue  # A-17: an unparseable transform is dropped (and reported)
         if name in ("lumMod", "lumOff"):
             h, lum, s = colorsys.rgb_to_hls(*rgb)
             lum = lum * _pct(t) if name == "lumMod" else lum + _pct(t)
@@ -145,7 +150,7 @@ def resolve(el: etree._Element | None, ctx: ColorContext) -> Resolved:
             v = _pct(t)
             rgb = tuple(c * v for c in rgb)  # type: ignore[assignment]
         elif name == "alpha":
-            if int(t.get("val", "100000")) < 100000:
+            if _pct(t) < 1:
                 return Resolved(None, "transform:alpha")
         else:
             return Resolved(None, f"transform:{name}")

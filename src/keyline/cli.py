@@ -10,9 +10,10 @@ import argparse
 import contextlib
 import json
 import sys
+import traceback
 from pathlib import Path
 
-from keyline import __version__
+from keyline import __version__, progress
 from keyline.config import MODES
 from keyline.findings import EXIT_SCAN_FAILED, to_human, to_json
 from keyline.ooxml.package import ScanError
@@ -128,24 +129,30 @@ def build_parser() -> argparse.ArgumentParser:
         description="Deterministic design checks for .pptx decks.",
     )
     parser.add_argument("--version", action="version", version=__version__)
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument(
+        "--traceback", action="store_true", help="print the full trace on an internal error"
+    )
     sub = parser.add_subparsers(dest="command")
 
-    p = sub.add_parser("lint", help="run the rule registry on a .pptx")
+    p = sub.add_parser("lint", help="run the rule registry on a .pptx", parents=[common])
     p.add_argument("deck")
     p.add_argument("--mode", choices=MODES, default="presented")
     p.add_argument("--json", action="store_true", help="write findings as JSON to stdout")
     p.set_defaults(func=cmd_lint)
 
-    p = sub.add_parser("rules", help="list the rule registry")
+    p = sub.add_parser("rules", help="list the rule registry", parents=[common])
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_rules)
 
-    p = sub.add_parser("render", help="PNG per slide and a contact sheet (needs OfficeCLI)")
+    p = sub.add_parser(
+        "render", help="PNG per slide and a contact sheet (needs OfficeCLI)", parents=[common]
+    )
     p.add_argument("deck")
     p.add_argument("-o", "--out", required=True, help="output directory")
     p.set_defaults(func=cmd_render)
 
-    p = sub.add_parser("check", help="lint, then a best-effort render")
+    p = sub.add_parser("check", help="lint, then a best-effort render", parents=[common])
     p.add_argument("deck")
     p.add_argument("--mode", choices=MODES, default="presented")
     p.add_argument("-o", "--out", help="render directory (default: <deck>-render)")
@@ -164,4 +171,13 @@ def main(argv: list[str] | None = None) -> int:
     if not getattr(args, "func", None):
         parser.print_help(sys.stderr)
         return 1
-    return args.func(args)
+    try:
+        return args.func(args)
+    except Exception as exc:  # A-17: never a bare traceback
+        if args.traceback:
+            traceback.print_exc()
+        _err(
+            f"keyline: internal error while reading {progress.reading.get()}: "
+            f"{type(exc).__name__}; rerun with --traceback and report it\n"
+        )
+        return EXIT_SCAN_FAILED

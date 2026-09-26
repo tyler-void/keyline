@@ -100,3 +100,15 @@ The first `p:cSld/p:bg` on the slide, then the layout, then the master:
   the child's rotation.
 - Rules use the axis-aligned bounding box of the rotated rectangle. Multiples of 90°
   are exact; other angles use float trig once, and each edge is rounded to EMU.
+
+## Numbers (A-17)
+
+Every numeric attribute goes through one parser (`ooxml/numbers.py`). It accepts
+integers, decimals (`25000.0`, `1.5e6`) and, for percentage attributes such as `lumMod`,
+`tint` and `alpha`, the Strict form `N%` (`75%` = 75000). A value that does not parse,
+or lies outside the ST_Coordinate range (±27273042316900), is dropped. An unparseable
+color transform is skipped, and a transform with a missing geometry value leaves the
+shape without a box. Each dropped value gives one `adapter-unresolved` advisory.
+
+Strict packages (`purl.oclc.org` namespaces or `conformance="strict"`) exit 1 with
+"Strict Open XML (ISO/IEC 29500 Strict) is not supported yet".

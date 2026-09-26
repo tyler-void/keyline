@@ -8,6 +8,7 @@ from lxml import etree
 
 from keyline.ooxml.color import ColorContext, find_color, resolve
 from keyline.ooxml.ns import NS, q
+from keyline.ooxml.numbers import integer
 from keyline.ooxml.theme import Theme
 
 FILL_TAGS = {
@@ -70,9 +71,8 @@ def shape_fill(
             return _from_fill_element(child, ctx, group_fill)
     ref = style.find("a:fillRef", NS) if style is not None else None
     if ref is not None:
-        try:
-            idx = int(ref.get("idx", "0"))
-        except ValueError:
+        idx = integer(ref.get("idx", "0"), "fillRef@idx")
+        if idx is None:
             return FillResult("unknown", "fill:fillRef")
         if idx == 0:
             return FillResult("none")

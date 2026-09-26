@@ -21,6 +21,7 @@ from lxml import etree
 from keyline.model import Paragraph, Run
 from keyline.ooxml.color import ColorContext, find_color, resolve
 from keyline.ooxml.ns import NS, q
+from keyline.ooxml.numbers import integer
 from keyline.ooxml.theme import Theme
 
 _TRUE = ("1", "true")
@@ -147,13 +148,7 @@ def _color(chain: list[etree._Element], src: TextSources) -> tuple[str | None, b
 
 def _run(text: str, rpr: etree._Element | None, level: int, src: TextSources) -> Run:
     chain = ([rpr] if rpr is not None else []) + src.level_rprs(level)
-    sz = _first_attr(chain, "sz")
-    size = None
-    if sz is not None:
-        try:
-            size = int(sz)
-        except ValueError:
-            size = None
+    size = integer(_first_attr(chain, "sz"), "rPr@sz")
     if size is None and text.strip():
         src.problems.append("size")
     spc = _first_attr(chain, "spc")
@@ -164,7 +159,7 @@ def _run(text: str, rpr: etree._Element | None, level: int, src: TextSources) ->
         bold=(_first_attr(chain, "b") or "0") in _TRUE,
         italic=(_first_attr(chain, "i") or "0") in _TRUE,
         caps=_first_attr(chain, "cap") or "none",
-        spacing=int(spc) if spc and spc.lstrip("-").isdigit() else 0,
+        spacing=integer(spc, "rPr@spc") or 0,
         font=_font(chain, src) if text.strip() else None,
         color=color,
         hidden=hidden,
@@ -179,10 +174,7 @@ def paragraphs(tx_body: etree._Element | None, src: TextSources) -> list[Paragra
         ppr = p.find("a:pPr", NS)
         level = 0
         if ppr is not None:
-            try:
-                level = max(0, min(8, int(ppr.get("lvl", "0"))))
-            except ValueError:
-                level = 0
+            level = max(0, min(8, integer(ppr.get("lvl"), "pPr@lvl") or 0))
         align = (ppr.get("algn") if ppr is not None else None) or _first_attr(
             src.level_ppr(level), "algn"
         )

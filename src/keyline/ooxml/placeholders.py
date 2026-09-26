@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from lxml import etree
 
 from keyline.ooxml.ns import NS
+from keyline.ooxml.numbers import integer
 
 MASTER_TYPE = {
     "ctrTitle": "title",
@@ -49,11 +50,8 @@ def ph_of(shape: etree._Element) -> Ph | None:
     for path in _PH_PATHS:
         el = shape.find(path, NS)
         if el is not None:
-            try:
-                idx = int(el.get("idx", "0"))
-            except ValueError:
-                idx = 0
-            return Ph(el.get("type", "obj"), idx)
+            idx = integer(el.get("idx"), "ph@idx")
+            return Ph(el.get("type", "obj"), idx or 0)
     return None
 
 

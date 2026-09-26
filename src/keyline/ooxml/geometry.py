@@ -17,6 +17,7 @@ from lxml import etree
 
 from keyline.geom import ROT_UNITS_PER_DEGREE, Box, aabb_about_center
 from keyline.ooxml.ns import NS, q
+from keyline.ooxml.numbers import integer
 from keyline.units import round_half_away
 
 FULL_TURN = 360 * ROT_UNITS_PER_DEGREE
@@ -40,13 +41,7 @@ class Xfrm:
 def _int(el: etree._Element | None, attr: str) -> int | None:
     if el is None:
         return None
-    raw = el.get(attr)
-    if raw is None:
-        return None
-    try:
-        return int(raw)
-    except ValueError:
-        return None
+    return integer(el.get(attr), f"{etree.QName(el).localname}@{attr}")
 
 
 def parse_xfrm(el: etree._Element | None) -> Xfrm | None:
