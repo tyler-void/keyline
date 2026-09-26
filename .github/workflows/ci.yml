@@ -28,4 +28,4 @@ jobs:
           ruff check .
           ruff format --check .
       - name: Pytest
-        run: pytest -q
+        run: pytest -q -rP  # -rP: print the timing lines of AC-9 and AC-20
