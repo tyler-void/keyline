@@ -24,7 +24,8 @@ CLAUDE_TRAILER = re.compile(r"^Co-Authored-By: Claude [^<>]* <noreply@anthropic\
 IDENTITY_TRAILER = re.compile(
     r"^(Co-Authored-By|Signed-off-by|Reviewed-by|Acked-by|Tested-by|Reported-by):", re.I
 )
-FIXTURE_PEOPLE = {"", "Tyler", "tyler-void", "@tyler-void", "OfficeCLI"}  # OfficeCLI: a tool (R-5)
+# OfficeCLI and PptxGenJS are tool names, not people (R-5; d20's embedded chart workbook)
+FIXTURE_PEOPLE = {"", "Tyler", "tyler-void", "@tyler-void", "OfficeCLI", "PptxGenJS"}
 SEP = "\x1e"
 
 

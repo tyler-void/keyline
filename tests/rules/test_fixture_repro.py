@@ -5,6 +5,7 @@ compared after canonicalization instead (docProps excluded)."""
 
 import importlib.util
 import io
+import subprocess
 import sys
 import zipfile
 
@@ -59,3 +60,35 @@ def test_fixtures_reproduce(script, committed, tmp_path):
         kept = committed / fresh.name
         assert kept.exists(), f"{kept.name} is not committed"
         assert _parts(fresh) == _parts(kept), f"{kept.name} differs from its build script"
+
+
+STRESS = FOREIGN / "stress"
+STRESS_PY = [
+    ("ppx_style_text.py", "d15_ppx_style_fontref.pptx"),
+    ("raw_color.py", "d16_raw_color.pptx"),
+    ("raw_geometry.py", "d17_raw_geometry.pptx"),
+    ("ppx_localized_names.py", "d25_ppx_localized_names.pptx"),
+]
+
+
+def _run(*args, cwd):
+    subprocess.run([sys.executable, *map(str, args)], cwd=cwd, check=True, capture_output=True)
+
+
+@pytest.mark.parametrize(("script", "deck"), STRESS_PY, ids=[d for _, d in STRESS_PY])
+def test_stress_decks_reproduce(script, deck, tmp_path):
+    src = STRESS / "src"
+    _run(src / script, tmp_path / deck, cwd=src)
+    assert _parts(tmp_path / deck) == _parts(STRESS / deck)
+
+
+def test_stress_strict_and_oddities_reproduce(tmp_path):
+    src = STRESS / "src"
+    _run(src / "ppx_layouts.py", tmp_path / "d02.pptx", cwd=src)
+    _run(src / "strict_convert.py", tmp_path / "d02.pptx", tmp_path / "d27.pptx", cwd=src)
+    assert _parts(tmp_path / "d27.pptx") == _parts(STRESS / "d27_strict_from_ppx.pptx")
+    _run(src / "raw_oddities.py", tmp_path, cwd=src)
+    odd = sorted(STRESS.glob("o5*.pptx"))
+    assert len(odd) == 6
+    for kept in odd:
+        assert _parts(tmp_path / kept.name) == _parts(kept), kept.name
