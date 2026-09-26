@@ -33,10 +33,12 @@ Transforms, applied in document order (`val` is in 1/1000 of a percent):
 linear light). keyline applies them per sRGB channel. Nobody has compared the results
 with PowerPoint yet.
 
-## Text properties (A-4)
+## Text properties (A-4, A-11)
 
-Size, bold, italic, caps, spacing, latin font and color resolve through one cascade.
-`N` is `a:pPr@lvl + 1`.
+Size, bold, italic, caps and spacing resolve through the A-4 cascade below. `N` is
+`a:pPr@lvl + 1`. **Color and latin font (A-11)** use the same sources, except that the
+shape's `p:style/a:fontRef` comes third, right after the shape's own `lstStyle` and before
+the layout. Both OfficeCLI and LibreOffice render this way (audit 02, FX-3).
 
 1. the run's `a:rPr` (also `a:fld` runs)
 2. the shape's `p:txBody/a:lstStyle/a:lvlNpPr/a:defRPr`
@@ -45,9 +47,7 @@ Size, bold, italic, caps, spacing, latin font and color resolve through one casc
 5. the master `p:txStyles`: `titleStyle` for `title`/`ctrTitle`, `bodyStyle` for other
    placeholders, `otherStyle` for non-placeholder shapes
 6. `p:presentation/p:defaultTextStyle`
-7. font and color only: the shape's `p:style/a:fontRef` (`major`/`minor` theme font,
-   and its color)
-8. color only: `tx1` through the clrMap
+7. color only: `tx1` through the clrMap
 
 `+mj-lt` and `+mn-lt` map to the theme's major and minor latin fonts. Other theme font
 tokens are unresolved. A size that is still unknown is `None`, and the adapter

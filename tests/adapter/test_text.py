@@ -129,3 +129,23 @@ def test_alignment_caps_spacing_and_fields():
     assert p.align == "ctr"
     assert p.text == "3\nx"
     assert (p.runs[0].caps, p.runs[0].spacing) == ("all", 140)
+
+
+def test_a11_fontref_comes_after_shape_lststyle_and_before_inherited_styles():
+    ref = el('<a:fontRef idx="minor"><a:schemeClr val="lt1"/></a:fontRef>')
+    layout = lst(
+        '<a:lvl1pPr><a:defRPr sz="1800"><a:solidFill><a:srgbClr val="123456"/></a:solidFill>'
+        '<a:latin typeface="Georgia"/></a:defRPr></a:lvl1pPr>'
+    )
+    # fontRef beats the layout placeholder's lstStyle for color and font ...
+    (p,) = paragraphs(body(f"<a:p>{run()}</a:p>"), src(layout_lststyle=layout, font_ref=ref))
+    r = p.runs[0]
+    assert (r.color, r.font, r.size) == ("FFFFFF", "Calibri", 1800)  # size keeps A-4
+    # ... but the shape's own lstStyle beats fontRef
+    own = lst(
+        '<a:lvl1pPr><a:defRPr><a:solidFill><a:srgbClr val="222222"/></a:solidFill>'
+        '<a:latin typeface="Arial"/></a:defRPr></a:lvl1pPr>'
+    )
+    s = src(shape_lststyle=own, layout_lststyle=layout, font_ref=ref)
+    (p,) = paragraphs(body(f"<a:p>{run()}</a:p>"), s)
+    assert (p.runs[0].color, p.runs[0].font) == ("222222", "Arial")
