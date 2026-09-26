@@ -25,7 +25,9 @@ python -m pip install -e '.[dev]'
 | `keyline check deck.pptx [--mode] [-o DIR]` | Lint, then a best-effort render. Exits with lint's code |
 
 `keyline lint` needs only `lxml` and `Pillow`: no network, no model calls, no OfficeCLI.
-Rendering needs `npm install -g @officecli/officecli`.
+Rendering needs `npm install -g @officecli/officecli`. JSON is always UTF-8, whatever the
+terminal's encoding. An internal error prints one line and exits 1; add `--traceback`
+to any command to see the full trace.
 
 **Known limitation (L-002):** OfficeCLI screenshots fall back to a sans-serif font for
 any font that isn't installed, so renders cannot verify typography yet.
