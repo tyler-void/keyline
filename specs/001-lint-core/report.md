@@ -338,3 +338,268 @@ written, and the golden acceptance criteria pass under them.
    be updated?
 8. **Duplicate `research.md`.** The untracked copy in the repo root is still there.
    Audit F-4 says it can be deleted; I left it because nobody asked me to delete it.
+
+---
+
+# Round 2: audit 02 fix items
+
+- **Audit:** [`audit-02-implementation.md`](audit-02-implementation.md), verdict "FIX, then
+  merge". Amendments A-11…A-18 and criteria AC-13…AC-20 are in the spec's amendment
+  log (commit `564cd05`, "docs: apply audit 02").
+- **Tasks:** T-26…T-33 in [`tasks.md`](tasks.md), one fix item each, all pushed.
+- **Decks:** `fixtures/foreign/stress/`, the 13 decks the new ACs use, byte-identical to
+  audit 02's `stress-corpus/decks/`, with their builders
+  ([README](../../fixtures/foreign/stress/README.md)).
+- **CI:** green on Python 3.11 and 3.13 for every Round 2 commit from T-26 to T-32,
+  and again after T-33's second perf commit. The last run, 36244873259 (`4b991fa`),
+  gave `213 passed, 2 skipped` on both versions (the 2 skips are the OfficeCLI render
+  tests).
+- **Local:** `pytest -q` gives 215 passed (OfficeCLI 1.0.152 on PATH).
+
+## Acceptance criteria, round 2
+
+| AC | result |
+|---|---|
+| AC-1 … AC-12 | PASS (unchanged tests; snapshot changes explained below) |
+| AC-13 | PASS |
+| AC-14 | PASS |
+| AC-15 | PASS |
+| AC-16 | PASS |
+| AC-17 | PASS |
+| AC-18 | PASS |
+| AC-19 | PASS |
+| AC-20 | PASS, with the tightest margin of any AC (see below) |
+
+### AC-13 · encoding and precision (A-16) — PASS
+
+```
+$ PYTHONIOENCODING=cp1252 keyline lint fixtures/foreign/stress/d25_ppx_localized_names.pptx --json > cp.json; echo $?
+2
+$ PYTHONIOENCODING=utf-8 keyline lint …/d25_ppx_localized_names.pptx --json > u8.json; cmp cp.json u8.json && echo equal
+equal
+$ python -c "import json; print(sorted({f['shape_name'] for f in json.load(open('cp.json','rb'))}))"
+['Box 🚀 4', 'Textfeld 3 – Übersicht', 'Tiêu đề 1', 'タイトル 2']
+$ keyline lint fixtures/golden/kpi-recipe.pptx --json | … dead-band on slide 4
+4 0.252 4.80 cm empty middle band from 3.20 to 8.00 cm (25.2% of slide height)
+4 0.423 8.05 cm empty bottom band from 11.00 to 19.05 cm (42.3% of slide height)
+```
+
+- The cp1252 run writes no traceback. On a cp1252 stream, stderr shows the names as
+  backslash escapes (`タイ…`); see Deviation R2-1.
+- Test: `tests/acceptance/test_ac13_encoding.py` (3 tests, including an `ascii` stream).
+
+### AC-14 · no tracebacks (A-17) — PASS
+
+```
+$ for f in fixtures/foreign/stress/o5*.pptx fixtures/foreign/stress/d27*.pptx; do keyline lint $f >/dev/null 2>&1; echo "$(basename $f) $?"; done
+o51_lummod_percent_string.pptx 2      o54_lumoff_float.pptx 2
+o52_alpha_percent_string.pptx 2       o55_cxn_id_word.pptx 2
+o53_tint_percent_in_master_bg.pptx 2  o56_ext_40_digits.pptx 2
+d27_strict_from_ppx.pptx 1
+$ keyline lint fixtures/foreign/stress/d27_strict_from_ppx.pptx
+keyline: cannot scan fixtures/foreign/stress/d27_strict_from_ppx.pptx: Strict Open XML (ISO/IEC 29500 Strict) is not supported yet
+$ keyline lint fixtures/foreign/stress/o55_cxn_id_word.pptx 2>&1 | grep unresolved
+slide 2 · adapter-unresolved · advisory · Connector 6 · could not parse stCxn@id="first"; the value was dropped (A-17)
+```
+
+- **Parsed now.** `75%`, `50%`, `95%` and `25000.0` parse, so o51, o53 and o54 are
+  linted normally.
+- **o52.** Its `alpha 50%` gives the existing "alpha is not supported" advisory (P-9).
+- **Injected exception.**
+  - `test_injected_rule_exception_is_one_line` replaces `dead-band`'s check with one
+    that raises `ZeroDivisionError`. It asserts exit 1 and exactly one stderr line:
+    `keyline: internal error while reading rule dead-band: ZeroDivisionError; rerun
+    with --traceback and report it`.
+  - `test_traceback_flag_prints_the_trace` checks that `--traceback` adds the full
+    trace.
+- Tests: `tests/acceptance/test_ac14_no_traceback.py` (11 tests) and
+  `tests/unit/test_numbers.py`.
+
+### AC-15 · fontRef in the color cascade (A-11) — PASS
+
+```
+$ keyline lint fixtures/foreign/stress/d15_ppx_style_fontref.pptx 2>&1 | grep text-contrast
+slide 3 · text-contrast · warning · Rectangle 2 · FFFFFF on FFF2CC (Rectangle 2) is 1.12:1 at 24 pt (needs 3:1)
+```
+
+- Slide 2 (white on navy) no longer reports the false `000000 on 1F3864 1.81:1`.
+- Slide 4 (the explicit-black control) is clean.
+- Test: `tests/acceptance/test_ac15_fontref.py`.
+- The unit test `test_a11_fontref_comes_after_shape_lststyle_and_before_inherited_styles`
+  pins the new order. The shape's own `lstStyle` still wins over `fontRef`, and size
+  keeps the A-4 order.
+
+### AC-16 · hidden shapes (A-12) — PASS
+
+```
+$ keyline lint fixtures/foreign/stress/d17_raw_geometry.pptx 2>&1 | grep "slide 4"
+slide 4 · dead-band · warning · 11.05 cm empty bottom band from 8.00 to 19.05 cm (58.0% of slide height)
+slide 4 · title-not-dominant · warning · Title · title 40 pt is 1.67× the largest body text (24 pt); needs 2×
+slide 4 · unsupported-content · advisory · 3 hidden shapes not linted (A-12)
+```
+
+- There is no `off-slide` or `text-contrast` on the hidden shapes.
+- The `title-not-dominant` is a true finding (40 pt title over 24 pt visible body).
+- A hidden group removes all 4 of its descendants
+  (`test_hidden_group_drops_its_children`).
+- Test: `tests/acceptance/test_ac16_hidden.py`.
+
+### AC-17 · tables and charts off the slide (A-13) — PASS
+
+```
+$ keyline lint fixtures/foreign/stress/d20_pgx_slop.pptx 2>&1 | grep "slide 6"
+slide 6 · off-slide · error · Chart 0 · runs 2.54 cm past the bottom edge
+slide 6 · off-slide · error · Table 0 · runs 5.00 cm past the right edge
+slide 6 · unsupported-content · advisory · Table 0 · table text is not read in M1
+```
+
+- The chart now errors too, as A-13 says.
+- Test: `tests/acceptance/test_ac17_table_off_slide.py`.
+
+### AC-18 · autofit (A-14) — PASS
+
+```
+$ keyline lint fixtures/foreign/stress/d18_lo_autofit.pptx 2>&1 | grep "slide 2"
+slide 2 · body-too-small · warning · PlaceHolder 2 · 9 pt (autofit 28.1%) text in a 11-word paragraph (min 18 pt in presented mode)
+slide 2 · edge-margin · warning · PlaceHolder 1 · 0.76 cm from the top edge (min 1.27 cm)
+```
+
+- 32 pt × 28.122% = 8.999 pt, rounded to 9.00 pt (`"measured": 9.0`).
+- There is no `title-not-dominant` in either mode.
+- The `edge-margin` is the stock-template finding recorded as L-009.
+- Test: `tests/acceptance/test_ac18_autofit.py`.
+
+### AC-19 · contrast backing coverage (A-15) — PASS
+
+```
+$ keyline lint fixtures/foreign/stress/d16_raw_color.pptx 2>&1 | grep text-contrast
+slide 3 · text-contrast · warning · TextBox 2 · 222222 on 000000 (slide background) is 1.32:1 at 24 pt (needs 3:1)
+slide 4 · text-contrast · warning · Title 1 · FFFFFF on FFFFFF (slide background) is 1:1 at 40 pt (needs 3:1)
+slide 5 · text-contrast · advisory · … background is the unknown fill of Rectangle 2   (alpha card)
+slide 5 · text-contrast · advisory · … background is the unknown fill of Rectangle 4
+slide 7 · text-contrast · advisory · … runs whose color could not be resolved      (run alpha)
+```
+
+- Slide 6 has no `text-contrast`: the navy card covers about 93% of the text box, above
+  `backing_coverage_min = 0.90`.
+- Slide 4 is FP-2 (a navy panel drawn on the layout), which audit 02 deferred as P1.
+- AC-1 … AC-4 still pass, and their only snapshot changes are the precision changes
+  from T-26.
+- Tests: `tests/acceptance/test_ac19_backing.py` and `tests/unit/test_geom.py::test_coverage_of_inner_box`.
+
+### AC-20 · scale (A-18) — PASS, tight margin
+
+Whole-process wall times: median of 3 runs of `python -m keyline lint <deck> --json`.
+The decks are generated by the test with `fixtures/foreign/stress/src/perf_shapes.py`.
+
+| where | perf_1000 (< 1.0 s) | perf_150_x60 (< 2.0 s) |
+|---|---|---|
+| before T-33, local | 0.85 s | 3.62 s |
+| local, final (Python 3.11) | 0.18 s | 1.05–1.37 s (this machine is noisy) |
+| CI run 36244793649 | 0.24 s (3.11), 0.26 s (3.13) | 1.50 s (3.11), **1.62 s (3.13)** |
+| CI run 36244873259 | 0.25 s (3.11), 0.19 s (3.13) | 1.53 s (3.11), 1.13 s (3.13) |
+
+- The first T-33 commit (`e1a3113`) **failed** CI on both versions: perf_150_x60 took
+  2.07–2.17 s. The auditor's own figure for the old code was 6.03 s.
+- The second perf commit (`ec7ff14`) **failed** on 3.13 only, at 2.01 s.
+- Two more rounds of optimization brought the worst CI time seen to 1.62 s.
+- The threshold was never changed.
+- **Integrity check.** After each optimization, lint JSON and stderr were
+  byte-identical to the previous commit on all 40 fixture decks in both modes (80
+  runs). The old code ran from a `git worktree`, and a check confirmed it was the old
+  code that ran.
+- **What changed:**
+  - `box-overlap` uses an integer sort-and-sweep over x;
+  - integer fast paths in rounding and number parsing;
+  - integer cross-multiplication for the coverage tests;
+  - Clark-notation lxml finds, and each element's children indexed once;
+  - `text-contrast` walks down the z-order without re-sorting;
+  - cached per-level styles and a cached text-bearing flag.
+- **Media and the size cap.** The uncompressed-size cap now counts only XML and rels
+  parts. `test_large_stored_media_member_passes_the_cap` lowers the cap to 1 MB and
+  lints a deck carrying a 3 MB stored `ppt/media/video1.mp4`: it exits 2 as usual. The
+  same deck with a 3 MB XML part still hits the cap.
+- Test: `tests/acceptance/test_ac20_scale.py`. CI now runs pytest with `-rP`, so every
+  CI log prints the AC-9 and AC-20 timings.
+
+## Golden snapshot changes (all from T-26, A-16)
+
+No other Round 2 task changed any golden output: `test_snapshots.py` passed unchanged
+after T-27 to T-33.
+
+| snapshot | field | before | after | why |
+|---|---|---|---|---|
+| `kpi-recipe.{presented,read}` | `dead-band` messages | `37%`, `25%`, `42%` | `37.0%`, `25.2%`, `42.3%` | percentages with 1 decimal |
+| `kpi-recipe.{presented,read}` | `dead-band` slide 4 `measured` | `0.25`, `0.42` | `0.252`, `0.423` | ratios with 3 decimals (the 0.370 band still prints as `0.37`) |
+| `editorial.{presented,read}` | `text-contrast` `l3` `measured` | `3.57` | `3.569` | ratios with 3 decimals; the message still says `3.57:1` |
+
+`tests/acceptance/test_ac02_editorial_read.py` now expects `3.569`. That is the only
+change to an AC-1 … AC-12 test.
+
+## Deviations, round 2
+
+- **R2-1 · A-16 stderr.**
+  - **Spec said** `--json` writes UTF-8 bytes to stdout.
+  - **Implemented**, and in addition the human-readable text streams use
+    `errors="backslashreplace"`.
+  - **Because** AC-13 also prints the same shape names to stderr; without this, stderr
+    raises `UnicodeEncodeError` under cp1252.
+- **R2-2 · A-12 advisory id.**
+  - **Spec said** "the slide gets one advisory with the count of hidden shapes", naming
+    no rule id.
+  - **Implemented** as `unsupported-content`, with the message "3 hidden shapes not
+    linted (A-12)".
+  - **Because** that id already means "content the model does not read", and adding a
+    new id is a spec decision.
+- **R2-3 · A-17 range.**
+  - **Spec said** drop values that cannot be parsed.
+  - **Implemented:** values outside ST_Coordinate (±27273042316900 EMU) are dropped
+    as well.
+  - **Because** o56's 40-digit length parses as a number but broke the rounding.
+- **R2-4 · A-17 `<part>`.**
+  - **Implemented:** the internal-error line names the slide part while the adapter
+    runs, and `rule <id>` while a rule runs.
+  - **Because** a failure inside a rule has no part.
+- **R2-5 · A-14 scope.**
+  - **Implemented:** `normAutofit` is read from the shape's own `bodyPr` only, not
+    inherited from the layout.
+  - The effective size also sets the large-text threshold in `text-contrast`, because
+    that is the rendered size.
+- **R2-6 · AC-20 method.** The perf decks are generated by the test, not committed.
+  The budget is judged on the median of 3 whole-process runs.
+- **R2-7 · Stress builders.**
+  - **Adapted from the audit's scripts**, only for output paths, the test photo, and
+    the `Tyler` author (`_stress.py`).
+  - `raw_oddities.py` builds only o51–o56 by default.
+  - The copied builders are excluded from ruff, to keep them close to the auditor's
+    text.
+- **R2-8 · AC-12 allowlist.** Fixture metadata may also say `PptxGenJS`. d20's embedded
+  chart workbook has `creator = PptxGenJS`; it is a tool name, like `OfficeCLI` (R-5).
+- **R2-9 · `measured` for ratios.** P-12's "ratios with 2 decimals" is superseded by
+  A-16's 3 decimals, for every ratio field: contrast, title ratio, dead-band, and
+  underline width.
+
+## Reproducing the stress decks
+
+LibreOffice 26.8.0.3, node 26.10.0 and pptxgenjs 4.0.1 were installed for this round.
+
+| decks | result |
+|---|---|
+| d15, d16, d17, d25, d27, o51–o56 (python-pptx) | rebuild part-for-part identical, `docProps` excluded; now a test: `test_stress_decks_reproduce`, `test_stress_strict_and_oddities_reproduce` |
+| d20 (pptxgenjs 4.0.1) | rebuilds part-for-part identical (checked by hand; node is not in CI) |
+| d18 (LibreOffice) | **does not reproduce**: LibreOffice 26.8.0.3 writes `fontScale="40000" lnSpcReduction="19999"`, where the committed deck (LibreOffice 24.2.7.2) has `fontScale="28122"`. The committed auditor deck is kept, and AC-18 refers to it |
+
+## Open questions, round 2
+
+1. **AC-20 margin.** The worst CI time seen is 1.62 s against 2.0 s, a 19% margin, and
+   the runners vary by about ±20% between runs. If a slow runner flakes, the choices
+   are Tyler's: raise the budget, or measure best-of-N instead of the median. Not
+   changed here, because thresholds are not tuned to pass.
+2. **d18 depends on the LibreOffice version** (see above). Should AC-18 name the
+   LibreOffice version?
+3. **FP-2 is still open** (d16 slide 4). It is audit 02's P1 backlog item: layout and
+   master shapes as content and as contrast backing.
+4. **Strict OOXML** (d27) exits 1 with an accurate reason. Supporting it is P2 backlog.
+5. **Local files, not in the repo.** `stress-corpus/`, `keyline-audit-02.zip`,
+   `research.md` and `Hackathon-20Sept2026.pdf_1774-1.pdf` sit untracked in the
+   working-tree root. None was committed or deleted.
