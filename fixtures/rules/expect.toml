@@ -1,0 +1,117 @@
+# Expectations for fixtures/rules/*.pptx. One [[case]] per (deck, mode).
+#   must     = findings that must appear:     "rule@shape_name[:severity]" or "rule@-" (no shape)
+#   must_not = rule ids (optionally "rule@shape") that must not appear at warning or error
+#   absent   = rule ids (optionally "rule@shape") that must not appear at any severity
+# Built by fixtures/rules/src/build_rules.py; checked by tests/rules/test_rule_fixtures.py.
+
+[[case]]
+deck = "off-slide--pos.pptx"
+must = ["off-slide@over-right:error", "off-slide@rotated:error", "off-slide@bleed:advisory"]
+
+[[case]]
+deck = "off-slide--neg.pptx"
+must_not = ["off-slide"]
+
+[[case]]
+deck = "edge-margin--pos.pptx"
+must = [
+  "edge-margin@near-left:warning",
+  "edge-margin@near-bottom:warning",
+  "edge-margin@pic-top:warning",
+  "edge-margin@chart-right:warning",
+]
+
+[[case]]
+deck = "edge-margin--neg.pptx"
+must_not = ["edge-margin"]
+
+[[case]]
+deck = "dead-band--pos.pptx"
+must = ["dead-band@-:warning"]
+
+[[case]]
+deck = "dead-band--neg.pptx"
+must_not = ["dead-band"]
+
+[[case]]
+deck = "box-overlap--pos.pptx"
+must = ["box-overlap@first:advisory"]
+
+[[case]]
+deck = "box-overlap--neg.pptx"
+absent = ["box-overlap"]
+
+[[case]]
+deck = "body-too-small--pos.pptx"
+mode = "presented"
+must = [
+  "body-too-small@body:warning",
+  "body-too-small@read-body:warning",
+  "body-too-small@tiny:warning",
+]
+
+[[case]]
+deck = "body-too-small--pos.pptx"
+mode = "read"
+must = ["body-too-small@tiny:warning"]
+must_not = ["body-too-small@body", "body-too-small@read-body"]
+
+[[case]]
+deck = "body-too-small--neg.pptx"
+must_not = ["body-too-small"]
+
+[[case]]
+deck = "title-not-dominant--pos.pptx"
+must = ["title-not-dominant@title:warning"]
+
+[[case]]
+deck = "title-not-dominant--neg.pptx"
+must_not = ["title-not-dominant"]
+
+[[case]]
+deck = "text-contrast--pos.pptx"
+must = ["text-contrast@label:warning", "text-contrast@on-card:warning"]
+
+[[case]]
+deck = "text-contrast--neg.pptx"
+must = ["text-contrast@on-gradient:advisory"]
+must_not = ["text-contrast"]
+
+[[case]]
+deck = "notes-missing--pos.pptx"
+mode = "presented"
+must = ["notes-missing@-:warning"]
+
+[[case]]
+deck = "notes-missing--pos.pptx"
+mode = "read"
+must = ["notes-missing@-:advisory"]
+must_not = ["notes-missing"]
+
+[[case]]
+deck = "notes-missing--neg.pptx"
+absent = ["notes-missing"]
+
+[[case]]
+deck = "font-count--pos.pptx"
+must = ["font-count@-:warning"]
+
+[[case]]
+deck = "font-count--neg.pptx"
+must_not = ["font-count"]
+
+[[case]]
+deck = "title-underline--pos.pptx"
+must = ["title-underline@underline:warning"]
+
+[[case]]
+deck = "title-underline--neg.pptx"
+must_not = ["title-underline"]
+
+[[case]]
+deck = "equal-card-row--pos.pptx"
+must = ["equal-card-row@card-a:warning", "equal-card-row@kpi-a:warning"]
+
+[[case]]
+deck = "equal-card-row--neg.pptx"
+must_not = ["equal-card-row"]

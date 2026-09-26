@@ -43,13 +43,15 @@ amendments in `report.md` and Tyler decides.
 
 ## Hard rules
 
-- **Identity.** This is a public repo. The only author identities allowed anywhere
-  (code, docs, fixtures, commit metadata) are "Tyler" and "@tyler-void". Before the
-  first commit in any clone, check `git config user.name`.
+- **Identity.** This is a public repo. No personal name other than "Tyler" or
+  "tyler-void"/"@tyler-void" may appear anywhere (code, docs, fixtures, commit metadata).
+  Commits use the approved identity in D-014. Tool-attribution trailers
+  (`Co-Authored-By: Claude …`) are allowed (D-013). Before the first commit in any
+  clone, check `git config user.name` and `git config user.email` against D-014.
 - **Licensing.** Never copy text from Anthropic's skills (source-available, not open
   source). impeccable and OfficeCLI are Apache-2.0: borrowing ideas is fine; copying
   code requires attribution in `NOTICE`.
-- **Portable lint core.** Pure Python >= 3.10. Runtime deps: `lxml` and `Pillow` only.
+- **Portable lint core.** Pure Python >= 3.11 (D-012). Runtime deps: `lxml` and `Pillow` only.
   `keyline lint` makes no network calls, no model calls, and does not use OfficeCLI.
   It must run inside the claude.ai code-execution sandbox.
 - **Deterministic.** The same input produces byte-identical JSON.

@@ -15,3 +15,26 @@ Append-only. To change a decision, add a new entry that supersedes the old one.
 | D-009 | 2026-09-24 | Build order: lint core (M1), then skill + brief + first pack (M2), then fonts + hooks (M3) | The author needs usable decks early; the report's order optimized only for a moat |
 | D-010 | 2026-09-24 | Benchmark name deferred. Avoid SlidesBench and SlideBench variants | Both names are taken (AutoPresent, slidebench.org, SlideChat) |
 | D-011 | 2026-09-24 | Roles: Tyler decides, Claude Code executes, an external Claude session audits by cloning | Independent verification: the builder does not grade its own work |
+
+- **D-012 · Python >= 3.11.** Use stdlib `tomllib`, with no custom TOML reader.
+  - CI runs Python 3.11 and 3.13.
+  - This supersedes the ">= 3.10" in CLAUDE.md and spec §1.
+  - Why: 3.10 reaches end of life in October 2026 (PEP 619). The auditor's Claude
+    sandbox runs 3.11.15. A 60-line parser that exists only to support a version
+    dying next month is risk with no return.
+- **D-013 · Commit trailers.** `Co-Authored-By: Claude … <noreply@anthropic.com>`
+  trailers are allowed. The identity rule covers personal names and personal emails,
+  not tool attribution. The AC-12 allowlist includes these trailers.
+- **D-014 · Commit identity (decided by Tyler, 2026-09-24).**
+  - Author and committer name: `Tyler` or `tyler-void`.
+  - Email: `code@tyler-void.dev`.
+  - Existing commits `ce21744` and `705edc1` stay as they are. There is no history
+    rewrite and no repo recreation.
+  - Why: Tyler accepts that the GitHub handle and this email are public. Given that, a
+    rewrite would cost effort and achieve nothing, because GitHub keeps rewritten
+    commits reachable by SHA anyway.
+  - AC-12 allowlist:
+    - the names and email above;
+    - Claude co-author trailers (D-013);
+    - GitHub's web-UI committer, `GitHub <noreply@github.com>`, so that merging from
+      the web UI does not fail the test.

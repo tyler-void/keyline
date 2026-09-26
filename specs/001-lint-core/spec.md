@@ -238,3 +238,127 @@ PASS or FAIL.
 ## Amendment log
 
 - 2026-09-24: created.
+- **A-1 (2026-09-24, audit 01).** Title selection. If a slide has a `title` or
+  `ctrTitle` placeholder with text, that shape is the title. Otherwise use the plan's
+  P-18 heuristic: the largest max run size among non-KPI text-bearing shapes, with
+  ties going to the earliest in z-order.
+- **A-2 (2026-09-24, audit 01).** One body definition. A body paragraph is a paragraph
+  with `words > caption_exempt_words`. It applies to both `body-too-small` and
+  `title-not-dominant`, and replaces the hard-coded "> 4 words". The title shape is
+  never body.
+- **A-3 (2026-09-24, audit 01).** `edge-margin` candidates are the plan's *visible*
+  shapes: text-bearing, fill ≠ none, `pic`, or any `graphicFrame`. Background shapes
+  and connectors are excluded. The plan's P-19 keyed on fill ≠ none, which excluded
+  charts: a chart 0.5 cm from an edge would have passed.
+- **A-4 (2026-09-24, audit 01).** Text property cascade:
+  1. the run's `rPr`
+  2. the shape's `lstStyle`
+  3. the layout placeholder's `lstStyle`
+  4. the master placeholder's `lstStyle`
+  5. the master `txStyles` (`titleStyle` for title and ctrTitle, `bodyStyle` for
+     other placeholders, `otherStyle` for non-placeholders)
+  6. `presentation.xml` `defaultTextStyle`
+
+  `a:pPr/a:defRPr` is dropped from the cascade (plan R-1). This follows the plan's
+  statement of PowerPoint behavior, which the auditor could not verify against
+  PowerPoint. `docs/adapter.md` records it as unverified.
+- **A-5 (2026-09-24, audit 01).** Background default. If no `p:bg` exists on the
+  slide, layout or master, or if `p:bgPr/a:noFill` is set, the background is
+  `#FFFFFF`, plus one `adapter-unresolved` advisory (`what = background-default`).
+  Reason: `unknown` would silently switch off `text-contrast` on every deck without
+  an explicit background. PowerPoint paints these white.
+- **A-6 (2026-09-24, audit 01).** Placeholder matching.
+  - Slide to layout: match by `idx` first. If there is no idx match, fall back to the
+    same `type`.
+  - Layout to master: match by type, using the plan's type map.
+
+  This is python-pptx 1.0.2's behavior (`SlidePlaceholder._base_placeholder` uses
+  `layout.placeholders.get(idx=…)`; `LayoutPlaceholder._base_placeholder` maps the
+  type). The AC-5 oracle and the adapter must share the same semantics, or AC-5 only
+  tests python-pptx. The type fallback is keyline-only; document it.
+- **A-7 (2026-09-24, audit 01).** Word counting. `words(text)` counts
+  whitespace-separated tokens that contain at least one letter or digit, so
+  separators such as `·`, `|`, `—` are not words.
+- **A-8 (2026-09-24, audit 01).** Font family normalization.
+  - Case-fold the name.
+  - Strip one trailing token from `{thin, extralight, ultralight, light, regular,
+    book, medium, semibold, demibold, bold, extrabold, ultrabold, black, heavy,
+    condensed, narrow}`. Examples: "Calibri Light" → `calibri`, "Arial Narrow" →
+    `arial`.
+
+  Reason: weights and widths belong to one family. Counting them separately makes the
+  Office default theme (Calibri Light + Calibri) look like two families before a
+  second face has even been added.
+- **A-9 (2026-09-24, audit 01).** `title-underline` window. The bar's top must lie in
+  `[title.top + 0.5·title.h, title.bottom + 1.0 cm]`. That catches a bar drawn
+  inside the lower half of an oversized title box. The other conditions are
+  unchanged.
+- **A-10 (2026-09-24, audit 01).** `check` exit code.
+  - The exit code is lint's.
+  - Render is best effort. If OfficeCLI is missing or render fails, print
+    `render: skipped (<reason>)` to stderr and keep lint's code.
+  - `--require-render` turns a render failure into exit 1.
+
+  Reason: constitution II. The gate has to be passable where the skill runs.
+- 2026-09-25, audit 02 ([`audit-02-implementation.md`](audit-02-implementation.md)): the
+  amendments and acceptance criteria below are copied verbatim from its fix items
+  FX-1…FX-8. A-11 supersedes A-4 for color and font only.
+- **A-11:** Color and latin font resolve in this order:
+  1. run `rPr`
+  2. shape `lstStyle`
+  3. **`p:style/a:fontRef`** (color from its child; font from `idx` major/minor)
+  4. layout placeholder `lstStyle`
+  5. master placeholder `lstStyle`
+  6. master `txStyles`
+  7. `defaultTextStyle`
+
+  Size keeps the A-4 order. This order matches both renderers; PowerPoint has not
+  been checked.
+- **A-12:** A shape with `cNvPr/@hidden="1"` is excluded from every rule and from
+  dead-band content. So is any child of a hidden group. The slide gets one advisory
+  with the count of hidden shapes.
+- **A-13:** Tables and charts (`graphicFrame:table`, `graphicFrame:chart`) count as
+  text-bearing for `off-slide`. The bleed advisory stays only for `pic` and for
+  `sp` shapes without text.
+- **A-14:** Effective run size = resolved `sz` × `bodyPr/a:normAutofit@fontScale`
+  (default 100%). Messages add "(autofit N%)". This supersedes the plan's R-2
+  deferral.
+- **A-15:** The backing shape is the topmost filled shape beneath the text shape
+  whose box covers at least `backing_coverage_min` (0.90, in `thresholds.toml`) of
+  the text shape's box area, edges inclusive. This replaces "fully contains".
+- **A-16:** `--json` writes UTF-8 bytes to `sys.stdout.buffer` whatever the locale.
+  In `measured` and `threshold`, ratios get 3 decimals. Messages show percentages
+  with 1 decimal (report Q1: the 25.2% band must not read as 0.25 against 0.25).
+- **A-17:**
+  - Parse every OOXML numeric attribute through one tolerant parser: integers,
+    decimals, and `N%` percentages. If a value can't be parsed, drop the element
+    and emit one `adapter-unresolved` advisory.
+  - Add a top-level guard: an unexpected exception gives exit 1 with one line,
+    `keyline: internal error while reading <part>: <ExceptionType>; rerun with
+    --traceback and report it`. `--traceback` prints the full trace.
+  - A Strict package gets an accurate reason: `Strict Open XML (ISO/IEC 29500
+    Strict) is not supported yet`.
+- **A-18:**
+  - Pairwise rules use integer EMU and a sort-and-sweep over x.
+  - The uncompressed-size cap counts only XML and rels parts. Media members are
+    never read.
+- **AC-13:** under `PYTHONIOENCODING=cp1252`, d25 exits 2 with valid UTF-8 JSON,
+  byte-equal to the output under a UTF-8 locale. `kpi-recipe` slide 4 shows
+  `"measured": 0.252`.
+- **AC-14:** o51–o56 and d27 produce no traceback. The d27 reason names Strict. An
+  injected exception inside a rule gives the one-line internal-error message and
+  exit 1.
+- **AC-15:** d15 slide 2 has no `text-contrast`. d15 slide 3 gets `text-contrast`
+  at 1.12:1.
+- **AC-16:** d17 slide 4 has no `off-slide` or `text-contrast` on the hidden shapes,
+  and `dead-band` fires on the 8.0–19.05 cm band.
+- **AC-17:** d20 slide 6 gets an `off-slide` error on the table.
+- **AC-18:** d18 slide 2 gets `body-too-small` at about 9.0 pt and no
+  `title-not-dominant`.
+- **AC-19:** d16 slide 6 has no `text-contrast`. AC-1 … AC-4 are unchanged.
+- **AC-20:** `perf_1000` < 1.0 s and `perf_150_x60` < 2.0 s, generated by
+  `stress-corpus/src/perf_shapes.py`. A test with a large stored media member
+  passes the cap.
+- **A-19 (2026-09-26, audit 03).** AC-9 and AC-20 are judged on the **minimum** of 3
+  whole-process runs instead of the median. Budgets are unchanged: 1.0 s for AC-9 and
+  for `perf_1000`, 2.0 s for `perf_150_x60`. The tests print all three times.

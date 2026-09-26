@@ -1,0 +1,79 @@
+[
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "7.05 cm empty bottom band from 12.00 to 19.05 cm (37.0% of slide height)",
+    "measured": 0.37,
+    "threshold": 0.25
+  },
+  {
+    "rule": "edge-margin",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 100004,
+    "shape_name": "T2",
+    "message": "1.20 cm from the top edge (min 1.27 cm)",
+    "measured": 1.2,
+    "threshold": 1.27
+  },
+  {
+    "rule": "equal-card-row",
+    "category": "slop",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 100005,
+    "shape_name": "TextBox 2",
+    "message": "3 equal cards in a row (9.78 × 7.00 cm, gaps 0.76 cm), each with text",
+    "measured": 3,
+    "threshold": 3
+  },
+  {
+    "rule": "edge-margin",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 100014,
+    "shape_name": "T3",
+    "message": "1.20 cm from the top edge (min 1.27 cm)",
+    "measured": 1.2,
+    "threshold": 1.27
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "4.80 cm empty middle band from 3.20 to 8.00 cm (25.2% of slide height)",
+    "measured": 0.252,
+    "threshold": 0.25
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "8.05 cm empty bottom band from 11.00 to 19.05 cm (42.3% of slide height)",
+    "measured": 0.423,
+    "threshold": 0.25
+  },
+  {
+    "rule": "edge-margin",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": 100019,
+    "shape_name": "T4",
+    "message": "1.20 cm from the top edge (min 1.27 cm)",
+    "measured": 1.2,
+    "threshold": 1.27
+  }
+]

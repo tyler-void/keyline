@@ -1,0 +1,3 @@
+ff9e5473639b4f49a21449f7372661f226e4e7ecfa69a389cbcbd1e3a652922a  kpi-recipe.pptx
+dfbaad1aabcfcb5146a99ee4357387e31afda79a00a8e0db93f43e26aeef08cc  editorial.pptx
+4c987e40b3f243857c04e606526774b64b39377b60ad5a149c14a1c8eee59712  editorial-fixed.pptx
