@@ -47,3 +47,11 @@ Claude look: cream background, terracotta accent, eyebrow labels.
 spike with an EOT post-processor passed `officecli validate`, but nobody has opened
 the result in real PowerPoint yet.
 → M3 has to test on real PowerPoint for Windows and for Mac before claiming support.
+
+**L-009 · 2026-09-25 · Stock templates fail the uncalibrated defaults.**
+Linting a deck built on the Office default template (python-pptx 1.0.2, "Title and
+Content") raises `edge-margin` on the title, which sits 0.76 cm from the top, and in read
+mode `title-not-dominant`, because the 44 pt title is only 1.38× the 32 pt body (the
+floor is 1.6×). Both measurements are correct (report 001, Q3; audit 02 ruling 3).
+→ This is calibration data, not a defect. Thresholds stay as they are until they are
+measured against human-labelled decks (constitution V, M6 calibration).

@@ -51,7 +51,7 @@ amendments in `report.md` and Tyler decides.
 - **Licensing.** Never copy text from Anthropic's skills (source-available, not open
   source). impeccable and OfficeCLI are Apache-2.0: borrowing ideas is fine; copying
   code requires attribution in `NOTICE`.
-- **Portable lint core.** Pure Python >= 3.10. Runtime deps: `lxml` and `Pillow` only.
+- **Portable lint core.** Pure Python >= 3.11 (D-012). Runtime deps: `lxml` and `Pillow` only.
   `keyline lint` makes no network calls, no model calls, and does not use OfficeCLI.
   It must run inside the claude.ai code-execution sandbox.
 - **Deterministic.** The same input produces byte-identical JSON.
