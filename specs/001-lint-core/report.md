@@ -602,3 +602,40 @@ LibreOffice 26.8.0.3, node 26.10.0 and pptxgenjs 4.0.1 were installed for this r
 4. **Strict OOXML** (d27) exits 1 with an accurate reason. Supporting it is P2 backlog.
 5. **Local files, not in the repo.** `stress-corpus/`, `keyline-audit-02.zip` and
    `research.md` sit untracked in the working-tree root. None was committed or deleted.
+
+---
+
+# Round 3: audit 03
+
+- **Audit:** [`audit-03-round2.md`](audit-03-round2.md), verdict "SHIP after A-19". The
+  stress tester's notes are kept as
+  [`evidence/stress-notes-2026-09-25.md`](evidence/stress-notes-2026-09-25.md)
+  (byte-identical copy of `stress-corpus/NOTES.md`).
+- **A-19** (commit `24cb91e`, "docs: apply audit 03"):
+  - AC-9 (`tests/acceptance/test_ac09_speed.py`) was judged on the maximum of 3 runs,
+    and AC-20 (`test_ac20_scale.py`) on the median.
+  - Both now use the minimum of 3 whole-process runs. Budgets are unchanged, and all
+    three times are still printed.
+- **Other changes in the same commit:**
+  - L-010 appended to `docs/lessons-learned.md`: a stored autofit scale is trusted,
+    which explains d17 slide 6's `body-too-small` at 11 pt.
+  - `fixtures/foreign/stress/README.md` records d18's SHA-256
+    (`b61e0580…c5b296f`, equal to `stress-corpus/decks/d18_lo_autofit.pptx`), and
+    that it was built with LibreOffice 24.2.7.2 and is not reproducible on 26.8.
+
+CI run 36245821572 (`24cb91e`), `pytest -q -rP`:
+
+```
+test (3.11)  kpi-recipe lint wall times: 0.094s, 0.094s, 0.095s     (AC-9, < 1.0 s)
+test (3.11)  perf_1000 wall times: 0.24s, 0.24s, 0.24s              (AC-20, < 1.0 s)
+test (3.11)  perf_150_x60 wall times: 1.47s, 1.49s, 1.50s           (AC-20, < 2.0 s)
+test (3.11)  213 passed, 2 skipped in 20.32s
+test (3.13)  kpi-recipe lint wall times: 0.081s, 0.081s, 0.083s
+test (3.13)  perf_1000 wall times: 0.19s, 0.19s, 0.19s
+test (3.13)  perf_150_x60 wall times: 1.15s, 1.12s, 1.14s
+test (3.13)  213 passed, 2 skipped in 15.99s
+```
+
+The three runs agree to within 0.03 s on each runner, so the minimum and the median
+give the same verdict here. The worst perf_150_x60 minimum in this run is 1.47 s,
+against 2.0 s.
