@@ -69,6 +69,11 @@ def fmt_pct(ratio: Number) -> str:
     return f"{_quantize(to_fraction(ratio) * 100, 1)}%"
 
 
+def autofit_note(scale: int | None) -> str:
+    """' (autofit 28.1%)' for a shrunk run, '' otherwise (A-14)."""
+    return "" if scale is None else f" (autofit {fmt_pct(Fraction(scale, 100000))})"
+
+
 def cm(emu: Number) -> float:
     """EMU to cm, rounded to 2 decimals (the spec's message unit)."""
     return round2(emu_to_cm(emu))

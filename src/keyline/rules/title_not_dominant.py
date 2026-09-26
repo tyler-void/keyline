@@ -7,10 +7,9 @@ from keyline.rules._common import (
     RESEARCH_CANON,
     body_paragraphs,
     max_size,
-    paragraph_max_size,
     pick_title,
 )
-from keyline.units import fmt_num, round3
+from keyline.units import autofit_note, fmt_num, round3
 
 
 @rule(
@@ -28,17 +27,26 @@ def check(deck, cfg):
         title = pick_title(slide, cfg)
         if title is None or max_size(title) is None:
             continue
-        body = [paragraph_max_size(p) for _, p in body_paragraphs(slide, title, cfg)]
-        body = [b for b in body if b is not None]
+        body = [
+            r
+            for _, p in body_paragraphs(slide, title, cfg)
+            for r in p.runs
+            if r.has_ink and r.size is not None
+        ]
         if not body:
             continue
-        t, b = Fraction(max_size(title), 100), Fraction(max(body), 100)
+        big = max(body, key=lambda r: r.size)
+        head = max(
+            (r for r in title.runs if r.has_ink and r.size is not None), key=lambda r: r.size
+        )
+        t, b = Fraction(head.size, 100), Fraction(big.size, 100)
         if t < cfg.title_ratio_min * b:
             yield check.finding(
                 slide.index,
                 title,
-                f"title {fmt_num(t)} pt is {fmt_num(t / b)}× the largest body text "
-                f"({fmt_num(b)} pt); needs {fmt_num(cfg.title_ratio_min)}×",
+                f"title {fmt_num(t)} pt{autofit_note(head.autofit)} is {fmt_num(t / b)}× the "
+                f"largest body text ({fmt_num(b)} pt{autofit_note(big.autofit)}); "
+                f"needs {fmt_num(cfg.title_ratio_min)}×",
                 measured=round3(t / b),
                 threshold=round3(cfg.title_ratio_min),
             )

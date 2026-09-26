@@ -15,7 +15,9 @@ clrMap. a:pPr/a:defRPr is not part of either cascade (A-4).
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass, field
+from fractions import Fraction
 
 from lxml import etree
 
@@ -24,6 +26,7 @@ from keyline.ooxml.color import ColorContext, find_color, resolve
 from keyline.ooxml.ns import NS, q
 from keyline.ooxml.numbers import integer
 from keyline.ooxml.theme import Theme
+from keyline.units import round_half_away
 
 _TRUE = ("1", "true")
 
@@ -203,9 +206,29 @@ def _run(text: str, rpr: etree._Element | None, level: int, src: TextSources) ->
     )
 
 
+def _font_scale(tx_body: etree._Element) -> int | None:
+    """A-14: bodyPr/normAutofit@fontScale in 1/1000 % (100000 = 100%); None at 100%."""
+    fit = tx_body.find("a:bodyPr/a:normAutofit", NS)
+    if fit is None:
+        return None
+    scale = integer(fit.get("fontScale"), "normAutofit@fontScale", percent=True)
+    if scale is None or scale <= 0 or scale >= 100000:
+        return None
+    return scale
+
+
+def _scaled(run: Run, scale: int | None) -> Run:
+    """Effective size = resolved sz × fontScale, rounded to 1/100 pt."""
+    if scale is None or run.size is None:
+        return run
+    size = round_half_away(Fraction(run.size * scale, 100000))
+    return dataclasses.replace(run, size=size, autofit=scale)
+
+
 def paragraphs(tx_body: etree._Element | None, src: TextSources) -> list[Paragraph]:
     if tx_body is None:
         return []
+    scale = _font_scale(tx_body)
     out = []
     for p in tx_body.iterfind("a:p", NS):
         ppr = p.find("a:pPr", NS)
@@ -220,7 +243,7 @@ def paragraphs(tx_body: etree._Element | None, src: TextSources) -> list[Paragra
             if child.tag in (q("a:r"), q("a:fld")):
                 t = child.find("a:t", NS)
                 text = (t.text or "") if t is not None else ""
-                runs.append(_run(text, child.find("a:rPr", NS), level, src))
+                runs.append(_scaled(_run(text, child.find("a:rPr", NS), level, src), scale))
             elif child.tag == q("a:br"):
                 runs.append(Run(text="\n", size=None))
         out.append(Paragraph(runs=tuple(runs), align=align or "l", level=level))

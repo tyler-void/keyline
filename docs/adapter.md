@@ -57,7 +57,7 @@ reports `adapter-unresolved` (`size`). Rules skip those runs.
 The plan says PowerPoint ignores it for runs, and that text boxes take their defaults
 from `defaultTextStyle`. Nobody has checked either claim in PowerPoint.
 
-**Not applied:** `a:bodyPr/a:normAutofit@fontScale`. Sizes are nominal (plan R-2).
+**Autofit:** see "Autofit (A-14)" below.
 
 ## Shape fill
 
@@ -119,3 +119,11 @@ A shape whose `cNvPr/@hidden` is `1` or `true` is left out of the model, and so 
 every child of a hidden group. No rule sees these shapes, and they don't count as
 `dead-band` content. The slide gets one `unsupported-content` advisory with the count
 ("3 hidden shapes not linted (A-12)").
+
+## Autofit (A-14)
+
+A run's effective size is its resolved `sz` × `a:bodyPr/a:normAutofit@fontScale` on the
+same text body (default 100%), rounded to 1/100 pt. Every rule uses the effective size,
+and messages add "(autofit 28.1%)". This supersedes the plan's R-2 deferral. The
+`normAutofit` element is read from the shape's own `bodyPr` only, not inherited from
+the layout.

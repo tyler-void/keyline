@@ -12,7 +12,7 @@ from fractions import Fraction
 from keyline.geom import contains
 from keyline.registry import rule
 from keyline.rules._common import is_text_bearing
-from keyline.units import fmt_num, round3
+from keyline.units import autofit_note, fmt_num, round3
 
 
 def _channel(c: int) -> float:
@@ -99,7 +99,8 @@ def check(deck, cfg):
                     slide.index,
                     shape,
                     f"{r.color} on {bg} ({where}) is {fmt_num(Fraction(repr(ratio)))}:1 at "
-                    f"{fmt_num(Fraction(r.size, 100))} pt{' bold' if r.bold else ''} "
+                    f"{fmt_num(Fraction(r.size, 100))} pt{autofit_note(r.autofit)}"
+                    f"{' bold' if r.bold else ''} "
                     f"(needs {fmt_num(need)}:1)",
                     measured=round3(ratio),
                     threshold=round3(need),

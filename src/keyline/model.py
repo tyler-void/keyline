@@ -13,7 +13,7 @@ KINDS = ("sp", "pic", "graphicFrame:chart", "graphicFrame:table", "graphicFrame:
 @dataclass(frozen=True, slots=True)
 class Run:
     text: str
-    size: int | None  # hundredths of a point (OOXML `sz`)
+    size: int | None  # effective size in 1/100 pt: resolved `sz` × autofit (A-14)
     bold: bool = False
     italic: bool = False
     caps: str = "none"  # none | small | all
@@ -21,6 +21,7 @@ class Run:
     font: str | None = None  # resolved latin typeface
     color: str | None = None  # "RRGGBB", or None when unresolved
     hidden: bool = False  # a:noFill text: nothing is drawn
+    autofit: int | None = None  # normAutofit@fontScale in 1/1000 % when below 100% (A-14)
 
     @property
     def size_pt(self) -> Fraction | None:

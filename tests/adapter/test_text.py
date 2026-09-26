@@ -149,3 +149,17 @@ def test_a11_fontref_comes_after_shape_lststyle_and_before_inherited_styles():
     s = src(shape_lststyle=own, layout_lststyle=layout, font_ref=ref)
     (p,) = paragraphs(body(f"<a:p>{run()}</a:p>"), s)
     assert (p.runs[0].color, p.runs[0].font) == ("222222", "Arial")
+
+
+def test_a14_autofit_scales_the_effective_size():
+    xml = f"<a:p>{run(rpr=RPR2)}</a:p>"
+    tx = el(f'<p:txBody><a:bodyPr><a:normAutofit fontScale="55000"/></a:bodyPr>{xml}</p:txBody>')
+    (p,) = paragraphs(tx, src())
+    assert (p.runs[0].size, p.runs[0].autofit) == (660, 55000)  # 12 pt × 55% = 6.6 pt
+    tx = el(f'<p:txBody><a:bodyPr><a:normAutofit fontScale="55%"/></a:bodyPr>{xml}</p:txBody>')
+    assert paragraphs(tx, src())[0].runs[0].size == 660  # Strict-style percentage
+    tx = el(f"<p:txBody><a:bodyPr><a:normAutofit/></a:bodyPr>{xml}</p:txBody>")
+    assert (paragraphs(tx, src())[0].runs[0].size, paragraphs(tx, src())[0].runs[0].autofit) == (
+        1200,
+        None,
+    )
