@@ -112,3 +112,10 @@ shape without a box. Each dropped value gives one `adapter-unresolved` advisory.
 
 Strict packages (`purl.oclc.org` namespaces or `conformance="strict"`) exit 1 with
 "Strict Open XML (ISO/IEC 29500 Strict) is not supported yet".
+
+## Hidden shapes (A-12)
+
+A shape whose `cNvPr/@hidden` is `1` or `true` is left out of the model, and so is
+every child of a hidden group. No rule sees these shapes, and they don't count as
+`dead-band` content. The slide gets one `unsupported-content` advisory with the count
+("3 hidden shapes not linted (A-12)").

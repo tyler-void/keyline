@@ -97,6 +97,7 @@ class _Ctx:
     diags: list[Finding] = field(default_factory=list)
     seen: set[tuple] = field(default_factory=set)
     z: int = 0
+    hidden: int = 0
 
     def diag(self, spec: RuleSpec, shape: Shape | None, what: str, message: str) -> None:
         key = (spec.id, None if shape is None else shape.id, what)
@@ -166,6 +167,9 @@ def _iter_tree(
     for child in parent:
         if not isinstance(child.tag, str):
             continue
+        if _is_hidden(child):
+            ctx.hidden += _count_leaves(child)
+            continue
         if child.tag in LEAF_TAGS:
             yield child, groups, group_fill
         elif child.tag == q("p:grpSp"):
@@ -192,6 +196,19 @@ def _iter_tree(
             )
         elif child.tag == q("p:contentPart"):
             ctx.diag(UNSUPPORTED, None, "contentPart", "p:contentPart (ink) is not read")
+
+
+def _is_hidden(el: etree._Element) -> bool:
+    """A-12: cNvPr/@hidden="1" removes the shape (or the whole group) from the model."""
+    nv = _nv(el)
+    c = nv.find("p:cNvPr", NS) if nv is not None else None
+    return c is not None and c.get("hidden") in ("1", "true")
+
+
+def _count_leaves(el: etree._Element) -> int:
+    if el.tag in LEAF_TAGS:
+        return 1
+    return sum(1 for d in el.iter(*LEAF_TAGS))
 
 
 def _kind(el: etree._Element) -> str:
@@ -390,6 +407,14 @@ def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
                         UNRESOLVED, shape, f"number:{what}", _unresolved_message(f"number:{what}")
                     )
                 slide.shapes.append(shape)
+        if ctx.hidden:
+            n = ctx.hidden
+            ctx.diag(
+                UNSUPPORTED,
+                None,
+                "hidden",
+                f"{n} hidden shape{'s' if n != 1 else ''} not linted (A-12)",
+            )
         deck.slides.append(slide)
         diags.extend(ctx.diags)
     return deck, diags

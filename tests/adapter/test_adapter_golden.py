@@ -4,6 +4,7 @@ from keyline.geom import Box
 from keyline.ooxml.adapter import load_deck
 
 GOLDEN = Path(__file__).resolve().parents[2] / "fixtures" / "golden"
+FOREIGN_NESTED = GOLDEN.parent / "foreign" / "nested-groups.pptx"
 
 
 def by_name(slide, name):
@@ -51,3 +52,23 @@ def test_editorial_model():
     assert verdict.fill == "solid:#E8422E" and verdict.text == ""
     assert by_name(slide, "mark").box.y == 450000  # 1.25 cm
     assert diags == []
+
+
+def test_hidden_group_drops_its_children(tmp_path):
+    """A-12: every child of a hidden group leaves the model, and the count covers them."""
+    import zipfile
+
+    src = FOREIGN_NESTED
+    out = tmp_path / "hidden-group.pptx"
+    with zipfile.ZipFile(src) as zin, zipfile.ZipFile(out, "w") as zout:
+        for info in zin.infolist():
+            data = zin.read(info.filename)
+            if info.filename == "ppt/slides/slide1.xml":
+                data = data.replace(
+                    b'<p:cNvPr id="10" name="G1"/>', b'<p:cNvPr id="10" name="G1" hidden="1"/>'
+                )
+            zout.writestr(info, data)
+    deck, diags = load_deck(out)
+    assert deck.slides[0].shapes == []
+    (d,) = [f for f in diags if f.rule == "unsupported-content"]
+    assert d.message == "4 hidden shapes not linted (A-12)"
