@@ -127,3 +127,9 @@ same text body (default 100%), rounded to 1/100 pt. Every rule uses the effectiv
 and messages add "(autofit 28.1%)". This supersedes the plan's R-2 deferral. The
 `normAutofit` element is read from the shape's own `bodyPr` only, not inherited from
 the layout.
+
+## Package limits (A-18)
+
+The uncompressed-size cap (512 MB) counts only XML and `.rels` parts, the only parts
+keyline ever decompresses. Media members (video, images) are never read, so a deck with
+600 MB of embedded video is linted normally. The member-count cap (20,000) is unchanged.

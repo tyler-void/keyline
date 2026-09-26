@@ -44,6 +44,21 @@ class TextSources:
     theme: Theme
     color_ctx: ColorContext
     problems: list[str] = field(default_factory=list)
+    _cache: dict = field(default_factory=dict, repr=False)
+    # (id(style element), level) -> (style, a:lvlNpPr, a:defRPr), shared across a slide's
+    # shapes. Each entry holds the style element itself, so its id cannot be reused.
+    level_cache: dict = field(default_factory=dict, repr=False)
+
+    def _level(self, style: etree._Element | None, level: int):
+        if style is None or len(style) == 0:
+            return None, None
+        key = (id(style), level)
+        hit = self.level_cache.get(key)
+        if hit is None or hit[0] is not style:
+            lvl = style.find(f"a:lvl{level + 1}pPr", NS)
+            hit = (style, lvl, lvl.find("a:defRPr", NS) if lvl is not None else None)
+            self.level_cache[key] = hit
+        return hit[1], hit[2]
 
     def level_rprs(self, level: int) -> list[etree._Element]:
         """a:defRPr elements for steps 2–6, in order, skipping missing ones."""
@@ -54,41 +69,27 @@ class TextSources:
         return self._level_rprs(level, first=1)
 
     def _level_rprs(self, level: int, first: int) -> list[etree._Element]:
-        tag = f"a:lvl{level + 1}pPr"
-        out = []
-        for style in (
+        key = ("rpr", level, first)
+        if key not in self._cache:
+            self._cache[key] = self._find_level_rprs(level, first)
+        return self._cache[key]
+
+    def _styles(self) -> tuple:
+        return (
             self.shape_lststyle,
             self.layout_lststyle,
             self.master_lststyle,
             self.master_txstyle,
             self.default_text_style,
-        )[first:]:
-            if style is None:
-                continue
-            lvl = style.find(tag, NS)
-            if lvl is None:
-                continue
-            d = lvl.find("a:defRPr", NS)
-            if d is not None:
-                out.append(d)
-        return out
+        )
+
+    def _find_level_rprs(self, level: int, first: int) -> list[etree._Element]:
+        found = (self._level(style, level)[1] for style in self._styles()[first:])
+        return [d for d in found if d is not None]
 
     def level_ppr(self, level: int) -> list[etree._Element]:
-        tag = f"a:lvl{level + 1}pPr"
-        out = []
-        for style in (
-            self.shape_lststyle,
-            self.layout_lststyle,
-            self.master_lststyle,
-            self.master_txstyle,
-            self.default_text_style,
-        ):
-            if style is None:
-                continue
-            lvl = style.find(tag, NS)
-            if lvl is not None:
-                out.append(lvl)
-        return out
+        found = (self._level(style, level)[0] for style in self._styles())
+        return [lvl for lvl in found if lvl is not None]
 
 
 def _first_attr(chain: list[etree._Element], attr: str) -> str | None:

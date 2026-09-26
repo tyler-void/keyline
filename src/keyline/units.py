@@ -28,6 +28,10 @@ def to_fraction(value: Number) -> Fraction:
 
 def round_half_away(value: Number) -> int:
     """Round to the nearest int, halves away from zero."""
+    if type(value) is int:
+        return value
+    if type(value) is Fraction and value.denominator == 1:
+        return value.numerator
     f = to_fraction(value)
     n = abs(f)
     whole = n.numerator // n.denominator

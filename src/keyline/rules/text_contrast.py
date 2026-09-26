@@ -31,10 +31,12 @@ def contrast(a: str, b: str) -> float:
     return (la + 0.05) / (lb + 0.05)
 
 
-def effective_background(shape, slide, cfg) -> tuple[str | None, str]:
-    """(rgb or None, description)."""
-    below = sorted((s for s in slide.shapes if s.z <= shape.z), key=lambda s: -s.z)
-    for s in below:
+def effective_background(shape, slide, cfg, position=None) -> tuple[str | None, str]:
+    """(rgb or None, description). slide.shapes is in z order, so walking down from the
+    shape's own position visits the shapes beneath it, topmost first."""
+    if position is None:
+        position = slide.shapes.index(shape)
+    for s in reversed(slide.shapes[: position + 1]):
         if s.box is None or coverage(s.box, shape.box) < cfg.backing_coverage_min:
             continue
         if s.kind == "pic":
@@ -63,10 +65,10 @@ def effective_background(shape, slide, cfg) -> tuple[str | None, str]:
 def check(deck, cfg):
     large_pt, large_bold_pt = cfg.large_text_pt * 100, cfg.large_text_bold_pt * 100
     for slide in deck.slides:
-        for shape in slide.shapes:
+        for position, shape in enumerate(slide.shapes):
             if shape.box is None or not is_text_bearing(shape):
                 continue
-            bg, where = effective_background(shape, slide, cfg)
+            bg, where = effective_background(shape, slide, cfg, position)
             runs = [r for r in shape.runs if r.has_ink and r.size is not None]
             if not runs:
                 continue

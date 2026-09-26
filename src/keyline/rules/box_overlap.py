@@ -20,8 +20,14 @@ def check(deck, cfg):
     limit = cm_emu(cfg.box_overlap_min_cm)
     for slide in deck.slides:
         texts = [s for s in slide.shapes if s.box is not None and is_text_bearing(s)]
-        for i, a in enumerate(texts):
-            for b in texts[i + 1 :]:
+        # A-18: sort-and-sweep over x. A pair can overlap by more than `limit` on x only
+        # while the earlier box's right edge is beyond the later box's left + limit.
+        texts.sort(key=lambda s: (s.box.left, s.z))
+        active: list = []
+        for b in texts:
+            reach = b.box.left + limit
+            active = [a for a in active if a.box.right > reach]
+            for a in active:
                 ox, oy = overlap(a.box, b.box)
                 if ox > limit and oy > limit:
                     first, other = (a, b) if a.id <= b.id else (b, a)
@@ -33,3 +39,4 @@ def check(deck, cfg):
                         measured=cm(min(ox, oy)),
                         threshold=round2(cfg.box_overlap_min_cm),
                     )
+            active.append(b)

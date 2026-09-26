@@ -19,9 +19,10 @@ RESEARCH_TELLS = (
 )
 
 
-def cm_emu(cm: Fraction) -> Fraction:
-    """A threshold in cm as exact EMU."""
-    return cm * EMU_PER_CM
+def cm_emu(cm: Fraction) -> int | Fraction:
+    """A threshold in cm as exact EMU; a plain int when it is whole (A-18: integer EMU)."""
+    emu = cm * EMU_PER_CM
+    return emu.numerator if emu.denominator == 1 else emu
 
 
 def words(text: str) -> int:

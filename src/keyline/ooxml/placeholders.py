@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from lxml import etree
 
-from keyline.ooxml.ns import NS
+from keyline.ooxml.ns import NS, q
 from keyline.ooxml.numbers import integer
 
 MASTER_TYPE = {
@@ -46,13 +46,28 @@ class Ph:
         return self.type in ("title", "ctrTitle")
 
 
+_NV_TAGS = frozenset(q(f"p:{t}") for t in ("nvSpPr", "nvPicPr", "nvGraphicFramePr", "nvCxnSpPr"))
+_NVPR = q("p:nvPr")
+_PH = q("p:ph")
+
+
 def ph_of(shape: etree._Element) -> Ph | None:
-    for path in _PH_PATHS:
-        el = shape.find(path, NS)
-        if el is not None:
-            idx = integer(el.get("idx"), "ph@idx")
-            return Ph(el.get("type", "obj"), idx or 0)
-    return None
+    # the non-visual properties element is the shape's first child in valid OOXML
+    nv = shape[0] if len(shape) and shape[0].tag in _NV_TAGS else None
+    if nv is None:
+        for path in _PH_PATHS:  # tolerate unusual ordering
+            el = shape.find(path, NS)
+            if el is not None:
+                break
+        else:
+            return None
+    else:
+        nvpr = nv.find(_NVPR)
+        el = nvpr.find(_PH) if nvpr is not None else None
+        if el is None:
+            return None
+    idx = integer(el.get("idx"), "ph@idx")
+    return Ph(el.get("type", "obj"), idx or 0)
 
 
 def placeholders(root: etree._Element | None) -> list[tuple[Ph, etree._Element]]:

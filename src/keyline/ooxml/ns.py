@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import functools
+
 NS = {
     "a": "http://schemas.openxmlformats.org/drawingml/2006/main",
     "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
@@ -41,6 +43,7 @@ def rel_type_matches(actual: str, expected: str) -> bool:
     return expected.startswith(_RT) and actual == _RT_STRICT + expected[len(_RT) :]
 
 
+@functools.cache
 def q(name: str) -> str:
     """'a:off' -> '{http://...drawingml...}off'."""
     prefix, local = name.split(":")

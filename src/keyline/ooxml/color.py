@@ -15,13 +15,13 @@ Any other transform resolves to None with reason "transform:<name>".
 from __future__ import annotations
 
 import colorsys
+import math
 from dataclasses import dataclass
 
 from lxml import etree
 
 from keyline.ooxml.ns import q
 from keyline.ooxml.numbers import number
-from keyline.units import round_half_away
 
 CLR_MAP_KEYS = (
     "bg1",
@@ -92,7 +92,8 @@ def _hex_to_rgb(h: str) -> tuple[float, float, float] | None:
 
 
 def _rgb_to_hex(rgb: tuple[float, float, float]) -> str:
-    return "".join(f"{min(255, max(0, round_half_away(repr(c * 255)))):02X}" for c in rgb)
+    # half away from zero on non-negative values; c * 255 is clamped to [0, 255]
+    return "".join(f"{min(255, max(0, math.floor(c * 255 + 0.5))):02X}" for c in rgb)
 
 
 def _pct(el: etree._Element) -> float | None:
@@ -114,7 +115,7 @@ def find_color(parent: etree._Element | None) -> etree._Element | None:
 def resolve(el: etree._Element | None, ctx: ColorContext) -> Resolved:
     if el is None:
         return Resolved(None, "color:missing")
-    tag = etree.QName(el).localname
+    tag = el.tag.rpartition("}")[2]
     if tag == "srgbClr":
         base = (el.get("val") or "").upper()
     elif tag == "sysClr":
@@ -135,6 +136,8 @@ def resolve(el: etree._Element | None, ctx: ColorContext) -> Resolved:
     rgb = _hex_to_rgb(base)
     if rgb is None:
         return Resolved(None, f"color:bad-value-{base or 'empty'}")
+    if len(el) == 0:  # no transforms: the value is already the answer
+        return Resolved(base)
     for t in el:
         name = etree.QName(t).localname
         if name in ("lumMod", "lumOff", "tint", "shade", "alpha") and _pct(t) is None:

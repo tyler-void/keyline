@@ -72,8 +72,8 @@ def test_zip_without_content_types(tmp_path):
         Package(p)
 
 
-def test_size_cap(tmp_path):
-    p = make_zip(tmp_path / "big.pptx", {"a.bin": b"\0" * 5000})
+def test_size_cap_counts_xml_parts(tmp_path):
+    p = make_zip(tmp_path / "big.pptx", {"a.xml": b"<a/>" + b" " * 5000})
     with pytest.raises(ScanError, match="exceeds"):
         Package(p, max_total=1000)
 

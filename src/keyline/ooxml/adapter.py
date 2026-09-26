@@ -14,10 +14,12 @@ from lxml import etree
 
 from keyline import progress
 from keyline.findings import Finding
+from keyline.geom import Box, rotated_aabb
 from keyline.model import Deck, Shape, Slide
 from keyline.ooxml.color import ColorContext, apply_override, parse_clr_map
 from keyline.ooxml.fill import background, shape_fill
 from keyline.ooxml.geometry import (
+    FULL_TURN,
     Placement,
     Xfrm,
     apply_group,
@@ -98,6 +100,7 @@ class _Ctx:
     seen: set[tuple] = field(default_factory=set)
     z: int = 0
     hidden: int = 0
+    level_cache: dict = field(default_factory=dict)
 
     def diag(self, spec: RuleSpec, shape: Shape | None, what: str, message: str) -> None:
         key = (spec.id, None if shape is None else shape.id, what)
@@ -123,7 +126,12 @@ def _unresolved_message(what: str) -> str:
     return f"could not resolve {what}"
 
 
+_NV_QNAMES = frozenset(q(t) for t in NV_TAGS)
+
+
 def _nv(el: etree._Element) -> etree._Element | None:
+    if len(el) and el[0].tag in _NV_QNAMES:  # first child in valid OOXML
+        return el[0]
     for tag in NV_TAGS:
         nv = el.find(tag, NS)
         if nv is not None:
@@ -249,12 +257,21 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
     if xfrm is None:
         ctx.diag(UNRESOLVED, shape, "geometry", _unresolved_message("geometry"))
     else:
-        p = Placement.from_xfrm(xfrm)
-        for g in groups:
-            p = apply_group(p, g)
-        shape.x, shape.y, shape.w, shape.h = p.rect()
-        shape.rot = p.rot
-        shape.box = p.box()
+        if not groups:  # the common case: integer EMU straight from the xfrm (A-18)
+            shape.x, shape.y, shape.w, shape.h = xfrm.x, xfrm.y, xfrm.cx, xfrm.cy
+            shape.rot = xfrm.rot % FULL_TURN
+            shape.box = (
+                Box(xfrm.x, xfrm.y, xfrm.cx, xfrm.cy)
+                if shape.rot == 0
+                else rotated_aabb(xfrm.x, xfrm.y, xfrm.cx, xfrm.cy, shape.rot)
+            )
+        else:
+            p = Placement.from_xfrm(xfrm)
+            for g in groups:
+                p = apply_group(p, g)
+            shape.x, shape.y, shape.w, shape.h = p.rect()
+            shape.rot = p.rot
+            shape.box = p.box()
 
     sppr = el.find("p:spPr", NS)
     prst = sppr.find("a:prstGeom", NS) if sppr is not None else None
@@ -300,6 +317,7 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
             font_ref=style.find("a:fontRef", NS) if style is not None else None,
             theme=ctx.master.theme,
             color_ctx=ctx.color,
+            level_cache=ctx.level_cache,
         )
         shape.paragraphs = paragraphs(el.find("p:txBody", NS), src)
         for what in dict.fromkeys(src.problems):

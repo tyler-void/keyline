@@ -11,8 +11,9 @@ from lxml import etree
 
 from keyline.ooxml.ns import NS, PRESENTATION_CONTENT_TYPES, RT_OFFICE_DOCUMENT, rel_type_matches
 
-MAX_TOTAL_UNCOMPRESSED = 512 * 1024 * 1024
+MAX_TOTAL_UNCOMPRESSED = 512 * 1024 * 1024  # XML and rels parts only (A-18)
 MAX_MEMBERS = 20000
+XML_SUFFIXES = (".xml", ".rels")
 
 
 class ScanError(Exception):
@@ -56,8 +57,8 @@ class Package:
         self,
         path: str | Path,
         *,
-        max_total: int = MAX_TOTAL_UNCOMPRESSED,
-        max_members: int = MAX_MEMBERS,
+        max_total: int | None = None,
+        max_members: int | None = None,
     ) -> None:
         self.path = Path(path)
         try:
@@ -71,11 +72,14 @@ class Package:
             infos = self._zip.infolist()
         except (zipfile.BadZipFile, OSError) as exc:
             raise ScanError(f"corrupt zip file: {self.path.name}") from exc
+        max_total = MAX_TOTAL_UNCOMPRESSED if max_total is None else max_total
+        max_members = MAX_MEMBERS if max_members is None else max_members
         if len(infos) > max_members:
             raise ScanError(f"too many zip members ({len(infos)} > {max_members})")
-        total = sum(i.file_size for i in infos)
+        # A-18: only XML and rels parts are ever decompressed; media is never read.
+        total = sum(i.file_size for i in infos if i.filename.lower().endswith(XML_SUFFIXES))
         if total > max_total:
-            raise ScanError(f"uncompressed size {total} bytes exceeds the {max_total} limit")
+            raise ScanError(f"uncompressed XML size {total} bytes exceeds the {max_total} limit")
         self._names = {i.filename for i in infos}
         self._xml: dict[str, etree._Element] = {}
         self._rels: dict[str, dict[str, Rel]] = {}

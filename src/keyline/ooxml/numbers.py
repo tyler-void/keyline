@@ -19,6 +19,7 @@ from keyline.units import round_half_away
 
 # ST_Coordinate is ±27273042316900 EMU; nothing numeric in DrawingML is legitimately larger.
 MAX_ABS = 27273042316900
+_INT = re.compile(r"^-?\d{1,14}$")  # the common case: a plain integer inside the range
 _NUM = re.compile(r"^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d{1,3})?$")
 
 _problems: ContextVar[list[str] | None] = ContextVar("keyline_number_problems", default=None)
@@ -66,5 +67,7 @@ def number(raw: str | None, attr: str, *, percent: bool = False) -> Fraction | N
 
 
 def integer(raw: str | None, attr: str, *, percent: bool = False) -> int | None:
+    if raw is not None and _INT.match(raw):
+        return int(raw)
     value = number(raw, attr, percent=percent)
     return None if value is None else round_half_away(value)
