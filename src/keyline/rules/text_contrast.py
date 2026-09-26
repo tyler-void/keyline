@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from fractions import Fraction
 
-from keyline.geom import coverage
+from keyline.geom import coverage, overlap
 from keyline.registry import rule
 from keyline.rules._common import is_text_bearing
 from keyline.units import autofit_note, fmt_num, round3
@@ -31,13 +31,26 @@ def contrast(a: str, b: str) -> float:
     return (la + 0.05) / (lb + 0.05)
 
 
+def _covers(outer, inner, need) -> bool:
+    """coverage(outer, inner) >= need, in exact integer arithmetic where possible."""
+    if inner.area == 0:
+        return coverage(outer, inner) >= need
+    ox, oy = overlap(outer, inner)
+    if ox <= 0 or oy <= 0:
+        return False
+    return ox * oy * need.denominator >= need.numerator * inner.area
+
+
 def effective_background(shape, slide, cfg, position=None) -> tuple[str | None, str]:
     """(rgb or None, description). slide.shapes is in z order, so walking down from the
     shape's own position visits the shapes beneath it, topmost first."""
     if position is None:
         position = slide.shapes.index(shape)
+    need = cfg.backing_coverage_min
     for s in reversed(slide.shapes[: position + 1]):
-        if s.box is None or coverage(s.box, shape.box) < cfg.backing_coverage_min:
+        if s.box is None:
+            continue
+        if s is not shape and not _covers(s.box, shape.box, need):
             continue
         if s.kind == "pic":
             return None, f"picture {s.name or s.id}"

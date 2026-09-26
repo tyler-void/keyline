@@ -32,6 +32,7 @@ from keyline.ooxml.ns import (
     RT_SLIDE_LAYOUT,
     RT_SLIDE_MASTER,
     RT_THEME,
+    clark,
     q,
 )
 from keyline.ooxml.numbers import collect, integer
@@ -101,6 +102,13 @@ class _Ctx:
     z: int = 0
     hidden: int = 0
     level_cache: dict = field(default_factory=dict)
+    _txstyles: dict = field(default_factory=dict)
+
+    def txstyle(self, ph: Ph | None) -> etree._Element | None:
+        key = None if ph is None else ph.is_title
+        if key not in self._txstyles:
+            self._txstyles[key] = _txstyle(self.master.root, ph)
+        return self._txstyles[key]
 
     def diag(self, spec: RuleSpec, shape: Shape | None, what: str, message: str) -> None:
         key = (spec.id, None if shape is None else shape.id, what)
@@ -141,7 +149,7 @@ def _nv(el: etree._Element) -> etree._Element | None:
 
 def _id_name(el: etree._Element) -> tuple[int, str]:
     nv = _nv(el)
-    c = nv.find("p:cNvPr", NS) if nv is not None else None
+    c = nv.find(clark("p:cNvPr")) if nv is not None else None
     if c is None:
         return 0, ""
     sid = integer(c.get("id"), "cNvPr@id")
@@ -149,22 +157,22 @@ def _id_name(el: etree._Element) -> tuple[int, str]:
 
 
 def _txstyle(master: etree._Element, ph: Ph | None) -> etree._Element | None:
-    styles = master.find("p:txStyles", NS)
+    styles = master.find(clark("p:txStyles"))
     if styles is None:
         return None
     if ph is None:
-        return styles.find("p:otherStyle", NS)
+        return styles.find(clark("p:otherStyle"))
     if ph.is_title:
-        return styles.find("p:titleStyle", NS)
-    return styles.find("p:bodyStyle", NS)
+        return styles.find(clark("p:titleStyle"))
+    return styles.find(clark("p:bodyStyle"))
 
 
 def _lststyle(el: etree._Element | None) -> etree._Element | None:
-    return None if el is None else el.find("p:txBody/a:lstStyle", NS)
+    return None if el is None else el.find(clark("p:txBody/a:lstStyle"))
 
 
 def _sppr(el: etree._Element | None) -> etree._Element | None:
-    return None if el is None else el.find("p:spPr", NS)
+    return None if el is None else el.find(clark("p:spPr"))
 
 
 def _iter_tree(
@@ -183,12 +191,12 @@ def _iter_tree(
         elif child.tag == q("p:grpSp"):
             g = parse_xfrm(xfrm_element(child))
             gfill = shape_fill(
-                [child.find("p:grpSpPr", NS)], None, ctx.master.theme, ctx.color, group_fill
+                [child.find(clark("p:grpSpPr"))], None, ctx.master.theme, ctx.color, group_fill
             ).fill
             inner = ((g,) if g is not None else ()) + groups
             yield from _iter_tree(child, inner, gfill, ctx)
         elif child.tag == q("mc:AlternateContent"):
-            fallback = child.find("mc:Fallback", NS)
+            fallback = child.find(clark("mc:Fallback"))
             first = None
             if fallback is not None:
                 for sub in _iter_tree(fallback, groups, group_fill, ctx):
@@ -209,7 +217,7 @@ def _iter_tree(
 def _is_hidden(el: etree._Element) -> bool:
     """A-12: cNvPr/@hidden="1" removes the shape (or the whole group) from the model."""
     nv = _nv(el)
-    c = nv.find("p:cNvPr", NS) if nv is not None else None
+    c = nv.find(clark("p:cNvPr")) if nv is not None else None
     return c is not None and c.get("hidden") in ("1", "true")
 
 
@@ -223,7 +231,7 @@ def _kind(el: etree._Element) -> str:
     tag = LEAF_TAGS[el.tag]
     if tag != "gf":
         return tag
-    data = el.find("a:graphic/a:graphicData", NS)
+    data = el.find(clark("a:graphic/a:graphicData"))
     uri = data.get("uri", "") if data is not None else ""
     if uri == CHART_URI:
         return "graphicFrame:chart"
@@ -273,11 +281,11 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
             shape.rot = p.rot
             shape.box = p.box()
 
-    sppr = el.find("p:spPr", NS)
-    prst = sppr.find("a:prstGeom", NS) if sppr is not None else None
+    sppr = el.find(clark("p:spPr"))
+    prst = sppr.find(clark("a:prstGeom")) if sppr is not None else None
     if prst is not None:
         shape.geometry = prst.get("prst")
-    elif sppr is not None and sppr.find("a:custGeom", NS) is not None:
+    elif sppr is not None and sppr.find(clark("a:custGeom")) is not None:
         shape.geometry = "custom"
 
     # fill
@@ -288,7 +296,7 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
     else:
         r = shape_fill(
             [sppr, _sppr(layout_ph), _sppr(master_ph)],
-            el.find("p:style", NS),
+            el.find(clark("p:style")),
             ctx.master.theme,
             ctx.color,
             group_fill,
@@ -299,27 +307,27 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
 
     # connectors
     if kind == "cxnSp":
-        cnv = el.find("p:nvCxnSpPr/p:cNvCxnSpPr", NS)
+        cnv = el.find(clark("p:nvCxnSpPr/p:cNvCxnSpPr"))
         if cnv is not None:
-            st, end = cnv.find("a:stCxn", NS), cnv.find("a:endCxn", NS)
+            st, end = cnv.find(clark("a:stCxn")), cnv.find(clark("a:endCxn"))
             shape.st_cxn = integer(st.get("id"), "stCxn@id") if st is not None else None
             shape.end_cxn = integer(end.get("id"), "endCxn@id") if end is not None else None
 
     # text
     if kind == "sp":
-        style = el.find("p:style", NS)
+        style = el.find(clark("p:style"))
         src = TextSources(
             shape_lststyle=_lststyle(el),
             layout_lststyle=_lststyle(layout_ph),
             master_lststyle=_lststyle(master_ph),
-            master_txstyle=_txstyle(ctx.master.root, ph),
+            master_txstyle=ctx.txstyle(ph),
             default_text_style=ctx.default_text_style,
-            font_ref=style.find("a:fontRef", NS) if style is not None else None,
+            font_ref=style.find(clark("a:fontRef")) if style is not None else None,
             theme=ctx.master.theme,
             color_ctx=ctx.color,
             level_cache=ctx.level_cache,
         )
-        shape.paragraphs = paragraphs(el.find("p:txBody", NS), src)
+        shape.paragraphs = paragraphs(el.find(clark("p:txBody")), src)
         for what in dict.fromkeys(src.problems):
             ctx.diag(UNRESOLVED, shape, what, _unresolved_message(what))
     elif kind == "graphicFrame:table":
@@ -361,19 +369,19 @@ def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
     pres = pkg.xml(pkg.main_part)
     if etree.QName(pres).namespace == STRICT_P or pres.get("conformance") == "strict":
         raise ScanError("Strict Open XML (ISO/IEC 29500 Strict) is not supported yet")
-    size = pres.find("p:sldSz", NS)
+    size = pres.find(clark("p:sldSz"))
     width = integer(size.get("cx"), "sldSz@cx") if size is not None else None
     height = integer(size.get("cy"), "sldSz@cy") if size is not None else None
     if not width or not height or width <= 0 or height <= 0:
         raise ScanError("presentation.xml has no valid p:sldSz")
-    default_text_style = pres.find("p:defaultTextStyle", NS)
+    default_text_style = pres.find(clark("p:defaultTextStyle"))
 
     masters: dict[str, MasterInfo] = {}
     deck = Deck(width=width, height=height)
     diags: list[Finding] = []
     pres_rels = pkg.rels(pkg.main_part)
 
-    slide_ids = pres.findall("p:sldIdLst/p:sldId", NS)
+    slide_ids = pres.findall(clark("p:sldIdLst/p:sldId"))
     for index, sld in enumerate(slide_ids, start=1):
         rid = sld.get(q("r:id"))
         rel = pres_rels.get(rid or "")
@@ -390,15 +398,15 @@ def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
             theme_targets = pkg.rel_targets(master_part, RT_THEME)
             theme_root = pkg.xml(theme_targets[0]) if theme_targets else None
             masters[master_part] = MasterInfo(
-                mroot, parse_theme(theme_root), parse_clr_map(mroot.find("p:clrMap", NS))
+                mroot, parse_theme(theme_root), parse_clr_map(mroot.find(clark("p:clrMap")))
             )
         master = masters[master_part]
         if index == 1:
             deck.theme_colors = dict(master.theme.colors)
             deck.major_font, deck.minor_font = master.theme.major_latin, master.theme.minor_latin
 
-        clr_map = apply_override(master.clr_map, layout_root.find("p:clrMapOvr", NS))
-        clr_map = apply_override(clr_map, slide_root.find("p:clrMapOvr", NS))
+        clr_map = apply_override(master.clr_map, layout_root.find(clark("p:clrMapOvr")))
+        clr_map = apply_override(clr_map, slide_root.find(clark("p:clrMapOvr")))
         color = ColorContext(master.theme.colors, clr_map)
         ctx = _Ctx(index, layout_root, master, default_text_style, color)
 
@@ -408,14 +416,14 @@ def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
             ctx.diag(UNRESOLVED, None, f"number:{what}", _unresolved_message(f"number:{what}"))
         if bg.problem:
             ctx.diag(UNRESOLVED, None, bg.problem, _unresolved_message(bg.problem))
-        cSld = layout_root.find("p:cSld", NS)
+        cSld = layout_root.find(clark("p:cSld"))
         slide = Slide(
             index=index,
             layout_name=cSld.get("name") if cSld is not None else None,
             background=bg.fill,
             has_notes=_notes_text(pkg, slide_part),
         )
-        tree = slide_root.find("p:cSld/p:spTree", NS)
+        tree = slide_root.find(clark("p:cSld/p:spTree"))
         if tree is not None:
             for el, groups, gfill in list(_iter_tree(tree, (), "none", ctx)):
                 with collect() as dropped:

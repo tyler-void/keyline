@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 from lxml import etree
 
-from keyline.ooxml.ns import NS, q
+from keyline.ooxml.ns import NS, clark, q
 from keyline.ooxml.numbers import integer
 
 MASTER_TYPE = {
@@ -74,7 +74,7 @@ def placeholders(root: etree._Element | None) -> list[tuple[Ph, etree._Element]]
     """Placeholders on a layout or master, in document order."""
     if root is None:
         return []
-    tree = root.find("p:cSld/p:spTree", NS)
+    tree = root.find(clark("p:cSld/p:spTree"))
     if tree is None:
         return []
     out = []

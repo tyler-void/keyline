@@ -6,7 +6,6 @@ from collections.abc import Iterator
 from fractions import Fraction
 
 from keyline.config import Config
-from keyline.geom import slide_coverage
 from keyline.model import Deck, Paragraph, Shape, Slide
 from keyline.units import EMU_PER_CM
 
@@ -31,8 +30,13 @@ def words(text: str) -> int:
 
 
 def is_text_bearing(shape: Shape) -> bool:
-    """A `sp` with at least one run of visible, non-whitespace text (P-16)."""
-    return shape.kind == "sp" and any(r.has_ink for r in shape.runs)
+    """A `sp` with at least one run of visible, non-whitespace text (P-16). Cached on the
+    shape: rules ask this for every shape many times (A-18)."""
+    cached = shape._text_bearing
+    if cached is None:
+        cached = shape.kind == "sp" and any(r.has_ink for r in shape.runs)
+        shape._text_bearing = cached
+    return cached
 
 
 def is_visible(shape: Shape) -> bool:
@@ -49,7 +53,14 @@ def is_background(shape: Shape, deck: Deck, cfg: Config) -> bool:
     """A visible shape covering at least `background_coverage_min` of the slide area."""
     if shape.box is None or not is_visible(shape):
         return False
-    return slide_coverage(shape.box, deck.width, deck.height) >= cfg.background_coverage_min
+    b = shape.box
+    ox = min(b.right, deck.width) - max(b.left, 0)
+    oy = min(b.bottom, deck.height) - max(b.top, 0)
+    if ox <= 0 or oy <= 0:
+        return False
+    # exact integer form of ox*oy / (W*H) >= threshold (A-18: integer EMU)
+    t = cfg.background_coverage_min
+    return ox * oy * t.denominator >= t.numerator * deck.width * deck.height
 
 
 def is_content_slide(slide: Slide) -> bool:

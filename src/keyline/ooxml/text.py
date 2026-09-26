@@ -23,7 +23,7 @@ from lxml import etree
 
 from keyline.model import Paragraph, Run
 from keyline.ooxml.color import ColorContext, find_color, resolve
-from keyline.ooxml.ns import NS, q
+from keyline.ooxml.ns import clark, q
 from keyline.ooxml.numbers import integer
 from keyline.ooxml.theme import Theme
 from keyline.units import round_half_away
@@ -55,8 +55,8 @@ class TextSources:
         key = (id(style), level)
         hit = self.level_cache.get(key)
         if hit is None or hit[0] is not style:
-            lvl = style.find(f"a:lvl{level + 1}pPr", NS)
-            hit = (style, lvl, lvl.find("a:defRPr", NS) if lvl is not None else None)
+            lvl = style.find(clark(f"a:lvl{level + 1}pPr"))
+            hit = (style, lvl, lvl.find(clark("a:defRPr")) if lvl is not None else None)
             self.level_cache[key] = hit
         return hit[1], hit[2]
 
@@ -102,7 +102,7 @@ def _first_attr(chain: list[etree._Element], attr: str) -> str | None:
 
 def _latin(chain: list[etree._Element], src: TextSources) -> tuple[bool, str | None]:
     for el in chain:
-        latin = el.find("a:latin", NS)
+        latin = el.find(clark("a:latin"))
         if latin is not None and latin.get("typeface"):
             return True, _theme_font(latin.get("typeface"), src)
     return False, None
@@ -185,22 +185,34 @@ def _color(
     return r.rgb, False
 
 
+_RUN_ATTRS = ("sz", "spc", "b", "i", "cap")
+
+
 def _run(text: str, rpr: etree._Element | None, level: int, src: TextSources) -> Run:
     chain = ([rpr] if rpr is not None else []) + src.level_rprs(level)
     inherited = src.inherited_rprs(level)
     own = chain[: len(chain) - len(inherited)]  # the run's rPr and the shape's lstStyle
-    size = integer(_first_attr(chain, "sz"), "rPr@sz")
+    # one pass over the chain: the first source that sets an attribute wins
+    found: dict[str, str] = {}
+    for el in chain:
+        for attr in _RUN_ATTRS:
+            if attr not in found:
+                v = el.get(attr)
+                if v is not None:
+                    found[attr] = v
+        if len(found) == len(_RUN_ATTRS):
+            break
+    size = integer(found.get("sz"), "rPr@sz")
     if size is None and text.strip():
         src.problems.append("size")
-    spc = _first_attr(chain, "spc")
     color, hidden = _color(own, inherited, src)
     return Run(
         text=text,
         size=size,
-        bold=(_first_attr(chain, "b") or "0") in _TRUE,
-        italic=(_first_attr(chain, "i") or "0") in _TRUE,
-        caps=_first_attr(chain, "cap") or "none",
-        spacing=integer(spc, "rPr@spc") or 0,
+        bold=found.get("b", "0") in _TRUE,
+        italic=found.get("i", "0") in _TRUE,
+        caps=found.get("cap") or "none",
+        spacing=integer(found.get("spc"), "rPr@spc") or 0,
         font=_font(own, inherited, src) if text.strip() else None,
         color=color,
         hidden=hidden,
@@ -209,7 +221,7 @@ def _run(text: str, rpr: etree._Element | None, level: int, src: TextSources) ->
 
 def _font_scale(tx_body: etree._Element) -> int | None:
     """A-14: bodyPr/normAutofit@fontScale in 1/1000 % (100000 = 100%); None at 100%."""
-    fit = tx_body.find("a:bodyPr/a:normAutofit", NS)
+    fit = tx_body.find(clark("a:bodyPr/a:normAutofit"))
     if fit is None:
         return None
     scale = integer(fit.get("fontScale"), "normAutofit@fontScale", percent=True)
@@ -226,13 +238,17 @@ def _scaled(run: Run, scale: int | None) -> Run:
     return dataclasses.replace(run, size=size, autofit=scale)
 
 
+_P, _PPR, _T, _RPR, _BR = (q(n) for n in ("a:p", "a:pPr", "a:t", "a:rPr", "a:br"))
+_RUN_TAGS = frozenset((q("a:r"), q("a:fld")))
+
+
 def paragraphs(tx_body: etree._Element | None, src: TextSources) -> list[Paragraph]:
     if tx_body is None:
         return []
     scale = _font_scale(tx_body)
     out = []
-    for p in tx_body.iterfind("a:p", NS):
-        ppr = p.find("a:pPr", NS)
+    for p in tx_body.iterfind(_P):
+        ppr = p.find(_PPR)
         level = 0
         if ppr is not None:
             level = max(0, min(8, integer(ppr.get("lvl"), "pPr@lvl") or 0))
@@ -241,11 +257,12 @@ def paragraphs(tx_body: etree._Element | None, src: TextSources) -> list[Paragra
         )
         runs = []
         for child in p:
-            if child.tag in (q("a:r"), q("a:fld")):
-                t = child.find("a:t", NS)
+            tag = child.tag
+            if tag in _RUN_TAGS:
+                t = child.find(_T)
                 text = (t.text or "") if t is not None else ""
-                runs.append(_scaled(_run(text, child.find("a:rPr", NS), level, src), scale))
-            elif child.tag == q("a:br"):
+                runs.append(_scaled(_run(text, child.find(_RPR), level, src), scale))
+            elif tag == _BR:
                 runs.append(Run(text="\n", size=None))
         out.append(Paragraph(runs=tuple(runs), align=align or "l", level=level))
     return out

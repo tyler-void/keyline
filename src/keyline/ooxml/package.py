@@ -9,7 +9,12 @@ from pathlib import Path
 
 from lxml import etree
 
-from keyline.ooxml.ns import NS, PRESENTATION_CONTENT_TYPES, RT_OFFICE_DOCUMENT, rel_type_matches
+from keyline.ooxml.ns import (
+    PRESENTATION_CONTENT_TYPES,
+    RT_OFFICE_DOCUMENT,
+    clark,
+    rel_type_matches,
+)
 
 MAX_TOTAL_UNCOMPRESSED = 512 * 1024 * 1024  # XML and rels parts only (A-18)
 MAX_MEMBERS = 20000
@@ -127,7 +132,7 @@ class Package:
         name = "_rels/.rels" if part == "" else _rels_name(part)
         out: dict[str, Rel] = {}
         if self.has(name):
-            for el in self.xml(name).iterfind("pr:Relationship", NS):
+            for el in self.xml(name).iterfind(clark("pr:Relationship")):
                 rid = el.get("Id", "")
                 target = el.get("Target", "")
                 external = el.get("TargetMode") == "External"
@@ -147,11 +152,11 @@ class Package:
         if not self.has("[Content_Types].xml"):
             return None
         root = self.xml("[Content_Types].xml")
-        for el in root.iterfind("ct:Override", NS):
+        for el in root.iterfind(clark("ct:Override")):
             if el.get("PartName", "").lstrip("/") == part:
                 return el.get("ContentType")
         ext = posixpath.splitext(part)[1].lstrip(".").lower()
-        for el in root.iterfind("ct:Default", NS):
+        for el in root.iterfind(clark("ct:Default")):
             if el.get("Extension", "").lower() == ext:
                 return el.get("ContentType")
         return None

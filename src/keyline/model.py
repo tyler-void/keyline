@@ -62,6 +62,7 @@ class Shape:
     st_cxn: int | None = None
     end_cxn: int | None = None
     paragraphs: list[Paragraph] = field(default_factory=list)
+    _text_bearing: bool | None = field(default=None, repr=False, compare=False)
 
     @property
     def text(self) -> str:

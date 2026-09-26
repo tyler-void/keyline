@@ -48,3 +48,10 @@ def q(name: str) -> str:
     """'a:off' -> '{http://...drawingml...}off'."""
     prefix, local = name.split(":")
     return f"{{{NS[prefix]}}}{local}"
+
+
+@functools.cache
+def clark(path: str) -> str:
+    """'p:spPr/a:xfrm' -> Clark notation. lxml finds Clark paths faster than prefixed
+    paths with a namespace map (A-18)."""
+    return "/".join(q(step) if ":" in step else step for step in path.split("/"))

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 
 from lxml import etree
 
-from keyline.ooxml.ns import NS, q
+from keyline.ooxml.ns import clark, q
 
 SCHEME_NAMES = (
     "dk1",
@@ -47,24 +47,24 @@ def parse_theme(root: etree._Element | None) -> Theme:
     theme = Theme()
     if root is None:
         return theme
-    scheme = root.find("a:themeElements/a:clrScheme", NS)
+    scheme = root.find(clark("a:themeElements/a:clrScheme"))
     if scheme is not None:
         for name in SCHEME_NAMES:
-            el = scheme.find(f"a:{name}", NS)
+            el = scheme.find(clark(f"a:{name}"))
             if el is not None:
                 value = _base_hex(el)
                 if value is not None:
                     theme.colors[name] = value
-    fonts = root.find("a:themeElements/a:fontScheme", NS)
+    fonts = root.find(clark("a:themeElements/a:fontScheme"))
     if fonts is not None:
-        major = fonts.find("a:majorFont/a:latin", NS)
-        minor = fonts.find("a:minorFont/a:latin", NS)
+        major = fonts.find(clark("a:majorFont/a:latin"))
+        minor = fonts.find(clark("a:minorFont/a:latin"))
         theme.major_latin = (major.get("typeface") or None) if major is not None else None
         theme.minor_latin = (minor.get("typeface") or None) if minor is not None else None
-    fmt = root.find("a:themeElements/a:fmtScheme", NS)
+    fmt = root.find(clark("a:themeElements/a:fmtScheme"))
     if fmt is not None:
-        fills = fmt.find("a:fillStyleLst", NS)
-        bgs = fmt.find("a:bgFillStyleLst", NS)
+        fills = fmt.find(clark("a:fillStyleLst"))
+        bgs = fmt.find(clark("a:bgFillStyleLst"))
         theme.fill_styles = list(fills) if fills is not None else []
         theme.bg_fill_styles = list(bgs) if bgs is not None else []
     return theme

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from lxml import etree
 
 from keyline.ooxml.color import ColorContext, find_color, resolve
-from keyline.ooxml.ns import NS, q
+from keyline.ooxml.ns import clark, q
 from keyline.ooxml.numbers import integer
 from keyline.ooxml.theme import Theme
 
@@ -23,7 +23,7 @@ FILL_TAGS = {
 WHITE = "solid:#FFFFFF"
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class FillResult:
     fill: str  # solid:#RRGGBB | gradient | none | unknown
     problem: str | None = None
@@ -69,7 +69,7 @@ def shape_fill(
         child = _fill_child(sppr)
         if child is not None:
             return _from_fill_element(child, ctx, group_fill)
-    ref = style.find("a:fillRef", NS) if style is not None else None
+    ref = style.find(clark("a:fillRef")) if style is not None else None
     if ref is not None:
         idx = integer(ref.get("idx", "0"), "fillRef@idx")
         if idx is None:
@@ -95,10 +95,10 @@ def background(roots: list[etree._Element | None], theme: Theme, ctx: ColorConte
     for root in roots:
         if root is None:
             continue
-        bg = root.find("p:cSld/p:bg", NS)
+        bg = root.find(clark("p:cSld/p:bg"))
         if bg is None:
             continue
-        bgpr = bg.find("p:bgPr", NS)
+        bgpr = bg.find(clark("p:bgPr"))
         if bgpr is not None:
             child = _fill_child(bgpr)
             if child is None or child.tag == q("a:noFill"):
@@ -107,7 +107,7 @@ def background(roots: list[etree._Element | None], theme: Theme, ctx: ColorConte
             if r.fill.startswith("solid:"):
                 return Background(r.fill)
             return Background("unknown", r.problem or f"background:{r.fill}")
-        ref = bg.find("p:bgRef", NS)
+        ref = bg.find(clark("p:bgRef"))
         if ref is not None:
             r = shape_fill([], _wrap_ref(ref), theme, ctx)
             if r.fill.startswith("solid:"):

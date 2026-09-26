@@ -16,7 +16,7 @@ from fractions import Fraction
 from lxml import etree
 
 from keyline.geom import ROT_UNITS_PER_DEGREE, Box, aabb_about_center
-from keyline.ooxml.ns import NS, q
+from keyline.ooxml.ns import clark, q
 from keyline.ooxml.numbers import integer
 from keyline.units import round_half_away
 
@@ -52,7 +52,10 @@ def parse_xfrm(el: etree._Element | None) -> Xfrm | None:
     x, y, cx, cy = _int(off, "x"), _int(off, "y"), _int(ext, "cx"), _int(ext, "cy")
     if None in (x, y, cx, cy):
         return None
-    ch_off, ch_ext = el.find(q("a:chOff")), el.find(q("a:chExt"))
+    if len(el) > 2:  # only group transforms carry chOff/chExt
+        ch_off, ch_ext = el.find(q("a:chOff")), el.find(q("a:chExt"))
+    else:
+        ch_off = ch_ext = None
     return Xfrm(
         x=x,
         y=y,
@@ -72,10 +75,10 @@ def xfrm_element(shape: etree._Element) -> etree._Element | None:
     """The transform element of sp, pic, cxnSp, graphicFrame or grpSp."""
     tag = etree.QName(shape).localname
     if tag == "graphicFrame":
-        return shape.find("p:xfrm", NS)
+        return shape.find(clark("p:xfrm"))
     if tag == "grpSp":
-        return shape.find("p:grpSpPr/a:xfrm", NS)
-    return shape.find("p:spPr/a:xfrm", NS)
+        return shape.find(clark("p:grpSpPr/a:xfrm"))
+    return shape.find(clark("p:spPr/a:xfrm"))
 
 
 @dataclass(frozen=True, slots=True)

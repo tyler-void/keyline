@@ -60,7 +60,7 @@ class ColorContext:
         return ColorContext(self.theme_colors, self.clr_map, ph_color)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Resolved:
     rgb: str | None  # "RRGGBB"
     problem: str | None = None
