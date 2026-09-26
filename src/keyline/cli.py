@@ -7,6 +7,7 @@ exit 0 clean / 2 findings at warning or error / 1 could not scan.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import sys
 from pathlib import Path
@@ -27,6 +28,20 @@ def _out(text: str) -> None:
     sys.stdout.flush()
 
 
+def _out_json(text: str) -> None:
+    """A-16: JSON is UTF-8 bytes whatever the locale (a cp1252 pipe cannot hold "タイトル")."""
+    sys.stdout.flush()
+    sys.stdout.buffer.write(text.encode("utf-8"))
+    sys.stdout.buffer.flush()
+
+
+def _tolerant_streams() -> None:
+    """Human-readable text never crashes on an unencodable shape name."""
+    for stream in (sys.stdout, sys.stderr):
+        with contextlib.suppress(AttributeError, ValueError):
+            stream.reconfigure(errors="backslashreplace")
+
+
 def _lint(path: str, mode: str):
     from keyline.lint import lint_path
 
@@ -42,7 +57,7 @@ def cmd_lint(args: argparse.Namespace) -> int:
         _err(f"keyline: cannot scan {args.deck}: {exc}\n")
         return EXIT_SCAN_FAILED
     if args.json:
-        _out(to_json(result.findings))
+        _out_json(to_json(result.findings))
     _err(to_human(result.findings))
     return result.exit_code
 
@@ -54,7 +69,7 @@ def cmd_rules(args: argparse.Namespace) -> int:
     load_all()
     specs = all_rules()
     if args.json:
-        _out(json.dumps([s.describe() for s in specs], ensure_ascii=False, indent=2) + "\n")
+        _out_json(json.dumps([s.describe() for s in specs], ensure_ascii=False, indent=2) + "\n")
         return 0
     width = max(len(s.id) for s in specs)
     lines = []
@@ -90,7 +105,7 @@ def cmd_check(args: argparse.Namespace) -> int:
         _err(f"keyline: cannot scan {args.deck}: {exc}\n")
         return EXIT_SCAN_FAILED
     if args.json:
-        _out(to_json(result.findings))
+        _out_json(to_json(result.findings))
     _err(to_human(result.findings))
     out_dir = args.out or str(Path(args.deck).with_suffix("")) + "-render"
     try:
@@ -143,6 +158,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    _tolerant_streams()
     parser = build_parser()
     args = parser.parse_args(argv)
     if not getattr(args, "func", None):

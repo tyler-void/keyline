@@ -6,7 +6,7 @@
     "slide": 2,
     "shape_id": null,
     "shape_name": null,
-    "message": "7.05 cm empty bottom band from 12.00 to 19.05 cm (37% of slide height)",
+    "message": "7.05 cm empty bottom band from 12.00 to 19.05 cm (37.0% of slide height)",
     "measured": 0.37,
     "threshold": 0.25
   },
@@ -50,8 +50,8 @@
     "slide": 4,
     "shape_id": null,
     "shape_name": null,
-    "message": "4.80 cm empty middle band from 3.20 to 8.00 cm (25% of slide height)",
-    "measured": 0.25,
+    "message": "4.80 cm empty middle band from 3.20 to 8.00 cm (25.2% of slide height)",
+    "measured": 0.252,
     "threshold": 0.25
   },
   {
@@ -61,8 +61,8 @@
     "slide": 4,
     "shape_id": null,
     "shape_name": null,
-    "message": "8.05 cm empty bottom band from 11.00 to 19.05 cm (42% of slide height)",
-    "measured": 0.42,
+    "message": "8.05 cm empty bottom band from 11.00 to 19.05 cm (42.3% of slide height)",
+    "measured": 0.423,
     "threshold": 0.25
   },
   {

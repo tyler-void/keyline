@@ -22,7 +22,7 @@ def test_edge_margin_bottom(result, shape, cm):
 
 def test_text_contrast_on_l3(result):
     (f,) = has(result[1], "text-contrast", shape="l3", severity="warning")
-    assert (f["measured"], f["threshold"]) == (3.57, 4.5)
+    assert (f["measured"], f["threshold"]) == (3.569, 4.5)  # 3 decimals for ratios (A-16)
     assert "E8422E on F2F2F0" in f["message"] and "9.5 pt" in f["message"]
 
 

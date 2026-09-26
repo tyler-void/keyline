@@ -4,7 +4,7 @@ from fractions import Fraction
 
 from keyline.registry import rule
 from keyline.rules._common import is_background, is_content_slide, is_visible
-from keyline.units import fmt_cm, round2, round_half_away
+from keyline.units import fmt_cm, fmt_pct, round3
 
 
 def occupied(slide, deck, cfg) -> list[tuple[int, int]]:
@@ -63,7 +63,7 @@ def check(deck, cfg):
                 slide.index,
                 None,
                 f"{fmt_cm(band)} cm empty {where} band from {fmt_cm(a)} to {fmt_cm(b)} cm "
-                f"({round_half_away(ratio * 100)}% of slide height)",
-                measured=round2(ratio),
-                threshold=round2(cfg.dead_band_ratio),
+                f"({fmt_pct(ratio)} of slide height)",
+                measured=round3(ratio),
+                threshold=round3(cfg.dead_band_ratio),
             )

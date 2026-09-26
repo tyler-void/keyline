@@ -59,6 +59,16 @@ def round2(value: Number) -> float:
     return float(_quantize(value, 2))
 
 
+def round3(value: Number) -> float:
+    """Ratios in `measured`/`threshold` get 3 decimals (A-16)."""
+    return float(_quantize(value, 3))
+
+
+def fmt_pct(ratio: Number) -> str:
+    """A ratio as a percentage with 1 decimal: 0.25197 -> '25.2%' (A-16)."""
+    return f"{_quantize(to_fraction(ratio) * 100, 1)}%"
+
+
 def cm(emu: Number) -> float:
     """EMU to cm, rounded to 2 decimals (the spec's message unit)."""
     return round2(emu_to_cm(emu))

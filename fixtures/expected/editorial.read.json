@@ -95,7 +95,7 @@
     "shape_id": 100014,
     "shape_name": "l3",
     "message": "E8422E on F2F2F0 (slide background) is 3.57:1 at 9.5 pt (needs 4.5:1)",
-    "measured": 3.57,
+    "measured": 3.569,
     "threshold": 4.5
   }
 ]

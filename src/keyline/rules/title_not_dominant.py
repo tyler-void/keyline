@@ -10,7 +10,7 @@ from keyline.rules._common import (
     paragraph_max_size,
     pick_title,
 )
-from keyline.units import fmt_num, round2
+from keyline.units import fmt_num, round3
 
 
 @rule(
@@ -39,6 +39,6 @@ def check(deck, cfg):
                 title,
                 f"title {fmt_num(t)} pt is {fmt_num(t / b)}× the largest body text "
                 f"({fmt_num(b)} pt); needs {fmt_num(cfg.title_ratio_min)}×",
-                measured=round2(t / b),
-                threshold=round2(cfg.title_ratio_min),
+                measured=round3(t / b),
+                threshold=round3(cfg.title_ratio_min),
             )

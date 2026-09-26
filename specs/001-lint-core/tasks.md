@@ -59,6 +59,23 @@ listed in plan §5.2.
 | T-24 | ⚑ `test_ac12_hygiene.py`: commit identities against the D-014 allowlist (names `Tyler`/`tyler-void` with `code@tyler-void.dev`; Claude `Co-Authored-By` trailers per D-013; committer `GitHub <noreply@github.com>`), fixture docProps, NOTICE | Passes on the branch |
 | T-25 | ✅ `specs/001-lint-core/report.md`: each AC with its command, an output excerpt and PASS/FAIL; Deviations; Open questions | Review by Tyler; audit by the external session |
 
+## Round 2: audit 02 fix items
+
+Each task implements one fix item from [`audit-02-implementation.md`](audit-02-implementation.md)
+with its acceptance test. Decks: `fixtures/foreign/stress/`. AC-1…AC-12 stay green; every
+golden snapshot change is explained in `report.md`.
+
+| id | fix item | task | done when |
+|---|---|---|---|
+| T-26 | FX-1 (A-16) | `--json` writes UTF-8 bytes to `sys.stdout.buffer`; ratios in `measured`/`threshold` get 3 decimals; percentages in messages get 1 decimal | `tests/acceptance/test_ac13_encoding.py` |
+| T-27 | FX-2 (A-17) | one tolerant numeric parser for OOXML attributes (int, decimal, `N%`); unparseable → element dropped + one `adapter-unresolved`; top-level guard with `--traceback`; Strict packages get their own reason | `tests/acceptance/test_ac14_no_traceback.py` |
+| T-28 | FX-3 (A-11) | color and latin font cascade puts `p:style/a:fontRef` third; size keeps the A-4 order | `tests/acceptance/test_ac15_fontref.py` |
+| T-29 | FX-4 (A-12) | `cNvPr/@hidden="1"` shapes (and children of hidden groups) leave the model; one advisory per slide with the count | `tests/acceptance/test_ac16_hidden.py` |
+| T-30 | FX-5 (A-13) | tables and charts are text-bearing for `off-slide` | `tests/acceptance/test_ac17_table_off_slide.py` |
+| T-31 | FX-6 (A-14) | effective run size = `sz` × `normAutofit@fontScale`; messages add "(autofit N%)" | `tests/acceptance/test_ac18_autofit.py` |
+| T-32 | FX-7 (A-15) | contrast backing = topmost filled shape beneath covering ≥ `backing_coverage_min` (0.90) of the text box | `tests/acceptance/test_ac19_backing.py` |
+| T-33 | FX-8 (A-18) | integer sort-and-sweep for pairwise rules; the size cap counts only XML and rels parts | `tests/acceptance/test_ac20_scale.py` |
+
 ## Acceptance map
 
 | AC | tasks |
@@ -75,3 +92,11 @@ listed in plan §5.2.
 | AC-10 | T-23 |
 | AC-11 | T-02 and everything else |
 | AC-12 | T-24 (D-013, D-014) |
+| AC-13 | T-26 |
+| AC-14 | T-27 |
+| AC-15 | T-28 |
+| AC-16 | T-29 |
+| AC-17 | T-30 |
+| AC-18 | T-31 |
+| AC-19 | T-32 |
+| AC-20 | T-33 |

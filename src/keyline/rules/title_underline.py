@@ -4,7 +4,7 @@ from fractions import Fraction
 
 from keyline.registry import rule
 from keyline.rules._common import RESEARCH_TELLS, cm_emu, is_text_bearing, pick_title
-from keyline.units import fmt_cm, round2, round_half_away
+from keyline.units import fmt_cm, fmt_pct, round3
 
 
 @rule(
@@ -44,8 +44,8 @@ def check(deck, cfg):
                 slide.index,
                 s,
                 f"{fmt_cm(b.w)} × {fmt_cm(b.h)} cm bar {fmt_cm(b.top - t.bottom)} cm below "
-                f"the title ({round_half_away(ratio * 100)}% of the content width) "
+                f"the title ({fmt_pct(ratio)} of the content width) "
                 "reads as an underline accent",
-                measured=round2(ratio),
-                threshold=round2(cfg.underline_max_width_ratio),
+                measured=round3(ratio),
+                threshold=round3(cfg.underline_max_width_ratio),
             )
