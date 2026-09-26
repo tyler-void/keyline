@@ -600,6 +600,5 @@ LibreOffice 26.8.0.3, node 26.10.0 and pptxgenjs 4.0.1 were installed for this r
 3. **FP-2 is still open** (d16 slide 4). It is audit 02's P1 backlog item: layout and
    master shapes as content and as contrast backing.
 4. **Strict OOXML** (d27) exits 1 with an accurate reason. Supporting it is P2 backlog.
-5. **Local files, not in the repo.** `stress-corpus/`, `keyline-audit-02.zip`,
-   `research.md` and `Hackathon-20Sept2026.pdf_1774-1.pdf` sit untracked in the
-   working-tree root. None was committed or deleted.
+5. **Local files, not in the repo.** `stress-corpus/`, `keyline-audit-02.zip` and
+   `research.md` sit untracked in the working-tree root. None was committed or deleted.
