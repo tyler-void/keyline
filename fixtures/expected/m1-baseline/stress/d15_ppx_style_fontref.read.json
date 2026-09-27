@@ -1,0 +1,13 @@
+[
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 3,
+    "shape_name": "Rectangle 2",
+    "message": "FFFFFF on FFF2CC (Rectangle 2) is 1.12:1 at 24 pt (needs 3:1)",
+    "measured": 1.116,
+    "threshold": 3.0
+  }
+]

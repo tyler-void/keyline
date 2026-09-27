@@ -1,0 +1,24 @@
+[
+  {
+    "rule": "edge-margin",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 2,
+    "shape_name": "within-tolerance",
+    "message": "-0.04 cm from the right edge (min 1.27 cm)",
+    "measured": -0.04,
+    "threshold": 1.27
+  },
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 4,
+    "shape_name": "bleed",
+    "message": "runs 2.00 cm past the left edge (non-text shape: possible bleed)",
+    "measured": 2.0,
+    "threshold": 0.05
+  }
+]

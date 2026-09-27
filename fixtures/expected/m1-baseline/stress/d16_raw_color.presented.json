@@ -1,0 +1,156 @@
+[
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 2,
+    "shape_name": "TextBox 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 3,
+    "shape_name": "TextBox 2",
+    "message": "222222 on 000000 (slide background) is 1.32:1 at 24 pt (needs 3:1)",
+    "measured": 1.32,
+    "threshold": 3.0
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 2,
+    "shape_name": "TextBox 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": 2,
+    "shape_name": "Title 1",
+    "message": "FFFFFF on FFFFFF (slide background) is 1:1 at 40 pt (needs 3:1)",
+    "measured": 1.0,
+    "threshold": 3.0
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": 2,
+    "shape_name": "Title 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  },
+  {
+    "rule": "adapter-unresolved",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 5,
+    "shape_id": 3,
+    "shape_name": "Rectangle 2",
+    "message": "color transform alpha is not supported",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "adapter-unresolved",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 5,
+    "shape_id": 5,
+    "shape_name": "Rectangle 4",
+    "message": "color transform alpha is not supported",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 5,
+    "shape_id": 4,
+    "shape_name": "TextBox 3",
+    "message": "contrast not checked: background is the unknown fill of Rectangle 2",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 5,
+    "shape_id": 6,
+    "shape_name": "TextBox 5",
+    "message": "contrast not checked: background is the unknown fill of Rectangle 4",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 5,
+    "shape_id": 2,
+    "shape_name": "TextBox 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 6,
+    "shape_id": 2,
+    "shape_name": "TextBox 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  },
+  {
+    "rule": "adapter-unresolved",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 7,
+    "shape_id": 4,
+    "shape_name": "TextBox 3",
+    "message": "color transform alpha is not supported",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 7,
+    "shape_id": 4,
+    "shape_name": "TextBox 3",
+    "message": "contrast not checked for runs whose color could not be resolved",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 7,
+    "shape_id": 2,
+    "shape_name": "TextBox 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  }
+]

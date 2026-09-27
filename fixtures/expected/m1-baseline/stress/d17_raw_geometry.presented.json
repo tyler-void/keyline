@@ -1,0 +1,189 @@
+[
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 2,
+    "shape_id": 102,
+    "shape_name": "Title",
+    "message": "box overlaps R1 rotated inside by 2.00 × 2.18 cm (boxes, not ink)",
+    "measured": 2.0,
+    "threshold": 0.1
+  },
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 2,
+    "shape_id": 102,
+    "shape_name": "Title",
+    "message": "box overlaps R2 rotated outside by 2.00 × 2.20 cm (boxes, not ink)",
+    "measured": 2.0,
+    "threshold": 0.1
+  },
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "error",
+    "slide": 2,
+    "shape_id": 104,
+    "shape_name": "R2 rotated outside",
+    "message": "runs 0.48 cm past the top edge",
+    "measured": 0.48,
+    "threshold": 0.05
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "11.83 cm empty middle band from 3.70 to 15.53 cm (62.1% of slide height)",
+    "measured": 0.621,
+    "threshold": 0.25
+  },
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "error",
+    "slide": 3,
+    "shape_id": 107,
+    "shape_name": "Child A",
+    "message": "runs 0.48 cm past the top edge",
+    "measured": 0.48,
+    "threshold": 0.05
+  },
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "error",
+    "slide": 3,
+    "shape_id": 108,
+    "shape_name": "Child B",
+    "message": "runs 0.48 cm past the bottom edge",
+    "measured": 0.48,
+    "threshold": 0.05
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "11.05 cm empty bottom band from 8.00 to 19.05 cm (58.0% of slide height)",
+    "measured": 0.58,
+    "threshold": 0.25
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": 109,
+    "shape_name": "Title",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  },
+  {
+    "rule": "unsupported-content",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 4,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "3 hidden shapes not linted (A-12)",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "edge-margin",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 5,
+    "shape_id": 115,
+    "shape_name": "TextBox 115",
+    "message": "0.30 cm from the left edge (min 1.27 cm)",
+    "measured": 0.3,
+    "threshold": 1.27
+  },
+  {
+    "rule": "unsupported-content",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 5,
+    "shape_id": 115,
+    "shape_name": "TextBox 115",
+    "message": "mc:AlternateContent: only the mc:Fallback content was read",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "body-too-small",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 6,
+    "shape_id": 117,
+    "shape_name": "Autofit body",
+    "message": "11 pt (autofit 55.0%) text in a 18-word paragraph (min 18 pt in presented mode)",
+    "measured": 11.0,
+    "threshold": 18.0
+  },
+  {
+    "rule": "edge-margin",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 7,
+    "shape_id": 118,
+    "shape_name": "Header band",
+    "message": "-0.00 cm from the right edge (min 1.27 cm)",
+    "measured": -0.0,
+    "threshold": 1.27
+  },
+  {
+    "rule": "edge-margin",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 7,
+    "shape_id": 119,
+    "shape_name": "Picture 118",
+    "message": "-0.00 cm from the right edge (min 1.27 cm)",
+    "measured": -0.0,
+    "threshold": 1.27
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 7,
+    "shape_id": 118,
+    "shape_name": "Header band",
+    "message": "title 36 pt is 1.5× the largest body text (24 pt); needs 2×",
+    "measured": 1.5,
+    "threshold": 2.0
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 8,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "15.35 cm empty bottom band from 3.70 to 19.05 cm (80.6% of slide height)",
+    "measured": 0.806,
+    "threshold": 0.25
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 8,
+    "shape_id": 120,
+    "shape_name": "Photo title",
+    "message": "contrast not checked: background is the picture Picture 1",
+    "measured": null,
+    "threshold": null
+  }
+]

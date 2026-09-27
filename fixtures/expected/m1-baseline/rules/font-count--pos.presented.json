@@ -1,0 +1,13 @@
+[
+  {
+    "rule": "font-count",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 0,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "3 font families: Arial, Calibri, Georgia (max 2)",
+    "measured": 3,
+    "threshold": 2
+  }
+]

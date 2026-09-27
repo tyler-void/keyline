@@ -1,0 +1,35 @@
+[
+  {
+    "rule": "adapter-unresolved",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "background is not a solid fill (background:gradient); background rules skip this slide",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "15.05 cm empty bottom band from 4.00 to 19.05 cm (79.0% of slide height)",
+    "measured": 0.79,
+    "threshold": 0.25
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 2,
+    "shape_id": 2,
+    "shape_name": "on-gradient",
+    "message": "contrast not checked: background is the slide background (not a solid fill)",
+    "measured": null,
+    "threshold": null
+  }
+]

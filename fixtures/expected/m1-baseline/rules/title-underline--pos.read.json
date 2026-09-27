@@ -1,0 +1,13 @@
+[
+  {
+    "rule": "title-underline",
+    "category": "slop",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 4,
+    "shape_name": "underline",
+    "message": "3.00 × 0.15 cm bar 0.40 cm below the title (9.6% of the content width) reads as an underline accent",
+    "measured": 0.096,
+    "threshold": 0.5
+  }
+]

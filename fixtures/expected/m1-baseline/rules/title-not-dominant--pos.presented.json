@@ -1,0 +1,13 @@
+[
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 2,
+    "shape_name": "title",
+    "message": "title 24 pt is 1.33× the largest body text (18 pt); needs 2×",
+    "measured": 1.333,
+    "threshold": 2.0
+  }
+]

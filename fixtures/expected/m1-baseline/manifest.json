@@ -1,0 +1,226 @@
+{
+  "foreign/nested-groups.presented": {
+    "exit": 2
+  },
+  "foreign/nested-groups.read": {
+    "exit": 2
+  },
+  "foreign/pptx-default-placeholders.presented": {
+    "exit": 2
+  },
+  "foreign/pptx-default-placeholders.read": {
+    "exit": 2
+  },
+  "rules/body-too-small--neg.presented": {
+    "exit": 0
+  },
+  "rules/body-too-small--neg.read": {
+    "exit": 0
+  },
+  "rules/body-too-small--pos.presented": {
+    "exit": 2
+  },
+  "rules/body-too-small--pos.read": {
+    "exit": 2
+  },
+  "rules/box-overlap--neg.presented": {
+    "exit": 0
+  },
+  "rules/box-overlap--neg.read": {
+    "exit": 0
+  },
+  "rules/box-overlap--pos.presented": {
+    "exit": 0
+  },
+  "rules/box-overlap--pos.read": {
+    "exit": 0
+  },
+  "rules/dead-band--neg.presented": {
+    "exit": 0
+  },
+  "rules/dead-band--neg.read": {
+    "exit": 0
+  },
+  "rules/dead-band--pos.presented": {
+    "exit": 2
+  },
+  "rules/dead-band--pos.read": {
+    "exit": 2
+  },
+  "rules/edge-margin--neg.presented": {
+    "exit": 0
+  },
+  "rules/edge-margin--neg.read": {
+    "exit": 0
+  },
+  "rules/edge-margin--pos.presented": {
+    "exit": 2
+  },
+  "rules/edge-margin--pos.read": {
+    "exit": 2
+  },
+  "rules/equal-card-row--neg.presented": {
+    "exit": 2
+  },
+  "rules/equal-card-row--neg.read": {
+    "exit": 2
+  },
+  "rules/equal-card-row--pos.presented": {
+    "exit": 2
+  },
+  "rules/equal-card-row--pos.read": {
+    "exit": 2
+  },
+  "rules/font-count--neg.presented": {
+    "exit": 0
+  },
+  "rules/font-count--neg.read": {
+    "exit": 0
+  },
+  "rules/font-count--pos.presented": {
+    "exit": 2
+  },
+  "rules/font-count--pos.read": {
+    "exit": 2
+  },
+  "rules/notes-missing--neg.presented": {
+    "exit": 2
+  },
+  "rules/notes-missing--neg.read": {
+    "exit": 2
+  },
+  "rules/notes-missing--pos.presented": {
+    "exit": 2
+  },
+  "rules/notes-missing--pos.read": {
+    "exit": 2
+  },
+  "rules/off-slide--neg.presented": {
+    "exit": 2
+  },
+  "rules/off-slide--neg.read": {
+    "exit": 2
+  },
+  "rules/off-slide--pos.presented": {
+    "exit": 2
+  },
+  "rules/off-slide--pos.read": {
+    "exit": 2
+  },
+  "rules/text-contrast--neg.presented": {
+    "exit": 2
+  },
+  "rules/text-contrast--neg.read": {
+    "exit": 2
+  },
+  "rules/text-contrast--pos.presented": {
+    "exit": 2
+  },
+  "rules/text-contrast--pos.read": {
+    "exit": 2
+  },
+  "rules/title-not-dominant--neg.presented": {
+    "exit": 2
+  },
+  "rules/title-not-dominant--neg.read": {
+    "exit": 2
+  },
+  "rules/title-not-dominant--pos.presented": {
+    "exit": 2
+  },
+  "rules/title-not-dominant--pos.read": {
+    "exit": 2
+  },
+  "rules/title-underline--neg.presented": {
+    "exit": 2
+  },
+  "rules/title-underline--neg.read": {
+    "exit": 2
+  },
+  "rules/title-underline--pos.presented": {
+    "exit": 2
+  },
+  "rules/title-underline--pos.read": {
+    "exit": 2
+  },
+  "stress/d15_ppx_style_fontref.presented": {
+    "exit": 2
+  },
+  "stress/d15_ppx_style_fontref.read": {
+    "exit": 2
+  },
+  "stress/d16_raw_color.presented": {
+    "exit": 2
+  },
+  "stress/d16_raw_color.read": {
+    "exit": 2
+  },
+  "stress/d17_raw_geometry.presented": {
+    "exit": 2
+  },
+  "stress/d17_raw_geometry.read": {
+    "exit": 2
+  },
+  "stress/d18_lo_autofit.presented": {
+    "exit": 2
+  },
+  "stress/d18_lo_autofit.read": {
+    "exit": 2
+  },
+  "stress/d20_pgx_slop.presented": {
+    "exit": 2
+  },
+  "stress/d20_pgx_slop.read": {
+    "exit": 2
+  },
+  "stress/d25_ppx_localized_names.presented": {
+    "exit": 2
+  },
+  "stress/d25_ppx_localized_names.read": {
+    "exit": 2
+  },
+  "stress/d27_strict_from_ppx.presented": {
+    "exit": 1,
+    "reason": "Strict Open XML (ISO/IEC 29500 Strict) is not supported yet"
+  },
+  "stress/d27_strict_from_ppx.read": {
+    "exit": 1,
+    "reason": "Strict Open XML (ISO/IEC 29500 Strict) is not supported yet"
+  },
+  "stress/o51_lummod_percent_string.presented": {
+    "exit": 2
+  },
+  "stress/o51_lummod_percent_string.read": {
+    "exit": 2
+  },
+  "stress/o52_alpha_percent_string.presented": {
+    "exit": 2
+  },
+  "stress/o52_alpha_percent_string.read": {
+    "exit": 2
+  },
+  "stress/o53_tint_percent_in_master_bg.presented": {
+    "exit": 2
+  },
+  "stress/o53_tint_percent_in_master_bg.read": {
+    "exit": 2
+  },
+  "stress/o54_lumoff_float.presented": {
+    "exit": 2
+  },
+  "stress/o54_lumoff_float.read": {
+    "exit": 2
+  },
+  "stress/o55_cxn_id_word.presented": {
+    "exit": 2
+  },
+  "stress/o55_cxn_id_word.read": {
+    "exit": 2
+  },
+  "stress/o56_ext_40_digits.presented": {
+    "exit": 2
+  },
+  "stress/o56_ext_40_digits.read": {
+    "exit": 2
+  }
+}

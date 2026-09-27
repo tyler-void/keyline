@@ -1,0 +1,35 @@
+[
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "11.05 cm empty bottom band from 8.00 to 19.05 cm (58.0% of slide height)",
+    "measured": 0.58,
+    "threshold": 0.25
+  },
+  {
+    "rule": "body-too-small",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 3,
+    "shape_name": "tiny",
+    "message": "10 pt text in a 9-word paragraph (min 11 pt in read mode)",
+    "measured": 10.0,
+    "threshold": 11.0
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "11.05 cm empty bottom band from 8.00 to 19.05 cm (58.0% of slide height)",
+    "measured": 0.58,
+    "threshold": 0.25
+  }
+]

@@ -1,0 +1,134 @@
+[
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 2,
+    "shape_name": "Text 0",
+    "message": "title 36 pt is 1.8× the largest body text (20 pt); needs 2×",
+    "measured": 1.8,
+    "threshold": 2.0
+  },
+  {
+    "rule": "title-underline",
+    "category": "slop",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 3,
+    "shape_name": "Shape 1",
+    "message": "3.05 × 0.30 cm bar 0.25 cm below the title (9.7% of the content width) reads as an underline accent",
+    "measured": 0.097,
+    "threshold": 0.5
+  },
+  {
+    "rule": "equal-card-row",
+    "category": "slop",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 3,
+    "shape_name": "Shape 1",
+    "message": "4 equal cards in a row (7.11 × 9.14 cm, gaps 0.76 cm), each with text",
+    "measured": 4,
+    "threshold": 3
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 2,
+    "shape_name": "Text 0",
+    "message": "title 36 pt is 1.8× the largest body text (20 pt); needs 2×",
+    "measured": 1.8,
+    "threshold": 2.0
+  },
+  {
+    "rule": "equal-card-row",
+    "category": "slop",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": 3,
+    "shape_name": "Text 1",
+    "message": "3 equal cards in a row (8.38 × 9.14 cm, gaps 2.54 cm), each with text",
+    "measured": 3,
+    "threshold": 3
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": 2,
+    "shape_name": "Text 0",
+    "message": "title 36 pt is 1.8× the largest body text (20 pt); needs 2×",
+    "measured": 1.8,
+    "threshold": 2.0
+  },
+  {
+    "rule": "equal-card-row",
+    "category": "slop",
+    "severity": "warning",
+    "slide": 5,
+    "shape_id": 3,
+    "shape_name": "Text 1",
+    "message": "3 equal cards in a row (8.38 × 9.14 cm, gaps 2.54 cm), each with text",
+    "measured": 3,
+    "threshold": 3
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 5,
+    "shape_id": 2,
+    "shape_name": "Text 0",
+    "message": "title 36 pt is 1.8× the largest body text (20 pt); needs 2×",
+    "measured": 1.8,
+    "threshold": 2.0
+  },
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "error",
+    "slide": 6,
+    "shape_id": 4,
+    "shape_name": "Chart 0",
+    "message": "runs 2.54 cm past the bottom edge",
+    "measured": 2.54,
+    "threshold": 0.05
+  },
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "error",
+    "slide": 6,
+    "shape_id": 7,
+    "shape_name": "Table 0",
+    "message": "runs 5.00 cm past the right edge",
+    "measured": 5.0,
+    "threshold": 0.05
+  },
+  {
+    "rule": "unsupported-content",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 6,
+    "shape_id": 7,
+    "shape_name": "Table 0",
+    "message": "table text is not read in M1",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 7,
+    "shape_id": 2,
+    "shape_name": "Text 0",
+    "message": "title 36 pt is 1.8× the largest body text (20 pt); needs 2×",
+    "measured": 1.8,
+    "threshold": 2.0
+  }
+]

@@ -1,0 +1,13 @@
+[
+  {
+    "rule": "box-overlap",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 2,
+    "shape_name": "first",
+    "message": "box overlaps second by 1.00 × 1.00 cm (boxes, not ink)",
+    "measured": 1.0,
+    "threshold": 0.1
+  }
+]

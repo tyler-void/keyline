@@ -1,0 +1,79 @@
+[
+  {
+    "rule": "adapter-unresolved",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 2,
+    "shape_id": 3,
+    "shape_name": "TextBox 2",
+    "message": "color transform alpha is not supported",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "6.35 cm empty bottom band from 12.70 to 19.05 cm (33.3% of slide height)",
+    "measured": 0.333,
+    "threshold": 0.25
+  },
+  {
+    "rule": "edge-margin",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 2,
+    "shape_name": "Title 1",
+    "message": "0.76 cm from the top edge (min 1.27 cm)",
+    "measured": 0.76,
+    "threshold": 1.27
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 2,
+    "shape_id": 3,
+    "shape_name": "TextBox 2",
+    "message": "contrast not checked for runs whose color could not be resolved",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 2,
+    "shape_id": 5,
+    "shape_name": "Rectangle 4",
+    "message": "contrast not checked: background is the gradient fill of Rectangle 4",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 2,
+    "shape_id": 6,
+    "shape_name": "Rectangle 5",
+    "message": "contrast not checked: background is the gradient fill of Rectangle 5",
+    "measured": null,
+    "threshold": null
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 2,
+    "shape_name": "Title 1",
+    "message": "title 44 pt is 1.83× the largest body text (24 pt); needs 2×",
+    "measured": 1.833,
+    "threshold": 2.0
+  }
+]

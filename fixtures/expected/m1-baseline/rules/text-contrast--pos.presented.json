@@ -1,0 +1,35 @@
+[
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 2,
+    "shape_name": "label",
+    "message": "E8422E on F2F2F0 (slide background) is 3.57:1 at 9.5 pt (needs 4.5:1)",
+    "measured": 3.569,
+    "threshold": 4.5
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "10.05 cm empty bottom band from 9.00 to 19.05 cm (52.8% of slide height)",
+    "measured": 0.528,
+    "threshold": 0.25
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 3,
+    "shape_name": "on-card",
+    "message": "CADCFC on FFFFFF (white-card) is 1.39:1 at 14 pt (needs 4.5:1)",
+    "measured": 1.386,
+    "threshold": 4.5
+  }
+]

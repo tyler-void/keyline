@@ -1,0 +1,46 @@
+[
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 2,
+    "shape_name": "TextBox 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  },
+  {
+    "rule": "text-contrast",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 3,
+    "shape_name": "Rectangle 2",
+    "message": "FFFFFF on FFF2CC (Rectangle 2) is 1.12:1 at 24 pt (needs 3:1)",
+    "measured": 1.116,
+    "threshold": 3.0
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": 2,
+    "shape_name": "TextBox 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  },
+  {
+    "rule": "title-not-dominant",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": 2,
+    "shape_name": "TextBox 1",
+    "message": "title 40 pt is 1.67× the largest body text (24 pt); needs 2×",
+    "measured": 1.667,
+    "threshold": 2.0
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "rule": "equal-card-row",
+    "category": "slop",
+    "severity": "warning",
+    "slide": 1,
+    "shape_id": 2,
+    "shape_name": "card-a",
+    "message": "3 equal cards in a row (9.00 × 6.00 cm, gaps 1.00 cm), each with text",
+    "measured": 3,
+    "threshold": 3
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "6.00 cm empty top band from 0.00 to 6.00 cm (31.5% of slide height)",
+    "measured": 0.315,
+    "threshold": 0.25
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "7.05 cm empty bottom band from 12.00 to 19.05 cm (37.0% of slide height)",
+    "measured": 0.37,
+    "threshold": 0.25
+  },
+  {
+    "rule": "equal-card-row",
+    "category": "slop",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": 2,
+    "shape_name": "kpi-a",
+    "message": "3 equal cards in a row (9.00 × 6.00 cm, gaps 1.00 cm), each with text",
+    "measured": 3,
+    "threshold": 3
+  }
+]

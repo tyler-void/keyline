@@ -1,0 +1,35 @@
+[
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "error",
+    "slide": 1,
+    "shape_id": 2,
+    "shape_name": "over-right",
+    "message": "runs 1.13 cm past the right edge",
+    "measured": 1.13,
+    "threshold": 0.05
+  },
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "error",
+    "slide": 1,
+    "shape_id": 3,
+    "shape_name": "rotated",
+    "message": "runs 1.82 cm past the bottom edge",
+    "measured": 1.82,
+    "threshold": 0.05
+  },
+  {
+    "rule": "off-slide",
+    "category": "quality",
+    "severity": "advisory",
+    "slide": 1,
+    "shape_id": 4,
+    "shape_name": "bleed",
+    "message": "runs 2.00 cm past the left edge (non-text shape: possible bleed)",
+    "measured": 2.0,
+    "threshold": 0.05
+  }
+]

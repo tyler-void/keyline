@@ -1,0 +1,13 @@
+[
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "10.55 cm empty bottom band from 8.50 to 19.05 cm (55.4% of slide height)",
+    "measured": 0.554,
+    "threshold": 0.25
+  }
+]

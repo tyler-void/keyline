@@ -1,0 +1,35 @@
+[
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 2,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "8.05 cm empty bottom band from 11.00 to 19.05 cm (42.3% of slide height)",
+    "measured": 0.423,
+    "threshold": 0.25
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 3,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "8.05 cm empty bottom band from 11.00 to 19.05 cm (42.3% of slide height)",
+    "measured": 0.423,
+    "threshold": 0.25
+  },
+  {
+    "rule": "dead-band",
+    "category": "quality",
+    "severity": "warning",
+    "slide": 4,
+    "shape_id": null,
+    "shape_name": null,
+    "message": "8.05 cm empty bottom band from 11.00 to 19.05 cm (42.3% of slide height)",
+    "measured": 0.423,
+    "threshold": 0.25
+  }
+]
