@@ -77,7 +77,8 @@ def cmd_rules(args: argparse.Namespace) -> int:
     for s in specs:
         note = f" [{s.severity_notes}]" if s.severity_notes else ""
         lines.append(
-            f"{s.id:<{width}}  {s.category:<7} {s.severity:<8} {s.basis:<9} {s.summary}{note}"
+            f"{s.id:<{width}}  {s.category:<7} {s.severity:<8} {s.basis:<9} "
+            f"{s.requires:<9} {s.summary}{note}"
         )
     _out("\n".join(lines) + "\n")
     return 0

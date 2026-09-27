@@ -7,6 +7,7 @@ from pathlib import Path
 
 from keyline import config as config_mod
 from keyline import progress
+from keyline.context import EMPTY, LintContext
 from keyline.findings import Finding, exit_code, sort_findings
 from keyline.model import Deck
 from keyline.ooxml.adapter import load_deck
@@ -20,13 +21,20 @@ class LintResult:
     exit_code: int
 
 
-def lint_deck(deck: Deck, diagnostics: list[Finding], cfg: config_mod.Config) -> list[Finding]:
+def lint_deck(
+    deck: Deck,
+    diagnostics: list[Finding],
+    cfg: config_mod.Config,
+    ctx: LintContext = EMPTY,
+) -> list[Finding]:
+    """Run every registered rule whose `requires` the context satisfies."""
     load_all()
     out = list(diagnostics)
     for spec in all_rules():
-        if spec.check is not None:
-            progress.reading.set(f"rule {spec.id}")
-            out.extend(spec.check(deck, cfg))
+        if spec.check is None or not ctx.satisfies(spec.requires):
+            continue
+        progress.reading.set(f"rule {spec.id}")
+        out.extend(spec.run(deck, cfg, ctx))
     return sort_findings(out)
 
 
