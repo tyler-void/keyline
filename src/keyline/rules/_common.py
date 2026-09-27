@@ -63,6 +63,17 @@ def is_background(shape: Shape, deck: Deck, cfg: Config) -> bool:
     return ox * oy * t.denominator >= t.numerator * deck.width * deck.height
 
 
+def dead_band_applies(slide: Slide) -> bool:
+    """Spec 002 §2: with a role, only `evidence` slides; without one, the M1 rule."""
+    return slide.role == "evidence" if slide.role else is_content_slide(slide)
+
+
+def needs_notes(slide: Slide) -> bool:
+    """Spec 002 §2: with a role, every role but `cover` and `section`; without one, the M1
+    rule. A role decides even on slide 1 (plan Q-8)."""
+    return slide.role not in ("cover", "section") if slide.role else is_content_slide(slide)
+
+
 def is_content_slide(slide: Slide) -> bool:
     """M1 treats slide 1 as the cover (spec §5)."""
     return slide.index > 1

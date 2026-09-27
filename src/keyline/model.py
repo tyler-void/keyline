@@ -84,6 +84,8 @@ class Slide:
     background: str  # solid:#RRGGBB | unknown
     shapes: list[Shape] = field(default_factory=list)
     has_notes: bool = False
+    role: str | None = None  # spec 002 §2: from a `keyline:<role>[:<variant>]` layout name
+    variant: str | None = None
 
     @property
     def background_rgb(self) -> str | None:

@@ -12,7 +12,7 @@ from pathlib import Path
 
 from lxml import etree
 
-from keyline import progress
+from keyline import progress, roles
 from keyline.findings import Finding
 from keyline.geom import Box, rotated_aabb
 from keyline.model import Deck, Shape, Slide
@@ -435,11 +435,15 @@ def build_deck(pkg: Package) -> tuple[Deck, list[Finding]]:
         if bg.problem:
             ctx.diag(UNRESOLVED, None, bg.problem, _unresolved_message(bg.problem))
         cSld = layout_root.find(clark("p:cSld"))
+        layout_name = cSld.get("name") if cSld is not None else None
+        role, variant = roles.parse(layout_name)
         slide = Slide(
             index=index,
-            layout_name=cSld.get("name") if cSld is not None else None,
+            layout_name=layout_name,
             background=bg.fill,
             has_notes=_notes_text(pkg, slide_part),
+            role=role,
+            variant=variant,
         )
         tree = slide_root.find(clark("p:cSld/p:spTree"))
         if tree is not None:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from fractions import Fraction
 
 from keyline.registry import rule
-from keyline.rules._common import is_background, is_content_slide, is_visible
+from keyline.rules._common import dead_band_applies, is_background, is_visible
 from keyline.units import fmt_cm, fmt_pct, round3
 
 
@@ -51,7 +51,7 @@ def gaps(spans: list[tuple[int, int]], height: int) -> list[tuple[int, int]]:
 def check(deck, cfg):
     limit = cfg.dead_band_ratio * deck.height
     for slide in deck.slides:
-        if not is_content_slide(slide):
+        if not dead_band_applies(slide):
             continue
         for a, b in gaps(occupied(slide, deck, cfg), deck.height):
             band = b - a

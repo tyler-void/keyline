@@ -40,6 +40,23 @@ def slide(prs, bg: str | None = None, notes: str | None = None):
     return s
 
 
+def role_slide(prs, layout_index: int, layout_name: str, bg=None, notes=None):
+    """A slide on layout `layout_index`, renamed to `layout_name` (spec 002 §2 roles live
+    in layout names). The layout's placeholders are removed from the slide, so slides on
+    different layouts carry exactly the same shapes."""
+    layout = prs.slide_layouts[layout_index]
+    layout.element.cSld.set("name", layout_name)
+    s = prs.slides.add_slide(layout)
+    for ph in list(s.placeholders):
+        ph.element.getparent().remove(ph.element)
+    if bg is not None:
+        s.background.fill.solid()
+        s.background.fill.fore_color.rgb = RGBColor.from_string(bg)
+    if notes is not None:
+        s.notes_slide.notes_text_frame.text = notes
+    return s
+
+
 def _style_runs(tf, size, bold, color, font, align):
     for p in tf.paragraphs:
         if align:

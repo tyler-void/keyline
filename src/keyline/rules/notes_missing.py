@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from keyline.registry import rule
-from keyline.rules._common import RESEARCH_CANON, is_content_slide
+from keyline.rules._common import RESEARCH_CANON, needs_notes
 
 
 @rule(
@@ -18,7 +18,7 @@ from keyline.rules._common import RESEARCH_CANON, is_content_slide
 def check(deck, cfg):
     severity = "advisory" if cfg.mode == "read" else "warning"
     for slide in deck.slides:
-        if is_content_slide(slide) and not slide.has_notes:
+        if needs_notes(slide) and not slide.has_notes:
             yield check.finding(
                 slide.index, None, "content slide has no speaker notes", severity=severity
             )

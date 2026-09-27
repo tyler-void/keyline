@@ -327,6 +327,35 @@ def equal_card_row_neg():
     return prs
 
 
+# ---------- spec 002 AC-5: roles ----------
+def _headline_and_numeral(s):
+    """The same two shapes on every slide: content ends at 8.0 cm, so the band from 8.0 to
+    19.05 cm (58 % of the height) is empty."""
+    d.text(
+        s,
+        2,
+        1.5,
+        29.867,
+        2.5,
+        "Roles decide where composition rules apply",
+        size=40,
+        name="headline",
+    )
+    d.text(s, 2, 4.5, 12, 3.5, "61", size=96, bold=True, name="numeral")
+
+
+@deck("roles--ac5")
+def roles_ac5():
+    prs = d.new_deck()
+    # slide order statement, untagged, evidence puts the untagged slide at index 2 (Q-9)
+    _headline_and_numeral(d.role_slide(prs, 0, "keyline:statement", bg="FFFFFF", notes="n"))
+    _headline_and_numeral(d.slide(prs, bg="FFFFFF", notes="n"))
+    _headline_and_numeral(d.role_slide(prs, 1, "keyline:evidence", bg="FFFFFF", notes="n"))
+    s = d.role_slide(prs, 2, "keyline:section", bg="FFFFFF")  # no notes on purpose
+    d.text(s, 2, 1.5, 29.867, 2.5, "Part two", size=40, name="headline")
+    return prs
+
+
 def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []
