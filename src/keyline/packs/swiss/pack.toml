@@ -1,0 +1,218 @@
+# Swiss pack v1 (spec 002 §5.2). Every value here is data: the pen writes only these
+# tokens, and the pack rules check decks against them. Direction and reasons: README.md.
+schema = 1
+name = "swiss"
+version = "1.0.0"
+modes = ["presented", "read"]
+templates = { presented = "swiss-presented.pptx", read = "swiss-read.pptx" }
+fonts = ["Arial"]                  # D-017: until M3 embeds fonts
+containers = "rules"               # hairlines, not boxes
+alignment = "left"                 # flush left, ragged right
+accent_budget = 1
+accents = ["accent", "accent_on_ink"]
+accepted = []
+
+[palette]
+paper = "F2F2F0"                   # CIELAB C* 1.02: neutral, not cream
+ink = "111111"                     # 16.85 : 1 on paper
+muted = "5C5C5A"                   # 5.98 : 1 on paper; labels and source lines
+hairline = "B8B8B4"                # light rules only, never text
+accent = "CC3322"                  # 4.61 : 1 on paper; HSL hue 6.0 (signal red)
+accent_on_ink = "E8422E"           # 4.72 : 1 on ink
+
+[surfaces.paper]
+background = "paper"
+text = ["ink", "muted", "accent"]
+accent = "accent"                  # what figure(accent=True) uses on this surface
+
+[surfaces.ink]
+background = "ink"
+text = ["paper", "accent_on_ink"]  # muted on ink is only 2.82 : 1
+accent = "accent_on_ink"
+
+[grid]                             # plan 002 §2.5; EMU, so every region edge is an integer
+columns = 12
+gutter_emu = 180000                # 0.50 cm; 12 columns of 761000 EMU (2.114 cm)
+margin_x_emu = 540000              # 1.50 cm
+margin_y_emu = 549000              # 1.525 cm
+row_emu = 90000                    # 0.25 cm; 64 rows fill the content height
+rows = 64
+
+[keyline_rule]                     # the pack's one device, drawn by the pen on evidence slides
+color = "ink"
+row = 18
+thickness_emu = 43200              # 0.12 cm
+
+# ---------------------------------------------------------------------------------------
+# Type scale. color = palette name, or { surface = palette name }. tracking is a fraction
+# of the size (0.08 = +8 %); line_spacing multiplies the 1.2 em line pitch (§6.4).
+[styles.presented.cover_title]
+size_pt = 66
+weight = "bold"
+color = { paper = "ink" }
+[styles.presented.statement]
+size_pt = 60
+weight = "bold"
+color = { paper = "ink" }
+[styles.presented.headline]
+size_pt = 48
+weight = "bold"
+color = { paper = "ink", ink = "paper" }
+[styles.presented.quote]
+size_pt = 44
+weight = "regular"
+color = { paper = "ink" }
+[styles.presented.lede]
+size_pt = 28
+weight = "regular"
+color = { paper = "ink" }
+line_spacing = 1.1
+[styles.presented.body]
+size_pt = 24
+weight = "regular"
+color = { paper = "ink" }
+line_spacing = 1.1
+space_after_pt = 6
+bullet_indent_emu = 342900
+bullet_marker = "–"
+[styles.presented.numeral]
+size_pt = 120
+weight = "bold"
+color = { paper = "ink" }
+[styles.presented.label]
+size_pt = 14
+weight = "bold"
+color = { paper = "muted", ink = "accent_on_ink" }
+caps = true
+tracking = 0.08
+[styles.presented.source]
+size_pt = 12
+weight = "regular"
+color = { paper = "muted" }
+
+[styles.read.cover_title]
+size_pt = 40
+weight = "bold"
+color = { paper = "ink" }
+[styles.read.statement]
+size_pt = 36
+weight = "bold"
+color = { paper = "ink" }
+[styles.read.headline]
+size_pt = 28
+weight = "bold"
+color = { paper = "ink", ink = "paper" }
+[styles.read.quote]
+size_pt = 24
+weight = "regular"
+color = { paper = "ink" }
+[styles.read.lede]
+size_pt = 16
+weight = "regular"
+color = { paper = "ink" }
+line_spacing = 1.1
+[styles.read.body]
+size_pt = 13
+weight = "regular"
+color = { paper = "ink" }
+line_spacing = 1.1
+space_after_pt = 4
+bullet_indent_emu = 228600
+bullet_marker = "–"
+[styles.read.numeral]
+size_pt = 60
+weight = "bold"
+color = { paper = "ink" }
+[styles.read.label]
+size_pt = 10
+weight = "bold"
+color = { paper = "muted", ink = "accent_on_ink" }
+caps = true
+tracking = 0.08
+[styles.read.source]
+size_pt = 9
+weight = "regular"
+color = { paper = "muted" }
+
+# ---------------------------------------------------------------------------------------
+# Roles (§5.2 "components allowed per role"). components: component -> allowed styles.
+[roles.cover]
+surface = "paper"
+title = "cover_title"
+layouts = ["keyline:cover"]
+components.presented = { text = ["lede"], source = ["source"], note = ["source"] }
+components.read = { text = ["lede"], source = ["source"], note = ["source"] }
+
+[roles.section]
+surface = "ink"
+title = "headline"
+layouts = ["keyline:section"]
+components.presented = { text = ["label"] }
+components.read = { text = ["label"] }
+
+[roles.statement]
+surface = "paper"
+title = "statement"
+layouts = ["keyline:statement"]
+components.presented = { text = ["lede", "body"], figure = ["numeral", "label"], source = ["source"], note = ["source"] }
+components.read = { text = ["lede", "body"], figure = ["numeral", "label"], source = ["source"], note = ["source"] }
+
+[roles.evidence]
+surface = "paper"
+title = "headline"
+layouts = ["keyline:evidence", "keyline:evidence:figure"]
+components.presented = { text = ["body"], bullets = ["body"], figure = ["numeral", "label"], table = ["body", "label"], chart_bar = ["label", "source"], image = [], source = ["source"], note = ["source"] }
+components.read = { text = ["body", "lede"], bullets = ["body"], figure = ["numeral", "label"], table = ["body", "label"], chart_bar = ["label", "source"], image = [], source = ["source"], note = ["source"] }
+
+[roles.quote]
+surface = "paper"
+title = "quote"
+layouts = ["keyline:quote"]
+components.presented = { attribution = ["label"] }
+components.read = { attribution = ["label"] }
+
+[roles.close]
+surface = "paper"
+title = "cover_title"
+layouts = ["keyline:close"]
+components.presented = { text = ["lede"], figure = ["numeral", "label"], source = ["source"], note = ["source"] }
+components.read = { text = ["lede"], figure = ["numeral", "label"], source = ["source"], note = ["source"] }
+
+# ---------------------------------------------------------------------------------------
+# Regions per layout, in grid units: col 1-12, span columns, row 0-63, rows tall. A region
+# covers [row, row + rows). Every layout has a "title" region; "footer" holds the source
+# line then the note line (§6.1). Shared by both modes; sized for the larger presented
+# type (plan §2.5).
+[regions."keyline:cover"]
+title = { col = 1, span = 10, row = 14, rows = 24 }
+main = { col = 1, span = 10, row = 40, rows = 16 }
+footer = { col = 1, span = 12, row = 58, rows = 6 }
+
+[regions."keyline:section"]
+title = { col = 1, span = 10, row = 22, rows = 18 }
+main = { col = 1, span = 10, row = 42, rows = 4 }
+
+[regions."keyline:statement"]
+title = { col = 1, span = 10, row = 2, rows = 31 }
+main = { col = 1, span = 10, row = 34, rows = 23 }
+footer = { col = 1, span = 12, row = 58, rows = 6 }
+
+[regions."keyline:evidence"]
+title = { col = 1, span = 12, row = 0, rows = 17 }
+main = { col = 1, span = 12, row = 20, rows = 37 }
+footer = { col = 1, span = 12, row = 58, rows = 6 }
+
+[regions."keyline:evidence:figure"]
+title = { col = 1, span = 12, row = 0, rows = 17 }
+main = { col = 1, span = 8, row = 20, rows = 37 }
+side = { col = 9, span = 4, row = 20, rows = 37 }
+footer = { col = 1, span = 12, row = 58, rows = 6 }
+
+[regions."keyline:quote"]
+title = { col = 1, span = 10, row = 6, rows = 40 }
+main = { col = 1, span = 10, row = 48, rows = 3 }
+
+[regions."keyline:close"]
+title = { col = 1, span = 10, row = 8, rows = 24 }
+main = { col = 1, span = 10, row = 34, rows = 23 }
+footer = { col = 1, span = 12, row = 58, rows = 6 }

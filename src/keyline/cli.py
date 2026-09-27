@@ -84,6 +84,18 @@ def cmd_rules(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_packs(args: argparse.Namespace) -> int:
+    from keyline.packs import bundled, resolve
+
+    packs = [resolve(name) for name in bundled()]
+    rows = [{"name": p.name, "version": p.version, "modes": list(p.modes)} for p in packs]
+    if args.json:
+        _out_json(json.dumps(rows, ensure_ascii=False, indent=2) + "\n")
+    else:
+        _out("".join(f"{r['name']}  {r['version']}  {', '.join(r['modes'])}\n" for r in rows))
+    return 0
+
+
 def cmd_render(args: argparse.Namespace) -> int:
     from keyline.render import RenderError, render
 
@@ -145,6 +157,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("rules", help="list the rule registry", parents=[common])
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_rules)
+
+    p = sub.add_parser("packs", help="list the style packs keyline ships", parents=[common])
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_packs)
 
     p = sub.add_parser(
         "render", help="PNG per slide and a contact sheet (needs OfficeCLI)", parents=[common]
