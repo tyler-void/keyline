@@ -19,7 +19,11 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6", "python-pptx==1.0.2"]
+# pen: the M2 writer (D-015); lint never imports it. render: PDF rasteriser for the
+# LibreOffice engine, imported only by keyline.render.
+pen = ["python-pptx>=1.0.2"]
+render = ["pypdfium2"]
+dev = ["pytest>=8", "ruff>=0.6", "python-pptx==1.0.2", "pypdfium2", "fontTools"]
 
 [project.scripts]
 keyline = "keyline.cli:main"
