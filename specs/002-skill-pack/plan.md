@@ -1,7 +1,9 @@
 # Plan 002: skill, brief and the Swiss pack
 
 - **Spec:** [`spec.md`](spec.md) (M2). "A-n" means a spec 001 amendment, as in the spec.
-- **Status:** awaiting Tyler's approval. Nothing is implemented.
+- **Status:** approved with amendments by [audit 01](audit-01-plan.md) (2026-09-27): every
+  proposal below is accepted except Q-7 (overruled by B-2); Q-20's open choice is made.
+  Amendments B-1 … B-7 are in the spec's amendment log.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`).
 
@@ -92,10 +94,11 @@ data: `packs/*/pack.toml`, `packs/*/README.md`, `packs/*/*.pptx`, `fit/tables/*.
 
 `rules/_common.py` gains `line_kind(paragraph, cfg) -> "source" | "note" | None`
 (NFC, left-strip, casefold, prefix, optional spaces, `:` or `：`). `body_paragraphs`
-keeps its A-2 definition; `body-too-small` skips source/note paragraphs as body and
-checks them against `source_min_pt` instead, with "source line"/"note line" in the
-message. `title-not-dominant` is left literally as specified (source/note lines still
-count as body there) [Q-7].
+keeps one definition for both rules (A-2) and now excludes source and note paragraphs,
+so they are body in neither `body-too-small` nor `title-not-dominant` (B-2, overruling
+Q-7). `body-too-small` checks them against `source_min_pt` instead, with "source
+line"/"note line" in the message. They still count as text for contrast, fonts and the
+pack rules.
 
 ### 2.4 Colour spaces and the three pack-free rules (§3.3, §3.4)
 
@@ -205,7 +208,10 @@ template adds `keyline:evidence:two-col`.
 
 **Theme colours** (all palette values, §5.3): dk1 ink, lt1 paper, dk2 muted,
 lt2 hairline, accent1 accent, accent2 accent_on_ink, accent3 muted, accent4 hairline,
-accent5 ink, accent6 muted, hlink accent, folHlink muted. Major and minor fonts: Arial.
+accent5 ink, accent6 muted, **hlink ink**, folHlink muted. Major and minor fonts: Arial.
+`hlink` is ink, not accent (decided for Q-20 on the auditor's recommendation): a
+hyperlink in accent would be an accent element and spend the slide's whole
+`accent_budget` of 1.
 
 **Type scale:** as §5.2, unchanged. The §5.4 invariants were checked by hand against
 it (hierarchy: the tightest pair is presented evidence 48/24 = 2.00; read evidence
@@ -437,6 +443,8 @@ Each has a proposal; implementation follows the proposal unless Tyler rules othe
    only in `body-too-small`, but A-2 made one body definition for both rules.
    *Proposal:* follow §3.1 literally for now (no effect on Swiss decks, whose titles
    are far larger); ask whether A-2's single definition should win.
+   **Ruling (audit 01): overruled.** One body definition; source and note paragraphs are
+   body in neither rule (B-2). §2.3 is updated.
 8. **Q-8 · Mixed decks.** Does "slide 1 is the cover" still apply to a slide 1 that has
    a non-cover role? *Proposal:* no; a role, when present, decides.
 9. **Q-9 · AC-5's "untagged layout at index 2".** *Proposal:* one deck ordered
@@ -471,6 +479,8 @@ Each has a proposal; implementation follows the proposal unless Tyler rules othe
 19. **Q-19 · `numbers.py` → `numtokens.py`** (see §1). *Proposal:* rename.
 20. **Q-20 · Theme colour mapping** (§2.5) and **the layout list per mode** are plan
     choices; flagged here so Tyler sees them before T-09.
+    **Ruling (audit 01): accepted; decided:** `hlink` maps to ink, not accent (§2.5).
+    The rest of the mapping and the layout list stand.
 21. **Q-21 · Pen placeholders.** *Proposal:* every text region is a layout placeholder
     (so hand-typed text lands on scale, §5.3), and the pen deletes the placeholders it
     does not fill; figures, tables, charts and images are ordinary shapes at their

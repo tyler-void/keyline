@@ -1293,3 +1293,34 @@ must contain at least these rows.
   writer and for the M3 editing route. The auditor's test found invalid chart axis ids
   in python-pptx output, which led to §6.6 and L-014, and non-deterministic OfficeCLI
   output, which led to L-015.
+- **B-1 (2026-09-27, audit 01).** AC-2: `test_rules_listing` accepts the **32** ids of
+  AC-1, not 31.
+- **B-2 (2026-09-27, audit 01).** Source and note paragraphs (§3.1) are not body in
+  `body-too-small` and not body in `title-not-dominant`, so A-2's single body definition
+  holds. They still count as text for contrast, fonts and the pack rules.
+- **B-3 (2026-09-27, audit 01).** AC-8 runs in A1 on a deck built by a fixture script
+  that writes what the pen will write: the Swiss layouts, region boxes, and source and
+  note lines. AC-8 runs again in A2 on a pen-built deck, with the same six drifts and
+  the same expected findings.
+- **B-4 (2026-09-27, audit 01).** Two more schema errors for `keyline brief` (exit 1,
+  one line): a pack that cannot be found, and a mode the pack does not list in
+  `modes`.
+- **B-5 (2026-09-27, audit 01).** The following are known limits of §4.4. They are
+  pinned by tests and documented in `check.md`:
+  - a day of the month ("27 September 2026" gives a significant `27`);
+  - version strings ("v2.0.1" gives `2.0.1`);
+  - "3 × 4" gives `3×`;
+  - "$-5" gives `-5`.
+
+  The skill writes month-year dates. A deck that needs a full date lists it as an
+  evidence entry for that slide.
+- **B-6 (2026-09-27, audit 01).** G-1 also covers opening both templates and both
+  specimens in PowerPoint. PowerPoint for the web is enough. The report records which
+  PowerPoint was used and whether it offered to repair any file.
+- **B-7 (2026-09-27, audit 01).** Every render-dependent result records the LibreOffice
+  version it ran on. This covers AC-13(b), AC-14 and the contact sheets.
+  - AC-13(b) is judged on the installed version.
+  - The implementer first measures line pitch and the wrap margin on that version.
+    If they differ from §6.4's 24.2 values (1.2 em; wraps at 1.000× and 1.002×, not at
+    1.005×), the report says so, and the auditor rules before any constant changes.
+    Constants are never tuned to make a test pass.
