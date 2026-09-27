@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import unicodedata
 from collections.abc import Iterator
 from fractions import Fraction
 
@@ -117,15 +118,32 @@ def pick_title(slide: Slide, cfg: Config) -> Shape | None:
     return best
 
 
+_COLONS = (":", "：")
+
+
+def line_kind(p: Paragraph, cfg: Config) -> str | None:
+    """Spec 002 §3.1: "source" or "note" when the inked paragraph's text, after NFC, a left
+    strip and casefold, starts with a configured prefix followed by optional spaces and
+    `:` or `：`; otherwise None. "Source code matters" is neither: no colon follows."""
+    if not any(r.has_ink for r in p.runs):
+        return None
+    text = unicodedata.normalize("NFC", p.text).lstrip().casefold()
+    for kind, prefixes in (("source", cfg.source_prefixes), ("note", cfg.note_prefixes)):
+        for prefix in prefixes:
+            if text.startswith(prefix) and text[len(prefix) :].lstrip(" \t").startswith(_COLONS):
+                return kind
+    return None
+
+
 def body_paragraphs(
     slide: Slide, title: Shape | None, cfg: Config
 ) -> Iterator[tuple[Shape, Paragraph]]:
     """A-2: paragraphs with more than caption_exempt_words words, in text-bearing shapes
-    other than the title."""
+    other than the title. Source and note lines are never body (spec 002 §3.1, B-2)."""
     limit = cfg.as_int("caption_exempt_words")
     for s in slide.shapes:
         if s is title or not is_text_bearing(s):
             continue
         for p in s.paragraphs:
-            if words(p.text) > limit:
+            if words(p.text) > limit and line_kind(p, cfg) is None:
                 yield s, p

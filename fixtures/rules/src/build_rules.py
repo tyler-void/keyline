@@ -356,6 +356,31 @@ def roles_ac5():
     return prs
 
 
+# ---------- spec 002 AC-6: source and note lines (presented mode) ----------
+SOURCE_LINE = "Source: BonsaiHub waitlist, September 2026 (fictional)"
+NOTE_LINE = "Note: BonsaiHub is a parody. Its trees and every number in this deck are fictional."
+
+
+@deck("source-lines--ac6")
+def source_lines_ac6():
+    prs = d.new_deck()
+    lines = [
+        (SOURCE_LINE, 12, "source-12pt"),  # a source line at the floor: fine
+        (SOURCE_LINE, 10, "source-10pt"),  # below source_min_pt: "source line"
+        ("Source code in this repository is checked by two linters", 12, "source-code"),
+        (NOTE_LINE, 12, "note-12pt"),  # a note line at the floor: fine
+    ]
+    for body, size, name in lines:
+        s = d.slide(prs, bg="FFFFFF", notes="n")
+        d.text(s, 2, 1.5, 29.867, 2.5, "Where the numbers come from", size=40, name="title")
+        d.text(s, 2, 15.5, 29.867, 1.5, body, size=size, name=name)
+    # B-2: a source line is not body for title-not-dominant either (20 < 2.0 x 12 if it were)
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 1.5, 29.867, 2.5, "A modest title", size=20, name="title")
+    d.text(s, 2, 15.5, 29.867, 1.5, SOURCE_LINE, size=12, name="source-under-small-title")
+    return prs
+
+
 def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []
