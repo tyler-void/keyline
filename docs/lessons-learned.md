@@ -62,3 +62,24 @@ re-fitting the text, or an app that re-fits on open (LibreOffice does), can make
 keyline report a size that the viewer won't show. Example: d17 slide 6, where the
 stored scale is 55% and LibreOffice shows full size. Only a render-based size check
 (a backlog item) can settle this.
+
+**L-011 · 2026-09-27 · HSL saturation cannot judge near-white paper.** `F2F2F0` has HSL S = 7.1 %
+while its CIELAB C\* is 1.02. Use C\* for paper and HSL hue for saturated accents
+(§3.3).
+
+**L-012 · 2026-09-27 · Line pitch is 1.2 em, not the font's hhea factor.** LibreOffice 24.2 sets
+Arial/Liberation text at 1.20 × size. The hhea factor (1.15) underestimates height
+and makes text overflow (§6.4).
+
+**L-013 · 2026-09-27 · A python-pptx chart carries its build time.** The embedded XlsxWriter
+workbook's `core.xml` records `created`/`modified`, so a chart deck is not
+byte-stable until the workbook is normalized too (§6.5).
+
+**L-014 · 2026-09-27 · python-pptx chart axis ids are not schema-valid.** They are negative
+integers, and `officecli validate` rejects them as UInt32. PowerPoint is widely
+reported to open such files anyway (unverified), but a validator will not.
+Normalize the ids (§6.6).
+
+**L-015 · 2026-09-27 · OfficeCLI output is not byte-stable.** Relationship ids are random, and
+`docProps/custom.xml` records the build time. An OfficeCLI writer would need an
+id-renumbering pass before it could promise reproducible builds.

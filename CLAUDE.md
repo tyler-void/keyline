@@ -6,9 +6,9 @@ It has three layers, built in this order:
 1. `keyline lint`: deterministic design checks on any `.pptx` (current work).
 2. `keyline render` / `keyline check`: per-slide PNGs, a contact sheet, and the gate.
 3. A cross-surface Agent Skill (Claude Code, claude.ai web, Claude desktop) with a
-   brief format and style packs. Not started; do not build ahead.
+   brief format and style packs. M2, spec 002 (active).
 
-Status: pre-alpha. **Active spec: `specs/001-lint-core/spec.md`.**
+Status: pre-alpha. **Active spec: `specs/002-skill-pack/spec.md`.**
 
 ## Read before any work
 

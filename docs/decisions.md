@@ -38,3 +38,75 @@ Append-only. To change a decision, add a new entry that supersedes the old one.
     - Claude co-author trailers (D-013);
     - GitHub's web-UI committer, `GitHub <noreply@github.com>`, so that merging from
       the web UI does not fail the test.
+- Decisions D-015 … D-019 were confirmed by Tyler on 2026-09-27 (spec 002 §0), with the
+  sources checked that day:
+- **D-015 · The pen is a token API independent of its writer. The M2 writer is
+  python-pptx, on every surface. OfficeCLI renders, validates and edits.**
+  Supersedes the "OfficeCLI builds decks" half of D-003. Tyler chose this over two
+  writers (option A, 2026-09-27).
+  - **One writer everywhere.** python-pptx writes on claude.ai, on Claude desktop, and
+    on Claude Code on Tyler's machine. The agent only ever calls the pen, so the
+    writer underneath is invisible to it.
+  - **OfficeCLI's roles:**
+    - a render engine (§7);
+    - `officecli validate` in `check` wherever OfficeCLI is installed (§7);
+    - later, a second writer for features only it has, such as morph transitions;
+    - later, editing existing decks that the pen did not build (M3, route "check a
+      deck → fix").
+  - The lint core is unchanged (constitution VII): it never imports python-pptx or
+    calls OfficeCLI.
+  - Why:
+    - python-pptx (with lxml and Pillow) is pre-installed in the Claude API's
+      code-execution container, which runs Python 3.11. That list is documented.
+      claude.ai does not publish its own list, but it allows installs from PyPI by
+      default (sources below).
+    - OfficeCLI's npm package downloads a 34 MB binary at install time
+      (`install-binary.js`: `d.officecli.ai`, with GitHub releases as fallback). On
+      claude.ai that happens again in every fresh sandbox, and it fails where network
+      access is off.
+    - The pen needs layout and placeholder control. python-pptx exposes it directly and
+      avoids the positional-path quirk (L-001).
+    - OfficeCLI 1.0.152 output is not byte-stable. Two identical runs gave different
+      files, because relationship ids are random (`R93086a6bc0…`) and
+      `docProps/custom.xml` records the build time. python-pptx differs only in zip
+      timestamps and chart workbooks, and both are normalizable (§6.5). (Auditor's
+      test, 2026-09-27.)
+    - A second writer in M2 would add no M2 feature. The cost would be the writer
+      twice, an id-renumbering pass and parity tests.
+  - LibreOffice 24.2 rendered the editorial golden deck to PNG through
+    PDF in the auditor's sandbox (about 1.2 s warm). That it is available on claude.ai
+    is inferred, not verified: Anthropic's own pptx skill calls `soffice`. `doctor`
+    (§7) reports what is present.
+- **D-016 · Briefs and evidence are TOML; slide roles live in layout names.**
+  `tomllib` is stdlib (D-012), so no new dependency. A pen-built slide carries its
+  role in its layout name (`keyline:<role>`, §2). The role therefore survives editing
+  in PowerPoint, and lint needs no sidecar file to read it.
+- **D-017 · Swiss pack v1 uses Arial only.** Until M3 can embed fonts, the pack uses a
+  family that PowerPoint on Windows and Mac, Keynote and Google Slides all have. Liberation Sans is
+  metric-compatible (OFL), so LibreOffice renders and the pen's fit estimate come
+  close to PowerPoint's line breaks. §6.4 keeps a 1 % safety margin because they are
+  not identical. Revisit when M3 font embedding lands.
+- **D-018 · Modes: both (Tyler, 2026-09-27).** Internal decks are sometimes presented
+  and sometimes sent to be read. The skill has no default mode: every brief declares
+  one. If the user did not say, the skill asks exactly one question: "Will this be
+  presented live, or sent to be read?" The CLI default stays `presented` (D-008).
+- **Sources for D-015 and §8** (checked 2026-09-27):
+  - pre-installed libraries and Python 3.11 in the code-execution container:
+    https://platform.claude.com/docs/en/agents-and-tools/tool-use/code-execution-tool
+  - claude.ai network access (package managers, including PyPI, npm and GitHub, are
+    allowed by default):
+    https://support.claude.com/en/articles/12111783-create-and-edit-files-with-claude
+  - custom skills (ZIP holding one folder, 200-character description, Customize →
+    Skills): https://support.claude.com/en/articles/12512198-how-to-create-custom-skills
+  - SKILL.md format (name regex, 1024-character description, 500 lines):
+    https://agentskills.io/specification
+  - Claude Code skills (locations; for synced skills, substitution and shell injection
+    are disabled): https://code.claude.com/docs/en/skills
+- **D-019 · Canonical demo product: BonsaiHub (Tyler, 2026-09-27).** A fictional parody:
+  a swipe-dating app and a "hub" photo feed, both for bonsai trees.
+  - The auditor provides `examples/bonsaihub/product.toml`. It is read-only, like the
+    golden decks.
+  - Every deck built from it carries the disclosure line on its cover or its last
+    slide.
+  - It stays safe for work.
+  - It never imitates a real brand's marks or interface (`[product.brand].must_not`).
