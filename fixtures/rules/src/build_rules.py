@@ -1,4 +1,4 @@
-"""Build every rule fixture deck: python fixtures/rules/src/build_rules.py [OUT_DIR]
+"""Build rule fixture decks: python fixtures/rules/src/build_rules.py [OUT_DIR] [--only NAME ...]
 
 Each builder makes one deck. Expectations for each deck live in fixtures/rules/expect.toml.
 Dev dependency: python-pptx (pyproject extra `dev`).
@@ -367,8 +367,15 @@ def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
 
 
 def main(argv: list[str]) -> int:
-    out = Path(argv[1]) if len(argv) > 1 else Path(__file__).resolve().parents[1]
-    for p in build(out):
+    """build_rules.py [OUT_DIR] [--only NAME ...]. Rebuilding a committed deck only
+    changes its zip timestamps, so build just the decks you add or change."""
+    args = argv[1:]
+    only = []
+    if "--only" in args:
+        i = args.index("--only")
+        only, args = args[i + 1 :], args[:i]
+    out = Path(args[0]) if args else Path(__file__).resolve().parents[1]
+    for p in build(out, only or None):
         print(p)
     return 0
 
