@@ -29,11 +29,43 @@ card_size_tolerance = 0.03
 card_row_tolerance_cm = 0.2
 card_gap_tolerance_cm = 0.3
 card_center_tolerance = 0.03
+# spec 002 §3.2 (initial values)
+source_prefixes = ["source", "sources", "nguồn"]
+note_prefixes = ["note", "notes", "ghi chú"]
+neutral_chroma_max = 1.5          # CIELAB C*; pack paper must be at or below
+cream_lightness_min = 88          # CIELAB L*
+cream_chroma_max = 20             # cream: neutral_chroma_max < C* <= this
+cream_hue_min = 60                # CIELAB h, degrees
+cream_hue_max = 115
+cream_slide_ratio = 0.5
+terracotta_hue_min = 10           # HSL hue, degrees
+terracotta_hue_max = 25
+terracotta_sat_min = 0.35         # HSL saturation
+terracotta_sat_max = 0.90
+terracotta_light_min = 0.35       # HSL lightness
+terracotta_light_max = 0.70
+closing_cliches = ["thank you", "thanks", "thank you for listening", "questions",
+  "any questions", "q&a", "key takeaways", "in conclusion", "the end",
+  "cảm ơn", "xin cảm ơn", "cám ơn", "cảm ơn đã lắng nghe", "hỏi đáp"]
+mood_words = ["clean", "modern", "elegant", "premium", "sleek", "minimal", "minimalist",
+  "bold", "vibrant", "professional", "innovative", "dynamic", "cutting-edge",
+  "seamless", "fresh", "stylish"]
+statement_min_slides = 6          # brief-no-statement applies at or above this length
 
 [presented]
 body_min_pt = 18
 title_ratio_min = 2.0
+title_words_max = 10              # spec 002 §3.2
+source_min_pt = 12
+reads_max = 3                     # brief
+bullets_max = 4                   # pen
+numerals_max = 1                  # pen: figure() calls per slide
 
 [read]
 body_min_pt = 11
 title_ratio_min = 1.6
+title_words_max = 15
+source_min_pt = 9
+reads_max = 5
+bullets_max = 6
+numerals_max = 2

@@ -7,6 +7,7 @@ comparisons such as 36 pt vs 2.0 × 18 pt are exact.
 from __future__ import annotations
 
 import tomllib
+import unicodedata
 from dataclasses import dataclass
 from fractions import Fraction
 from importlib import resources
@@ -44,7 +45,35 @@ KEYS = (
     "card_row_tolerance_cm",
     "card_gap_tolerance_cm",
     "card_center_tolerance",
+    # spec 002 §3.2, per mode
+    "title_words_max",
+    "source_min_pt",
+    "reads_max",
+    "bullets_max",
+    "numerals_max",
+    # spec 002 §3.2, common
+    "source_prefixes",
+    "note_prefixes",
+    "neutral_chroma_max",
+    "cream_lightness_min",
+    "cream_chroma_max",
+    "cream_hue_min",
+    "cream_hue_max",
+    "cream_slide_ratio",
+    "terracotta_hue_min",
+    "terracotta_hue_max",
+    "terracotta_sat_min",
+    "terracotta_sat_max",
+    "terracotta_light_min",
+    "terracotta_light_max",
+    "closing_cliches",
+    "mood_words",
+    "statement_min_slides",
 )
+
+# Keys whose value is a list of strings (NFC-normalised and casefolded on load); every
+# other key is a number.
+LIST_KEYS = frozenset({"source_prefixes", "note_prefixes", "closing_cliches", "mood_words"})
 
 
 class ConfigError(ValueError):
@@ -55,9 +84,9 @@ class ConfigError(ValueError):
 class Config:
     mode: str
     calibrated: bool
-    values: dict[str, Fraction]
+    values: dict[str, Fraction | tuple[str, ...]]
 
-    def __getattr__(self, name: str) -> Fraction:
+    def __getattr__(self, name: str) -> Any:
         try:
             return self.values[name]
         except KeyError:
@@ -76,6 +105,16 @@ def _number(key: str, raw: Any) -> Fraction:
     return to_fraction(raw)
 
 
+def _strings(key: str, raw: Any) -> tuple[str, ...]:
+    if not isinstance(raw, list) or not all(isinstance(s, str) and s.strip() for s in raw):
+        raise ConfigError(f"{key} must be a list of non-empty strings, got {raw!r}")
+    return tuple(unicodedata.normalize("NFC", s).casefold() for s in raw)
+
+
+def _value(key: str, raw: Any) -> Fraction | tuple[str, ...]:
+    return _strings(key, raw) if key in LIST_KEYS else _number(key, raw)
+
+
 def parse(data: dict[str, Any], mode: str) -> Config:
     if mode not in MODES:
         raise ConfigError(f"unknown mode {mode!r}; expected one of {', '.join(MODES)}")
@@ -86,12 +125,12 @@ def parse(data: dict[str, Any], mode: str) -> Config:
     extra = set(data) - allowed
     if extra:
         raise ConfigError(f"unknown top-level keys: {', '.join(sorted(extra))}")
-    merged: dict[str, Fraction] = {}
+    merged: dict[str, Fraction | tuple[str, ...]] = {}
     for table in ("common", mode):
         for key, raw in data.get(table, {}).items():
             if key not in KEYS:
                 raise ConfigError(f"unknown key [{table}].{key}")
-            merged[key] = _number(key, raw)
+            merged[key] = _value(key, raw)
     missing = [k for k in KEYS if k not in merged]
     if missing:
         raise ConfigError(f"missing keys for mode {mode}: {', '.join(missing)}")
