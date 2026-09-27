@@ -115,3 +115,43 @@ must = ["equal-card-row@card-a:warning", "equal-card-row@kpi-a:warning"]
 [[case]]
 deck = "equal-card-row--neg.pptx"
 must_not = ["equal-card-row"]
+
+# ---------- spec 002 §3.4 ----------
+[[case]]
+deck = "claude-look-palette--pos.pptx"
+must = ["claude-look-palette@-:warning"]
+
+[[case]]
+deck = "claude-look-palette--neg.pptx"
+absent = ["claude-look-palette"]
+
+[[case]]
+deck = "claude-look-palette--cream-only.pptx"
+must = ["claude-look-palette@-:advisory"]
+must_not = ["claude-look-palette"]
+
+[[case]]
+deck = "claude-look-palette--cool.pptx"
+absent = ["claude-look-palette"]
+
+[[case]]
+deck = "title-too-long--pos.pptx"
+mode = "presented"
+must = ["title-too-long@long-title:warning"]
+
+[[case]]
+deck = "title-too-long--pos.pptx"
+mode = "read"
+absent = ["title-too-long"]
+
+[[case]]
+deck = "title-too-long--neg.pptx"
+absent = ["title-too-long"]
+
+[[case]]
+deck = "closing-cliche--pos.pptx"
+must = ["closing-cliche@closing-title:warning"]
+
+[[case]]
+deck = "closing-cliche--neg.pptx"
+absent = ["closing-cliche"]

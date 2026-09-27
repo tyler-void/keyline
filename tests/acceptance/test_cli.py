@@ -37,7 +37,8 @@ def test_rules_listing():
     assert proc.returncode == 0
     ids = [r["id"] for r in json.loads(proc.stdout)]
     assert ids == sorted(ids)
-    assert set(ids) == {
+    # Spec 002 AC-2 / B-1: accept the 32 ids of AC-1 (the 13 spec 001 ids stay).
+    m1 = {
         "adapter-unresolved",
         "body-too-small",
         "box-overlap",
@@ -52,8 +53,30 @@ def test_rules_listing():
         "title-underline",
         "unsupported-content",
     }
+    m2 = {
+        "ooxml-invalid",
+        "claude-look-palette",
+        "title-too-long",
+        "closing-cliche",
+        "off-palette-color",
+        "off-scale-size",
+        "off-pack-font",
+        "accent-overuse",
+        "brief-reads",
+        "brief-mood",
+        "brief-notes",
+        "brief-headline-long",
+        "brief-no-statement",
+        "brief-slide-count",
+        "brief-role",
+        "brief-headline",
+        "unsourced-number",
+        "source-missing",
+        "fiction-undisclosed",
+    }
+    assert m1 <= set(ids) <= m1 | m2 and len(m1 | m2) == 32
     for r in json.loads(proc.stdout):
-        assert r["since"] == "0.1.0"
+        assert r["since"] in {"0.1.0", "0.2.0"}
     human = keyline("rules")
     assert human.returncode == 0 and b"equal-card-row" in human.stdout
 

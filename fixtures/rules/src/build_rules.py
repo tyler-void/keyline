@@ -381,6 +381,122 @@ def source_lines_ac6():
     return prs
 
 
+# ---------- spec 002 §3.4: claude-look-palette (the four AC-4 anchor decks) ----------
+def _look(bg, accent):
+    prs = d.new_deck()
+    for _ in range(2):
+        s = d.slide(prs, bg=bg, notes="n")
+        d.text(
+            s,
+            2,
+            1.5,
+            29.867,
+            2.5,
+            "A calm deck about bonsai keepers",
+            size=40,
+            color="111111",
+            name="title",
+        )
+        d.text(
+            s,
+            2,
+            5,
+            29.867,
+            3,
+            "Keepers visit a tree for a whole season before a match",
+            size=24,
+            color="111111",
+            name="body",
+        )
+        if accent:
+            d.text(s, 2, 9, 12, 2, "Seasonal Boost", size=24, color=accent, name="accent")
+    return prs
+
+
+@deck("claude-look-palette--pos")
+def claude_look_pos():
+    return _look("F4F3EE", "C96442")  # cream paper + terracotta text: warning
+
+
+@deck("claude-look-palette--neg")
+def claude_look_neg():
+    return _look("F2F2F0", "CC3322")  # neutral paper + signal red: nothing
+
+
+@deck("claude-look-palette--cream-only")
+def claude_look_cream_only():
+    return _look("FAF9F5", None)  # cream paper, no accent: advisory only
+
+
+@deck("claude-look-palette--cool")
+def claude_look_cool():
+    return _look("EFF1F5", "D20F39")  # cool paper + crimson: nothing
+
+
+# ---------- spec 002 §3.4: title-too-long ----------
+ELEVEN = "Eleven words in this title are one more than presented allows"
+
+
+@deck("title-too-long--pos")
+def title_too_long_pos():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 1.5, 29.867, 4, ELEVEN, size=40, name="long-title")
+    return prs
+
+
+@deck("title-too-long--neg")
+def title_too_long_neg():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(
+        s,
+        2,
+        1.5,
+        29.867,
+        4,
+        "Ten words in this title are what presented mode allows",
+        size=40,
+        name="ten-word-title",
+    )
+    # a quote slide's title is the quote itself, so it is exempt
+    s = d.role_slide(prs, 3, "keyline:quote", bg="FFFFFF", notes="n")
+    d.text(
+        s,
+        2,
+        1.5,
+        29.867,
+        8,
+        "A tree is patient with us; we can learn to be patient with the tree, one season at a time",
+        size=40,
+        name="quote",
+    )
+    return prs
+
+
+# ---------- spec 002 §3.4: closing-cliche ----------
+@deck("closing-cliche--pos")
+def closing_cliche_pos():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 1.5, 29.867, 2.5, "Plant the first tree this season", size=40, name="title")
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 1.5, 29.867, 2.5, "  Thank you! ", size=40, name="closing-title")
+    return prs
+
+
+@deck("closing-cliche--neg")
+def closing_cliche_neg():
+    prs = d.new_deck()
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(s, 2, 1.5, 29.867, 2.5, "Questions?", size=40, name="not-last")  # not the last slide
+    s = d.slide(prs, bg="FFFFFF", notes="n")
+    d.text(
+        s, 2, 1.5, 29.867, 2.5, "Thank you, trees, for your patience", size=40, name="closing-title"
+    )
+    return prs
+
+
 def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []

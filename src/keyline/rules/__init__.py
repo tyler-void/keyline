@@ -14,6 +14,10 @@ RULE_MODULES = (
     "font_count",
     "title_underline",
     "equal_card_row",
+    # spec 002 §3.4
+    "claude_look_palette",
+    "title_too_long",
+    "closing_cliche",
 )
 
 
