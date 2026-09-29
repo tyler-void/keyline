@@ -1585,3 +1585,17 @@ must contain at least these rows.
     and Cf.
   - `schema` is an integer, not a bool or float, in every file.
   - Every user-supplied value in an error message is escaped, so one error is one line.
+- **B-21 (2026-09-29, audit 04).** §6.4's fit constants, as measured on LibreOffice
+  24.2.7.2 (auditor) and 26.8.0.3 (T-20). The two agree within one 0.0005 scan step.
+  - **Wrap:** the one-line threshold of a string is 0.998× … 1.003× its advance sum. It
+    varies with the string, family and size.
+    - The rule stays: a line fits when its estimate ≤ 0.99 × the available width.
+    - No case wrapped at 1/0.99 in 420 stress cases: 9–24 pt, regular and bold,
+      tracked caps, Vietnamese.
+    - This replaces §6.4's sentence "LibreOffice wrapped a bold 14 pt label to 2 lines
+      at 1.000× and 1.002× its advance sum, but not at 1.005×".
+  - **Pitch:** `line_pitch_em = 1.2` for every twin. A region holds n lines when
+    n × (size × 1.2 × line spacing + 0.01 mm) plus the paragraph spacing ≤ its height.
+    Every pitch measured, 9–120 pt at spacing 1.0 and 1.1, is within that bound.
+  - **Coverage:** Caladea (for Cambria) lacks 88 of 134 Vietnamese letters. The pen
+    warns when a deck uses them, and LibreOffice renders them in a fallback font.

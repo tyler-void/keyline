@@ -1,0 +1,47 @@
+# auditor stress, LibreOffice 24.2.7.2 420(Build:2)
+
+A. wrap: 420 (family, weight, size, string) cases, factors 0.9950, 1.0000, 1.0030, 1.0060, 1.0101
+   cases that WRAP at 1/0.99 = 1.0101 (estimator would accept, LibreOffice breaks): 0
+   smallest fitting factor, histogram: {'1.0000': 201, '1.0030': 37, '<=0.995': 182}
+   worst cases (smallest fitting factor, largest first):
+     1.0030  ('Arial', 'regular', 14, 'narrow', False)
+     1.0030  ('Arial', 'regular', 14, 'digits', False)
+     1.0030  ('Arial', 'regular', 14, 'vietnamese', False)
+     1.0030  ('Arial', 'regular', 14, 'sentence', False)
+     1.0030  ('Arial', 'bold', 14, 'narrow', False)
+     1.0030  ('Arial', 'bold', 14, 'digits', False)
+     1.0030  ('Arial', 'bold', 14, 'vietnamese', False)
+     1.0030  ('Arial', 'bold', 14, 'sentence', False)
+     1.0030  ('Times New Roman', 'regular', 14, 'narrow', False)
+     1.0030  ('Times New Roman', 'regular', 14, 'digits', False)
+     1.0030  ('Times New Roman', 'regular', 14, 'vietnamese', False)
+     1.0030  ('Times New Roman', 'regular', 14, 'sentence', False)
+   per string, worst smallest-fitting factor: {'narrow': 1.003, 'wide-caps': 1.003, 'digits': 1.003, 'vietnamese': 1.003, 'sentence': 1.003, 'label-caps-tracked': 1.0, 'narrow-caps-tracked': 1.0}
+   per size, worst: {9: 1.0, 10: 1.0, 12: 1.0, 14: 1.003, 24: 1.0}
+   strings with glyphs missing from the twin (max advance used): [('Cambria', 'vietnamese')]
+
+B. pitch at every Swiss (size, line_spacing), regular; ratio = measured / (size x 1.2 x ls)
+   Arial            ratio 0.9986 … 1.0026; first baseline 0.999 … 1.121 em; lines {4}
+   Times New Roman  ratio 0.9986 … 1.0026; first baseline 0.999 … 1.121 em; lines {4}
+   Courier New      ratio 0.9986 … 1.0026; first baseline 0.999 … 1.121 em; lines {4}
+   Georgia          ratio 0.9986 … 1.0026; first baseline 0.999 … 1.121 em; lines {4}
+   Calibri          ratio 0.9986 … 1.0026; first baseline 0.999 … 1.121 em; lines {4}
+   Cambria          ratio 0.9986 … 1.0026; first baseline 0.999 … 1.121 em; lines {4}
+   worst ratio overall: 1.0026
+     Arial     9 pt ls 1.0: pitch 10.828 pt, ratio 1.0026, first baseline 1.002 em
+     Arial    10 pt ls 1.0: pitch 12.019 pt, ratio 1.0016, first baseline 1.001 em
+     Arial    12 pt ls 1.0: pitch 14.400 pt, ratio 1.0000, first baseline 0.999 em
+     Arial    13 pt ls 1.1: pitch 17.178 pt, ratio 1.0010, first baseline 1.121 em
+     Arial    14 pt ls 1.0: pitch 16.809 pt, ratio 1.0006, first baseline 1.000 em
+     Arial    16 pt ls 1.1: pitch 21.090 pt, ratio 0.9986, first baseline 1.118 em
+     Arial    24 pt ls 1.0: pitch 28.800 pt, ratio 1.0000, first baseline 1.000 em
+     Arial    24 pt ls 1.1: pitch 31.663 pt, ratio 0.9995, first baseline 1.120 em
+     Arial    28 pt ls 1.0: pitch 33.619 pt, ratio 1.0006, first baseline 1.000 em
+     Arial    28 pt ls 1.1: pitch 36.964 pt, ratio 1.0001, first baseline 1.120 em
+     Arial    36 pt ls 1.0: pitch 43.200 pt, ratio 1.0000, first baseline 1.000 em
+     Arial    40 pt ls 1.0: pitch 47.991 pt, ratio 0.9998, first baseline 1.000 em
+     Arial    44 pt ls 1.0: pitch 52.781 pt, ratio 0.9996, first baseline 1.000 em
+     Arial    48 pt ls 1.0: pitch 57.600 pt, ratio 1.0000, first baseline 1.000 em
+     Arial    60 pt ls 1.0: pitch 72.000 pt, ratio 1.0000, first baseline 1.000 em
+     Arial    66 pt ls 1.0: pitch 79.200 pt, ratio 1.0000, first baseline 1.000 em
+     Arial   120 pt ls 1.0: pitch 144.000 pt, ratio 1.0000, first baseline 1.000 em

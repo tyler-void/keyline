@@ -1,0 +1,115 @@
+# LibreOffice measurements for spec 002 amendment B-7 (task T-20)
+version: LibreOffice 24.2.7.2 420(Build:2)
+date: 2026-09-29  keyline 0.1.0  Linux-6.18.44-fc-v37-x86_64-with-glibc2.39
+note: expected LibreOffice 26.8.0.3; this run used LibreOffice 24.2.7.2 420(Build:2)
+
+fc-match (probes name the portable family; fontconfig picks the twin):
+  Arial            -> Liberation Sans    twin Liberation Sans    ok
+  Times New Roman  -> Liberation Serif   twin Liberation Serif   ok
+  Courier New      -> Liberation Mono    twin Liberation Mono    ok
+  Georgia          -> Gelasio            twin Gelasio            ok
+  Calibri          -> Carlito            twin Carlito            ok
+  Cambria          -> Caladea            twin Caladea            ok
+
+line pitch (em = pitch / size), LibreOffice 24.2.7.2 420(Build:2):
+  family           weight   size   breaks   paras  1st baseline  embedded font
+  Arial            regular    13   1.2015  1.2015        1.0008  LiberationSans
+  Arial            regular    24   1.2000  1.2000        1.0004  LiberationSans
+  Arial            regular    48   1.2000  1.2000        0.9998  LiberationSans
+  Arial            regular    60   1.2000  1.2000        1.0002  LiberationSans
+  Arial            bold       13   1.2015  1.2015        1.0008  LiberationSans-Bold
+  Arial            bold       24   1.2000  1.2000        1.0004  LiberationSans-Bold
+  Arial            bold       48   1.2000  1.2000        0.9998  LiberationSans-Bold
+  Arial            bold       60   1.2000  1.2000        1.0002  LiberationSans-Bold
+  Times New Roman  regular    13   1.2015  1.2015        1.0008  LiberationSerif
+  Times New Roman  regular    24   1.2000  1.2000        1.0004  LiberationSerif
+  Times New Roman  regular    48   1.2000  1.2000        0.9998  LiberationSerif
+  Times New Roman  regular    60   1.2000  1.2000        1.0002  LiberationSerif
+  Times New Roman  bold       13   1.2015  1.2015        1.0008  LiberationSerif-Bold
+  Times New Roman  bold       24   1.2000  1.2000        1.0004  LiberationSerif-Bold
+  Times New Roman  bold       48   1.2000  1.2000        0.9998  LiberationSerif-Bold
+  Times New Roman  bold       60   1.2000  1.2000        1.0002  LiberationSerif-Bold
+  Courier New      regular    13   1.2015  1.2015        1.0008  LiberationMono
+  Courier New      regular    24   1.2000  1.2000        1.0004  LiberationMono
+  Courier New      regular    48   1.2000  1.2000        0.9998  LiberationMono
+  Courier New      regular    60   1.2000  1.2000        1.0002  LiberationMono
+  Courier New      bold       13   1.2015  1.2015        1.0008  LiberationMono-Bold
+  Courier New      bold       24   1.2000  1.2000        1.0004  LiberationMono-Bold
+  Courier New      bold       48   1.2000  1.2000        0.9998  LiberationMono-Bold
+  Courier New      bold       60   1.2000  1.2000        1.0002  LiberationMono-Bold
+  Georgia          regular    13   1.2015  1.2015        1.0008  Gelasio-Regular
+  Georgia          regular    24   1.2000  1.2000        1.0004  Gelasio-Regular
+  Georgia          regular    48   1.2000  1.2000        0.9998  Gelasio-Regular
+  Georgia          regular    60   1.2000  1.2000        1.0002  Gelasio-Regular
+  Georgia          bold       13   1.2015  1.2015        1.0008  Gelasio-Bold
+  Georgia          bold       24   1.2000  1.2000        1.0004  Gelasio-Bold
+  Georgia          bold       48   1.2000  1.2000        0.9998  Gelasio-Bold
+  Georgia          bold       60   1.2000  1.2000        1.0002  Gelasio-Bold
+  Calibri          regular    13   1.2015  1.2015        1.0008  Carlito-Regular
+  Calibri          regular    24   1.2000  1.2000        1.0004  Carlito-Regular
+  Calibri          regular    48   1.2000  1.2000        0.9998  Carlito-Regular
+  Calibri          regular    60   1.2000  1.2000        1.0002  Carlito-Regular
+  Calibri          bold       13   1.2015  1.2015        1.0008  Carlito-Bold
+  Calibri          bold       24   1.2000  1.2000        1.0004  Carlito-Bold
+  Calibri          bold       48   1.2000  1.2000        0.9998  Carlito-Bold
+  Calibri          bold       60   1.2000  1.2000        1.0002  Carlito-Bold
+  Cambria          regular    13   1.2015  1.2015        1.0008  Caladea-Regular
+  Cambria          regular    24   1.2000  1.2000        1.0004  Caladea-Regular
+  Cambria          regular    48   1.2000  1.2000        0.9998  Caladea-Regular
+  Cambria          regular    60   1.2000  1.2000        1.0002  Caladea-Regular
+  Cambria          bold       13   1.2015  1.2015        1.0008  Caladea-Bold
+  Cambria          bold       24   1.2000  1.2000        1.0004  Caladea-Bold
+  Cambria          bold       48   1.2000  1.2000        0.9998  Caladea-Bold
+  Cambria          bold       60   1.2000  1.2000        1.0002  Caladea-Bold
+
+wrap margin (bold 14 pt label, box = factor x advance sum), LibreOffice 24.2.7.2 420(Build:2):
+  family           label                        advance pt  1.000  1.002  1.005  1.010
+  Arial            ACTIVE KEEPERS BY MONTH         200.689      2      1      1      1
+  Arial            median wait for a match         159.482      2      2      1      1
+  Arial            Oldest tree on the waitlist     170.365      2      2      1      1
+  Times New Roman  ACTIVE KEEPERS BY MONTH         204.196      2      1      1      1
+  Times New Roman  median wait for a match         146.200      2      1      1      1
+  Times New Roman  Oldest tree on the waitlist     153.193      2      1      1      1
+  Courier New      ACTIVE KEEPERS BY MONTH         193.231      2      2      1      1
+  Courier New      median wait for a match         193.231      2      2      1      1
+  Courier New      Oldest tree on the waitlist     226.837      2      2      1      1
+  Georgia          ACTIVE KEEPERS BY MONTH         220.438      2      2      1      1
+  Georgia          median wait for a match         174.713      2      2      1      1
+  Georgia          Oldest tree on the waitlist     184.495      2      2      1      1
+  Calibri          ACTIVE KEEPERS BY MONTH         163.064      1      1      1      1
+  Calibri          median wait for a match         142.475      1      1      1      1
+  Calibri          Oldest tree on the waitlist     151.895      1      1      1      1
+  Cambria          ACTIVE KEEPERS BY MONTH         178.752      1      1      1      1
+  Cambria          median wait for a match         153.202      1      1      1      1
+  Cambria          Oldest tree on the waitlist     162.288      1      1      1      1
+
+wrap threshold (the smallest box / advance sum that holds one line), LibreOffice 24.2.7.2 420(Build:2):
+  Arial            ACTIVE KEEPERS BY MONTH      one line at >= 1.0020
+  Arial            median wait for a match      one line at >= 1.0025
+  Arial            Oldest tree on the waitlist  one line at >= 1.0025
+  Times New Roman  ACTIVE KEEPERS BY MONTH      one line at >= 1.0005
+  Times New Roman  median wait for a match      one line at >= 1.0005
+  Times New Roman  Oldest tree on the waitlist  one line at >= 1.0010
+  Courier New      ACTIVE KEEPERS BY MONTH      one line at >= 1.0025
+  Courier New      median wait for a match      one line at >= 1.0025
+  Courier New      Oldest tree on the waitlist  one line at >= 1.0025
+  Georgia          ACTIVE KEEPERS BY MONTH      one line at >= 1.0030
+  Georgia          median wait for a match      one line at >= 1.0030
+  Georgia          Oldest tree on the waitlist  one line at >= 1.0025
+  Calibri          ACTIVE KEEPERS BY MONTH      one line at >= 0.9980
+  Calibri          median wait for a match      one line at >= 0.9985
+  Calibri          Oldest tree on the waitlist  one line at >= 0.9990
+  Cambria          ACTIVE KEEPERS BY MONTH      one line at >= 0.9990
+  Cambria          median wait for a match      one line at >= 0.9995
+  Cambria          Oldest tree on the waitlist  one line at >= 1.0000
+
+against spec 002 §6.4 (LibreOffice 24.2):
+  pitch, Arial -> Liberation Sans: 1.2000 … 1.2015 em; §6.4 says 1.20 (±0.005): MATCHES
+  wrap, Arial bold 14 pt: 2 lines at 1.000x and 1.002x, 1 line at 1.005x and 1.010x: DIFFERS
+  pitch per family (min … max em):
+    Arial            1.2000 … 1.2015
+    Times New Roman  1.2000 … 1.2015
+    Courier New      1.2000 … 1.2015
+    Georgia          1.2000 … 1.2015
+    Calibri          1.2000 … 1.2015
+    Cambria          1.2000 … 1.2015
