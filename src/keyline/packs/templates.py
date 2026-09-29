@@ -339,6 +339,7 @@ def write_all(pack: Pack, voice: Voice, out_dir: Path | None = None) -> list[Pat
     """Write the voice's template for every mode (into the pack directory unless `out_dir`
     is given)."""
     out_dir = Path(out_dir) if out_dir is not None else pack.directory
+    out_dir.mkdir(parents=True, exist_ok=True)
     written = []
     for mode in pack.modes:
         path = out_dir / filename(pack, voice, mode)

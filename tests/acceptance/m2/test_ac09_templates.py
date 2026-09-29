@@ -5,6 +5,7 @@ byte-identically. Plus a python-pptx round trip and `officecli validate` (skippe
 without OfficeCLI)."""
 
 import subprocess
+import sys
 
 import pytest
 
@@ -18,6 +19,7 @@ from keyline.packs.templates import build, committed, filename
 from keyline.roles import ROLES
 from keyline.roles import parse as parse_role
 from keyline.units import cm_to_emu
+from tests.conftest import ROOT
 
 PACK = resolve("swiss")
 MODES = ("presented", "read")
@@ -77,6 +79,15 @@ def _typeface(ppr):
 @pytest.mark.parametrize("mode", MODES)
 def test_committed_neutral_rebuilds_byte_identically(mode):
     assert build(PACK, PACK.voice("neutral"), mode) == committed(PACK, mode).read_bytes()
+
+
+def test_the_build_script_rebuilds_them_into_a_new_directory(tmp_path):
+    out = tmp_path / "new" / "dir"
+    script = ROOT / "src/keyline/packs/swiss/src/build_templates.py"
+    subprocess.run([sys.executable, script, out], check=True, capture_output=True)
+    for mode in MODES:
+        built = (out / f"swiss-neutral-{mode}.pptx").read_bytes()
+        assert built == committed(PACK, mode).read_bytes()
 
 
 def test_only_the_neutral_templates_are_committed():
