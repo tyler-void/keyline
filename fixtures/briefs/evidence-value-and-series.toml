@@ -1,0 +1,21 @@
+# Primary evidence file for the brief fixtures (spec 002 §4.1). Fictional.
+schema = 1
+
+[product]
+name = "Toolshed Commons"
+fictional = true
+disclosure = "Note: Toolshed Commons is fictional, and so is every number in this deck."
+one_liner = "A neighbourhood tool library"   # unknown keys are ignored (§4.1)
+
+[[evidence]]
+id = "returns_repaired"
+value = "62%"
+series = [["Q1", 1]]
+label = "returns needing a repair"
+source = "Toolshed Commons return log, 2026 (fictional)"
+
+[[evidence]]
+id = "members_by_quarter"
+label = "members by quarter"
+source = "Toolshed Commons membership list, 2026 (fictional)"
+series = [["Q1", 140], ["Q2", 210], ["Q3", 385]]

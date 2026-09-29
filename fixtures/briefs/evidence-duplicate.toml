@@ -1,0 +1,9 @@
+# A later evidence file: [[evidence]] only (spec 002 §4.1). Fictional.
+schema = 1
+
+[[evidence]]
+id = "returns_repaired"
+value = "1,240 hours"
+aliases = ["1.2k hours"]
+label = "bench hours logged"
+source = "Toolshed Commons bench sign-in sheet, 2026 (fictional)"

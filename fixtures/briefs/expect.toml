@@ -1,0 +1,221 @@
+# Expectations for fixtures/briefs/*.brief.toml (spec 002 AC-7; B-4; B-8.4, B-8.5).
+#   exit   = the exit code of `keyline brief FILE`
+#   error  = for exit 1: the one line on stderr, after "keyline: FILE: "
+#   must   = findings that must appear: "rule@slide:severity" (slide 0 = the brief)
+#   absent = rule ids that must not appear at any severity
+#   voice  = true for the B-8 voice cases (test_ac07_voice.py); the rest are test_ac07_brief.py
+# Built by fixtures/briefs/src/build_briefs.py from valid.brief.toml.
+
+[[case]]
+file = "valid.brief.toml"
+exit = 0
+absent = ["brief-reads", "brief-mood", "brief-notes", "brief-headline-long",
+  "brief-no-statement", "voice-contrast", "voice-claude-look", "voice-why"]
+
+# ---------- §4.3 schema errors (exit 1, one line) ----------
+[[case]]
+file = "bad-schema.brief.toml"
+exit = 1
+error = "schema: must be 1"
+
+[[case]]
+file = "missing-key.brief.toml"
+exit = 1
+error = "direction.thesis: missing"
+
+[[case]]
+file = "mistyped-key.brief.toml"
+exit = 1
+error = "slides[1].reads: must be a list of strings"
+
+[[case]]
+file = "unknown-role.brief.toml"
+exit = 1
+error = "slides[6].role: unknown role 'interlude'"
+
+[[case]]
+file = "unknown-evidence-id.brief.toml"
+exit = 1
+error = "slides[4].evidence: unknown evidence id 'returns_fixed'"
+
+[[case]]
+file = "evidence-missing.brief.toml"
+exit = 1
+error = "evidence file not found: missing.toml"
+
+[[case]]
+file = "evidence-invalid.brief.toml"
+exit = 1
+error = "evidence file evidence-no-product.toml: [product] is missing"
+
+[[case]]
+file = "evidence-value-and-series.brief.toml"
+exit = 1
+error = "evidence file evidence-value-and-series.toml: evidence[1]: needs exactly one of value or series"
+
+[[case]]
+file = "evidence-duplicate-id.brief.toml"
+exit = 1
+error = "evidence file evidence-duplicate.toml: duplicate evidence id 'returns_repaired'"
+
+[[case]]
+file = "first-not-cover.brief.toml"
+exit = 1
+error = "slides[1].role: the first slide must be a cover, not statement"
+
+[[case]]
+file = "two-covers.brief.toml"
+exit = 1
+error = "slides[7].role: more than one cover"
+
+[[case]]
+file = "own-world-short.brief.toml"
+exit = 1
+error = "direction.own_world: needs 3 to 7 items, has 2"
+
+[[case]]
+file = "own-world-long.brief.toml"
+exit = 1
+error = "direction.own_world: needs 3 to 7 items, has 8"
+
+[[case]]
+file = "evidence-on-section.brief.toml"
+exit = 1
+error = "slides[3].evidence: a section slide has no room for a source line"
+
+[[case]]
+file = "evidence-on-quote.brief.toml"
+exit = 1
+error = "slides[6].evidence: a quote slide has no room for a source line"
+
+[[case]]
+file = "evidence-label-long.brief.toml"
+exit = 1
+error = "evidence file evidence-long-label.toml: evidence[1].label: has 6 words; 1 to 5 allowed"
+
+# ---------- B-4 schema errors ----------
+[[case]]
+file = "unknown-pack.brief.toml"
+exit = 1
+error = "pack not found: nordic"
+
+[[case]]
+file = "mode-not-in-pack.brief.toml"
+exit = 1
+error = "mode: pack swiss has no read mode (presented)"
+
+# ---------- §4.3 findings ----------
+[[case]]
+file = "brief-reads--pos.brief.toml"
+exit = 2
+must = ["brief-reads@2:warning"]
+
+[[case]]
+file = "brief-mood--pos.brief.toml"
+exit = 2
+must = ["brief-mood@0:warning"]
+
+[[case]]
+file = "brief-notes--pos.brief.toml"
+exit = 2
+must = ["brief-notes@4:warning"]
+
+[[case]]
+file = "brief-notes--neg-read.brief.toml"
+exit = 0
+absent = ["brief-notes"]
+
+[[case]]
+file = "brief-headline-long--pos.brief.toml"
+exit = 2
+must = ["brief-headline-long@4:warning"]
+
+[[case]]
+file = "brief-no-statement--pos.brief.toml"
+exit = 0
+must = ["brief-no-statement@0:advisory"]
+
+[[case]]
+file = "brief-no-statement--neg-read.brief.toml"
+exit = 0
+absent = ["brief-no-statement"]
+
+# ---------- B-8.4, B-8.5: the brief's voice ----------
+[[case]]
+file = "named-voice.brief.toml"
+voice = true
+exit = 0
+absent = ["voice-contrast", "voice-claude-look", "voice-why"]
+
+[[case]]
+file = "voice-missing.brief.toml"
+voice = true
+exit = 1
+error = "voice: missing; name a voice (voice = NAME) or give a [voice] table"
+
+[[case]]
+file = "voice-both.brief.toml"
+voice = true
+exit = 1
+error = "brief voice-both.brief.toml is not valid TOML: Cannot overwrite a value (at line 15, column 13)"
+
+[[case]]
+file = "voice-unknown-name.brief.toml"
+voice = true
+exit = 1
+error = "unknown voice 'dusk' for pack swiss (voices: field, neutral, night)"
+
+[[case]]
+file = "voice-missing-role.brief.toml"
+voice = true
+exit = 1
+error = "[voice]: palette is missing the role 'hairline'"
+
+[[case]]
+file = "voice-extra-role.brief.toml"
+voice = true
+exit = 1
+error = "[voice]: palette has the extra role 'gold'"
+
+[[case]]
+file = "voice-bad-hex.brief.toml"
+voice = true
+exit = 1
+error = "[voice]: palette.accent '#1F6F5C' is not 6-digit hex (RRGGBB)"
+
+[[case]]
+file = "voice-font-not-portable.brief.toml"
+voice = true
+exit = 1
+error = "[voice]: fonts.display 'Verdana' is not a portable font (Arial, Times New Roman, Courier New, Georgia, Calibri, Cambria)"
+
+[[case]]
+file = "voice-contrast--pos.brief.toml"
+voice = true
+exit = 2
+must = ["voice-contrast@0:error"]
+
+[[case]]
+file = "voice-claude-look--pos.brief.toml"
+voice = true
+exit = 2
+must = ["voice-claude-look@0:warning"]
+absent = ["voice-contrast"]
+
+[[case]]
+file = "voice-claude-look--cream-only.brief.toml"
+voice = true
+exit = 0
+must = ["voice-claude-look@0:advisory"]
+
+[[case]]
+file = "voice-claude-look--accepted.brief.toml"
+voice = true
+exit = 0
+must = ["voice-claude-look@0:advisory"]
+
+[[case]]
+file = "voice-why--pos.brief.toml"
+voice = true
+exit = 2
+must = ["voice-why@0:warning"]

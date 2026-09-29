@@ -26,7 +26,9 @@ RULE_MODULES = (
 
 
 def load_all() -> None:
-    # The adapter registers its own advisory findings (P-15).
+    # The adapter registers its own advisory findings (P-15); the brief module registers
+    # the §4.3 and voice entries, which `keyline brief` reports (spec 002 §3.4).
     import_module("keyline.ooxml.adapter")
+    import_module("keyline.brief")
     for name in RULE_MODULES:
         import_module(f"keyline.rules.{name}")

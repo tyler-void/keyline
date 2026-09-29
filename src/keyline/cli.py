@@ -159,6 +159,27 @@ def cmd_packs(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_brief(args: argparse.Namespace) -> int:
+    """Validate a brief, print its spine, report the §4.3 and voice findings (§4.3)."""
+    from keyline.brief import BriefError, findings, load
+    from keyline.findings import exit_code
+
+    try:
+        brief = load(args.file)
+    except BriefError as exc:
+        _err(f"keyline: {Path(args.file).name}: {exc}\n")
+        return EXIT_SCAN_FAILED
+    found = findings(brief)
+    spine = brief.spine
+    width = max(len(s["role"]) for s in spine)
+    _err("".join(f"{s['slide']:02d} {s['role']:<{width}}  {s['headline']}\n" for s in spine))
+    if args.json:
+        payload = {"spine": spine, "findings": json.loads(to_json(found))}
+        _out_json(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+    _err(to_human(found))
+    return exit_code(found)
+
+
 def cmd_render(args: argparse.Namespace) -> int:
     from keyline.render import RenderError, render
 
@@ -226,6 +247,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("rules", help="list the rule registry", parents=[common])
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_rules)
+
+    p = sub.add_parser("brief", help="validate a brief and print its spine", parents=[common])
+    p.add_argument("file")
+    p.add_argument("--json", action="store_true", help="write the spine and findings as JSON")
+    p.set_defaults(func=cmd_brief)
 
     p = sub.add_parser("packs", help="list the style packs keyline ships", parents=[common])
     p.add_argument("--json", action="store_true")

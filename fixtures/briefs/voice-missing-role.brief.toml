@@ -1,0 +1,73 @@
+# valid.brief.toml with one change: voice-missing-role
+schema = 1
+mode = "presented"
+pack = "swiss"
+evidence = ["evidence.toml", "extra-evidence.toml"]
+
+[direction]
+audience = "Neighbours at the spring members' meeting"
+decision = "Fund a second repair bench for the tool library"
+thesis = "Repairs, not new tools, are what keep members coming back"
+own_world = ["chisels", "the lending shelf", "sawdust", "clean workbench", "membership cards"]
+motif = "A tag on every returned tool, filled in by the next borrower"
+
+[voice.fonts]
+display = "Cambria"
+text = "Calibri"
+
+[voice.palette]
+paper = "EEF0F2"
+ink = "1B1F24"
+muted = "4F5761"
+accent = "1F6F5C"
+accent_on_ink = "7FD1B9"
+
+[voice.why]
+paper = "the pale grey of a pegboard wall"
+ink = "the black of a cast-iron vice"
+muted = "graphite from a carpenter's pencil"
+hairline = "a chalk line snapped across a board"
+accent = "the green paint on the library's shed door"
+accent_on_ink = "the same green under the workshop lamp"
+
+[[slides]]
+role = "cover"
+headline = "Toolshed Commons"
+reads = ["what the library is"]
+
+[[slides]]
+role = "statement"
+headline = "Repairs bring members back"
+reads = ["the claim", "why it matters", "what we ask"]
+notes = "Say the claim, then pause."
+
+[[slides]]
+role = "section"
+headline = "What the bench does"
+reads = ["the part of the talk that follows"]
+
+[[slides]]
+role = "evidence"
+headline = "Most returned tools need a repair before the next loan"
+reads = ["the share of returns that need a repair"]
+evidence = ["returns_repaired"]
+notes = "Point at the number, not the chart."
+
+[[slides]]
+role = "evidence"
+headline = "Membership grew after the first bench opened"
+reads = ["members by quarter", "the bench opened in Q2"]
+evidence = ["members_by_quarter", "bench_hours"]
+notes = "The bench opened in the second quarter."
+
+[[slides]]
+role = "quote"
+headline = "I came to borrow a saw and stayed to learn how to sharpen one for the next person"
+reads = ["a member's words"]
+notes = "Read it slowly."
+
+[[slides]]
+role = "close"
+headline = "Build the second bench this spring"
+reads = ["the ask"]
+notes = "End on the ask."

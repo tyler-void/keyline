@@ -37,7 +37,7 @@ def test_rules_listing():
     assert proc.returncode == 0
     ids = [r["id"] for r in json.loads(proc.stdout)]
     assert ids == sorted(ids)
-    # Spec 002 AC-2 / B-1: accept the 32 ids of AC-1 (the 13 spec 001 ids stay).
+    # Spec 002 AC-2 / B-1 / B-8.6: accept the 35 ids of AC-1 (the 13 spec 001 ids stay).
     m1 = {
         "adapter-unresolved",
         "body-too-small",
@@ -73,8 +73,11 @@ def test_rules_listing():
         "unsourced-number",
         "source-missing",
         "fiction-undisclosed",
+        "voice-contrast",
+        "voice-claude-look",
+        "voice-why",
     }
-    assert m1 <= set(ids) <= m1 | m2 and len(m1 | m2) == 32
+    assert m1 <= set(ids) <= m1 | m2 and len(m1 | m2) == 35
     for r in json.loads(proc.stdout):
         assert r["since"] in {"0.1.0", "0.2.0"}
     human = keyline("rules")
