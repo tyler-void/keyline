@@ -27,6 +27,8 @@ SPACES = "\u0020\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2008\u2009\u20
 LINE_BREAKS = "\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029"  # B-17: what str.splitlines() breaks on
 INVISIBLE = "\xad\u200b\u2060\ufeff"  # soft hyphen, zero-width space, word joiner, BOM
 NONCHARACTERS = "\ufffe\uffff"
+# B-22 item 4 (UAX #14, LB13): no line break before these, even after a space
+NO_BREAK_BEFORE = ")]},.:;!?/%\u2030\u00bb\u201d\u2019"  # ‰ » ” ’
 
 _SPACE_RUN = re.compile(f"[{SPACES}]+")
 
@@ -58,6 +60,18 @@ def refused(text: str, paragraphs: bool = False) -> str | None:
 def normalize(text: str) -> str:
     """B-22 item 1: NFC, space runs to one U+0020, no leading or trailing space."""
     return _SPACE_RUN.sub(" ", unicodedata.normalize("NFC", text)).strip(" ")
+
+
+def break_units(text: str) -> list[str]:
+    """The normalized text as the pieces a line may break between: split at U+0020, with
+    a piece that starts with a NO_BREAK_BEFORE character kept with the one before it."""
+    units: list[str] = []
+    for word in normalize(text).split(" "):
+        if units and word[:1] in NO_BREAK_BEFORE:
+            units[-1] = f"{units[-1]} {word}"
+        else:
+            units.append(word)
+    return units
 
 
 def paragraphs(text: str) -> list[str]:
