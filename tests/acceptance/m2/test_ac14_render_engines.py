@@ -78,8 +78,27 @@ def test_auto_falls_back_to_officecli_without_soffice(tmp_path):
             pytest.skip("officecli is a node script and node is not on PATH")
         (only / "node").symlink_to(node)
     proc = keyline("render", KPI, "-o", tmp_path / "out", env=_env_path(only))
-    assert proc.returncode == 0, proc.stderr.decode()
-    assert "L-002" in proc.stderr.decode()
+    err = proc.stderr.decode()
+    # Audit 03 FX-15: this checks engine *selection*. OfficeCLI may find its headless
+    # browser through PATH, which this PATH lacks; that is not the selection under test.
+    if proc.returncode != 0 and "No headless browser" in err:
+        pytest.skip("OfficeCLI was selected but finds no headless browser on this PATH")
+    assert "L-002" in err and "render engine: LibreOffice" not in err
+    assert proc.returncode == 0, err
+
+
+def test_no_l002_note_when_officecli_cannot_start(tmp_path):
+    """Audit 03 FX-15: the note describes OfficeCLI renders; a broken officecli renders
+    nothing, so the note is noise there."""
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    exe = bin_dir / "officecli"
+    exe.write_text("#!/bin/sh\necho \"env: 'node': No such file or directory\" >&2\nexit 127\n")
+    exe.chmod(0o755)
+    proc = keyline("render", KPI, "-o", tmp_path / "out", env=_env_path(bin_dir))
+    err = proc.stderr.decode()
+    assert proc.returncode == 1 and "officecli could not run" in err
+    assert "L-002" not in err
 
 
 def test_forcing_an_absent_engine_exits_1_with_its_install_hint(tmp_path):

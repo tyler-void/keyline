@@ -12,7 +12,10 @@ check.md (phase B) documents them:
   "3×"; "$-5" gives "-5";
 - "B2B" gives "2B", "4K" gives "4K", "COVID-19" gives "19", "iPhone 15" gives "15";
 - "5 %" with a no-break space gives a non-significant "5" (only U+0020 joins the "%");
-- a source line inside a table cell is not recognised (B-12): table text is scanned whole.
+- a source line inside a table cell is not recognised (B-12): table text is scanned whole;
+- "inked" means a run with a fill, as §4.4 defines it, so a "Source: " run in a fully
+  transparent or background-coloured fill still counts as a source line (audit 03,
+  FX-15). The gate targets accidents, not an author gaming it (principle VIII).
 """
 
 from __future__ import annotations

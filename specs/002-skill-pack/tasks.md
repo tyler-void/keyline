@@ -110,8 +110,9 @@ FX-15, B-16 … B-20) lands first, as "A1 fixes, round 2".
 Outline, from plan §4: `skill/keyline/` (SKILL.md, references, `kl.py`);
 the voice step (B-8.15); `tools/gen_docs.py`; `tools/build_skill.py`; the BonsaiHub demo
 with inline voices (B-8.14) in a fresh session with G-2a (Q-16); AC-17 … AC-23; report B;
-G-2. `references/check.md` carries the known limits: B-5, audit 02's FX-8 list, and source
-lines inside table cells (B-12, continued), as the `numtokens` docstring lists them.
+G-2. `references/check.md` carries the known limits: B-5, audit 02's FX-8 list, source
+lines inside table cells (B-12, continued) and audit 03's FX-15 note on invisible
+"Source: " runs, as the `numtokens` docstring lists them.
 
 ## Acceptance map
 

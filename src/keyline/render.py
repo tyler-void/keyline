@@ -204,8 +204,11 @@ def render(deck: str | Path, out_dir: str | Path, engine: str = "auto") -> Rende
         raise RenderError(f"cannot use {out_dir} as the output directory: not a directory")
     try:
         chosen = choose(engine)
-    except RenderError:
-        if engine != "libreoffice":
+    except RenderError as exc:
+        # L-002 describes OfficeCLI renders, so it is not printed when OfficeCLI cannot
+        # start (audit 03, FX-15). It stays beside the not-installed hint, which spec 001's
+        # test_render_without_officecli_exits_1 requires and AC-2 does not let change.
+        if str(exc).startswith("officecli is not installed"):
             sys.stderr.write(L002)
         raise
     _prepare(out_dir)
