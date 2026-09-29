@@ -214,11 +214,20 @@ def resolve(name_or_dir: str | Path, base: Path | None = None) -> Pack:
         candidate = Path(name_or_dir)
         if not candidate.is_absolute() and base is not None:
             candidate = base / candidate
-        if (candidate / "pack.toml").exists():
+        if _exists(candidate / "pack.toml", f"pack directory {str(name_or_dir)!r}", PackError):
             return load(candidate)
     elif NAME_RE.fullmatch(str(name_or_dir)) and (BUNDLED / str(name_or_dir)).is_dir():
         return load(BUNDLED / str(name_or_dir))
     raise PackError(f"pack not found: {name_or_dir}")
+
+
+def _exists(path: Path, what: str, error: type[Exception]) -> bool:
+    """Path.exists(), but a path that cannot be examined (a locked directory) is a one-line
+    schema error instead of an internal error (B-12 item 7, audit 03 FX-13)."""
+    try:
+        return path.exists()
+    except OSError as exc:
+        raise error(f"{what} cannot be read: {exc.strerror or type(exc).__name__}") from exc
 
 
 def load(directory: str | Path) -> Pack:

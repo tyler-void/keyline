@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from keyline.colorspace import hsl, lab
-from keyline.packs import Pack, PackError, check_accepted
+from keyline.packs import Pack, PackError, _exists, check_accepted
 
 NAME_RE = re.compile(r"[a-z0-9-]+")  # both matched with fullmatch (B-12 item 1)
 HEX_RE = re.compile(r"[0-9A-Fa-f]{6}")
@@ -81,7 +81,7 @@ def load(pack: Pack, name_or_path: str | Path, base: Path | None = None) -> Voic
         path = Path(name_or_path)
         if not path.is_absolute() and base is not None:
             path = base / path
-        if not path.exists():
+        if not _exists(path, f"voice file {str(name_or_path)!r}", VoiceError):
             raise VoiceError(f"voice file not found: {name_or_path}")
         return _load_file(pack, path, name=None)
     name = str(name_or_path)

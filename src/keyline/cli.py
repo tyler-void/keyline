@@ -55,6 +55,8 @@ def _context(args: argparse.Namespace):
     from keyline.context import EMPTY, LintContext
     from keyline.packs import PackError, resolve
 
+    progress.reading.set("the brief, pack and voice")  # an honest internal-error context
+
     brief = None
     if args.brief is not None:
         try:
