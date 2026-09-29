@@ -121,16 +121,31 @@ def pick_title(slide: Slide, cfg: Config) -> Shape | None:
 _COLONS = (":", "：")
 
 
+def inked_text(p: Paragraph) -> str:
+    """The text of the paragraph's visible runs: what §3.1 classifies and §4.4 scans."""
+    return "".join(r.text for r in p.runs if not r.hidden)
+
+
+def _skip_spaces(text: str) -> str:
+    """Drop leading tabs and Unicode space separators (Zs: no-break, narrow no-break,
+    ideographic …), the "optional spaces" of §3.1 (amendment B-12)."""
+    i = 0
+    while i < len(text) and (text[i] == "\t" or unicodedata.category(text[i]) == "Zs"):
+        i += 1
+    return text[i:]
+
+
 def line_kind(p: Paragraph, cfg: Config) -> str | None:
-    """Spec 002 §3.1: "source" or "note" when the inked paragraph's text, after NFC, a left
+    """Spec 002 §3.1: "source" or "note" when the paragraph's inked text, after NFC, a left
     strip and casefold, starts with a configured prefix followed by optional spaces and
-    `:` or `：`; otherwise None. "Source code matters" is neither: no colon follows."""
+    `:` or `：`; otherwise None. "Source code matters" is neither: no colon follows.
+    Invisible runs do not count (B-12), so a hidden "Source: " cannot hide a number."""
     if not any(r.has_ink for r in p.runs):
         return None
-    text = unicodedata.normalize("NFC", p.text).lstrip().casefold()
+    text = unicodedata.normalize("NFC", inked_text(p)).lstrip().casefold()
     for kind, prefixes in (("source", cfg.source_prefixes), ("note", cfg.note_prefixes)):
         for prefix in prefixes:
-            if text.startswith(prefix) and text[len(prefix) :].lstrip(" \t").startswith(_COLONS):
+            if text.startswith(prefix) and _skip_spaces(text[len(prefix) :]).startswith(_COLONS):
                 return kind
     return None
 

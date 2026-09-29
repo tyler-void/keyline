@@ -81,7 +81,7 @@ def slide_texts(slide, cfg) -> Iterator[tuple[object, str]]:
     """(shape, text) for the text in scope: the inked text of each paragraph of each shape
     except source paragraphs and sldNum/dt/ftr placeholders, and each table's text. Charts
     and notes are never in the model's paragraphs. Hidden shapes are not in the model."""
-    from keyline.rules._common import line_kind
+    from keyline.rules._common import inked_text, line_kind
 
     for shape in slide.shapes:
         if shape.ph_type in ("sldNum", "dt", "ftr"):
@@ -89,7 +89,7 @@ def slide_texts(slide, cfg) -> Iterator[tuple[object, str]]:
         for p in shape.paragraphs:
             if line_kind(p, cfg) == "source":
                 continue
-            text = "".join(r.text for r in p.runs if not r.hidden)
+            text = inked_text(p)
             if text.strip():
                 yield shape, text
         if shape.table_text:
