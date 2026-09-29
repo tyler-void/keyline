@@ -70,29 +70,42 @@ def test_the_audit_headlines_are_refused(text):
         deck.add("evidence", text)
 
 
-def full_line_case(setting, room_pt, box_pt, ch, seed):
-    """A headline whose first line is as full as the estimator allows, then " ch end",
-    such that ch cannot fit on that line even at 1.01 × the box (LibreOffice's own wrap
-    threshold is at most 1.003 × the advance sum, B-21)."""
+LB13 = ")]},.:;!?/"  # UAX #14 classes CL, CP, EX, IS and SY
+
+
+def full_line_case(setting, box_pt, ch, seed, space_fits):
+    """A headline whose first line is as full as the estimator allows, then " ch end";
+    " ch" cannot fit on that line even at 1.01 x the box (LibreOffice's widest one-line
+    threshold is 1.003 x the advance sum, B-21). With `space_fits`, the space after the
+    line's last word still fits even at 1.003 x; without, it does not even at 0.998 x,
+    LibreOffice's narrowest (B-21)."""
+    room = box_pt * WRAP_MARGIN
     rng = random.Random(seed)
-    for _ in range(20000):
+    for _ in range(50000):
         words = [rng.choice(WORDS) for _ in range(20)]
         k = 1
-        while k < len(words) and width(setting, " ".join(words[: k + 1])) <= room_pt:
+        while k < len(words) and width(setting, " ".join(words[: k + 1])) <= room:
             k += 1
         first = " ".join(words[:k])
-        if width(setting, f"{first} {ch}") > box_pt * 101 / 100:
+        if width(setting, f"{first} {ch}") <= box_pt * 101 / 100:
+            continue
+        with_space = width(setting, f"{first} ")
+        if space_fits and with_space * 1003 / 1000 <= box_pt:
+            return first, f"{first} {ch} end"
+        if not space_fits and with_space * 998 / 1000 > box_pt:
             return first, f"{first} {ch} end"
     raise AssertionError(f"no case found for {ch!r}")
 
 
 @_lo.needs_lo("Arial")
-def test_libreoffice_never_sets_more_lines_than_the_estimator(tmp_path):
+@pytest.mark.parametrize("space_fits", [True, False], ids=["space-fits", "no-room"])
+def test_libreoffice_never_sets_more_lines_than_the_estimator(space_fits, tmp_path):
     """For each character, a headline whose first line is full, then " <char> end". The
-    estimator carries the last word down with the character (2 lines). LibreOffice may do
-    the same or break before the character (on 26.8.0.3 it keeps ) : ; ! / and breaks
-    before the other ten; tools/measure_lo.py prints the table): either way it sets no
-    more lines than the estimate. The audit's "/" (attack_uax14.py) must be kept."""
+    estimator carries the last word down with the character: 2 lines. LibreOffice sets
+    no more, whatever it does. With room for the space after the last word it keeps the
+    ten UAX #14 LB13 characters with that word, as the estimator does (the audit's "/",
+    attack_uax14.py), and breaks before % U+2030 U+00BB U+201D U+2019; without that room
+    it breaks before all fifteen (tools/measure_lo.py prints the same table)."""
     pack = resolve("swiss")
     deck = Deck(pack="swiss", mode="presented", voice="neutral")
     setting = headline_setting(deck)
@@ -100,7 +113,7 @@ def test_libreoffice_never_sets_more_lines_than_the_estimator(tmp_path):
     box_pt = x1 - x0
     cases = []
     for i, ch in enumerate(NO_BREAK_BEFORE):
-        first, text = full_line_case(setting, box_pt * WRAP_MARGIN, box_pt, ch, i)
+        first, text = full_line_case(setting, box_pt, ch, i, space_fits)
         last_word = first.rsplit(" ", 1)[1]
         assert wrap(setting, text, box_pt) == [first.rsplit(" ", 1)[0], f"{last_word} {ch} end"]
         deck.add("evidence", text)
@@ -113,10 +126,10 @@ def test_libreoffice_never_sets_more_lines_than_the_estimator(tmp_path):
         top = glyphs[0][2]
         lines = {round((c[2] - top) / pitch) for c in glyphs}
         assert max(lines) + 1 <= 2, f"LibreOffice set {max(lines) + 1} lines for {ch!r}"
-        if ch == "/":
-            at = max(i for i, c in enumerate(glyphs) if c[0] == ch)
-            assert glyphs[at - 1][0] == last_word[-1]
-            assert abs(glyphs[at - 1][2] - glyphs[at][2]) < pitch / 2, "broke before '/'"
+        at = max(i for i, c in enumerate(glyphs) if c[0] == ch)
+        assert glyphs[at - 1][0] == last_word[-1]
+        kept = abs(glyphs[at - 1][2] - glyphs[at][2]) < pitch / 2
+        assert kept == (space_fits and ch in LB13), (ch, "kept" if kept else "broke before")
 
 
 @_lo.needs_lo("Arial")
