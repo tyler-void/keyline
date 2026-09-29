@@ -358,6 +358,12 @@ def _slide(index: int, s: Any, evidence: EvidenceSet) -> BriefSlide:
     return BriefSlide(index, role, headline, reads, ids, notes)
 
 
+def load_evidence(paths: list[str | Path], mode: str = "presented") -> EvidenceSet:
+    """Evidence files without a brief (the pen's brief-less form, §6.1); the first is the
+    primary file. Raises BriefError on a schema error."""
+    return _evidence([Path(p) for p in paths], config_mod.load(mode))
+
+
 def _evidence(paths: list[Path], cfg) -> EvidenceSet:
     entries: dict[str, Entry] = {}
     product = None
