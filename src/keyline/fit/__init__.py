@@ -63,34 +63,35 @@ _cache: dict[tuple[str, str], Table] = {}
 
 
 def load_table(family: str, weight: str) -> Table:
-    """The table for a portable family (as a voice names it) and a weight."""
+    """The table for a portable family (as a voice names it) and a weight. Cached before
+    the config is read: the estimator asks for it once per width."""
     from keyline.config import load as load_config
 
+    key = (family.casefold(), weight)
+    if key in _cache:
+        return _cache[key]
     if weight not in WEIGHTS:
         raise FitError(f"unknown weight {weight!r}")
-    twins = {f.casefold(): (f, t) for f, t in load_config().portable_fonts}
+    twins = {f.casefold(): t for f, t in load_config().portable_fonts}
     if family.casefold() not in twins:
         raise FitError(f"{family!r} is not a portable font")
-    fam, twin = twins[family.casefold()]
-    key = (fam, weight)
-    if key not in _cache:
-        path = table_path(twin, weight)
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError) as exc:
-            raise FitError(f"fit table {path.name} cannot be read: {exc}") from exc
-        _cache[key] = Table(
-            family=data["family"],
-            twin=data["twin"],
-            weight=data["weight"],
-            units_per_em=data["units_per_em"],
-            max_advance=data["max_advance"],
-            line_pitch_em=Fraction(data["line_pitch_em"]),
-            measured_on=tuple(data["measured_on"]),
-            missing_vietnamese=data["missing_vietnamese"],
-            source=data["source"],
-            advances={cp: adv for cp, adv in data["advances"]},
-        )
+    path = table_path(twins[family.casefold()], weight)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise FitError(f"fit table {path.name} cannot be read: {exc}") from exc
+    _cache[key] = Table(
+        family=data["family"],
+        twin=data["twin"],
+        weight=data["weight"],
+        units_per_em=data["units_per_em"],
+        max_advance=data["max_advance"],
+        line_pitch_em=Fraction(data["line_pitch_em"]),
+        measured_on=tuple(data["measured_on"]),
+        missing_vietnamese=data["missing_vietnamese"],
+        source=data["source"],
+        advances={cp: adv for cp, adv in data["advances"]},
+    )
     return _cache[key]
 
 

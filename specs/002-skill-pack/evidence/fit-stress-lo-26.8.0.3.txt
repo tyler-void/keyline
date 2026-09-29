@@ -1,0 +1,141 @@
+LibreOffice: LibreOffice 26.8.0.3 680(Build:3)
+ink threshold: > 26 of 255 in any channel
+
+mode       voice    slide layout                    region  text              words  region box (px)              ink box (px)          outside  edge
+presented  neutral      1 keyline:cover             title   headline (cover_title)     8  [56.7, 189.9, 1025.7, 416.7] [60, 214, 879, 385]      -3.3  left
+presented  neutral      2 keyline:cover             main    text (lede)          31  [56.7, 435.6, 1025.7, 586.8] [56, 450, 989, 584]      +0.7  left
+presented  neutral      3 keyline:cover             footer  source + note        56  [56.7, 605.7, 1223.3, 662.4] [57, 610, 1195, 645]     -0.3  left
+presented  neutral      5 keyline:section           title   headline (headline)    10  [56.7, 265.5, 1025.7, 435.6] [57, 283, 969, 420]      -0.3  left
+presented  neutral      6 keyline:section           main    text (label)         15  [56.7, 454.5, 1025.7, 492.3] [57, 459, 991, 476]      -0.3  left
+presented  neutral      8 keyline:statement         title   headline (statement)    13  [56.7, 76.5, 1025.7, 369.4]  [59, 98, 1018, 350]      -2.3  left
+presented  neutral      9 keyline:statement         main    text (lede)          38  [56.7, 378.9, 1025.7, 596.2] [59, 394, 963, 577]      -2.3  left
+presented  neutral     10 keyline:statement         footer  source + note        53  [56.7, 605.7, 1223.3, 662.4] [57, 610, 1187, 645]     -0.3  left
+presented  neutral     12 keyline:statement         title   headline (statement)    11  [56.7, 76.5, 1025.7, 369.4]  [59, 98, 973, 361]       -2.3  left
+presented  neutral     13 keyline:statement         main    text (body)          46  [56.7, 378.9, 1025.7, 596.2] [56, 392, 1015, 548]     +0.7  left
+presented  neutral     14 keyline:statement         footer  source + note        53  [56.7, 605.7, 1223.3, 662.4] [57, 610, 1182, 645]     -0.3  left
+presented  neutral     16 keyline:evidence          title   headline (headline)    12  [56.7, 57.6, 1223.3, 218.3]  [57, 75, 1122, 212]      -0.3  left
+presented  neutral     17 keyline:evidence          main    text (body)         110  [56.7, 246.6, 1223.3, 596.2] [56, 259, 1223, 585]     +0.7  left
+presented  neutral     18 keyline:evidence          footer  source + note        51  [56.7, 605.7, 1223.3, 662.4] [57, 610, 1198, 645]     -0.3  left
+presented  neutral     20 keyline:evidence          title   headline (headline)    12  [56.7, 57.6, 1223.3, 218.3]  [59, 75, 1200, 212]      -2.3  left
+presented  neutral     21 keyline:evidence          main    bullets              91  [56.7, 246.6, 1223.3, 596.2] [56, 259, 1209, 567]     +0.7  left
+presented  neutral     22 keyline:evidence          footer  source + note        52  [56.7, 605.7, 1223.3, 662.4] [57, 610, 1206, 645]     -0.3  left
+presented  neutral     24 keyline:evidence:figure   title   headline (headline)    11  [56.7, 57.6, 1223.3, 218.3]  [58, 75, 1082, 212]      -1.3  left
+presented  neutral     25 keyline:evidence:figure   main    text (body)          75  [56.7, 246.6, 828.1, 596.2]  [56, 259, 813, 585]      +0.7  left
+presented  neutral     26 keyline:evidence:figure   side    text (body)          33  [847.0, 246.6, 1223.3, 596.2] [847, 259, 1218, 585]    +0.0  left
+presented  neutral     27 keyline:evidence:figure   footer  source + note        57  [56.7, 605.7, 1223.3, 662.4] [57, 610, 1200, 645]     -0.3  left
+presented  neutral     29 keyline:evidence:figure   title   headline (headline)    13  [56.7, 57.6, 1223.3, 218.3]  [56, 75, 1207, 212]      +0.7  left
+presented  neutral     30 keyline:evidence:figure   main    bullets              61  [56.7, 246.6, 828.1, 596.2]  [56, 259, 820, 567]      +0.7  left
+presented  neutral     31 keyline:evidence:figure   side    bullets              28  [847.0, 246.6, 1223.3, 596.2] [846, 259, 1216, 567]    +1.0  left
+presented  neutral     32 keyline:evidence:figure   footer  source + note        56  [56.7, 605.7, 1223.3, 662.4] [57, 610, 1195, 645]     -0.3  left
+presented  neutral     34 keyline:quote             title   headline (quote)     32  [56.7, 114.3, 1025.7, 492.3] [57, 130, 998, 455]      -0.3  left
+presented  neutral     36 keyline:close             title   headline (cover_title)     9  [56.7, 133.2, 1025.7, 360.0] [62, 157, 980, 345]      -5.3  left
+presented  neutral     37 keyline:close             main    text (lede)          40  [56.7, 378.9, 1025.7, 596.2] [56, 394, 1009, 577]     +0.7  left
+presented  neutral     38 keyline:close             footer  source + note        54  [56.7, 605.7, 1223.3, 662.4] [57, 610, 1204, 645]     -0.3  left
+presented  field        1 keyline:cover             title   headline (cover_title)     8  [56.7, 189.9, 1025.7, 416.7] [59, 210, 916, 385]      -2.3  left
+presented  field        2 keyline:cover             main    text (lede)          32  [56.7, 435.6, 1025.7, 586.8] [55, 447, 1003, 585]     +1.7  left
+presented  field        3 keyline:cover             footer  source + note        56  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1178, 645]     -0.3  left
+presented  field        5 keyline:section           title   headline (headline)     8  [56.7, 265.5, 1025.7, 435.6] [56, 281, 880, 420]      +0.7  left
+presented  field        6 keyline:section           main    text (label)         14  [56.7, 454.5, 1025.7, 492.3] [56, 459, 988, 477]      +0.7  left
+presented  field        8 keyline:statement         title   headline (statement)    13  [56.7, 76.5, 1025.7, 369.4]  [58, 96, 992, 350]       -1.3  left
+presented  field        9 keyline:statement         main    text (lede)          38  [56.7, 378.9, 1025.7, 596.2] [56, 392, 967, 577]      +0.7  left
+presented  field       10 keyline:statement         footer  source + note        54  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]     -0.3  left
+presented  field       12 keyline:statement         title   headline (statement)    11  [56.7, 76.5, 1025.7, 369.4]  [58, 95, 1012, 364]      -1.3  left
+presented  field       13 keyline:statement         main    text (body)          47  [56.7, 378.9, 1025.7, 596.2] [56, 390, 1016, 549]     +0.7  left
+presented  field       14 keyline:statement         footer  source + note        54  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1206, 645]     -0.3  left
+presented  field       16 keyline:evidence          title   headline (headline)    12  [56.7, 57.6, 1223.3, 218.3]  [55, 73, 1218, 213]      +1.7  left
+presented  field       17 keyline:evidence          main    text (body)         112  [56.7, 246.6, 1223.3, 596.2] [56, 257, 1219, 586]     +0.7  left
+presented  field       18 keyline:evidence          footer  source + note        50  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]     -0.3  left
+presented  field       20 keyline:evidence          title   headline (headline)    11  [56.7, 57.6, 1223.3, 218.3]  [58, 72, 1130, 200]      -1.3  left
+presented  field       21 keyline:evidence          main    bullets              91  [56.7, 246.6, 1223.3, 596.2] [56, 257, 1201, 568]     +0.7  left
+presented  field       22 keyline:evidence          footer  source + note        52  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1201, 645]     -0.3  left
+presented  field       24 keyline:evidence:figure   title   headline (headline)    11  [56.7, 57.6, 1223.3, 218.3]  [58, 72, 1150, 213]      -1.3  left
+presented  field       25 keyline:evidence:figure   main    text (body)          75  [56.7, 246.6, 828.1, 596.2]  [56, 257, 804, 586]      +0.7  left
+presented  field       26 keyline:evidence:figure   side    text (body)          33  [847.0, 246.6, 1223.3, 596.2] [846, 257, 1215, 585]    +1.0  left
+presented  field       27 keyline:evidence:figure   footer  source + note        57  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1193, 645]     -0.3  left
+presented  field       29 keyline:evidence:figure   title   headline (headline)    11  [56.7, 57.6, 1223.3, 218.3]  [55, 73, 1129, 213]      +1.7  left
+presented  field       30 keyline:evidence:figure   main    bullets              61  [56.7, 246.6, 828.1, 596.2]  [56, 257, 814, 568]      +0.7  left
+presented  field       31 keyline:evidence:figure   side    bullets              28  [847.0, 246.6, 1223.3, 596.2] [846, 257, 1210, 568]    +1.0  left
+presented  field       32 keyline:evidence:figure   footer  source + note        57  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1202, 645]     -0.3  left
+presented  field       34 keyline:quote             title   headline (quote)     31  [56.7, 114.3, 1025.7, 492.3] [55, 128, 972, 456]      +1.7  left
+presented  field       36 keyline:close             title   headline (cover_title)     8  [56.7, 133.2, 1025.7, 360.0] [57, 154, 960, 346]      -0.3  left
+presented  field       37 keyline:close             main    text (lede)          40  [56.7, 378.9, 1025.7, 596.2] [55, 392, 996, 577]      +1.7  left
+presented  field       38 keyline:close             footer  source + note        56  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]     -0.3  left
+read       neutral      1 keyline:cover             title   headline (cover_title)    21  [56.7, 189.9, 1025.7, 416.7] [57, 204, 981, 372]      -0.3  left
+read       neutral      2 keyline:cover             main    text (lede)          90  [56.7, 435.6, 1025.7, 586.8] [56, 443, 1010, 577]     +0.7  left
+read       neutral      3 keyline:cover             footer  source + note       113  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]     -0.3  left
+read       neutral      5 keyline:section           title   headline (headline)    28  [56.7, 265.5, 1025.7, 435.6] [58, 276, 995, 401]      -1.3  left
+read       neutral      6 keyline:section           main    text (label)         37  [56.7, 454.5, 1025.7, 492.3] [57, 458, 1012, 485]     -0.3  left
+read       neutral      8 keyline:statement         title   headline (statement)    35  [56.7, 76.5, 1025.7, 369.4]  [57, 90, 973, 363]       -0.3  left
+read       neutral      9 keyline:statement         main    text (lede)         120  [56.7, 378.9, 1025.7, 596.2] [56, 387, 1022, 576]     +0.7  left
+read       neutral     10 keyline:statement         footer  source + note       106  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1191, 650]     -0.3  left
+read       neutral     12 keyline:statement         title   headline (statement)    35  [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1000, 365]      -0.3  left
+read       neutral     13 keyline:statement         main    text (body)         194  [56.7, 378.9, 1025.7, 596.2] [56, 385, 1021, 586]     +0.7  left
+read       neutral     14 keyline:statement         footer  source + note       109  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1208, 650]     -0.3  left
+read       neutral     16 keyline:evidence          title   headline (headline)    33  [56.7, 57.6, 1223.3, 218.3]  [56, 68, 1186, 193]      +0.7  left
+read       neutral     17 keyline:evidence          main    text (body)         385  [56.7, 246.6, 1223.3, 596.2] [56, 253, 1223, 591]     +0.7  left
+read       neutral     18 keyline:evidence          footer  source + note       111  [56.7, 605.7, 1223.3, 662.4] [56, 609, 1206, 650]     +0.7  left
+read       neutral     20 keyline:evidence          title   headline (headline)    31  [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1222, 193]      -0.3  left
+read       neutral     21 keyline:evidence          main    text (lede)         253  [56.7, 246.6, 1223.3, 596.2] [56, 254, 1218, 585]     +0.7  left
+read       neutral     22 keyline:evidence          footer  source + note       109  [56.7, 605.7, 1223.3, 662.4] [56, 609, 1199, 650]     +0.7  left
+read       neutral     24 keyline:evidence          title   headline (headline)    29  [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1212, 193]      -0.3  left
+read       neutral     25 keyline:evidence          main    bullets             319  [56.7, 246.6, 1223.3, 596.2] [56, 253, 1222, 572]     +0.7  left
+read       neutral     26 keyline:evidence          footer  source + note       113  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1210, 650]     -0.3  left
+read       neutral     28 keyline:evidence:figure   title   headline (headline)    35  [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1194, 193]      -0.3  left
+read       neutral     29 keyline:evidence:figure   main    text (body)         260  [56.7, 246.6, 828.1, 596.2]  [56, 253, 826, 591]      +0.7  left
+read       neutral     30 keyline:evidence:figure   side    text (body)         123  [847.0, 246.6, 1223.3, 596.2] [847, 253, 1222, 588]    +0.0  left
+read       neutral     31 keyline:evidence:figure   footer  source + note       114  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1210, 650]     -0.3  left
+read       neutral     33 keyline:evidence:figure   title   headline (headline)    36  [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1206, 193]      -0.3  left
+read       neutral     34 keyline:evidence:figure   main    text (lede)         162  [56.7, 246.6, 828.1, 596.2]  [56, 254, 824, 583]      +0.7  left
+read       neutral     35 keyline:evidence:figure   side    text (lede)          78  [847.0, 246.6, 1223.3, 596.2] [847, 254, 1223, 581]    +0.0  left
+read       neutral     36 keyline:evidence:figure   footer  source + note       106  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1212, 650]     -0.3  left
+read       neutral     38 keyline:evidence:figure   title   headline (headline)    32  [56.7, 57.6, 1223.3, 218.3]  [56, 68, 1175, 193]      +0.7  left
+read       neutral     39 keyline:evidence:figure   main    bullets             199  [56.7, 246.6, 828.1, 596.2]  [56, 253, 823, 572]      +0.7  left
+read       neutral     40 keyline:evidence:figure   side    bullets              94  [847.0, 246.6, 1223.3, 596.2] [846, 253, 1212, 572]    +1.0  left
+read       neutral     41 keyline:evidence:figure   footer  source + note       109  [56.7, 605.7, 1223.3, 662.4] [57, 609, 1208, 650]     -0.3  left
+read       neutral     43 keyline:quote             title   headline (quote)    101  [56.7, 114.3, 1025.7, 492.3] [56, 123, 1009, 461]     +0.7  left
+read       neutral     45 keyline:close             title   headline (cover_title)    20  [56.7, 133.2, 1025.7, 360.0] [58, 148, 980, 326]      -1.3  left
+read       neutral     46 keyline:close             main    text (lede)         123  [56.7, 378.9, 1025.7, 596.2] [56, 387, 1020, 576]     +0.7  left
+read       neutral     47 keyline:close             footer  source + note       112  [56.7, 605.7, 1223.3, 662.4] [56, 609, 1222, 650]     +0.7  left
+read       field        1 keyline:cover             title   headline (cover_title)    20  [56.7, 189.9, 1025.7, 416.7] [57, 202, 997, 372]      -0.3  left
+read       field        2 keyline:cover             main    text (lede)          92  [56.7, 435.6, 1025.7, 586.8] [56, 442, 1010, 577]     +0.7  left
+read       field        3 keyline:cover             footer  source + note       113  [56.7, 605.7, 1223.3, 662.4] [57, 608, 1213, 650]     -0.3  left
+read       field        5 keyline:section           title   headline (headline)    27  [56.7, 265.5, 1025.7, 435.6] [56, 275, 1026, 403]     +0.7  left
+read       field        6 keyline:section           main    text (label)         34  [56.7, 454.5, 1025.7, 492.3] [56, 458, 1008, 485]     +0.7  left
+read       field        8 keyline:statement         title   headline (statement)    30  [56.7, 76.5, 1025.7, 369.4]  [56, 89, 991, 367]       +0.7  left
+read       field        9 keyline:statement         main    text (lede)         122  [56.7, 378.9, 1025.7, 596.2] [56, 386, 1013, 576]     +0.7  left
+read       field       10 keyline:statement         footer  source + note       108  [56.7, 605.7, 1223.3, 662.4] [57, 608, 1219, 650]     -0.3  left
+read       field       12 keyline:statement         title   headline (statement)    30  [56.7, 76.5, 1025.7, 369.4]  [56, 87, 1019, 365]      +0.7  left
+read       field       13 keyline:statement         main    text (body)         195  [56.7, 378.9, 1025.7, 596.2] [56, 384, 1026, 586]     +0.7  left
+read       field       14 keyline:statement         footer  source + note       111  [56.7, 605.7, 1223.3, 662.4] [57, 608, 1210, 650]     -0.3  left
+read       field       16 keyline:evidence          title   headline (headline)    31  [56.7, 57.6, 1223.3, 218.3]  [55, 67, 1169, 195]      +1.7  left
+read       field       17 keyline:evidence          main    text (body)         390  [56.7, 246.6, 1223.3, 596.2] [56, 252, 1218, 591]     +0.7  left
+read       field       18 keyline:evidence          footer  source + note       112  [56.7, 605.7, 1223.3, 662.4] [56, 608, 1208, 650]     +0.7  left
+read       field       20 keyline:evidence          title   headline (headline)    28  [56.7, 57.6, 1223.3, 218.3]  [55, 65, 1214, 186]      +1.7  left
+read       field       21 keyline:evidence          main    text (lede)         254  [56.7, 246.6, 1223.3, 596.2] [56, 253, 1217, 585]     +0.7  left
+read       field       22 keyline:evidence          footer  source + note       111  [56.7, 605.7, 1223.3, 662.4] [56, 608, 1219, 650]     +0.7  left
+read       field       24 keyline:evidence          title   headline (headline)    28  [56.7, 57.6, 1223.3, 218.3]  [57, 66, 1194, 193]      -0.3  left
+read       field       25 keyline:evidence          main    bullets             325  [56.7, 246.6, 1223.3, 596.2] [56, 252, 1220, 572]     +0.7  left
+read       field       26 keyline:evidence          footer  source + note       114  [56.7, 605.7, 1223.3, 662.4] [57, 608, 1207, 650]     -0.3  left
+read       field       28 keyline:evidence:figure   title   headline (headline)    31  [56.7, 57.6, 1223.3, 218.3]  [56, 66, 1213, 193]      +0.7  left
+read       field       29 keyline:evidence:figure   main    text (body)         260  [56.7, 246.6, 828.1, 596.2]  [56, 252, 829, 591]      +0.9  right
+read       field       30 keyline:evidence:figure   side    text (body)         124  [847.0, 246.6, 1223.3, 596.2] [846, 252, 1222, 591]    +1.0  left
+read       field       31 keyline:evidence:figure   footer  source + note       115  [56.7, 605.7, 1223.3, 662.4] [56, 608, 1211, 650]     +0.7  left
+read       field       33 keyline:evidence:figure   title   headline (headline)    34  [56.7, 57.6, 1223.3, 218.3]  [57, 65, 1186, 195]      -0.3  left
+read       field       34 keyline:evidence:figure   main    text (lede)         169  [56.7, 246.6, 828.1, 596.2]  [56, 253, 825, 585]      +0.7  left
+read       field       35 keyline:evidence:figure   side    text (lede)          78  [847.0, 246.6, 1223.3, 596.2] [847, 253, 1220, 581]    +0.0  left
+read       field       36 keyline:evidence:figure   footer  source + note       109  [56.7, 605.7, 1223.3, 662.4] [56, 608, 1210, 650]     +0.7  left
+read       field       38 keyline:evidence:figure   title   headline (headline)    29  [56.7, 57.6, 1223.3, 218.3]  [55, 66, 1136, 195]      +1.7  left
+read       field       39 keyline:evidence:figure   main    bullets             200  [56.7, 246.6, 828.1, 596.2]  [56, 252, 816, 572]      +0.7  left
+read       field       40 keyline:evidence:figure   side    bullets              94  [847.0, 246.6, 1223.3, 596.2] [846, 252, 1222, 572]    +1.0  left
+read       field       41 keyline:evidence:figure   footer  source + note       114  [56.7, 605.7, 1223.3, 662.4] [57, 608, 1212, 650]     -0.3  left
+read       field       43 keyline:quote             title   headline (quote)    101  [56.7, 114.3, 1025.7, 492.3] [56, 121, 1020, 461]     +0.7  left
+read       field       45 keyline:close             title   headline (cover_title)    17  [56.7, 133.2, 1025.7, 360.0] [58, 146, 948, 326]      -1.3  left
+read       field       46 keyline:close             main    text (lede)         123  [56.7, 378.9, 1025.7, 596.2] [57, 386, 1015, 576]     -0.3  left
+read       field       47 keyline:close             footer  source + note       113  [56.7, 605.7, 1223.3, 662.4] [56, 608, 1211, 650]     +0.7  left
+
+130 texts; the most outside is +1.7 px (presented field, slide 2, keyline:cover main); 0 without ink
+  left   at most +1.7 px (presented field, slide 2, keyline:cover main)
+  top    at most -2.3 px (read field, slide 3, keyline:cover footer)
+  right  at most +0.9 px (read field, slide 29, keyline:evidence:figure main)
+  bottom at most -1.8 px (presented field, slide 2, keyline:cover main)
+verdict: PASS (tolerance 2 px)

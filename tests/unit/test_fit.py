@@ -76,3 +76,19 @@ def test_missing_characters_and_the_warning():
         "Caladea (for Cambria) lacks: ấờợ; LibreOffice renders them in a fallback font, "
         "so the check render is not faithful"
     )
+
+
+def test_a_long_fit_reads_the_config_once(monkeypatch):
+    """load_table answers from its cache before it reads the config (T-30: the stress
+    planner spent most of its time re-parsing thresholds.toml once per width)."""
+    import keyline.config as config_mod
+    import keyline.fit as fit_mod
+
+    monkeypatch.setattr(fit_mod, "_cache", {})
+    calls = []
+    real = config_mod.load
+    monkeypatch.setattr(config_mod, "load", lambda *a, **k: calls.append(1) or real(*a, **k))
+    fit(ARIAL, ["keepers wait a season " * 40], F(800), F(1000), "text")
+    assert len(calls) == 1
+    with pytest.raises(Exception, match="not a portable font"):
+        load_table("Comic Sans MS", "regular")
