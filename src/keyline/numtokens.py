@@ -5,10 +5,14 @@ magnitude letter). A token is *significant* when it has a prefix or a suffix, or
 two digits, except that a bare 4-digit core from 1900 to 2099 is a year. `unsourced-number`
 (§4.5) compares a slide's significant tokens with the tokens of its evidence entries.
 
-Known limits (§4.4.5 and amendment B-5), pinned by tests and documented in check.md:
-units are not compared; spaces as thousands separators are not read; "24/7" gives "24";
-"27 September 2026" gives a significant "27"; "v2.0.1" gives "2.0.1"; "3 × 4" gives "3×";
-"$-5" gives "-5".
+Known limits (§4.4.5, amendment B-5 and audit 02 FX-8), pinned by tests; the skill's
+check.md (phase B) documents them:
+- units are not compared; spaces as thousands separators are not read; "24/7" gives "24";
+- "27 September 2026" gives a significant "27"; "v2.0.1" gives "2.0.1"; "3 × 4" gives
+  "3×"; "$-5" gives "-5";
+- "B2B" gives "2B", "4K" gives "4K", "COVID-19" gives "19", "iPhone 15" gives "15";
+- "5 %" with a no-break space gives a non-significant "5" (only U+0020 joins the "%");
+- a source line inside a table cell is not recognised (B-12): table text is scanned whole.
 """
 
 from __future__ import annotations

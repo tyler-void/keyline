@@ -58,6 +58,12 @@ LIMITS = {
     "$-5": ["-5*"],  # the $ is dropped: a sign before the currency is the only order
     "12 400 trees": ["12*", "400*"],  # spaces are not thousands separators
     "24/7": ["24*", "7"],
+    # audit 02 FX-8
+    "B2B": ["2B*"],
+    "4K": ["4K*"],
+    "COVID-19": ["19*"],
+    "iPhone 15": ["15*"],
+    "5\u00a0%": ["5"],  # a no-break space does not join the %
 }
 
 
@@ -174,3 +180,11 @@ def test_adapter_reads_table_text_row_major_outside_paragraphs():
     (table,) = [sh for s in deck.slides for sh in s.shapes if sh.kind == "graphicFrame:table"]
     assert table.paragraphs == []
     assert table.table_text.split("\n")[:2] == ["Region\tQ1\tQ2\tQ3\tQ4", "North\t12\t14\t15\t18"]
+
+
+def test_a_source_line_in_a_table_cell_is_not_recognised():
+    """Known limit (amendment B-12, audit 02 FX-8): table text is scanned whole."""
+    table = Shape(7, "table", "graphicFrame:table", 7, table_text="Source: survey\t12,400")
+    slide = Slide(1, None, "solid:#FFFFFF", shapes=[table])
+    ((_shape, text),) = slide_texts(slide, load_cfg())
+    assert significant(text) == ["12,400"]

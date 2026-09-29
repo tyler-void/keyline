@@ -5,6 +5,9 @@ Swiss neutral layouts, text in the region placeholders, the keyline rule on evid
 slides, source lines, and the disclosure note on the last slide. Each drift is the base
 with one pinned change (AC-8's table), so that exactly one finding moves. Output goes
 through zipnorm, so rebuilding gives identical bytes.
+
+Pinned to python-pptx 1.0.2: drift_role() sets the private `_Relationship._target` to swap
+a slide's layout (audit 02, ruling on deviation 4). Check it after any python-pptx upgrade.
 """
 
 from __future__ import annotations
