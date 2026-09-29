@@ -71,6 +71,8 @@ KEYS = (
     "statement_min_slides",
     # spec 002 B-8.3, common
     "portable_fonts",
+    # spec 002 B-22 item 6, common
+    "missing_glyph_em",
     # spec 002 B-10, common
     "acceptable_rules",
 )

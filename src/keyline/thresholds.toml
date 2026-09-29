@@ -65,6 +65,11 @@ portable_fonts = [
   { family = "Calibri",         metric_twin = "Carlito" },
   { family = "Cambria",         metric_twin = "Caladea" },
 ]
+# spec 002 B-22 item 6: the fit estimate of a character the voice's twin lacks is at least
+# this many em. The widest cost measured on LibreOffice 26.8.0.3 (tools/measure_lo.py): a CJK
+# glyph between Latin letters, 1.4805 em (Asian/Latin spacing on both sides); a CJK run
+# 1.0480, emoji 1.2454, Thai 0.5710. B-22 item 7: the larger over every version measured.
+missing_glyph_em = 1.49
 
 [presented]
 body_min_pt = 18
