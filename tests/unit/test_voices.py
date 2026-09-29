@@ -21,6 +21,7 @@ from keyline.packs.voices import (
 PACK = resolve("swiss")
 VOICES = PACK.directory / "voices"
 RAW = tomllib.loads((VOICES / "neutral.toml").read_text(encoding="utf-8"))
+RAW.pop("name")  # parse() is the inline form; `name` belongs to a voice file (B-18)
 CFG = load_cfg()
 
 
@@ -98,7 +99,7 @@ def test_values_are_normalised():
 
 
 def test_inline_voice_needs_no_name_or_schema():
-    data = {k: v for k, v in RAW.items() if k not in ("name", "schema")}
+    data = {k: v for k, v in RAW.items() if k != "schema"}
     v = parse(data, PACK)
     assert v.name == "inline" and v.path is None and missing_why(PACK, v) == []
 
@@ -134,5 +135,43 @@ def test_claude_look_states():
 
 
 def test_missing_why_per_role():
-    v = voice(lambda d: d.update(why={"paper": "sand", "ink": "  ", "gold": "ignored"}))
+    v = voice(lambda d: d.update(why={"paper": "sand", "ink": "  "}))
     assert missing_why(PACK, v) == ["ink", "muted", "hairline", "accent", "accent_on_ink"]
+
+
+@pytest.mark.parametrize(
+    ("mutate", "message"),
+    [
+        (lambda d: d.update(wobble="x"), r"voice test: unknown key 'wobble'"),
+        (lambda d: d.update(name="neutral"), r"voice test: unknown key 'name'"),  # inline
+        (lambda d: d["fonts"].update(weight="bold"), r"fonts has an unknown key 'weight'"),
+        (lambda d: d["why"].update(gold="x"), r"why has an unknown key 'gold' \(not a palette"),
+        (
+            lambda d: d["why"].update(accepted=[{"rule": "accent-overuse", "reason": "x"}]),
+            r"why\.accepted: accepted belongs before \[fonts\]",
+        ),
+    ],
+)
+def test_the_voice_schema_is_closed(mutate, message):
+    """Amendment B-18 (audit 03, FX-12): any other key is a schema error naming it."""
+    with pytest.raises(VoiceError, match=message):
+        voice(mutate)
+
+
+def test_accepted_after_why_in_a_voice_file_is_an_error(tmp_path):
+    """The audit's repro: accepted written after [why], as B-8.2's example showed it."""
+    text = (
+        (VOICES / "neutral.toml")
+        .read_text(encoding="utf-8")
+        .replace('name = "neutral"', 'name = "spec"')
+    )
+    path = tmp_path / "spec.toml"
+    path.write_text(
+        text + 'accepted = [{ rule = "unsourced-number", reason = "" }]\nwobble = "x"\n',
+        encoding="utf-8",
+    )
+    with pytest.raises(VoiceError, match=r"why\.accepted: accepted belongs before \[fonts\]"):
+        load(PACK, path)
+    fixed = tmp_path / "ok.toml"
+    fixed.write_text(text.replace('name = "spec"', 'name = "ok"\naccepted = []'), encoding="utf-8")
+    assert load(PACK, fixed).accepted == ()

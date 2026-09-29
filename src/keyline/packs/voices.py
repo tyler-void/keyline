@@ -21,6 +21,8 @@ from keyline.packs import Pack, PackError, check_accepted
 NAME_RE = re.compile(r"[a-z0-9-]+")  # both matched with fullmatch (B-12 item 1)
 HEX_RE = re.compile(r"[0-9A-Fa-f]{6}")
 INLINE = "inline"
+TOP_KEYS = frozenset({"schema", "accepted", "fonts", "palette", "why"})  # + "name" in a file
+FONT_KEYS = frozenset({"display", "text"})
 
 
 class VoiceError(PackError):
@@ -115,13 +117,23 @@ def parse(
     portable: tuple[tuple[str, str], ...] | None = None,
 ) -> Voice:
     """Validate a voice table against the pack's system. `name` and `schema` are checked by
-    the file loader; an inline `[voice]` has neither (plan Q-30)."""
+    the file loader; an inline `[voice]` may not carry `name` (plan Q-30). The schema is
+    closed (amendment B-18): any key not listed below is a schema error that names it."""
     if not isinstance(data, dict):
         raise VoiceError(f"{where}: must be a table")
+    allowed = TOP_KEYS | ({"name"} if path is not None else set())
+    for key in data:
+        if key not in allowed:
+            raise VoiceError(
+                f"{where}: unknown key {key!r} (allowed: {', '.join(sorted(allowed))})"
+            )
     portable = portable_fonts() if portable is None else portable
     fonts = data.get("fonts")
     if not isinstance(fonts, dict):
         raise VoiceError(f"{where}: missing [fonts] table")
+    for key in fonts:
+        if key not in FONT_KEYS:
+            raise VoiceError(f"{where}: fonts has an unknown key {key!r} (display, text)")
     display = _font(fonts.get("display"), portable, f"{where}: fonts.display")
     text = _font(fonts.get("text"), portable, f"{where}: fonts.text")
 
@@ -149,6 +161,11 @@ def parse(
     why = data.get("why", {})
     if not isinstance(why, dict):
         raise VoiceError(f"{where}: [why] must be a table")
+    for key in why:
+        if key == "accepted":  # the B-8.2 example's trap: a key after [why] belongs to it
+            raise VoiceError(f"{where}: why.accepted: accepted belongs before [fonts]")
+        if key not in roles:
+            raise VoiceError(f"{where}: why has an unknown key {key!r} (not a palette role)")
     try:
         accepted = check_accepted(data.get("accepted", []))  # B-10
     except ValueError as exc:

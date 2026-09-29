@@ -71,6 +71,7 @@ def test_pack_toml_mutations():
 
 def test_voice_mutations():
     data = _read(SWISS / "voices/neutral.toml")
+    data.pop("name")  # the inline form, so mutants reach past the name check (B-18)
     count, failures = _check(lambda d: parse(d, PACK, where="voice"), VoiceError, data)
     assert count > 200 and failures[:10] == [], len(failures)
 
