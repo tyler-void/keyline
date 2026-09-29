@@ -1,4 +1,4 @@
-"""Build the AC-8 drift decks: python fixtures/briefs/src/build_drift.py
+"""Build the AC-8 drift decks: python fixtures/briefs/src/build_drift.py [OUT_DIR]
 
 base.pptx is what the pen will write for drift/base.brief.toml (spec 002 amendment B-3):
 Swiss neutral layouts, text in the region placeholders, the keyline rule on evidence
@@ -137,22 +137,22 @@ DRIFTS = {
 }
 
 
-def _save(prs, name) -> Path:
+def _save(prs, out: Path, name: str) -> Path:
     buf = io.BytesIO()
     prs.save(buf)
-    return zipnorm.write(OUT / f"{name}.pptx", zipnorm.read_entries(buf.getvalue()))
+    return zipnorm.write(out / f"{name}.pptx", zipnorm.read_entries(buf.getvalue()))
 
 
-def build() -> list[Path]:
-    OUT.mkdir(parents=True, exist_ok=True)
-    written = [_save(base(), "base")]
+def build(out: Path = OUT) -> list[Path]:
+    out.mkdir(parents=True, exist_ok=True)
+    written = [_save(base(), out, "base")]
     for name, change in DRIFTS.items():
         prs = base()
         change(prs)
-        written.append(_save(prs, name))
+        written.append(_save(prs, out, name))
     return written
 
 
 if __name__ == "__main__":
-    for p in build():
-        print(p.relative_to(HERE))
+    for p in build(Path(sys.argv[1]) if len(sys.argv) > 1 else OUT):
+        print(p)
