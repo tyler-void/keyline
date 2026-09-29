@@ -25,3 +25,14 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
   - Numeric tokens (§4.4) and table text.
   - A LibreOffice render engine (`--engine auto|libreoffice|officecli`), the
     `officecli validate` step in `check` (`ooxml-invalid`), and `keyline doctor`.
+- Spec 002, phase A2 (M2):
+  - Fit tables for each portable font's metric twin, regular and bold, and the fit
+    estimator (§6.4 with B-21): wrap at 0.99 × the width, 1.2 em line pitch plus
+    0.01 mm per line, and a warning for characters a twin lacks.
+  - The pen (`keyline.pen`): `Deck`, `Deck.from_brief`, and the verbs `text`,
+    `bullets`, `figure`, `table`, `chart_bar`, `image`, `attribution`, `source`,
+    `note` and `notes`. Tokens only; text that does not fit raises `DoesNotFit`;
+    byte-identical output, charts included.
+  - Swiss specimens in `neutral`, `night` and `field`, the AC-8 drift decks rebuilt
+    with the pen, and `tools/measure_lo.py` and `tools/fit_stress.py` for the
+    LibreOffice measurements.

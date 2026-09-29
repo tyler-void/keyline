@@ -49,6 +49,31 @@ A pack is one **system** (grid, type scale, roles, regions, colours named by rol
 subject's world. Voice fonts come from families that ship with Windows, macOS or Office
 and have an open metric-compatible twin (D-020).
 
+## The pen
+
+`keyline.pen` writes decks from tokens: roles, style names, region names and evidence
+ids. No parameter takes a colour, a font, a size or a position. Every text is checked
+against its region before it is written, and text that would not fit raises `DoesNotFit`
+instead of shrinking. The pen needs python-pptx (`pip install -e '.[pen]'`); `keyline
+lint` never imports it. From the repository root:
+
+```python
+from keyline.pen import Deck
+
+deck = Deck.from_brief("fixtures/briefs/drift/base.brief.toml")  # pack, mode, voice, evidence
+deck.next().text("A slow dating app for trees and their keepers", style="lede")
+deck.next()  # a statement: its headline is the slide
+deck.next().figure("waitlist_trees").source()
+deck.next().text("71% of keepers are still active after 90 days").source()
+deck.next().text("Join the waitlist as a keeper this season", style="lede").note()
+deck.save("bonsaihub.pptx")
+```
+
+`keyline check bonsaihub.pptx --brief fixtures/briefs/drift/base.brief.toml` then passes.
+The same script and inputs give byte-identical files. The Swiss specimens in
+[`fixtures/packs`](fixtures/packs), in three voices, are built this way by
+`fixtures/packs/src/build_specimens.py`.
+
 ## Why
 
 AI agents can already produce `.pptx` files, and many skills tell them in prose which
