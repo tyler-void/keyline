@@ -1,0 +1,25 @@
+# Evidence for the Swiss pack specimens (spec 002 §11, AC-11, AC-12, B-8.13): facts about
+# the pack itself, taken from src/keyline/packs/swiss/pack.toml and its voices.
+schema = 1
+
+[product]
+name = "Swiss, a keyline pack"
+fictional = false
+
+[[evidence]]
+id = "grid_columns"
+value = "12"
+label = "columns in the grid"
+source = "pack.toml, [grid]"
+
+[[evidence]]
+id = "type_sizes"
+label = "type sizes, presented (pt)"
+source = "pack.toml, [styles.presented]"
+series = [["label", 14], ["body", 24], ["lede", 28], ["headline", 48], ["statement", 60], ["cover", 66]]
+
+[[evidence]]
+id = "type_sizes_read"
+label = "type sizes, read (pt)"
+source = "pack.toml, [styles.read]"
+series = [["label", 10], ["body", 13], ["lede", 16], ["headline", 28], ["statement", 36], ["cover", 40]]

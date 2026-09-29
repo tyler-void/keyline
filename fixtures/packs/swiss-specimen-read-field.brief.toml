@@ -1,0 +1,68 @@
+# Swiss pack specimen, read, voice field (spec 002 B-8.13, plan Q-42). Built by
+# fixtures/packs/src/build_specimens.py. One slide per role; every pen verb at least once.
+schema = 1
+mode = "read"
+pack = "swiss"
+voice = "field"
+evidence = ["swiss-specimen.evidence.toml"]
+
+[direction]
+audience = "Designers reviewing the Swiss pack before it ships"
+decision = "Ship the Swiss pack, or list what to fix"
+thesis = "A deck built only from tokens can still look designed"
+own_world = ["grid", "hairline", "signal colour", "column", "keyline rule"]
+motif = "The keyline rule, drawn at the same height on every evidence slide"
+
+[[slides]]
+role = "cover"
+headline = "Swiss: a pack for decks that argue"
+reads = ["what the pack is"]
+
+[[slides]]
+role = "statement"
+headline = "Every value in the deck comes from the pack"
+reads = ["the claim", "why it holds"]
+notes = "The pen takes names, never sizes or colours."
+
+[[slides]]
+role = "section"
+headline = "How the pack sets a slide"
+reads = ["the part that follows"]
+
+[[slides]]
+role = "evidence"
+headline = "Regions snap to one grid on every slide"
+reads = ["the grid has twelve columns"]
+evidence = ["grid_columns"]
+notes = "Twelve columns, fixed margins, and rows that set the rhythm."
+
+[[slides]]
+role = "evidence"
+headline = "Sizes step up so titles always dominate the body"
+reads = ["the type scale", "the headline step"]
+evidence = ["type_sizes_read"]
+notes = "In read mode the steps are smaller, for a page read at arm's length."
+
+[[slides]]
+role = "evidence"
+headline = "Each style has one job in the deck"
+reads = ["styles and their jobs"]
+notes = "Nothing is set by hand; every text picks a style."
+
+[[slides]]
+role = "evidence"
+headline = "The grid, drawn to scale"
+reads = ["what the grid looks like", "what it guarantees"]
+notes = "Margins, gutters and rows are fixed by the pack."
+
+[[slides]]
+role = "quote"
+headline = "Statement slides are allowed to be mostly empty, and that emptiness is the point."
+reads = ["the pack's stance on space"]
+notes = "Read it slowly, then pause."
+
+[[slides]]
+role = "close"
+headline = "Build the next deck from the same tokens"
+reads = ["the ask"]
+notes = "Start from a brief, pick a voice, and let the pen set the rest."
