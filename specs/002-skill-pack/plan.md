@@ -16,6 +16,9 @@
   FX-1 … FX-8 accepted; a second fix round FX-9 … FX-15 (B-16 … B-20), then A2 without
   another audit stop. Its rulings on Q-42 … Q-46 are marked below and in the A2 tasks;
   B-18 supersedes Q-30's "`[why]` keys that are not roles are ignored".
+- **Audit 05** ([audit-05-a2.md](audit-05-a2.md), 2026-09-29) of phase A2: FIX (FX-16 …
+  FX-23, amendments B-22 … B-24), then G-1 and the Phase B tasks after a re-audit of the
+  fixes. Its rulings on Q-47 … Q-49 and Tyler's FX-24 (title anchor) are marked below.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -725,6 +728,34 @@ wrap margin; `line_pitch_em = 1.2` for all six twins, with 0.01 mm per line in t
 test; the widened measurement (stress set, pack spacings) must pass B-21's two criteria
 (it did on 26.8.0.3, `e93fa4a`); the fit tables list each twin's missing Vietnamese
 letters, and the pen warns once per deck when text uses them (not a registry entry).
+
+### Report A2 questions (2026-09-29, report A2)
+
+**Rulings (audit 05, §3; Tyler accepts them):**
+- **Q-47: amend AC-13(b) and keep checking the left edge (B-24).** The right, top and
+  bottom edges are judged at 2 px. The left edge is judged at 2 px plus the most negative
+  left side bearing among the text's characters × size, computed in the test from the
+  twin's TTF with fontTools; no fit-table data. The stress covers all six portable
+  families, on every LibreOffice version available.
+- **Q-48: drop the row rounding of the numeral box.** The numeral box is exactly one
+  numeral line (size × 1.2 + 0.01 mm, B-21), and the label box starts directly below it.
+  Presented statement and close then hold a figure (144.03 + 16.83 = 160.86 pt in 23
+  rows, 163.0 pt), so the pack does not change. This supersedes Q-43's row rounding.
+- **Q-49: keep the wording** "table text is not read in M1": it is part of M1's
+  byte-identical output. Change it in spec 004, when table text is read.
+- **FX-24 (Tyler, audit 05 §4): a vertical anchor per region** in `pack.toml`: `b` for
+  the title regions of cover, evidence and close, so the title sits on the rule or the
+  lede; `t` everywhere else, the statement slide included. The templates and specimens
+  are rebuilt and the G-1 contact sheets regenerated.
+
+47. **Q-47 · AC-13(b)'s left edge** (report A2). A line that starts with a glyph whose
+    left side bearing is negative puts ink left of the region box (2.7 px measured, bold
+    Gelasio "v" at 60 pt). *Proposal:* judge only the edges the estimator decides.
+48. **Q-48 · A figure on a presented statement or close.** The numeral box rounded up to
+    whole rows needs 24 rows; the regions have 23. *Options:* a 24-row region, no figure
+    on those roles, a smaller numeral, or document the refusal.
+49. **Q-49 · The `unsupported-content` wording** "in M1" on every table. *Question:*
+    reword it, keeping the rule id?
 
 42. **Q-42 · Specimen files for three voices** (B-8.13). *Proposal:*
     `fixtures/packs/swiss-specimen-presented.brief.toml` (voice `neutral`),

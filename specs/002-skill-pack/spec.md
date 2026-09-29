@@ -1599,3 +1599,50 @@ must contain at least these rows.
     Every pitch measured, 9–120 pt at spacing 1.0 and 1.1, is within that bound.
   - **Coverage:** Caladea (for Cambria) lacks 88 of 134 Vietnamese letters. The pen
     warns when a deck uses them, and LibreOffice renders them in a fallback font.
+- **B-22 (2026-09-29, audit 05).** The fit estimator and the writer see the same text.
+  1. **One normalization, before both estimate and write:**
+     - NFC;
+     - runs of space separators (category Zs, except U+00A0, U+202F and U+2007)
+       become one U+0020;
+     - leading and trailing spaces are removed.
+  2. **Paragraphs and line breaks.**
+     - `\n` separates paragraphs only in `text()` and `notes()`.
+     - Every other string is one line and refuses B-17's line-break set: headlines,
+       labels, cells, source, note, attribution and bullet items.
+  3. **Refused everywhere,** as `PenError` naming the code point:
+     - C0 and C1 controls (except `\n` where item 2 allows it) and tab;
+     - U+FFFE, U+FFFF and lone surrogates;
+     - the invisible break controls U+00AD, U+200B, U+2060 and U+FEFF.
+
+     U+00A0, U+202F and U+2007 join words: the estimator treats a joined run as one
+     word, so §6.4's "a single word wider than the region does not fit" applies to it.
+  4. **No line break before** `) ] } , . : ; ! ? / % ‰ » ” ’`, even after a space
+     (UAX #14, LB13). The estimator keeps them with the preceding word.
+  5. **Table cells:** pitch = size × max(1.2, the twin's hhea line height) × line
+     spacing + 0.01 mm. The fit tables store the hhea value. Text boxes keep B-21's 1.2.
+  6. **Missing glyphs:** a character missing from the twin's table counts as
+     max(the table's maximum advance, `missing_glyph_em`). That value is data in
+     `thresholds.toml`, measured on LibreOffice (CJK, emoji and Thai fallbacks) and
+     recorded with the version.
+  7. **Versions.** Fit constants must hold on every LibreOffice version that Tyler or
+     the auditor has measured: now 24.2.7.2 and 26.8.0.3. Where the versions differ,
+     the estimator takes the larger value.
+- **B-23 (2026-09-29, audit 05).** Pen state and inputs.
+  - A refused verb leaves the slide exactly as before.
+  - The footer region takes only `source()` and `note()`.
+  - Flags (`accent`, `header`) must be `bool`.
+  - On a deck made from a brief, `next()` after `add()` is a `PenError`.
+  - `bullets_max` counts per slide.
+  - The caption cap (`caption_exempt_words`) applies to every style whose size is below
+    the mode's body minimum, as lint's exemption does.
+  - Images are PNG, JPEG, GIF, BMP or TIFF, read when `image()` is called.
+  - `save()` validates `author`, writes atomically, and raises only `PenError`.
+  - **Invariant:** a deck built only through legal pen calls lints with no error-level
+    finding. This is tested by a generated sweep.
+- **B-24 (2026-09-29, audit 05).** AC-13(b) judges the right, top and bottom edges at
+  2 px.
+  - The left edge is judged at 2 px plus the most negative left side bearing among the
+    text's characters × size, taken from the twin.
+  - The stress covers all six portable families.
+  - It runs on every LibreOffice version available: Tyler's 26.8.0.3, and the
+    auditor's 24.2.7.2 at audit time.
