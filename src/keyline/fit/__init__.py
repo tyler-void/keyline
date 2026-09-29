@@ -92,3 +92,120 @@ def load_table(family: str, weight: str) -> Table:
             advances={cp: adv for cp, adv in data["advances"]},
         )
     return _cache[key]
+
+
+# ---------------------------------------------------------------------------------------
+# the estimator (§6.4 as amended by B-21): refuse, never shrink
+
+WRAP_MARGIN = Fraction(99, 100)  # a line fits when its width ≤ 0.99 × the available width
+LINE_ALLOWANCE_PT = Fraction(72, 2540)  # 0.01 mm per line, LibreOffice's layout unit (B-21)
+EMU_PER_PT = 12700
+
+
+class DoesNotFit(ValueError):
+    """Text that would not fit its region at its token size. The message says what, and
+    how many lines it needs against how many the region holds."""
+
+
+@dataclass(frozen=True)
+class Setting:
+    """How a style sets text: everything the estimate needs, in points."""
+
+    family: str
+    weight: str
+    size: Fraction
+    caps: bool = False
+    tracking: Fraction = Fraction(0)  # a fraction of the size, per character
+    line_spacing: Fraction = Fraction(1)
+    space_before: Fraction = Fraction(0)
+    space_after: Fraction = Fraction(0)
+    indent: Fraction = Fraction(0)  # marL, taken from the available width
+
+    @property
+    def table(self) -> Table:
+        return load_table(self.family, self.weight)
+
+    @property
+    def pitch(self) -> Fraction:
+        return self.size * self.table.line_pitch_em * self.line_spacing + LINE_ALLOWANCE_PT
+
+
+def as_set(setting: Setting, text: str) -> str:
+    """The text as rendered: upper-cased for caps styles, NFC."""
+    return unicodedata.normalize("NFC", text.upper() if setting.caps else text)
+
+
+def width(setting: Setting, text: str) -> Fraction:
+    """§6.4's width: the advance sum (no kerning; a missing character counts as the
+    twin's maximum advance) plus tracking × size per character."""
+    shown = as_set(setting, text)
+    table = setting.table
+    units = sum(table.advance(ch) for ch in shown)
+    return Fraction(units, table.units_per_em) * setting.size + (
+        setting.tracking * setting.size * len(shown)
+    )
+
+
+def missing(setting: Setting, text: str) -> str:
+    """The characters of `text` the twin lacks, in first-seen order (no spaces)."""
+    table = setting.table
+    shown = as_set(setting, text)
+    return "".join(
+        dict.fromkeys(c for c in shown if not c.isspace() and ord(c) not in table.advances)
+    )
+
+
+def wrap(setting: Setting, text: str, available: Fraction, what: str = "text") -> list[str]:
+    """Greedy wrapping at spaces: a line fits when its width ≤ 0.99 × the available width
+    (after the indent). A single word wider than that does not fit."""
+    room = (available - setting.indent) * WRAP_MARGIN
+    lines: list[str] = []
+    current = ""
+    for word in text.split():
+        if width(setting, word) > room:
+            raise DoesNotFit(f"{what}: the word {word!r} is wider than its region")
+        candidate = f"{current} {word}" if current else word
+        if width(setting, candidate) <= room:
+            current = candidate
+        else:
+            lines.append(current)
+            current = word
+    lines.append(current)
+    return lines
+
+
+def lines_held(setting: Setting, height: Fraction, paragraphs: int = 1) -> int:
+    """How many lines of this setting a region of `height` holds."""
+    spacing = (setting.space_before + setting.space_after) * paragraphs
+    return max(int((height - spacing) // setting.pitch), 0)
+
+
+def fit(
+    setting: Setting,
+    paragraphs: list[str],
+    box_width: Fraction,
+    box_height: Fraction,
+    what: str = "text",
+) -> list[list[str]]:
+    """The wrapped lines of each paragraph, or DoesNotFit. A region holds n lines when
+    n × (size × line_pitch_em × line spacing + 0.01 mm) plus the paragraphs' spacing is at
+    most its height (B-21)."""
+    wrapped = [wrap(setting, p, box_width, what) for p in paragraphs]
+    needed = sum(len(w) for w in wrapped)
+    spacing = (setting.space_before + setting.space_after) * len(paragraphs)
+    if needed * setting.pitch + spacing > box_height:
+        held = lines_held(setting, box_height, len(paragraphs))
+        raise DoesNotFit(
+            f"{what} needs {needed} lines, region holds {held}: shorten it or split the slide"
+        )
+    return wrapped
+
+
+def coverage_warning(family: str, chars: str) -> str:
+    """The one warning per deck when text uses characters the voice's twin lacks
+    (audit 04); the build goes ahead."""
+    twin = load_table(family, "regular").twin
+    return (
+        f"{twin} (for {family}) lacks: {chars}; LibreOffice renders them in a fallback "
+        "font, so the check render is not faithful"
+    )

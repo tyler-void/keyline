@@ -1,0 +1,46 @@
+# AC-13(a) test strings (spec 002 §12; task T-22): the estimator's width against Pillow's
+# (BASIC layout, the twin at 1000 px). `latin = true` marks plain-Latin strings, flagged in
+# the report when their ratio exceeds 1.05 (audit 04, informational).
+
+[[string]]
+name = "sentence"
+text = "Keepers wait a whole season before their first match"
+latin = true
+
+[[string]]
+name = "narrow"
+text = "illicit little lilies fill all tills"
+latin = true
+
+[[string]]
+name = "wide-caps"
+text = "WOMBAT MEMO WAVE MW"
+latin = true
+
+[[string]]
+name = "digits"
+text = "12,400 trees; 3.2% of swipes; $1.2M seed; 0.4%"
+latin = true
+
+[[string]]
+name = "punctuation"
+text = "Source: BonsaiHub waitlist (fictional), September 2026 — “quoted”"
+latin = false
+
+[[string]]
+name = "vietnamese"
+text = "Cây bonsai già nhất trong danh sách chờ; người giữ cây đợi một mùa"
+latin = false
+
+[[string]]
+name = "vietnamese-caps"
+text = "Những cây bonsai đang chờ người giữ"
+caps = true
+latin = false
+
+[[string]]
+name = "caps-tracked"
+text = "Active keepers by month"
+caps = true
+tracking = 0.08
+latin = true
