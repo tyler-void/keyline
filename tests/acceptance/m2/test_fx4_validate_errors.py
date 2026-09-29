@@ -35,7 +35,7 @@ def test_the_envelope_parses_as_one_error():
 
 
 def test_the_envelope_finding_names_the_users_deck(monkeypatch):
-    def fake_run(cmd, **kw):
+    def fake_run(cmd, timeout):
         if cmd[1] == "validate":  # OfficeCLI names the file it was given: the private copy
             copy = os.path.basename(cmd[2])
             return subprocess.CompletedProcess(cmd, 1, ENVELOPE.replace("{name}", copy), "")
@@ -43,8 +43,8 @@ def test_the_envelope_finding_names_the_users_deck(monkeypatch):
 
     monkeypatch.setattr(validate_mod.shutil, "which", lambda name: "/usr/bin/officecli")
     monkeypatch.setattr(officecli.shutil, "which", lambda name: "/usr/bin/officecli")
-    monkeypatch.setattr(validate_mod.subprocess, "run", fake_run)
-    monkeypatch.setattr(officecli.subprocess, "run", fake_run)
+    monkeypatch.setattr(validate_mod, "_run", fake_run)
+    monkeypatch.setattr(officecli, "_run", fake_run)
     (f,) = validate_mod.validate(GOLDEN / "kpi-recipe.pptx")
     assert (f.rule, f.slide) == ("ooxml-invalid", 0)
     assert f.message == "Cannot open kpi-recipe.pptx: File contains corrupted data."

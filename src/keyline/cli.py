@@ -258,6 +258,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     elif not runnable:  # absent, or present but unable to start (B-15)
         _err(f"validate: skipped ({reason})\n")
     else:  # after lint, before render (spec 002 §7)
+        progress.reading.set("the validate step")
         invalid = validate.validate(args.deck)
         _err(f"validate: {len(invalid)} schema error(s)\n" if invalid else "validate: passed\n")
         findings = sort_findings([*result.findings, *invalid])
@@ -265,7 +266,9 @@ def cmd_check(args: argparse.Namespace) -> int:
     if args.json:
         _out_json(to_json(result.findings))
     _err(to_human(result.findings))
-    out_dir = args.out or str(Path(args.deck).with_suffix("")) + "-render"
+    # an explicit empty -o is an unusable -o (B-19), not the default
+    out_dir = args.out if args.out is not None else str(Path(args.deck).with_suffix("")) + "-render"
+    progress.reading.set("the render step")
     try:
         rendered = render(args.deck, out_dir, args.engine)
     except RenderError as exc:
@@ -362,8 +365,14 @@ def main(argv: list[str] | None = None) -> int:
     if not getattr(args, "func", None):
         parser.print_help(sys.stderr)
         return 1
+    from keyline._proc import Interrupted, interruptible
+
     try:
-        return args.func(args)
+        with interruptible():  # B-19: SIGINT and SIGTERM clean up, then exit 130 or 143
+            return args.func(args)
+    except Interrupted as exc:
+        _err(f"keyline: interrupted by signal {exc.signum}; engine processes stopped\n")
+        return exc.exit_code
     except Exception as exc:  # A-17: never a bare traceback
         if args.traceback:
             traceback.print_exc()

@@ -17,9 +17,15 @@ import uuid
 from collections.abc import Iterator
 from pathlib import Path
 
+from keyline import _proc
+
 CLOSE_TIMEOUT_S = 30
 PROBE_TIMEOUT_S = 30
 NOT_INSTALLED = "officecli is not installed"
+
+
+def _run(cmd: list[str], timeout: float) -> subprocess.CompletedProcess:
+    return _proc.run(cmd, timeout)  # own process group, UTF-8 with replacement (B-19)
 
 
 def status() -> tuple[bool, str]:
@@ -29,9 +35,7 @@ def status() -> tuple[bool, str]:
     if exe is None:
         return False, NOT_INSTALLED
     try:
-        proc = subprocess.run(
-            [exe, "--version"], capture_output=True, text=True, timeout=PROBE_TIMEOUT_S
-        )
+        proc = _run([exe, "--version"], PROBE_TIMEOUT_S)
     except (OSError, subprocess.TimeoutExpired) as exc:
         reason = getattr(exc, "strerror", None) or type(exc).__name__
         return False, f"officecli could not run: {reason}"
@@ -56,7 +60,5 @@ def private_copy(deck: str | Path) -> Iterator[Path]:
         exe = shutil.which("officecli")
         if exe is not None:
             with contextlib.suppress(OSError, subprocess.TimeoutExpired):
-                subprocess.run(
-                    [exe, "close", str(copy)], capture_output=True, timeout=CLOSE_TIMEOUT_S
-                )
+                _run([exe, "close", str(copy)], CLOSE_TIMEOUT_S)
         shutil.rmtree(tmp, ignore_errors=True)

@@ -30,6 +30,12 @@ OOXML_INVALID = register(
 )
 
 
+def _run(cmd: list[str], timeout: float) -> subprocess.CompletedProcess:
+    from keyline import _proc
+
+    return _proc.run(cmd, timeout)
+
+
 def available() -> bool:
     from keyline.officecli import status
 
@@ -45,7 +51,7 @@ def validate(deck: str | Path) -> list[Finding]:
     with private_copy(deck) as copy:  # B-14: never the user's path (L-016)
         cmd = [shutil.which("officecli"), "validate", str(copy), "--json"]
         try:
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT_S)
+            proc = _run(cmd, TIMEOUT_S)  # B-19: its own process group, killed whole
         except subprocess.TimeoutExpired:
             message = f"officecli validate timed out after {TIMEOUT_S} s"
             return [OOXML_INVALID.finding(0, None, message)]

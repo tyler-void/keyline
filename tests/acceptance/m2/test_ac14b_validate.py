@@ -88,11 +88,11 @@ def test_parse_the_observed_shapes():
 def test_unreadable_output_gives_one_finding_with_its_first_line(monkeypatch):
     out = "Segmentation fault\nmore"
 
-    def fake_run(cmd, **kw):
+    def fake_run(cmd, timeout):
         return subprocess.CompletedProcess(cmd, 139, out, "")
 
     monkeypatch.setattr(validate_mod.shutil, "which", lambda name: "/usr/bin/officecli")
-    monkeypatch.setattr(validate_mod.subprocess, "run", fake_run)
+    monkeypatch.setattr(validate_mod, "_run", fake_run)
     (f,) = validate_mod.validate(BOGUS)
     assert (f.rule, f.slide) == ("ooxml-invalid", 0)
     assert f.message == "officecli validate output not understood: Segmentation fault"
@@ -101,9 +101,7 @@ def test_unreadable_output_gives_one_finding_with_its_first_line(monkeypatch):
 def test_parts_map_to_the_slide_position_in_the_deck(monkeypatch):
     monkeypatch.setattr(validate_mod.shutil, "which", lambda name: "/usr/bin/officecli")
     monkeypatch.setattr(
-        validate_mod.subprocess,
-        "run",
-        lambda cmd, **kw: subprocess.CompletedProcess(cmd, 1, TWO, ""),
+        validate_mod, "_run", lambda cmd, timeout: subprocess.CompletedProcess(cmd, 1, TWO, "")
     )
     slides = [f.slide for f in validate_mod.validate(GOLDEN / "kpi-recipe.pptx")]
     assert slides == [2, 0]  # the theme is not a slide

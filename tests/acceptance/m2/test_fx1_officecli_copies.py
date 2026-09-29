@@ -73,7 +73,7 @@ def test_officecli_render_sees_the_replaced_deck(tmp_path):
 def test_the_copy_is_private_released_and_deleted(tmp_path, monkeypatch):
     calls = []
     monkeypatch.setattr(officecli.shutil, "which", lambda name: "/usr/bin/officecli")
-    monkeypatch.setattr(officecli.subprocess, "run", lambda cmd, **kw: calls.append(cmd))
+    monkeypatch.setattr(officecli, "_run", lambda cmd, timeout: calls.append(cmd))
     with officecli.private_copy(CLEAN) as copy:
         assert copy.is_file() and copy.parent != CLEAN.parent and copy.suffix == ".pptx"
         assert copy.read_bytes() == CLEAN.read_bytes()
@@ -86,7 +86,7 @@ def test_the_copy_is_private_released_and_deleted(tmp_path, monkeypatch):
 def test_the_copy_is_released_even_when_the_call_fails(monkeypatch):
     calls = []
     monkeypatch.setattr(officecli.shutil, "which", lambda name: "/usr/bin/officecli")
-    monkeypatch.setattr(officecli.subprocess, "run", lambda cmd, **kw: calls.append(cmd))
+    monkeypatch.setattr(officecli, "_run", lambda cmd, timeout: calls.append(cmd))
     with pytest.raises(RuntimeError), officecli.private_copy(CLEAN) as copy:
         raise RuntimeError("boom")
     assert calls == [["/usr/bin/officecli", "close", str(copy)]] and not copy.parent.exists()

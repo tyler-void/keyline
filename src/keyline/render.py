@@ -9,11 +9,9 @@ limits of its engine and, for LibreOffice, the version it ran on (amendment B-7)
 
 from __future__ import annotations
 
-import contextlib
 import os
 import re
 import shutil
-import signal
 import subprocess
 import sys
 import tempfile
@@ -139,9 +137,7 @@ def find_rasterizer() -> str | None:
 
 def libreoffice_version(soffice: str) -> str:
     try:
-        proc = subprocess.run(
-            [soffice, "--version"], capture_output=True, text=True, timeout=LO_TIMEOUT_S
-        )
+        proc = _run([soffice, "--version"], LO_TIMEOUT_S)
     except (OSError, subprocess.TimeoutExpired):
         return "LibreOffice (version unknown)"
     lines = proc.stdout.strip().splitlines()
@@ -195,6 +191,8 @@ def _prepare(out_dir: Path) -> None:
 
 
 def render(deck: str | Path, out_dir: str | Path, engine: str = "auto") -> RenderResult:
+    if not str(out_dir).strip():  # B-19: "" would silently mean the current directory
+        raise RenderError("cannot use '' as the output directory: it is empty")
     deck, out_dir = Path(deck), Path(out_dir)
     # the user's inputs first: no engine can render an empty deck or write to a file (B-13)
     if not deck.is_file():
@@ -228,28 +226,11 @@ def render(deck: str | Path, out_dir: str | Path, engine: str = "auto") -> Rende
 
 
 def _run(cmd: list[str], timeout: float) -> subprocess.CompletedProcess:
-    """Run in a process group of its own; on timeout kill the whole group, so that
-    soffice's soffice.bin child dies too (B-13)."""
-    group = (
-        {"start_new_session": True}
-        if os.name == "posix"
-        else {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
-    )
-    with subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **group
-    ) as proc:
-        try:
-            out, err = proc.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            if os.name == "posix":
-                with contextlib.suppress(ProcessLookupError, PermissionError):
-                    os.killpg(proc.pid, signal.SIGKILL)
-            else:
-                proc.kill()
-            with contextlib.suppress(subprocess.TimeoutExpired):
-                proc.communicate(timeout=10)
-            raise
-    return subprocess.CompletedProcess(cmd, proc.returncode, out, err)
+    """An engine call in its own process group, killed whole on a timeout or a signal, its
+    output decoded as UTF-8 with replacement (B-13, B-19)."""
+    from keyline import _proc
+
+    return _proc.run(cmd, timeout)
 
 
 def _render_officecli(deck: Path, out_dir: Path, count: int) -> list[Path]:
@@ -341,7 +322,7 @@ def rasterize(pdf: Path, out_dir: Path, raster: str, tmp_dir: Path, count: int) 
         return pngs
     prefix = tmp_dir / "page"
     cmd = ["pdftoppm", "-png", "-scale-to-x", str(PNG_WIDTH), "-scale-to-y", "-1"]
-    proc = subprocess.run([*cmd, str(pdf), str(prefix)], capture_output=True, text=True)
+    proc = _run([*cmd, str(pdf), str(prefix)], LO_TIMEOUT_S)
     pages = sorted(
         (int(m.group(1)), p)
         for p in tmp_dir.glob("page-*.png")

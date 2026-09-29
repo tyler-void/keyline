@@ -140,10 +140,10 @@ def _fc_match(family: str) -> str | None:
     fc = shutil.which("fc-match")
     if fc is None:
         return None
+    from keyline import _proc
+
     try:
-        out = subprocess.run(
-            [fc, "-f", "%{family}", family], capture_output=True, text=True, timeout=30
-        ).stdout
+        out = _proc.run([fc, "-f", "%{family}", family], 30).stdout
     except (OSError, subprocess.TimeoutExpired):
         return ""
     return out.split(",")[0].strip()
