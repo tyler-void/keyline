@@ -199,6 +199,8 @@ class SlideBuilder:
         self._plan = SlidePlan(layout)
         self._used: set[str] = set()
         self._brief_slide = None
+        self._lines: dict[str, str] = {}  # the footer's "source" and "note" lines
+        self._evidence_used: dict[str, None] = {}  # evidence ids the verbs used, in order
 
     # -- helpers the verbs share -------------------------------------------------------
 
@@ -255,9 +257,134 @@ class SlideBuilder:
         paras = self._text(style, [headline], title_box, "headline")
         self._plan.shapes.append(TextSpec("title", title_box, paras, placeholder=0))
 
+    def _allowed(self, component: str, style: str | None = None) -> str:
+        """The style this component uses on this role in this mode (§5.1 `roles`)."""
+        mode = self._deck._mode
+        allowed = self._role.components[mode]
+        if component not in allowed:
+            raise PenError(f"role {self._role.name} does not allow {component} in {mode} mode")
+        if style is None:
+            if not allowed[component]:
+                raise PenError(f"role {self._role.name} gives {component} no style")
+            return allowed[component][0]
+        self._deck._style(self._role.name, style)  # a token, and a known style
+        if style not in allowed[component]:
+            raise PenError(
+                f"style {style!r} is not allowed for {component} on {self._role.name} "
+                f"in {mode} mode (allowed: {', '.join(allowed[component])})"
+            )
+        return style
+
+    def _caption(self, text: str, what: str) -> str:
+        """Labels, attributions and header cells are captions: at most caption_exempt_words
+        words (§6.2), so they never become body text."""
+        from keyline.rules._common import words
+
+        limit = self._deck._cfg.as_int("caption_exempt_words")
+        n = words(_check_content(text, what))
+        if n > limit:
+            raise PenError(f"{what} has {n} words; at most {limit} (caption_exempt_words)")
+        return text
+
+    def _place(self, region: str, style_name: str, paragraphs, what: str, bullet=False):
+        style = self._deck._pack.styles[self._deck._mode][style_name]
+        region_box = box(self._deck._pack, self._layout, region)
+        paras = self._text(style, paragraphs, region_box, what, bullet)
+        idx = self._deck._pack.placeholder_idx.get(region)
+        self._plan.shapes.append(TextSpec(region, region_box, paras, placeholder=idx))
+        self._used.add(region)
+
+    def _footer(self) -> None:
+        """The fixed bottom region: the source line, then the note line (§6.1)."""
+        if "footer" not in regions(self._deck._pack, self._layout):
+            raise PenError(f"layout {self._layout} has no footer region for source or note lines")
+        lines = [self._lines[k] for k in ("source", "note") if k in self._lines]
+        self._plan.shapes = [
+            s for s in self._plan.shapes if not (isinstance(s, TextSpec) and s.name == "footer")
+        ]
+        self._used.discard("footer")
+        self._place("footer", self._allowed("source"), lines, "source and note lines")
+
     # -- verbs -------------------------------------------------------------------------------
+
+    def text(self, content: str, style: str = "body", region: str = "main") -> SlideBuilder:
+        """A block of text in one region, in a style the role allows for text."""
+        style = self._allowed("text", style)
+        region = self._region(region)
+        paragraphs = _check_content(content, "text").split("\n")
+        self._place(region, style, [p for p in paragraphs if p.strip()], "text")
+        return self
+
+    def bullets(self, items: list[str], region: str = "main") -> SlideBuilder:
+        """A bulleted list, at most bullets_max items (§3.2)."""
+        style = self._allowed("bullets")
+        region = self._region(region)
+        if not isinstance(items, list) or not items:
+            raise PenError("bullets need a non-empty list of items")
+        limit = self._deck._cfg.as_int("bullets_max")
+        if len(items) > limit:
+            raise PenError(f"{len(items)} bullets; at most {limit} in {self._deck._mode} mode")
+        texts = [_check_content(item, "a bullet") for item in items]
+        self._place(region, style, texts, "bullets", bullet=True)
+        return self
+
+    def attribution(self, text: str) -> SlideBuilder:
+        """Who said the quote: on quote slides, in the label style, in its own region."""
+        style = self._allowed("attribution")
+        region = self._region("main")
+        self._place(region, style, [self._caption(text, "attribution")], "attribution")
+        return self
+
+    def source(self, text: str | None = None) -> SlideBuilder:
+        """The source line. Without text: the sources of the brief slide's evidence
+        (without a brief, of the evidence the slide's verbs used), first-seen order,
+        joined with "; " and prefixed "Source: "."""
+        from keyline.rules._common import line_kind
+
+        self._allowed("source")
+        if "source" in self._lines:
+            raise PenError("this slide already has a source line")
+        if text is None:
+            ids = self._brief_slide.evidence if self._brief_slide else tuple(self._evidence_used)
+            if not ids or self._deck._evidence is None:
+                raise PenError("no evidence to source on this slide; give the source text")
+            entries = self._deck._evidence.entries
+            text = "; ".join(dict.fromkeys(entries[i].source for i in ids))
+        _check_content(text, "source")
+        if line_kind(self._as_paragraph(text), self._deck._cfg) != "source":
+            text = f"Source: {text}"
+        self._lines["source"] = text
+        self._footer()
+        return self
+
+    def note(self, text: str | None = None) -> SlideBuilder:
+        """The note line. Without text on a cover or close slide: the primary evidence
+        file's disclosure. A text without a note prefix gets "Note: "."""
+        from keyline.rules._common import line_kind
+
+        self._allowed("note")
+        if "note" in self._lines:
+            raise PenError("this slide already has a note line")
+        if text is None:
+            evidence = self._deck._evidence
+            disclosure = evidence.product.disclosure if evidence else ""
+            if self._role.name not in ("cover", "close") or not disclosure:
+                raise PenError("no disclosure to write here; give the note text")
+            text = disclosure
+        _check_content(text, "note")
+        if line_kind(self._as_paragraph(text), self._deck._cfg) != "note":
+            text = f"Note: {text}"
+        self._lines["note"] = text
+        self._footer()
+        return self
 
     def notes(self, text: str) -> SlideBuilder:
         """Speaker notes."""
         self._plan.notes = _check_content(text, "notes")
         return self
+
+    @staticmethod
+    def _as_paragraph(text: str):
+        from keyline.model import Paragraph, Run
+
+        return Paragraph(runs=(Run(text, 1200),))
