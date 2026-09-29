@@ -16,7 +16,6 @@ from pathlib import Path
 from keyline import __version__, progress
 from keyline.config import MODES
 from keyline.findings import EXIT_SCAN_FAILED, to_human, to_json
-from keyline.ooxml.package import ScanError
 
 
 def _err(text: str) -> None:
@@ -109,6 +108,7 @@ def _voice_notices(ctx, mode: str) -> None:
 def _lint(path: str, mode: str, ctx=None):
     from keyline.context import EMPTY
     from keyline.lint import lint_path
+    from keyline.ooxml.package import ScanError
 
     if not Path(path).is_file():
         raise ScanError(f"no such file: {path}")
@@ -123,6 +123,8 @@ def _lint_command(args: argparse.Namespace):
         _err(f"keyline: {exc}\n")
         return None, EXIT_SCAN_FAILED
     _voice_notices(ctx, mode)
+    from keyline.ooxml.package import ScanError  # lazy: lxml (so doctor runs without it)
+
     try:
         return _lint(args.deck, mode, ctx), None
     except ScanError as exc:
@@ -208,6 +210,18 @@ def cmd_brief(args: argparse.Namespace) -> int:
         _out_json(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
     _err(to_human(found))
     return exit_code(found)
+
+
+def cmd_doctor(args: argparse.Namespace) -> int:
+    """What this machine can do (spec 002 §7); exit 0 when lint can run."""
+    from keyline.doctor import human, report
+
+    data = report()
+    if args.json:
+        _out_json(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+    else:
+        _out(human(data))
+    return 0 if data["lint_can_run"] else EXIT_SCAN_FAILED
 
 
 def cmd_render(args: argparse.Namespace) -> int:
@@ -301,6 +315,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("file")
     p.add_argument("--json", action="store_true", help="write the spine and findings as JSON")
     p.set_defaults(func=cmd_brief)
+
+    p = sub.add_parser("doctor", help="what this machine can run", parents=[common])
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_doctor)
 
     p = sub.add_parser("packs", help="list the style packs keyline ships", parents=[common])
     p.add_argument("--json", action="store_true")

@@ -18,8 +18,6 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from PIL import Image, ImageDraw, ImageFont
-
 ENGINES = ("auto", "libreoffice", "officecli")
 INSTALL = "npm install -g @officecli/officecli"
 LO_INSTALL = (
@@ -72,6 +70,8 @@ def slide_count(deck: Path) -> int:
 
 def contact_sheet(pngs: list[Path], out: Path) -> Path:
     """A COLUMNS-wide grid of slide thumbnails, each labelled with its slide number."""
+    from PIL import Image, ImageDraw, ImageFont  # lazy, so `keyline doctor` runs without it
+
     if not pngs:
         raise RenderError("no slide images to put on a contact sheet")
     thumbs = []
@@ -269,13 +269,17 @@ def rasterize(pdf: Path, out_dir: Path, raster: str, tmp_dir: Path) -> list[Path
     )
     if proc.returncode != 0 or not pages:
         raise RenderError(f"pdftoppm failed: exit {proc.returncode}")
+    from PIL import Image
+
     for i, page in pages:
         with Image.open(page) as image:
             pngs.append(_save_png(image, out_dir / f"slide-{i:02d}.png"))
     return pngs
 
 
-def _save_png(image: Image.Image, path: Path) -> Path:
+def _save_png(image, path: Path) -> Path:
+    from PIL import Image
+
     if image.width != PNG_WIDTH:
         height = round(image.height * PNG_WIDTH / image.width)
         image = image.resize((PNG_WIDTH, height), Image.LANCZOS)
