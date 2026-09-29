@@ -214,7 +214,7 @@ def cmd_render(args: argparse.Namespace) -> int:
     from keyline.render import RenderError, render
 
     try:
-        result = render(args.deck, args.out)
+        result = render(args.deck, args.out, args.engine)
     except RenderError as exc:
         _err(f"keyline: render failed: {exc}\n")
         return EXIT_SCAN_FAILED
@@ -235,7 +235,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     _err(to_human(result.findings))
     out_dir = args.out or str(Path(args.deck).with_suffix("")) + "-render"
     try:
-        rendered = render(args.deck, out_dir)
+        rendered = render(args.deck, out_dir, args.engine)
     except RenderError as exc:
         _err(f"render: skipped ({exc})\n")
         return EXIT_SCAN_FAILED if args.require_render else result.exit_code
@@ -246,6 +246,12 @@ def cmd_check(args: argparse.Namespace) -> int:
     else:
         _out(listing)
     return result.exit_code
+
+
+def _engine_argument(p: argparse.ArgumentParser) -> None:
+    from keyline.render import ENGINES
+
+    p.add_argument("--engine", choices=ENGINES, default="auto", help="render engine (default auto)")
 
 
 def _pack_arguments(p: argparse.ArgumentParser) -> None:
@@ -289,10 +295,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=cmd_packs)
 
     p = sub.add_parser(
-        "render", help="PNG per slide and a contact sheet (needs OfficeCLI)", parents=[common]
+        "render",
+        help="PNG per slide and a contact sheet (needs LibreOffice or OfficeCLI)",
+        parents=[common],
     )
     p.add_argument("deck")
     p.add_argument("-o", "--out", required=True, help="output directory")
+    _engine_argument(p)
     p.set_defaults(func=cmd_render)
 
     p = sub.add_parser("check", help="lint, then a best-effort render", parents=[common])
@@ -300,6 +309,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--mode", choices=MODES, default=None, help="default: presented (D-008)")
     _pack_arguments(p)
     p.add_argument("-o", "--out", help="render directory (default: <deck>-render)")
+    _engine_argument(p)
     p.add_argument("--json", action="store_true")
     p.add_argument(
         "--require-render", action="store_true", help="exit 1 when the render step fails"

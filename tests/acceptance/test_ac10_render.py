@@ -17,7 +17,7 @@ KPI = GOLDEN / "kpi-recipe.pptx"
 
 @pytest.mark.officecli
 def test_render_kpi(tmp_path):
-    proc = keyline("render", KPI, "-o", tmp_path)
+    proc = keyline("render", KPI, "-o", tmp_path, "--engine", "officecli")  # spec 002 AC-2
     assert proc.returncode == 0, proc.stderr.decode()
     names = sorted(p.name for p in tmp_path.iterdir())
     assert names == ["contact.png", "slide-01.png", "slide-02.png", "slide-03.png", "slide-04.png"]
@@ -28,7 +28,7 @@ def test_render_kpi(tmp_path):
 
 @pytest.mark.officecli
 def test_check_with_render_keeps_lint_exit_code(tmp_path):
-    proc = keyline("check", KPI, "-o", tmp_path, "--json")
+    proc = keyline("check", KPI, "-o", tmp_path, "--json", "--engine", "officecli")  # AC-2
     assert proc.returncode == 2
     assert b"slide-04.png" in proc.stderr and proc.stdout.startswith(b"[")
 
