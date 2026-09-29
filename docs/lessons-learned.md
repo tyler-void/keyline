@@ -83,3 +83,11 @@ Normalize the ids (§6.6).
 **L-015 · 2026-09-27 · OfficeCLI output is not byte-stable.** Relationship ids are random, and
 `docProps/custom.xml` records the build time. An OfficeCLI writer would need an
 id-renumbering pass before it could promise reproducible builds.
+
+**L-016 · 2026-09-29 · OfficeCLI caches documents in a resident process; always work on
+copies.** `officecli validate` and `officecli view … screenshot` start a resident process
+that keeps the deck in memory for about 60 s, and a second call on the same path inside
+that window reads memory, not disk. A check → fix → re-check loop then validated and
+rendered the old deck (audit 02, FX-1; spec 001's render had the same latent bug).
+keyline copies the deck to a private temp file with a unique name, runs
+`officecli close` on the copy in a `finally`, and deletes it (B-14).

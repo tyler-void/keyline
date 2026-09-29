@@ -1481,3 +1481,66 @@ must contain at least these rows.
       - brand mode (a company template disables the diversity checks);
       - `office-default-font` (Calibri as a tell);
       - Verdana and Trebuchet MS, once a metric-compatible open font exists.
+- **B-9 (2026-09-29, audit 02).**
+  - `voice-claude-look` tests every palette role that a system surface uses as a
+    background (Swiss: `paper` and `ink`).
+  - `night`'s ink becomes **`ECECEC`**. Auditor's checks: C\* 0.00; ink/paper 15.06;
+    paper/ink 15.06; accent_on_ink/ink 5.02. No stock voice then has any `voice-*`
+    finding.
+- **B-10 (2026-09-29, audit 02).**
+  - `accepted` in a pack, a pack voice or an inline voice may list only the rules in
+    `acceptable_rules`. This is new data in `thresholds.toml` `[common]`: `claude-look-palette`,
+    `voice-claude-look`, `closing-cliche`, `accent-overuse`, `equal-card-row`,
+    `title-underline`.
+  - Each entry needs a non-empty `reason`.
+  - Anything else is a schema error (exit 1).
+  - This supersedes the Q-24 and Q-31 rulings.
+- **B-11 (2026-09-29, audit 02).** `off-pack-font` compares family names exactly, after casefold
+  and whitespace collapse, as voice fonts already do (deviation 7).
+  - The reason: A-8's weight stripping let "Arial Black" and "Arial Narrow" pass as
+    Arial.
+  - `font-count` keeps A-8.
+- **B-12 (2026-09-29, audit 02).** All of these are schema errors (exit 1, one line, naming the
+  file and key), never "internal error":
+  1. Ids, hex values and names use full-string matches (`fullmatch`). For example, a
+     trailing `\n` must not pass.
+  2. A headline or a `reads` item containing a line break (`\n`, `\r`, `\v`, U+2028 or
+     U+2029). The spine is one line per slide.
+  3. A brief's `voice` value with a path separator, or ending in `.toml`, per B-8.4.
+     `--voice` on the CLI may still be a file (Q-35).
+  4. An accent role with the same hex as a non-accent role (Q-32, accepted).
+  5. In `pack.toml`: an empty `modes`; any table or value of the wrong type (every table
+     in the loader is type-checked); `grid.columns < 1`; non-finite numbers.
+  6. `lint` or `check` with `--pack … --mode M` where the pack lacks M. This is B-4 on
+     the CLI path.
+  7. A brief, evidence, pack or voice path that is a directory, cannot be read, is not
+     UTF-8, or nests beyond the parser's limit.
+- **B-12 (2026-09-29, audit 02), continued.**
+  - The "optional spaces" of §3.1 are any Unicode space separators (category Zs) and
+    tabs.
+  - Classification uses the paragraph's inked text, the same text §4.4 scans.
+  - Source lines inside table cells are out of scope for now; document this in
+    `check.md`.
+- **B-13 (2026-09-29, audit 02).**
+  - `slide-NN.png` is deck slide NN in every engine; LibreOffice exports hidden slides
+    with the option above.
+  - A deck with no slides makes `render` exit 1 ("deck has no slides"), and `check`
+    prints `render: skipped (deck has no slides)`.
+  - `render` deletes existing `slide-*.png` and `contact.png` in the output directory
+    before writing.
+  - PNG names are zero-padded to max(2, number of digits in the slide count).
+  - A timeout kills the whole process group and removes the temp directory.
+  - An unusable `-o` is a render failure: `render` exits 1 with one line, and `check`
+    prints `render: skipped (…)` and keeps lint's exit code (A-10).
+- **B-14 (2026-09-29, audit 02).** Every OfficeCLI invocation (validate, screenshot):
+  - works on a private temp copy with a unique file name;
+  - runs `officecli close <copy>` in a `finally`;
+  - deletes the copy.
+
+  keyline never passes the user's deck path to OfficeCLI.
+- **B-15 (2026-09-29, audit 02).**
+  - An error envelope becomes one `ooxml-invalid` finding that carries its message.
+  - An OfficeCLI that cannot start counts as absent:
+    `validate: skipped (officecli could not run: <first line>)`, with the exit code
+    unchanged.
+  - doctor reports `NO_VALIDATOR` with that reason.
