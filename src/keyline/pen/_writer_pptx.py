@@ -10,6 +10,7 @@ import io
 
 from lxml import etree
 
+from keyline.fit.text import normalize, paragraphs
 from keyline.pen._plan import (
     ChartSpec,
     ParaSpec,
@@ -72,7 +73,7 @@ def _paragraph(spec: ParaSpec) -> etree._Element:
         fill = etree.SubElement(rpr, _a("solidFill"))
         etree.SubElement(fill, _a("srgbClr"), val=run.color)
         etree.SubElement(rpr, _a("latin"), typeface=run.font)
-        etree.SubElement(r, _a("t")).text = run.text
+        etree.SubElement(r, _a("t")).text = normalize(run.text)  # as estimated (B-22)
     return p
 
 
@@ -150,7 +151,7 @@ def _chart(slide, spec: ChartSpec) -> None:
     from pptx.util import Emu, Pt
 
     data = CategoryChartData(number_format=spec.number_format)
-    data.categories = list(spec.categories)
+    data.categories = [normalize(c) for c in spec.categories]
     data.add_series("series", list(spec.values))
     b = spec.box
     frame = slide.shapes.add_chart(
@@ -195,7 +196,7 @@ def _picture(slide, spec: PictureSpec) -> None:
     b = spec.box
     pic = slide.shapes.add_picture(spec.path, Emu(b.x), Emu(b.y), Emu(b.w), Emu(b.h))
     pic.name = spec.name
-    pic._element.nvPicPr.cNvPr.set("descr", spec.descr)
+    pic._element.nvPicPr.cNvPr.set("descr", normalize(spec.descr))
 
 
 def write(template: bytes, slides: list[SlidePlan], author: str) -> bytes:
@@ -242,7 +243,7 @@ def write(template: bytes, slides: list[SlidePlan], author: str) -> bytes:
             if idx not in used:
                 ph.element.getparent().remove(ph.element)
         if plan.notes:
-            slide.notes_slide.notes_text_frame.text = plan.notes
+            slide.notes_slide.notes_text_frame.text = "\n".join(paragraphs(plan.notes))
     cp = prs.core_properties
     cp.author = cp.last_modified_by = author
     buf = io.BytesIO()

@@ -17,6 +17,8 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 from pathlib import Path
 
+from keyline.fit.text import code_point, normalize, refused
+
 TABLES = Path(__file__).resolve().parent / "tables"
 WEIGHTS = ("regular", "bold")
 
@@ -157,12 +159,17 @@ def missing(setting: Setting, text: str) -> str:
 
 
 def wrap(setting: Setting, text: str, available: Fraction, what: str = "text") -> list[str]:
-    """Greedy wrapping at spaces: a line fits when its width ≤ 0.99 × the available width
-    (after the indent). A single word wider than that does not fit."""
+    """Greedy wrapping of the normalized text (B-22) at its spaces, U+0020 only: a line
+    fits when its width ≤ 0.99 × the available width (after the indent). A single word,
+    or a run joined by no-break spaces, wider than that does not fit. A character the pen
+    refuses (B-22 item 3) cannot be estimated: FitError."""
+    bad = refused(text)
+    if bad is not None:
+        raise FitError(f"{what} contains {code_point(bad)}, which cannot be estimated")
     room = (available - setting.indent) * WRAP_MARGIN
     lines: list[str] = []
     current = ""
-    for word in text.split():
+    for word in normalize(text).split(" "):
         if width(setting, word) > room:
             raise DoesNotFit(f"{what}: the word {word!r} is wider than its region")
         candidate = f"{current} {word}" if current else word

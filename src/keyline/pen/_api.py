@@ -16,6 +16,8 @@ from pathlib import Path
 
 from keyline import config as config_mod
 from keyline.fit import Setting, coverage_warning, fit, missing
+from keyline.fit.text import code_point, normalize, refused
+from keyline.fit.text import paragraphs as paragraphs_of
 from keyline.pen._errors import DoesNotFit, PenError
 from keyline.pen._plan import (
     ChartSpec,
@@ -48,6 +50,34 @@ def _check_content(value: object, what: str) -> str:
     if not isinstance(value, str) or not value.strip():
         raise PenError(f"{what} must be non-empty text")
     return value
+
+
+def _check_text(value: object, what: str, paragraphs: bool = False) -> str:
+    """Text with no character the pen refuses (B-22 item 3), or PenError naming it."""
+    if not isinstance(value, str):
+        raise PenError(f"{what} must be text, not {type(value).__name__}")
+    bad = refused(value, paragraphs)
+    if bad is not None:
+        hint = "; only text() and notes() take \\n, between paragraphs" if bad == "\n" else ""
+        raise PenError(f"{what} contains {code_point(bad)}, which the pen refuses{hint}")
+    return value
+
+
+def _line(value: object, what: str, empty: bool = False) -> str:
+    """A one-line text, normalized (B-22): exactly what the estimator measures and the
+    writer writes."""
+    text = normalize(_check_text(value, what))
+    if not text and not empty:
+        raise PenError(f"{what} must be non-empty text")
+    return text
+
+
+def _paragraphs(value: object, what: str) -> list[str]:
+    """A `text()` or `notes()` string as its normalized paragraphs (B-22 item 2)."""
+    paras = paragraphs_of(_check_text(value, what, paragraphs=True))
+    if not paras:
+        raise PenError(f"{what} must be non-empty text")
+    return paras
 
 
 class Deck:
@@ -146,7 +176,7 @@ class Deck:
             raise PenError(f"unknown role {role!r}")
         if variant is not None:
             _check_token(variant, "variant")
-        _check_content(headline, "headline")
+        headline = _line(headline, "headline")
         builder = SlideBuilder(self, role, layout_for(self._pack, role, variant))
         builder._headline(headline)
         if notes is not None:
@@ -296,7 +326,8 @@ class SlideBuilder:
         from keyline.rules._common import words
 
         limit = self._deck._cfg.as_int("caption_exempt_words")
-        n = words(_check_content(text, what))
+        text = _line(text, what)
+        n = words(text)
         if n > limit:
             raise PenError(f"{what} has {n} words; at most {limit} (caption_exempt_words)")
         return text
@@ -348,8 +379,7 @@ class SlideBuilder:
         """A block of text in one region, in a style the role allows for text."""
         style = self._allowed("text", style)
         region = self._region(region)
-        paragraphs = _check_content(content, "text").split("\n")
-        self._place(region, style, [p for p in paragraphs if p.strip()], "text")
+        self._place(region, style, _paragraphs(content, "text"), "text")
         return self
 
     def bullets(self, items: list[str], region: str = "main") -> SlideBuilder:
@@ -361,7 +391,7 @@ class SlideBuilder:
         limit = self._deck._cfg.as_int("bullets_max")
         if len(items) > limit:
             raise PenError(f"{len(items)} bullets; at most {limit} in {self._deck._mode} mode")
-        texts = [_check_content(item, "a bullet") for item in items]
+        texts = [_line(item, "a bullet") for item in items]
         self._place(region, style, texts, "bullets", bullet=True)
         return self
 
@@ -392,8 +422,9 @@ class SlideBuilder:
             raise PenError(f"figure {self._figures + 1}; at most {limit} per slide")
         from keyline.rules._common import words
 
-        if words(entry.value) > self._deck._cfg.as_int("kpi_numeral_max_words"):
-            raise PenError(f"numeral {entry.value!r} has too many words for a figure")
+        value = _line(entry.value, "numeral")
+        if words(value) > self._deck._cfg.as_int("kpi_numeral_max_words"):
+            raise PenError(f"numeral {value!r} has too many words for a figure")
         label = self._caption(entry.label if label is None else label, "label")
         if accent:
             self._check_accent("figure(accent=True)")  # before any fitting, and spent last
@@ -414,7 +445,7 @@ class SlideBuilder:
             )
         top = Box(region_box.x, region_box.y, region_box.w, numeral_h)
         rest = Box(region_box.x, region_box.y + numeral_h, region_box.w, region_box.h - numeral_h)
-        numeral_paras = self._text(num, [entry.value], top, "numeral")
+        numeral_paras = self._text(num, [value], top, "numeral")
         if accent:
             accent_hex = self._deck._voice.hex(pack.surfaces[self._surface].accent)
             numeral_paras = tuple(
@@ -462,9 +493,12 @@ class SlideBuilder:
             for cell in r:
                 if not isinstance(cell, str):
                     raise PenError("table cells must be text")
-        if header:
-            for cell in rows[0]:
-                self._caption(cell, "header cell")
+        rows = [
+            [self._caption(cell, "header cell") for cell in r]
+            if header and i == 0
+            else [_line(cell, "table cell", empty=True) for cell in r]
+            for i, r in enumerate(rows)
+        ]
         styles = self._deck._pack.styles[self._deck._mode]
         row_styles = [
             styles[label_name] if header and i == 0 else styles[body_name] for i in range(len(rows))
@@ -527,10 +561,10 @@ class SlideBuilder:
         entry = self._entry(evidence_id)
         if entry.series is None:
             raise PenError(f"{evidence_id!r} has a value, not a series; use figure for it")
-        categories = [c for c, _v in entry.series]
+        categories = [_line(str(c), "category") for c, _v in entry.series]
         index = None
         if highlight is not None:
-            _check_content(highlight, "highlight")
+            highlight = _line(highlight, "highlight")
             if highlight not in categories:
                 raise PenError(f"highlight {highlight!r} is not a category of {evidence_id!r}")
             index = categories.index(highlight)
@@ -568,7 +602,7 @@ class SlideBuilder:
         self._allowed("image", styled=False)
         region = self._region(region)
         _check_content(path, "image path")
-        _check_content(alt, "alt")
+        alt = _line(alt, "alt")
         try:
             with Image.open(path) as im:
                 px_w, px_h = im.size
@@ -603,7 +637,7 @@ class SlideBuilder:
                 raise PenError("no evidence to source on this slide; give the source text")
             entries = self._deck._evidence.entries
             text = "; ".join(dict.fromkeys(entries[i].source for i in ids))
-        _check_content(text, "source")
+        text = _line(text, "source")
         if line_kind(self._as_paragraph(text), self._deck._cfg) != "source":
             text = f"Source: {text}"
         self._lines["source"] = text
@@ -624,7 +658,7 @@ class SlideBuilder:
             if self._role.name not in ("cover", "close") or not disclosure:
                 raise PenError("no disclosure to write here; give the note text")
             text = disclosure
-        _check_content(text, "note")
+        text = _line(text, "note")
         if line_kind(self._as_paragraph(text), self._deck._cfg) != "note":
             text = f"Note: {text}"
         self._lines["note"] = text
@@ -633,7 +667,7 @@ class SlideBuilder:
 
     def notes(self, text: str) -> SlideBuilder:
         """Speaker notes."""
-        self._plan.notes = _check_content(text, "notes")
+        self._plan.notes = "\n".join(_paragraphs(text, "notes"))
         return self
 
     @staticmethod

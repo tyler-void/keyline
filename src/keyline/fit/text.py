@@ -1,0 +1,66 @@
+"""The text the estimator measures and the writer writes (amendment B-22, items 1–3).
+
+One normalization, applied before both, so the pen writes exactly the text it estimated:
+- NFC;
+- each run of space separators (Unicode category Zs, except the word joiners U+00A0,
+  U+202F and U+2007) becomes one U+0020;
+- no leading or trailing U+0020.
+
+The pen refuses some characters outright, naming the code point (`refused`):
+- controls (category Cc, which includes tab and every line break but U+2028/U+2029),
+  except `\\n` in a text that has paragraphs (`text()` and `notes()`);
+- B-17's line-break set, U+2028 and U+2029 included;
+- the noncharacters U+FFFE and U+FFFF, and lone surrogates;
+- the invisible break controls U+00AD, U+200B, U+2060 and U+FEFF.
+
+The word joiners stay: the estimator treats a joined run as one word.
+"""
+
+from __future__ import annotations
+
+import re
+import unicodedata
+
+JOINERS = "\xa0\u202f\u2007"  # no-break space, narrow no-break space, figure space
+# Zs without the joiners: U+0020, U+1680, U+2000–U+200A (but U+2007), U+205F, U+3000
+SPACES = "\u0020\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2008\u2009\u200a\u205f\u3000"
+LINE_BREAKS = "\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029"  # B-17: what str.splitlines() breaks on
+INVISIBLE = "\xad\u200b\u2060\ufeff"  # soft hyphen, zero-width space, word joiner, BOM
+NONCHARACTERS = "\ufffe\uffff"
+
+_SPACE_RUN = re.compile(f"[{SPACES}]+")
+
+
+def code_point(ch: str) -> str:
+    """`U+0009`, with the character's Unicode name when it has one."""
+    name = unicodedata.name(ch, "")
+    return f"U+{ord(ch):04X}" + (f" ({name})" if name else "")
+
+
+def refused(text: str, paragraphs: bool = False) -> str | None:
+    """The first character of `text` the pen refuses (B-22 item 3; B-17's line breaks in
+    a one-line text), or None. With `paragraphs`, `\\n` is allowed: it separates them."""
+    for ch in text:
+        if ch == "\n" and paragraphs:
+            continue
+        cp = ord(ch)
+        if (
+            unicodedata.category(ch) == "Cc"
+            or ch in LINE_BREAKS
+            or ch in INVISIBLE
+            or ch in NONCHARACTERS
+            or 0xD800 <= cp <= 0xDFFF
+        ):
+            return ch
+    return None
+
+
+def normalize(text: str) -> str:
+    """B-22 item 1: NFC, space runs to one U+0020, no leading or trailing space."""
+    return _SPACE_RUN.sub(" ", unicodedata.normalize("NFC", text)).strip(" ")
+
+
+def paragraphs(text: str) -> list[str]:
+    """A `text()` or `notes()` string as its normalized paragraphs: split at `\\n`, each
+    normalized, the empty ones dropped."""
+    return [p for p in (normalize(part) for part in text.split("\n")) if p]
