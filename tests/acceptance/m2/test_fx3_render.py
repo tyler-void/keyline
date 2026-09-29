@@ -72,6 +72,29 @@ def test_rasterize_names_pages_for_the_deck_size(tmp_path):
     assert [p.name for p in pngs] == ["slide-001.png", "slide-002.png", "slide-003.png"]
 
 
+def _no_engine(tmp_path):
+    """PATH with nothing on it: how CI runs (no LibreOffice, no OfficeCLI)."""
+    import os
+
+    empty = tmp_path / "empty-bin"
+    empty.mkdir(exist_ok=True)
+    return dict(os.environ, PATH=str(empty))
+
+
+def test_input_errors_come_before_the_engine_check(tmp_path):
+    """Audit 02 FX-3 on a machine without an engine (CI): the deck and -o are checked first."""
+    env = _no_engine(tmp_path)
+    proc = keyline("render", EMPTY, "-o", tmp_path / "r", env=env)
+    assert proc.stderr.decode().splitlines()[-1] == "keyline: render failed: deck has no slides"
+    blocker = tmp_path / "a-file"
+    blocker.write_text("x")
+    proc = keyline("render", KPI, "-o", blocker, env=env)
+    assert proc.returncode == 1
+    assert proc.stderr.decode().splitlines()[-1] == (
+        f"keyline: render failed: cannot use {blocker} as the output directory: not a directory"
+    )
+
+
 def test_a_deck_with_no_slides(tmp_path):
     proc = keyline("render", EMPTY, "-o", tmp_path / "r")
     assert proc.returncode == 1

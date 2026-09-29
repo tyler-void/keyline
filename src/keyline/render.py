@@ -196,17 +196,20 @@ def _prepare(out_dir: Path) -> None:
 
 def render(deck: str | Path, out_dir: str | Path, engine: str = "auto") -> RenderResult:
     deck, out_dir = Path(deck), Path(out_dir)
+    # the user's inputs first: no engine can render an empty deck or write to a file (B-13)
+    if not deck.is_file():
+        raise RenderError(f"no such file: {deck}")
+    count = slide_count(deck)
+    if count == 0:
+        raise RenderError("deck has no slides")
+    if out_dir.exists() and not out_dir.is_dir():
+        raise RenderError(f"cannot use {out_dir} as the output directory: not a directory")
     try:
         chosen = choose(engine)
     except RenderError:
         if engine != "libreoffice":
             sys.stderr.write(L002)
         raise
-    if not deck.is_file():
-        raise RenderError(f"no such file: {deck}")
-    count = slide_count(deck)
-    if count == 0:
-        raise RenderError("deck has no slides")
     _prepare(out_dir)
     try:
         if chosen == "officecli":
