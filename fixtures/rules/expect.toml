@@ -155,3 +155,95 @@ must = ["closing-cliche@closing-title:warning"]
 [[case]]
 deck = "closing-cliche--neg.pptx"
 absent = ["closing-cliche"]
+
+# ---------- spec 002 §3.4: pack rules (AC-3). pack = "swiss" and, from B-8.8, a voice ----------
+[[case]]
+deck = "off-palette-color--pos.pptx"
+pack = "swiss"
+voice = "neutral"
+must = [
+  "off-palette-color@off-ink:warning",
+  "off-palette-color@off-fill:warning",
+  "off-palette-color@-:warning",
+]
+
+[[case]]
+deck = "off-palette-color--neg.pptx"
+pack = "swiss"
+voice = "neutral"
+absent = ["off-palette-color"]
+
+[[case]]
+deck = "off-scale-size--pos.pptx"
+pack = "swiss"
+voice = "neutral"
+must = ["off-scale-size@twenty:warning", "off-scale-size@shrunk:warning"]
+
+[[case]]
+deck = "off-scale-size--neg.pptx"
+pack = "swiss"
+voice = "neutral"
+absent = ["off-scale-size"]
+
+[[case]]
+deck = "off-scale-size--neg.pptx"
+mode = "read"
+pack = "swiss"
+voice = "neutral"
+must = ["off-scale-size@numeral:warning"]  # 120 pt is not on the read scale ...
+absent = ["off-scale-size@fitted"]          # ... but 24 pt is
+
+[[case]]
+deck = "off-pack-font--pos.pptx"
+pack = "swiss"
+voice = "neutral"
+must = ["off-pack-font@-:warning"]
+
+[[case]]
+deck = "off-pack-font--neg.pptx"
+pack = "swiss"
+voice = "neutral"
+absent = ["off-pack-font"]
+
+[[case]]
+deck = "accent-overuse--pos.pptx"
+pack = "swiss"
+voice = "neutral"
+must = ["accent-overuse@-:warning"]
+
+[[case]]
+deck = "accent-overuse--neg.pptx"
+pack = "swiss"
+voice = "neutral"
+absent = ["accent-overuse"]
+
+[[case]]
+deck = "accent-overuse--pos.pptx"   # without a pack the pack rules do not run
+absent = ["accent-overuse", "off-palette-color", "off-scale-size", "off-pack-font"]
+
+# The same system in other voices (B-8.8): a deck in its own voice is clean; read against
+# another voice, its colours and fonts are off.
+[[case]]
+deck = "pack-voice-night.pptx"
+pack = "swiss"
+voice = "night"
+absent = ["off-palette-color", "off-scale-size", "off-pack-font", "accent-overuse"]
+
+[[case]]
+deck = "pack-voice-night.pptx"
+pack = "swiss"
+voice = "neutral"
+must = ["off-palette-color@-:warning", "off-palette-color@numeral:warning"]
+absent = ["off-pack-font"]
+
+[[case]]
+deck = "pack-voice-field.pptx"
+pack = "swiss"
+voice = "field"
+absent = ["off-palette-color", "off-scale-size", "off-pack-font", "accent-overuse"]
+
+[[case]]
+deck = "pack-voice-field.pptx"
+pack = "swiss"
+voice = "neutral"
+must = ["off-pack-font@-:warning", "off-palette-color@keyline:warning"]

@@ -1,9 +1,13 @@
-"""Every rule's positive and negative decks (constitution VI), driven by expect.toml."""
+"""Every rule's positive and negative decks (constitution VI), driven by expect.toml.
+
+A case may name a `pack` and, since amendment B-8.8, must then name its `voice` (plan
+Q-36); the harness passes both to lint (spec 002 AC-2)."""
 
 import tomllib
 
 import pytest
 
+from keyline.context import EMPTY, LintContext
 from keyline.lint import lint_path
 from tests.conftest import RULES
 
@@ -17,6 +21,17 @@ def _parse(spec: str) -> tuple[str, str | None, str | None]:
     return rule, (shape or None), (sev or None)
 
 
+def _context(case) -> LintContext:
+    if "pack" not in case:
+        assert "voice" not in case, "a voice needs a pack"
+        return EMPTY
+    from keyline.packs import resolve
+
+    assert "voice" in case, f"{case['deck']}: a case with a pack needs a voice (Q-36)"
+    pack = resolve(case["pack"])
+    return LintContext(pack=pack, voice=pack.voice(case["voice"]))
+
+
 def _matches(f, rule, shape, sev):
     if f.rule != rule:
         return False
@@ -27,11 +42,14 @@ def _matches(f, rule, shape, sev):
     return sev is None or f.severity == sev
 
 
-@pytest.mark.parametrize(
-    "case", CASES, ids=[f"{c['deck']}[{c.get('mode', 'presented')}]" for c in CASES]
-)
+def _id(c):
+    voice = f",{c['voice']}" if "voice" in c else ""
+    return f"{c['deck']}[{c.get('mode', 'presented')}{voice}]"
+
+
+@pytest.mark.parametrize("case", CASES, ids=[_id(c) for c in CASES])
 def test_rule_fixture(case):
-    result = lint_path(RULES / case["deck"], case.get("mode", "presented"))
+    result = lint_path(RULES / case["deck"], case.get("mode", "presented"), _context(case))
     for spec in case.get("must", []):
         rule, shape, sev = _parse(spec)
         assert any(_matches(f, rule, shape, sev) for f in result.findings), (

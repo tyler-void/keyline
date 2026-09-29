@@ -43,20 +43,67 @@ def _tolerant_streams() -> None:
             stream.reconfigure(errors="backslashreplace")
 
 
-def _lint(path: str, mode: str):
+class UsageError(ValueError):
+    """A flag combination or a pack/voice that cannot be used: exit 1, one line."""
+
+
+def _context(args: argparse.Namespace):
+    """The pack (system) and voice from --pack and --voice (spec 002 §3.5, B-8.8)."""
+    from keyline.context import EMPTY, LintContext
+    from keyline.packs import PackError, resolve
+
+    if args.pack is None:
+        if args.voice is not None:
+            raise UsageError("--voice needs a pack (--pack or --brief)")
+        return EMPTY
+    if args.voice is None:
+        raise UsageError("pack rules need a voice (--voice or --brief)")
+    try:
+        pack = resolve(args.pack, base=Path.cwd())
+        voice = pack.voice(args.voice, base=Path.cwd())
+    except PackError as exc:
+        raise UsageError(str(exc)) from exc
+    return LintContext(pack=pack, voice=voice)
+
+
+def _voice_notices(ctx, mode: str) -> None:
+    if ctx.voice is None:
+        return
+    from keyline import config
+    from keyline.packs.voices import notices
+
+    for line in notices(ctx.pack, ctx.voice, config.load(mode)):
+        _err(f"{line}\n")
+
+
+def _lint(path: str, mode: str, ctx=None):
+    from keyline.context import EMPTY
     from keyline.lint import lint_path
 
     if not Path(path).is_file():
         raise ScanError(f"no such file: {path}")
-    return lint_path(path, mode)
+    return lint_path(path, mode, EMPTY if ctx is None else ctx)
+
+
+def _lint_command(args: argparse.Namespace):
+    """Resolve the context, then lint; returns (result, None) or (None, exit code)."""
+    try:
+        ctx = _context(args)
+    except UsageError as exc:
+        _err(f"keyline: {exc}\n")
+        return None, EXIT_SCAN_FAILED
+    _voice_notices(ctx, args.mode)
+    try:
+        return _lint(args.deck, args.mode, ctx), None
+    except ScanError as exc:
+        _err(f"keyline: cannot scan {args.deck}: {exc}\n")
+        return None, EXIT_SCAN_FAILED
 
 
 def cmd_lint(args: argparse.Namespace) -> int:
-    try:
-        result = _lint(args.deck, args.mode)
-    except ScanError as exc:
-        _err(f"keyline: cannot scan {args.deck}: {exc}\n")
-        return EXIT_SCAN_FAILED
+    result, failed = _lint_command(args)
+    if result is None:
+        return failed
     if args.json:
         _out_json(to_json(result.findings))
     _err(to_human(result.findings))
@@ -129,11 +176,9 @@ def cmd_render(args: argparse.Namespace) -> int:
 def cmd_check(args: argparse.Namespace) -> int:
     from keyline.render import RenderError, render
 
-    try:
-        result = _lint(args.deck, args.mode)
-    except ScanError as exc:
-        _err(f"keyline: cannot scan {args.deck}: {exc}\n")
-        return EXIT_SCAN_FAILED
+    result, failed = _lint_command(args)
+    if result is None:
+        return failed
     if args.json:
         _out_json(to_json(result.findings))
     _err(to_human(result.findings))
@@ -152,6 +197,13 @@ def cmd_check(args: argparse.Namespace) -> int:
     return result.exit_code
 
 
+def _pack_arguments(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--pack", metavar="NAME|DIR", help="a bundled pack name or a pack directory")
+    p.add_argument(
+        "--voice", metavar="NAME|FILE", help="a voice of the pack, or a voice file (.toml)"
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="keyline",
@@ -167,6 +219,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("lint", help="run the rule registry on a .pptx", parents=[common])
     p.add_argument("deck")
     p.add_argument("--mode", choices=MODES, default="presented")
+    _pack_arguments(p)
     p.add_argument("--json", action="store_true", help="write findings as JSON to stdout")
     p.set_defaults(func=cmd_lint)
 
@@ -188,6 +241,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("check", help="lint, then a best-effort render", parents=[common])
     p.add_argument("deck")
     p.add_argument("--mode", choices=MODES, default="presented")
+    _pack_arguments(p)
     p.add_argument("-o", "--out", help="render directory (default: <deck>-render)")
     p.add_argument("--json", action="store_true")
     p.add_argument(

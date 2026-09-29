@@ -497,6 +497,117 @@ def closing_cliche_neg():
     return prs
 
 
+# ---------- spec 002 §3.4: the pack rules, on decks from the Swiss templates ----------
+HEADLINE = "Keepers wait a season before a match"
+SOURCE = "Source: BonsaiHub waitlist, September 2026 (fictional)"
+
+
+def _swiss_story(voice):
+    """Four slides that use only the voice's tokens: cover, section, evidence (with the
+    keyline, a hairline and one accent numeral) and close."""
+    from keyline.packs import resolve
+
+    v = resolve("swiss").voice(voice)
+    ink, muted, hairline, accent = (v.hex(r) for r in ("ink", "muted", "hairline", "accent"))
+    font = v.text
+    prs = d.swiss_deck(voice)
+    d.swiss_slide(prs, "keyline:cover", title="BonsaiHub", main="Trees meet keepers", footer=SOURCE)
+    d.swiss_slide(prs, "keyline:section", title="The waitlist", main="Part one")
+    s = d.swiss_slide(prs, "keyline:evidence:figure", title=HEADLINE, side="Most keepers visit")
+    d.keyline_rule(s, ink)
+    d.rect(s, 1.5, 17.2, 30.867, 0.05, hairline, name="hairline")
+    d.text(s, 1.5, 6, 20, 5, "212 years", 120, bold=True, color=accent, font=font, name="numeral")
+    d.text(s, 1.5, 12, 20, 1, "OLDEST TREE", 14, bold=True, color=muted, font=font, name="label")
+    d.swiss_slide(prs, "keyline:close", title="Plant the first tree", main="This season")
+    return prs
+
+
+@deck("off-palette-color--pos")
+def off_palette_color_pos():
+    prs = d.swiss_deck()
+    s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE, main="Most keepers visit twice")
+    d.text(s, 1.5, 12, 20, 2, "A softer grey line", size=24, color="333333", name="off-ink")
+    d.rect(s, 24, 12, 6, 3, "1E2761", name="off-fill")
+    d.swiss_slide(prs, "keyline:statement", bg="FFFFFF", title="One tree, one keeper")
+    return prs
+
+
+@deck("off-palette-color--neg")
+def off_palette_color_neg():
+    return _swiss_story("neutral")
+
+
+@deck("off-scale-size--pos")
+def off_scale_size_pos():
+    prs = d.swiss_deck()
+    s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE)
+    d.text(s, 1.5, 6, 20, 2, "Twenty points is between steps", size=20, name="twenty")
+    # 24 pt on the scale, but autofit shrinks it to 21.6 pt (A-14)
+    d.autofit(d.text(s, 1.5, 10, 20, 2, "Shrunk by autofit", size=24, name="shrunk"), 90000)
+    return prs
+
+
+@deck("off-scale-size--neg")
+def off_scale_size_neg():
+    prs = d.swiss_deck()
+    s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE, main="Body at 24 pt", footer=SOURCE)
+    d.text(s, 1.5, 12, 20, 4, "120", size=120, bold=True, name="numeral")
+    # 32 pt is off the scale, but autofit makes it 24 pt, and the effective size counts
+    d.autofit(d.text(s, 20, 12, 12, 2, "Effective 24 pt", size=32, name="fitted"), 75000)
+    return prs
+
+
+@deck("off-pack-font--pos")
+def off_pack_font_pos():
+    prs = d.swiss_deck()
+    for n, font in enumerate(("Calibri", "Calibri", "Georgia")):
+        s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE)
+        d.text(s, 1.5, 6, 20, 2, f"Line {n + 1} in {font}", size=24, font=font, name="line")
+    return prs
+
+
+@deck("off-pack-font--neg")
+def off_pack_font_neg():
+    prs = d.swiss_deck()
+    s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE, main="Theme fonts resolve")
+    d.text(s, 1.5, 12, 20, 2, "Named Arial", size=24, font="Arial", name="arial")
+    d.text(s, 1.5, 15, 20, 2, "Arial Bold is Arial", size=24, font="Arial Bold", name="bold")
+    return prs
+
+
+@deck("accent-overuse--pos")
+def accent_overuse_pos():
+    prs = d.swiss_deck()
+    s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE)
+    d.keyline_rule(s, "111111")
+    d.text(s, 1.5, 6, 14, 5, "212", size=120, bold=True, color="CC3322", name="numeral")
+    d.rect(s, 20, 6, 6, 3, "CC3322", name="red-block")
+    return prs
+
+
+@deck("accent-overuse--neg")
+def accent_overuse_neg():
+    prs = d.swiss_deck()
+    s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE)
+    d.keyline_rule(s, "111111")  # ink: never an accent
+    # two accent runs in one shape: one accent element, not two
+    d.text(s, 1.5, 6, 14, 8, "212\nYEARS", 120, bold=True, color="CC3322", name="numeral")
+    s = d.swiss_slide(prs, "keyline:statement", title="One tree, one keeper")
+    d.rect(s, 1.5, 15, 8, 1.5, "CC3322", name="red-tag", body="NEW", size=14, color="F2F2F0")
+    d.swiss_slide(prs, "keyline:section", title="The waitlist", main="Part one")  # label
+    return prs
+
+
+@deck("pack-voice-night")
+def pack_voice_night():
+    return _swiss_story("night")
+
+
+@deck("pack-voice-field")
+def pack_voice_field():
+    return _swiss_story("field")
+
+
 def build(out_dir: Path, names: list[str] | None = None) -> list[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []

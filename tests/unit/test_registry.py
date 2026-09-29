@@ -65,7 +65,8 @@ def test_run_passes_context_only_to_three_argument_checks():
 def test_context_decides_which_rules_run():
     assert EMPTY.satisfies("none")
     assert not EMPTY.satisfies("pack") and not EMPTY.satisfies("brief")
-    assert LintContext(pack="p").satisfies("pack")
+    assert LintContext(pack="p", voice="v").satisfies("pack")
+    assert not LintContext(pack="p").satisfies("pack")  # B-8.8: pack rules need a voice
     assert LintContext(brief="b").satisfies("brief")
     assert not LintContext(pack="p", brief="b").satisfies("officecli")  # check-only (Q-12)
 
@@ -77,7 +78,7 @@ def test_lint_skips_rules_whose_requirement_is_missing(monkeypatch):
     calls = []
 
     def needs_pack(deck, cfg, ctx):
-        calls.append(ctx.pack)
+        calls.append(ctx.pack.name)
         return []
 
     spec = dataclasses.replace(registry.get("font-count"), requires="pack", check=needs_pack)
@@ -85,5 +86,10 @@ def test_lint_skips_rules_whose_requirement_is_missing(monkeypatch):
     cfg = load()
     lint_deck(Deck(1, 1), [], cfg)
     assert calls == []
-    lint_deck(Deck(1, 1), [], cfg, LintContext(pack="swiss"))
+    from keyline.packs import resolve
+
+    pack = resolve("swiss")
+    lint_deck(Deck(1, 1), [], cfg, LintContext(pack=pack))
+    assert calls == []  # B-8.8: no voice, no pack rules
+    lint_deck(Deck(1, 1), [], cfg, LintContext(pack=pack, voice=pack.voice("neutral")))
     assert calls == ["swiss"]

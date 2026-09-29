@@ -18,6 +18,10 @@ RULE_MODULES = (
     "claude_look_palette",
     "title_too_long",
     "closing_cliche",
+    "off_palette_color",
+    "off_scale_size",
+    "off_pack_font",
+    "accent_overuse",
 )
 
 

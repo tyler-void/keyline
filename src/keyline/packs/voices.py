@@ -239,3 +239,38 @@ def paper_lab(voice: Voice) -> tuple[float, float, float]:
 
 def accent_hue(voice: Voice) -> float:
     return hsl(voice.hex("accent"))[0]
+
+
+# ---------------------------------------------------------------------------------------
+# messages, shared by `keyline brief` findings (T-12) and the lint-time notices (plan Q-29)
+
+
+def contrast_message(pair: Pair, voice: Voice, need) -> str:
+    return (
+        f"{pair.text} #{voice.hex(pair.text)} on the {pair.surface} surface "
+        f"#{voice.hex(pair.background)} is {pair.ratio:.2f} : 1 (needs {float(need):g} : 1)"
+    )
+
+
+def claude_look_message(look: ClaudeLook, voice: Voice) -> str:
+    paper = f"paper #{voice.hex('paper')} is cream"
+    if not look.terracotta:
+        return f"{paper}; no terracotta"
+    role = look.terracotta[0]
+    return f"{paper} and {role} #{voice.hex(role)} is a terracotta"
+
+
+def notices(pack: Pack, voice: Voice, cfg) -> list[str]:
+    """One line per voice finding at warning or error, for commands that load a voice
+    outside `keyline brief` (plan Q-29c). `accepted` ids are advisory, so they are left
+    out. voice-why applies to inline voices only, which only briefs carry."""
+    accepted = {r for r, _ in pack.accepted} | {r for r, _ in voice.accepted}
+    out = []
+    if "voice-contrast" not in accepted:
+        need = cfg.contrast_normal
+        for pair in low_contrast(pack, voice, cfg):
+            out.append(f"voice {voice.name}: voice-contrast: {contrast_message(pair, voice, need)}")
+    look = claude_look(voice, cfg)
+    if look.fires and look.terracotta and "voice-claude-look" not in accepted:
+        out.append(f"voice {voice.name}: voice-claude-look: {claude_look_message(look, voice)}")
+    return out

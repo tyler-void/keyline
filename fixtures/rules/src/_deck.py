@@ -149,3 +149,71 @@ def picture_placeholder(s, x, y, w, h, name="picture"):
     pic = s.shapes.add_picture(buf, Cm(x), Cm(y), Cm(w), Cm(h))
     pic.name = name
     return pic
+
+
+# ---------- spec 002: decks from the Swiss templates (what the pen will write) ----------
+def swiss_deck(voice: str = "neutral", mode: str = "presented"):
+    """A deck opened from the Swiss template of `voice` and `mode`, built in memory
+    (amendment B-8.9), with the project's identity in its core properties."""
+    import io
+
+    from keyline.packs import resolve
+    from keyline.packs.templates import build
+
+    pack = resolve("swiss")
+    prs = Presentation(io.BytesIO(build(pack, pack.voice(voice), mode)))
+    cp = prs.core_properties
+    cp.author = cp.last_modified_by = "Tyler"
+    cp.title = ""
+    cp.revision = 1
+    cp.created = cp.modified = FIXED_TIME
+    return prs
+
+
+def swiss_slide(prs, layout: str, bg: str | None = None, notes: str = "n", **regions):
+    """A slide on the named Swiss layout. `regions` maps region name to text: `title`,
+    `main`, `side`, `footer`. Placeholders left unfilled are removed, as the pen does."""
+    from keyline.packs import resolve
+
+    idx = {"title": 0, **resolve("swiss").placeholder_idx}
+    s = prs.slides.add_slide(prs.slide_layouts.get_by_name(layout))
+    by_idx = {ph.placeholder_format.idx: ph for ph in s.placeholders}
+    for region, body in regions.items():
+        by_idx.pop(idx[region]).text_frame.text = body
+    for ph in by_idx.values():
+        ph.element.getparent().remove(ph.element)
+    if bg is not None:
+        s.background.fill.solid()
+        s.background.fill.fore_color.rgb = RGBColor.from_string(bg)
+    if notes is not None:
+        s.notes_slide.notes_text_frame.text = notes
+    return s
+
+
+def keyline_rule(s, color: str):
+    """The Swiss device: a full-width filled rule at grid row 18 (§5.2)."""
+    from keyline.packs import resolve
+
+    pack = resolve("swiss")
+    g, rule = pack.grid, pack.keyline_rule
+    y = g.margin_y_emu + rule["row"] * g.row_emu
+    w = 12192000 - 2 * g.margin_x_emu
+    sh = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, g.margin_x_emu, y, w, rule["thickness_emu"])
+    sh.fill.solid()
+    sh.fill.fore_color.rgb = RGBColor.from_string(color)
+    sh.line.fill.background()
+    sh.name = "keyline"
+    return sh
+
+
+def autofit(shape, font_scale: int):
+    """normAutofit with fontScale in 1/1000 % (90000 = 90 %)."""
+    from pptx.oxml.ns import qn
+
+    body = shape.text_frame._txBody.find(qn("a:bodyPr"))
+    for child in list(body):
+        if child.tag in (qn("a:noAutofit"), qn("a:normAutofit"), qn("a:spAutoFit")):
+            body.remove(child)
+    fit = body.makeelement(qn("a:normAutofit"), {"fontScale": str(font_scale)})
+    body.append(fit)
+    return shape
