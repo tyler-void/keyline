@@ -16,7 +16,7 @@ from pathlib import Path
 
 from keyline import config as config_mod
 from keyline.fit import Setting, coverage_warning, fit, missing
-from keyline.pen._errors import PenError
+from keyline.pen._errors import DoesNotFit, PenError
 from keyline.pen._plan import ParaSpec, RectSpec, RunSpec, SlidePlan, TextSpec
 from keyline.pen._regions import box, layout_for, regions, rule_box
 
@@ -201,6 +201,8 @@ class SlideBuilder:
         self._brief_slide = None
         self._lines: dict[str, str] = {}  # the footer's "source" and "note" lines
         self._evidence_used: dict[str, None] = {}  # evidence ids the verbs used, in order
+        self._accents = 0  # accent elements on this slide (the pen enforces accent_budget)
+        self._figures = 0
 
     # -- helpers the verbs share -------------------------------------------------------
 
@@ -290,9 +292,31 @@ class SlideBuilder:
         style = self._deck._pack.styles[self._deck._mode][style_name]
         region_box = box(self._deck._pack, self._layout, region)
         paras = self._text(style, paragraphs, region_box, what, bullet)
+        if style.color[self._surface] in self._deck._pack.accents:
+            self._spend_accent(what)  # e.g. a label in accent_on_ink on a section slide
         idx = self._deck._pack.placeholder_idx.get(region)
         self._plan.shapes.append(TextSpec(region, region_box, paras, placeholder=idx))
         self._used.add(region)
+
+    def _check_accent(self, what: str) -> None:
+        """One more accent element would exceed the pack's accent_budget (§6.1)."""
+        budget = self._deck._pack.accent_budget
+        if self._accents + 1 > budget:
+            raise PenError(f"{what} would be accent {self._accents + 1}; the budget is {budget}")
+
+    def _spend_accent(self, what: str) -> None:
+        self._check_accent(what)
+        self._accents += 1
+
+    def _entry(self, evidence_id: str):
+        from keyline.pen._errors import EvidenceError
+
+        _check_token(evidence_id, "evidence id")
+        evidence = self._deck._evidence
+        if evidence is None or evidence_id not in evidence.entries:
+            raise EvidenceError(f"unknown evidence id {evidence_id!r}")
+        self._evidence_used[evidence_id] = None
+        return evidence.entries[evidence_id]
 
     def _footer(self) -> None:
         """The fixed bottom region: the source line, then the note line (§6.1)."""
@@ -326,6 +350,78 @@ class SlideBuilder:
             raise PenError(f"{len(items)} bullets; at most {limit} in {self._deck._mode} mode")
         texts = [_check_content(item, "a bullet") for item in items]
         self._place(region, style, texts, "bullets", bullet=True)
+        return self
+
+    def figure(
+        self,
+        evidence_id: str,
+        region: str = "main",
+        label: str | None = None,
+        accent: bool = False,
+    ) -> SlideBuilder:
+        """An evidence value as a numeral, with its label, as two shapes in one region
+        (§6.1, Q-43): the numeral's box is the region's top rows, one numeral line tall
+        (rounded up to whole grid rows); the label's box is the rest, top-anchored; both
+        span the region's width and touch without overlapping. `accent=True` sets the
+        numeral in the surface's accent and counts against accent_budget."""
+        import math
+
+        from keyline.geom import Box
+
+        numeral_style = self._allowed("figure", "numeral")
+        label_style = self._allowed("figure", "label")
+        region = self._region(region)
+        entry = self._entry(evidence_id)
+        if entry.value is None:
+            raise PenError(f"{evidence_id!r} is a series; use chart_bar for it")
+        limit = self._deck._cfg.as_int("numerals_max")
+        if self._figures + 1 > limit:
+            raise PenError(f"figure {self._figures + 1}; at most {limit} per slide")
+        from keyline.rules._common import words
+
+        if words(entry.value) > self._deck._cfg.as_int("kpi_numeral_max_words"):
+            raise PenError(f"numeral {entry.value!r} has too many words for a figure")
+        label = self._caption(entry.label if label is None else label, "label")
+        if accent:
+            self._check_accent("figure(accent=True)")  # before any fitting, and spent last
+
+        pack, styles = self._deck._pack, self._deck._pack.styles[self._deck._mode]
+        num, lab = styles[numeral_style], styles[label_style]
+        region_box = box(pack, self._layout, region)
+        row = pack.grid.row_emu
+        numeral_pitch = self._deck._setting(num).pitch  # points
+        rows = math.ceil(numeral_pitch * EMU_PER_PT / row)
+        numeral_h = rows * row
+        label_line = self._deck._setting(lab).pitch
+        if numeral_h + label_line * EMU_PER_PT > region_box.h:
+            have = region_box.h // row
+            raise DoesNotFit(
+                f"figure needs {rows} rows for the numeral and one label line "
+                f"({float(label_line):.1f} pt), region {region!r} has {have} rows"
+            )
+        top = Box(region_box.x, region_box.y, region_box.w, numeral_h)
+        rest = Box(region_box.x, region_box.y + numeral_h, region_box.w, region_box.h - numeral_h)
+        numeral_paras = self._text(num, [entry.value], top, "numeral")
+        if accent:
+            accent_hex = self._deck._voice.hex(pack.surfaces[self._surface].accent)
+            numeral_paras = tuple(
+                ParaSpec(
+                    runs=tuple(RunSpec(**{**r.__dict__, "color": accent_hex}) for r in p.runs),
+                    line_spacing=p.line_spacing,
+                    space_before=p.space_before,
+                    space_after=p.space_after,
+                )
+                for p in numeral_paras
+            )
+        label_paras = self._text(lab, [label], rest, "label")
+        if accent:
+            self._spend_accent("figure(accent=True)")
+        if lab.color[self._surface] in pack.accents:
+            self._spend_accent("label")
+        self._plan.shapes.append(TextSpec(f"{region}-numeral", top, numeral_paras))
+        self._plan.shapes.append(TextSpec(f"{region}-label", rest, label_paras))
+        self._used.add(region)
+        self._figures += 1
         return self
 
     def attribution(self, text: str) -> SlideBuilder:
