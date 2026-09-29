@@ -200,20 +200,23 @@ def render(deck: str | Path, out_dir: str | Path, engine: str = "auto") -> Rende
 
 
 def _render_officecli(deck: Path, out_dir: Path, count: int) -> list[Path]:
+    from keyline.officecli import private_copy
+
     officecli = shutil.which("officecli")
     pngs = []
-    for i in range(1, count + 1):
-        png = out_dir / f"slide-{i:02d}.png"
-        cmd = [officecli, "view", str(deck), "screenshot", "--page", str(i), "-o", str(png)]
-        try:
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=SLIDE_TIMEOUT_S)
-        except subprocess.TimeoutExpired as exc:
-            raise RenderError(f"officecli timed out on slide {i}") from exc
-        if proc.returncode != 0 or not png.is_file():
-            detail = (proc.stderr or proc.stdout).strip().splitlines()
-            reason = detail[-1] if detail else f"exit {proc.returncode}"
-            raise RenderError(f"officecli failed on slide {i}: {reason}")
-        pngs.append(png)
+    with private_copy(deck) as copy:  # B-14: never the user's path (L-016)
+        for i in range(1, count + 1):
+            png = out_dir / f"slide-{i:02d}.png"
+            cmd = [officecli, "view", str(copy), "screenshot", "--page", str(i), "-o", str(png)]
+            try:
+                proc = subprocess.run(cmd, capture_output=True, text=True, timeout=SLIDE_TIMEOUT_S)
+            except subprocess.TimeoutExpired as exc:
+                raise RenderError(f"officecli timed out on slide {i}") from exc
+            if proc.returncode != 0 or not png.is_file():
+                detail = (proc.stderr or proc.stdout).strip().splitlines()
+                reason = detail[-1] if detail else f"exit {proc.returncode}"
+                raise RenderError(f"officecli failed on slide {i}: {reason}")
+            pngs.append(png)
     return pngs
 
 

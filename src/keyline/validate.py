@@ -37,12 +37,16 @@ def available() -> bool:
 def validate(deck: str | Path) -> list[Finding]:
     """Run `officecli validate DECK --json`; one finding per schema error, or one carrying
     the first line of output that cannot be read. Assumes `available()`."""
+    from keyline.officecli import private_copy
+
     deck = Path(deck)
-    cmd = [shutil.which("officecli"), "validate", str(deck), "--json"]
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT_S)
-    except subprocess.TimeoutExpired:
-        return [OOXML_INVALID.finding(0, None, f"officecli validate timed out after {TIMEOUT_S} s")]
+    with private_copy(deck) as copy:  # B-14: never the user's path (L-016)
+        cmd = [shutil.which("officecli"), "validate", str(copy), "--json"]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=TIMEOUT_S)
+        except subprocess.TimeoutExpired:
+            message = f"officecli validate timed out after {TIMEOUT_S} s"
+            return [OOXML_INVALID.finding(0, None, message)]
     errors = parse(proc.stdout)
     if errors is None:
         first = (proc.stdout or proc.stderr).strip().splitlines()
