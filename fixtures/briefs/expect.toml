@@ -219,3 +219,10 @@ file = "voice-why--pos.brief.toml"
 voice = true
 exit = 2
 must = ["voice-why@0:warning"]
+
+# ---------- B-10: an author cannot waive a gate ----------
+[[case]]
+file = "voice-accepted-gate.brief.toml"
+voice = true
+exit = 1
+error = "[voice]: accepted[1]: 'fiction-undisclosed' cannot be accepted (only claude-look-palette, voice-claude-look, closing-cliche, accent-overuse, equal-card-row, title-underline)"

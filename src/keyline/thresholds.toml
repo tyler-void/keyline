@@ -51,6 +51,10 @@ mood_words = ["clean", "modern", "elegant", "premium", "sleek", "minimal", "mini
   "bold", "vibrant", "professional", "innovative", "dynamic", "cutting-edge",
   "seamless", "fresh", "stylish"]
 statement_min_slides = 6          # brief-no-statement applies at or above this length
+# spec 002 B-10: the only rules a pack or voice may list in `accepted` (as advisory). The
+# gates (sources, disclosure, slide count, contrast …) can never be waived by the author.
+acceptable_rules = ["claude-look-palette", "voice-claude-look", "closing-cliche",
+  "accent-overuse", "equal-card-row", "title-underline"]
 # spec 002 B-8.3: the families a voice may use. Each ships with Windows and macOS, or with
 # Office, and has an open metric-compatible twin, which renders and fit estimates use.
 portable_fonts = [

@@ -104,6 +104,14 @@ BRIEFS: dict[str, list[tuple[str, str]]] = {
         ),
     ],
     "voice-why--pos": [('hairline = "a chalk line snapped across a board"\n', "")],
+    # B-10: accepted may list only acceptable_rules
+    "voice-accepted-gate": [
+        (
+            VOICE_START,
+            '[voice]\naccepted = [{ rule = "fiction-undisclosed", reason = "we '
+            'know" }]\n\n' + VOICE_START,
+        ),
+    ],
     "named-voice": [("VOICE", ""), ('pack = "swiss"\n', 'pack = "swiss"\nvoice = "night"\n')],
 }
 

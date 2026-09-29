@@ -58,6 +58,14 @@ def test_name_or_file():
         (lambda d: d.pop("palette"), r"missing \[palette\] table"),
         (lambda d: d["palette"].update(accent="111111"), "accent has the same value as ink"),
         (lambda d: d.update(accepted=["voice-claude-look"]), "rule, reason"),
+        (
+            lambda d: d.update(accepted=[{"rule": "fiction-undisclosed", "reason": "x"}]),
+            r"accepted\[1\]: 'fiction-undisclosed' cannot be accepted",
+        ),
+        (
+            lambda d: d.update(accepted=[{"rule": "voice-claude-look", "reason": ""}]),
+            r"accepted\[1\]: the reason must not be empty",
+        ),
     ],
 )
 def test_schema_errors_are_one_line(mutate, message):

@@ -71,11 +71,15 @@ KEYS = (
     "statement_min_slides",
     # spec 002 B-8.3, common
     "portable_fonts",
+    # spec 002 B-10, common
+    "acceptable_rules",
 )
 
 # Keys whose value is a list of strings (NFC-normalised and casefolded on load); every
 # other key is a number.
-LIST_KEYS = frozenset({"source_prefixes", "note_prefixes", "closing_cliches", "mood_words"})
+LIST_KEYS = frozenset(
+    {"source_prefixes", "note_prefixes", "closing_cliches", "mood_words", "acceptable_rules"}
+)
 # Keys whose value is a list of { family, metric_twin } tables (B-8.3, plan Q-38), kept as
 # written: a tuple of (family, metric_twin) pairs.
 FONT_KEYS = frozenset({"portable_fonts"})

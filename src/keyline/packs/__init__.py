@@ -55,6 +55,31 @@ class PackError(ValueError):
     """The pack cannot be found or is inconsistent; the message is one line."""
 
 
+def check_accepted(raw: Any) -> tuple[tuple[str, str], ...]:
+    """Amendment B-10: `accepted` (in a pack, a pack voice or an inline voice) may list only
+    the `acceptable_rules` of thresholds.toml, each with a non-empty reason. Raises
+    ValueError whose text follows the word "accepted"; the caller names the file."""
+    from keyline.config import load as load_config
+
+    acceptable = load_config().acceptable_rules
+    if not isinstance(raw, list):
+        raise ValueError(": must be a list of { rule, reason }")
+    out = []
+    for i, item in enumerate(raw, 1):
+        ok = isinstance(item, dict) and all(
+            isinstance(item.get(k), str) for k in ("rule", "reason")
+        )
+        if not ok:
+            raise ValueError(f"[{i}] must be {{ rule, reason }}")
+        if item["rule"] not in acceptable:
+            names = ", ".join(acceptable)
+            raise ValueError(f"[{i}]: {item['rule']!r} cannot be accepted (only {names})")
+        if not item["reason"].strip():
+            raise ValueError(f"[{i}]: the reason must not be empty")
+        out.append((item["rule"], item["reason"]))
+    return tuple(out)
+
+
 @dataclass(frozen=True)
 class Style:
     name: str
@@ -248,11 +273,10 @@ def _build(data: dict, directory: Path) -> Pack:
     alignment = _get(data, "alignment", str, "top level")
     if alignment not in ("left", "center"):
         raise _fail("alignment", "must be left or center")
-    accepted = []
-    for i, item in enumerate(_get(data, "accepted", list, "top level")):
-        if not isinstance(item, dict) or not {"rule", "reason"} <= set(item):
-            raise _fail(f"accepted[{i}]", "must be { rule, reason }")
-        accepted.append((str(item["rule"]), str(item["reason"])))
+    try:
+        accepted = check_accepted(_get(data, "accepted", list, "top level"))
+    except ValueError as exc:
+        raise PackError(f"pack.toml: accepted{exc}") from exc
 
     surfaces = {}
     for sname, s in _get(data, "surfaces", dict, "top level").items():
@@ -350,7 +374,7 @@ def _build(data: dict, directory: Path) -> Pack:
         accent_budget=budget,
         containers=containers,
         alignment=alignment,
-        accepted=tuple(accepted),
+        accepted=accepted,
         surfaces=surfaces,
         grid=grid,
         keyline_rule=rule,

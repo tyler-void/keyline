@@ -95,7 +95,16 @@ def test_system_has_roles_and_font_slots_not_values():
 
 
 def test_accepted_entries_are_rule_and_reason():
-    p = build(lambda d: d.update(accepted=[{"rule": "dead-band", "reason": "posters"}]))
-    assert p.accepted == (("dead-band", "posters"),)
-    with pytest.raises(PackError, match="rule, reason"):
-        build(lambda d: d.update(accepted=["dead-band"]))
+    p = build(lambda d: d.update(accepted=[{"rule": "accent-overuse", "reason": "posters"}]))
+    assert p.accepted == (("accent-overuse", "posters"),)
+    with pytest.raises(PackError, match=r"accepted\[1\] must be \{ rule, reason \}"):
+        build(lambda d: d.update(accepted=["accent-overuse"]))
+
+
+def test_accepted_is_limited_to_acceptable_rules():
+    """Amendment B-10: a pack cannot waive a gate, and every entry needs a reason."""
+    for gate in ("dead-band", "fiction-undisclosed", "unsourced-number", "voice-contrast"):
+        with pytest.raises(PackError, match=rf"accepted\[1\]: '{gate}' cannot be accepted"):
+            build(lambda d, g=gate: d.update(accepted=[{"rule": g, "reason": "because"}]))
+    with pytest.raises(PackError, match=r"accepted\[1\]: the reason must not be empty"):
+        build(lambda d: d.update(accepted=[{"rule": "accent-overuse", "reason": "  "}]))

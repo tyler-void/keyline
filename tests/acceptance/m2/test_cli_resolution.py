@@ -7,7 +7,7 @@ import pytest
 
 from keyline.packs import resolve
 from tests.acceptance._cli import keyline
-from tests.conftest import FIXTURES
+from tests.conftest import FIXTURES, ROOT
 
 DRIFT = FIXTURES / "briefs/drift"
 DECK = DRIFT / "base.pptx"
@@ -73,3 +73,23 @@ def test_a_brief_schema_error_is_one_line():
         keyline("lint", DECK, "--brief", FIXTURES / "briefs/missing-key.brief.toml"),
         "missing-key.brief.toml: direction.thesis: missing",
     )
+
+
+def test_a_brief_cannot_waive_a_gate(tmp_path):
+    """Audit 02 FX-2 (B-10): a brief whose inline voice accepts fiction-undisclosed used to
+    turn drift-undisclosed into exit 0; now the brief itself is a schema error."""
+    text = (FIXTURES / "briefs/valid.brief.toml").read_text(encoding="utf-8")
+    text = text.replace(
+        "[voice.fonts]",
+        '[voice]\naccepted = [{ rule = "fiction-undisclosed", reason = "we know" }]\n\n'
+        "[voice.fonts]",
+    )
+    text = text.replace(
+        'evidence = ["evidence.toml", "extra-evidence.toml"]',
+        f'evidence = ["{(ROOT / "examples/bonsaihub/product.toml").as_posix()}"]',
+    )
+    brief = tmp_path / "waive.brief.toml"
+    brief.write_text(text, encoding="utf-8")
+    proc = keyline("lint", DRIFT / "drift-undisclosed.pptx", "--brief", brief)
+    assert proc.returncode == 1
+    assert "'fiction-undisclosed' cannot be accepted" in proc.stderr.decode()

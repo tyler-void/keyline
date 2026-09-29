@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from keyline.colorspace import hsl, lab
-from keyline.packs import Pack, PackError
+from keyline.packs import Pack, PackError, check_accepted
 
 NAME_RE = re.compile(r"^[a-z0-9-]+$")
 HEX_RE = re.compile(r"^[0-9A-Fa-f]{6}$")
@@ -151,18 +151,17 @@ def parse(
     why = data.get("why", {})
     if not isinstance(why, dict):
         raise VoiceError(f"{where}: [why] must be a table")
-    accepted = []
-    for i, item in enumerate(data.get("accepted", [])):
-        if not isinstance(item, dict) or not {"rule", "reason"} <= set(item):
-            raise VoiceError(f"{where}: accepted[{i}] must be {{ rule, reason }}")
-        accepted.append((str(item["rule"]), str(item["reason"])))
+    try:
+        accepted = check_accepted(data.get("accepted", []))  # B-10
+    except ValueError as exc:
+        raise VoiceError(f"{where}: accepted{exc}") from exc
     return Voice(
         name=name,
         display=display,
         text=text,
         palette=palette,
         why={r: v.strip() for r, v in why.items() if r in roles and isinstance(v, str)},
-        accepted=tuple(accepted),
+        accepted=accepted,
         path=path,
     )
 
