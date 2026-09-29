@@ -47,7 +47,9 @@ def test_check_sees_the_replaced_deck(tmp_path):
     counts = []
     for source in (CLEAN, BOGUS, CLEAN, BOGUS):
         shutil.copyfile(source, deck)
-        proc = keyline("check", deck, "--json", "-o", tmp_path / "render", "--engine", "officecli")
+        blocker = tmp_path / "no-render"  # a file: the render step is skipped (B-13)
+        blocker.touch()
+        proc = keyline("check", deck, "--json", "-o", blocker)
         counts.append(sum(f["rule"] == "ooxml-invalid" for f in json.loads(proc.stdout)))
     assert counts == [0, 1, 0, 1]
 

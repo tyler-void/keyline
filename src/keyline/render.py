@@ -9,9 +9,11 @@ limits of its engine and, for LibreOffice, the version it ran on (amendment B-7)
 
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -38,6 +40,8 @@ SOFFICE_PATHS = (
 )
 PNG_WIDTH = 1280
 LO_TIMEOUT_S = 120
+# B-13: hidden slides are exported too, so page N of the PDF is deck slide N
+LO_PDF_FILTER = 'pdf:impress_pdf_Export:{"ExportHiddenSlides":{"type":"boolean","value":"true"}}'
 COLUMNS = 3
 TILE_WIDTH = 480
 GUTTER = 16
@@ -169,6 +173,23 @@ def choose(engine: str = "auto") -> str:
 # rendering
 
 
+def png_name(index: int, count: int) -> str:
+    """slide-NN.png for deck slide NN, zero-padded to max(2, digits of the count) (B-13)."""
+    return f"slide-{index:0{max(2, len(str(count)))}d}.png"
+
+
+def _prepare(out_dir: Path) -> None:
+    """Create the output directory and remove an earlier render's PNGs (B-13)."""
+    try:
+        out_dir.mkdir(parents=True, exist_ok=True)
+        for old in [*out_dir.glob("slide-*.png"), out_dir / "contact.png"]:
+            if old.is_file():
+                old.unlink()
+    except OSError as exc:
+        reason = exc.strerror or type(exc).__name__
+        raise RenderError(f"cannot use {out_dir} as the output directory: {reason}") from exc
+
+
 def render(deck: str | Path, out_dir: str | Path, engine: str = "auto") -> RenderResult:
     deck, out_dir = Path(deck), Path(out_dir)
     try:
@@ -180,23 +201,48 @@ def render(deck: str | Path, out_dir: str | Path, engine: str = "auto") -> Rende
     if not deck.is_file():
         raise RenderError(f"no such file: {deck}")
     count = slide_count(deck)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    if chosen == "officecli":
-        sys.stderr.write(L002)
-        pngs = _render_officecli(deck, out_dir, count)
-        return RenderResult(pngs, contact_sheet(pngs, out_dir / "contact.png"))
-    soffice, raster = find_soffice(), find_rasterizer()
-    version = libreoffice_version(soffice)
-    sys.stderr.write(L010)
-    sys.stderr.write(f"render engine: {version}, rasterized with {raster}\n")
-    pngs = _render_libreoffice(deck, out_dir, soffice, raster)
-    if len(pngs) != count:
-        sys.stderr.write(
-            f"note: the PDF has {len(pngs)} pages for {count} slides "
-            "(LibreOffice does not export hidden slides)\n"
-        )
-    contact = contact_sheet(pngs, out_dir / "contact.png")
+    if count == 0:
+        raise RenderError("deck has no slides")
+    _prepare(out_dir)
+    try:
+        if chosen == "officecli":
+            sys.stderr.write(L002)
+            pngs = _render_officecli(deck, out_dir, count)
+            return RenderResult(pngs, contact_sheet(pngs, out_dir / "contact.png"))
+        soffice, raster = find_soffice(), find_rasterizer()
+        version = libreoffice_version(soffice)
+        sys.stderr.write(L010)
+        sys.stderr.write(f"render engine: {version}, rasterized with {raster}\n")
+        pngs = _render_libreoffice(deck, out_dir, soffice, raster, count)
+        contact = contact_sheet(pngs, out_dir / "contact.png")
+    except OSError as exc:  # e.g. the directory became unwritable
+        raise RenderError(f"cannot write to {out_dir}: {exc.strerror or exc}") from exc
     return RenderResult(pngs, contact, "libreoffice", version)
+
+
+def _run(cmd: list[str], timeout: float) -> subprocess.CompletedProcess:
+    """Run in a process group of its own; on timeout kill the whole group, so that
+    soffice's soffice.bin child dies too (B-13)."""
+    group = (
+        {"start_new_session": True}
+        if os.name == "posix"
+        else {"creationflags": subprocess.CREATE_NEW_PROCESS_GROUP}
+    )
+    with subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, **group
+    ) as proc:
+        try:
+            out, err = proc.communicate(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            if os.name == "posix":
+                with contextlib.suppress(ProcessLookupError, PermissionError):
+                    os.killpg(proc.pid, signal.SIGKILL)
+            else:
+                proc.kill()
+            with contextlib.suppress(subprocess.TimeoutExpired):
+                proc.communicate(timeout=10)
+            raise
+    return subprocess.CompletedProcess(cmd, proc.returncode, out, err)
 
 
 def _render_officecli(deck: Path, out_dir: Path, count: int) -> list[Path]:
@@ -206,10 +252,10 @@ def _render_officecli(deck: Path, out_dir: Path, count: int) -> list[Path]:
     pngs = []
     with private_copy(deck) as copy:  # B-14: never the user's path (L-016)
         for i in range(1, count + 1):
-            png = out_dir / f"slide-{i:02d}.png"
+            png = out_dir / png_name(i, count)
             cmd = [officecli, "view", str(copy), "screenshot", "--page", str(i), "-o", str(png)]
             try:
-                proc = subprocess.run(cmd, capture_output=True, text=True, timeout=SLIDE_TIMEOUT_S)
+                proc = _run(cmd, SLIDE_TIMEOUT_S)
             except subprocess.TimeoutExpired as exc:
                 raise RenderError(f"officecli timed out on slide {i}") from exc
             if proc.returncode != 0 or not png.is_file():
@@ -220,10 +266,13 @@ def _render_officecli(deck: Path, out_dir: Path, count: int) -> list[Path]:
     return pngs
 
 
-def _render_libreoffice(deck: Path, out_dir: Path, soffice: str, raster: str) -> list[Path]:
-    """soffice to PDF with a private profile and --outdir (both kept, §7), then PNGs."""
-    with tempfile.TemporaryDirectory(prefix="keyline-lo-") as tmp:
-        tmp_dir = Path(tmp)
+def _render_libreoffice(
+    deck: Path, out_dir: Path, soffice: str, raster: str, count: int
+) -> list[Path]:
+    """soffice to PDF with a private profile and --outdir (both kept, §7), hidden slides
+    included (B-13), then one PNG per page. The temp directory is always removed."""
+    tmp_dir = Path(tempfile.mkdtemp(prefix="keyline-lo-"))
+    try:
         pdf_dir = tmp_dir / "pdf"
         cmd = [
             soffice,
@@ -231,13 +280,13 @@ def _render_libreoffice(deck: Path, out_dir: Path, soffice: str, raster: str) ->
             "--norestore",
             f"-env:UserInstallation={(tmp_dir / 'profile').as_uri()}",
             "--convert-to",
-            "pdf",
+            LO_PDF_FILTER,
             "--outdir",
             str(pdf_dir),
             str(deck.resolve()),
         ]
         try:
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=LO_TIMEOUT_S)
+            proc = _run(cmd, LO_TIMEOUT_S)
         except subprocess.TimeoutExpired as exc:
             raise RenderError(f"libreoffice timed out after {LO_TIMEOUT_S} s") from exc
         pdf = pdf_dir / f"{deck.stem}.pdf"
@@ -245,11 +294,18 @@ def _render_libreoffice(deck: Path, out_dir: Path, soffice: str, raster: str) ->
             detail = (proc.stderr or proc.stdout).strip().splitlines()
             reason = detail[-1] if detail else f"exit {proc.returncode}"
             raise RenderError(f"libreoffice wrote no PDF: {reason}")
-        return rasterize(pdf, out_dir, raster, tmp_dir)
+        pngs = rasterize(pdf, out_dir, raster, tmp_dir, count)
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
+    if len(pngs) != count:  # slide-NN.png must be deck slide NN (B-13)
+        for png in pngs:
+            png.unlink(missing_ok=True)
+        raise RenderError(f"the PDF has {len(pngs)} pages for {count} slides")
+    return pngs
 
 
-def rasterize(pdf: Path, out_dir: Path, raster: str, tmp_dir: Path) -> list[Path]:
-    """One slide-NN.png per PDF page, PNG_WIDTH pixels wide."""
+def rasterize(pdf: Path, out_dir: Path, raster: str, tmp_dir: Path, count: int) -> list[Path]:
+    """One PNG per PDF page, PNG_WIDTH pixels wide, named for a deck of `count` slides."""
     pngs = []
     if raster == "pypdfium2":
         import pypdfium2 as pdfium  # lazy: the render extra (plan §1)
@@ -258,7 +314,7 @@ def rasterize(pdf: Path, out_dir: Path, raster: str, tmp_dir: Path) -> list[Path
         try:
             for i, page in enumerate(doc, 1):
                 image = page.render(scale=PNG_WIDTH / page.get_width()).to_pil()
-                pngs.append(_save_png(image, out_dir / f"slide-{i:02d}.png"))
+                pngs.append(_save_png(image, out_dir / png_name(i, count)))
         finally:
             doc.close()
         return pngs
@@ -276,7 +332,7 @@ def rasterize(pdf: Path, out_dir: Path, raster: str, tmp_dir: Path) -> list[Path
 
     for i, page in pages:
         with Image.open(page) as image:
-            pngs.append(_save_png(image, out_dir / f"slide-{i:02d}.png"))
+            pngs.append(_save_png(image, out_dir / png_name(i, count)))
     return pngs
 
 

@@ -116,10 +116,11 @@ def test_the_libreoffice_command_keeps_the_profile_and_outdir(tmp_path, monkeypa
         calls.append(cmd)
         return subprocess.CompletedProcess(cmd, 1, "", "boom")
 
-    monkeypatch.setattr(render_mod.subprocess, "run", fake_run)
+    monkeypatch.setattr(render_mod, "_run", lambda cmd, timeout: fake_run(cmd))
     with pytest.raises(render_mod.RenderError, match="libreoffice wrote no PDF: boom"):
-        render_mod._render_libreoffice(KPI, tmp_path, "soffice", "pypdfium2")
+        render_mod._render_libreoffice(KPI, tmp_path, "soffice", "pypdfium2", 4)
     (cmd,) = calls
     assert cmd[:3] == ["soffice", "--headless", "--norestore"]
     assert cmd[3].startswith("-env:UserInstallation=file://")
-    assert cmd[4:7] == ["--convert-to", "pdf", "--outdir"] and cmd[-1] == str(KPI.resolve())
+    assert cmd[4:7] == ["--convert-to", render_mod.LO_PDF_FILTER, "--outdir"]
+    assert cmd[-1] == str(KPI.resolve())
