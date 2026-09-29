@@ -113,6 +113,7 @@ with inline voices (B-8.14) in a fresh session with G-2a (Q-16); AC-17 … AC-23
 G-2. `references/check.md` carries the known limits: B-5, audit 02's FX-8 list, source
 lines inside table cells (B-12, continued) and audit 03's FX-15 note on invisible
 "Source: " runs, as the `numtokens` docstring lists them; and audit 04's coverage limit (prefer another family than Cambria for Vietnamese text).
+The voice step (B-8.15) carries the same limit (report A2): for a subject whose text is Vietnamese, the skill does not pick Cambria (its twin Caladea lacks 88 of the 134 Vietnamese letters), and when the pen's one-per-deck coverage warning appears, the skill changes the voice's font rather than accepting the check render.
 
 ## Acceptance map
 
