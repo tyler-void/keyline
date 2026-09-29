@@ -12,6 +12,10 @@
   Its rulings on Q-24 and Q-26 … Q-41 are marked below; amendments B-9 … B-15 are in the
   spec's amendment log; the fixes are in [`report.md`](report.md) (A1 fixes). The A2
   tasks follow §3 and the audit's "Carry into A2".
+- **Audit 03** ([audit-03-a1fix.md](audit-03-a1fix.md), 2026-09-29) of the A1 fix round:
+  FX-1 … FX-8 accepted; a second fix round FX-9 … FX-15 (B-16 … B-20), then A2 without
+  another audit stop. Its rulings on Q-42 … Q-46 are marked below and in the A2 tasks;
+  B-18 supersedes Q-30's "`[why]` keys that are not roles are ignored".
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -693,6 +697,28 @@ see `report.md`, A1 fixes).
     upstream release) or let AC-13(a) skip them by name.
 
 ### A2 questions (2026-09-29, with the A2 tasks)
+
+**Rulings (audit 03, §5):**
+- **Q-42 accepted, with one change:** every stem names its voice:
+  `swiss-specimen-presented-neutral`, `swiss-specimen-presented-night`,
+  `swiss-specimen-read-field`, so a fourth voice never forces a rename. They share one
+  evidence file.
+- **Q-43 accepted, with three additions:** (a) both boxes span the region's full width,
+  and the label is top-anchored; (b) a region shorter than the numeral's rows plus one
+  label line raises `DoesNotFit`, naming both; (c) the two boxes touch but do not
+  overlap, so `box-overlap` stays silent (a test asserts it).
+- **Q-44 accepted, with two additions:** (a) the probe decks name the portable family
+  (Arial, Georgia, …), not the twin, so the measurement goes through fontconfig's
+  substitution as a pen deck does; the script prints `fc-match <family>` for each family
+  and stops if any does not resolve to its twin; (b) every measured constant is stored
+  with the LibreOffice version that produced it (principle IV).
+- **Q-45 accepted.**
+- **Q-46 accepted, with one test:** the in-memory template for (neutral, mode) is
+  byte-identical to the committed file.
+- **T-22:** AC-13(a) passes between 0.995 and 1.25; the report also gives the largest
+  ratio per twin and flags any plain-Latin string above 1.05 (informational).
+- **T-20:** record the actual `soffice --version` at run time; if it is not 26.8.0.3,
+  say so. The stop-and-report rule applies unchanged.
 
 42. **Q-42 · Specimen files for three voices** (B-8.13). *Proposal:*
     `fixtures/packs/swiss-specimen-presented.brief.toml` (voice `neutral`),

@@ -1544,3 +1544,44 @@ must contain at least these rows.
     `validate: skipped (officecli could not run: <first line>)`, with the exit code
     unchanged.
   - doctor reports `NO_VALIDATOR` with that reason.
+- **B-16 (2026-09-29, audit 03).** `--pack NAME`: a bare name always means the bundled
+  pack. A pack directory needs a path separator or a leading `.`, so a local directory
+  can never shadow a bundled pack (X-17, implemented in `275082a`).
+- **B-17 (2026-09-29, audit 03).** B-12 item 2's line breaks are every character that
+  `str.splitlines()` breaks on: `\n`, `\r`, `\v`, `\f`, `\x1c`, `\x1d`, `\x1e`,
+  U+0085, U+2028 and U+2029. This supersedes the list of five.
+- **B-18 (2026-09-29, audit 03).** A voice's schema is closed, in a voice file and in an
+  inline `[voice]`.
+  - Allowed keys:
+    - top level: `schema`, `name` (file only), `accepted`;
+    - `[fonts]`: `display`, `text`;
+    - `[palette]` and `[why]`: exactly the palette roles.
+  - Any other key is a schema error naming it. This supersedes plan Q-30's "`[why]`
+    keys that are not roles are ignored".
+  - B-8.2's example is corrected: `accepted` goes before `[fonts]`, because a key
+    written after a table header belongs to that table:
+
+    ```toml
+    schema = 1
+    name = "…"
+    accepted = []   # optional { rule, reason }; B-10 limits the rules
+    [fonts]
+    display = "…"
+    text = "…"
+    [palette]       # exactly the system's palette_roles, 6-digit hex
+    [why]           # role → one line naming where the colour comes from
+    ```
+- **B-19 (2026-09-29, audit 03).** Engine hygiene, extending B-13 and B-14:
+  - LibreOffice also converts a private copy, with a fixed name, in the render's temp
+    directory.
+  - OfficeCLI copies are named `.pptx` (`.pptm` only for a `.pptm` deck), whatever the
+    user's file name.
+  - Engine output is decoded as UTF-8 with replacement.
+  - `validate` runs in its own process group, and a timeout kills the group.
+  - SIGINT and SIGTERM run the timeout cleanup, then exit 130 or 143.
+  - An empty `-o` is an unusable `-o`.
+- **B-20 (2026-09-29, audit 03).**
+  - An `accepted` reason needs at least one character outside Unicode categories Zs, Cc
+    and Cf.
+  - `schema` is an integer, not a bool or float, in every file.
+  - Every user-supplied value in an error message is escaped, so one error is one line.
