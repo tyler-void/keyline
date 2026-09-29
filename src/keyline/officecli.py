@@ -45,7 +45,10 @@ def status() -> tuple[bool, str]:
 def private_copy(deck: str | Path) -> Iterator[Path]:
     """A copy of `deck` under a fresh temp directory, released and deleted on exit."""
     tmp = Path(tempfile.mkdtemp(prefix="keyline-oc-"))
-    copy = tmp / f"deck-{uuid.uuid4().hex}{Path(deck).suffix or '.pptx'}"
+    # B-19: OfficeCLI picks the format by suffix, so the copy is .pptx whatever the user's
+    # name ("clean v1.2", "deck.pptx.bak"), and .pptm only for a .pptm deck
+    suffix = ".pptm" if Path(deck).suffix.casefold() == ".pptm" else ".pptx"
+    copy = tmp / f"deck-{uuid.uuid4().hex}{suffix}"
     try:
         shutil.copyfile(deck, copy)
         yield copy
