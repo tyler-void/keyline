@@ -1,9 +1,10 @@
-"""Style packs (spec 002 §5): load by name or directory, validate, list.
+"""Style packs (spec 002 §5, amendment B-8): load by name or directory, validate, list.
 
-A pack is a directory holding `pack.toml`, `README.md`, one template per mode and `src/`.
-Everything in `pack.toml` is data; this module only checks that it is consistent and
-derives what other code needs from it (region boxes in EMU, colours as hex). It never
-imports python-pptx.
+A pack is one **system** plus **voices**. The system is a directory holding `pack.toml`,
+`README.md`, `voices/` and `src/`; `pack.toml` names colours by role (`palette_roles`)
+and fonts as display or text, and a voice (`keyline.packs.voices`) gives the values.
+Everything is data; this module only checks that it is consistent and derives what other
+code needs from it (region boxes in EMU). It never imports python-pptx.
 """
 
 from __future__ import annotations
@@ -32,6 +33,7 @@ COMPONENTS = (
     "note",
 )
 WEIGHTS = ("regular", "bold")
+FONT_SLOTS = ("display", "text")
 THEME_SLOTS = (
     "dk1",
     "lt1",
@@ -56,9 +58,10 @@ class PackError(ValueError):
 @dataclass(frozen=True)
 class Style:
     name: str
+    font: str  # "display" or "text": which of the voice's fonts (plan Q-27)
     size_pt: Fraction
     weight: str
-    color: dict[str, str]  # surface name -> palette name
+    color: dict[str, str]  # surface name -> palette role
     caps: bool = False
     tracking: Fraction = Fraction(0)
     line_spacing: Fraction = Fraction(1)
@@ -76,9 +79,9 @@ class Style:
 @dataclass(frozen=True)
 class Surface:
     name: str
-    background: str  # palette name
-    text: tuple[str, ...]  # palette names
-    accent: str  # palette name
+    background: str  # palette role
+    text: tuple[str, ...]  # palette roles
+    accent: str  # palette role
 
 
 @dataclass(frozen=True)
@@ -124,10 +127,8 @@ class Pack:
     version: str
     directory: Path
     modes: tuple[str, ...]
-    templates: dict[str, str]
-    fonts: tuple[str, ...]
-    palette: dict[str, str]  # name -> "RRGGBB" (upper case)
-    accents: tuple[str, ...]
+    palette_roles: tuple[str, ...]
+    accents: tuple[str, ...]  # palette roles
     accent_budget: int
     containers: str
     alignment: str
@@ -135,7 +136,7 @@ class Pack:
     surfaces: dict[str, Surface]
     grid: Grid
     keyline_rule: dict[str, Any]
-    theme: dict[str, str]  # theme slot (dk1 … folHlink) -> palette name
+    theme: dict[str, str]  # theme slot (dk1 … folHlink) -> palette role
     placeholder_idx: dict[str, int]  # non-title region name -> placeholder idx
     placeholder_styles: dict[str, dict[str, str]]  # layout -> region -> style name
     styles: dict[str, dict[str, Style]]  # mode -> style name -> Style
@@ -143,17 +144,15 @@ class Pack:
     regions: dict[str, dict[str, Region]]  # layout name -> region name -> Region
     raw: dict[str, Any] = field(default_factory=dict, repr=False, compare=False)
 
-    def hex(self, palette_name: str) -> str:
-        return self.palette[palette_name]
+    def voices(self) -> list[str]:
+        """Names of the voices shipped with this pack (`voices/*.toml`)."""
+        return sorted(p.stem for p in (self.directory / "voices").glob("*.toml"))
 
-    def accent_hexes(self) -> set[str]:
-        return {self.palette[n] for n in self.accents}
+    def voice(self, name_or_path: str | Path, base: Path | None = None):
+        """A voice of this pack by name, or a voice file (keyline.packs.voices.load)."""
+        from keyline.packs.voices import load as load_voice
 
-    def template(self, mode: str) -> Path:
-        path = self.directory / self.templates[mode]
-        if not path.is_file():
-            raise PackError(f"pack {self.name}: template for {mode} is missing: {path.name}")
-        return path
+        return load_voice(self, name_or_path, base)
 
     def region_box(self, layout: str, region: str) -> Box:
         return self.grid.box(self.regions[layout][region])
@@ -229,28 +228,19 @@ def _names(values: Any, known: dict | set, where: str) -> tuple[str, ...]:
     return tuple(values)
 
 
-def _hex(value: Any, where: str) -> str:
-    if not isinstance(value, str) or len(value) != 6:
-        raise _fail(where, "must be RRGGBB")
-    try:
-        int(value, 16)
-    except ValueError as exc:
-        raise _fail(where, "must be RRGGBB") from exc
-    return value.upper()
-
-
 def _build(data: dict, directory: Path) -> Pack:
     if data.get("schema") != 1:
         raise _fail("schema", "must be 1")
     name = _get(data, "name", str, "top level")
     modes = _names(_get(data, "modes", list, "top level"), set(MODES), "modes")
-    templates = _get(data, "templates", dict, "top level")
-    for mode in modes:
-        if not isinstance(templates.get(mode), str):
-            raise _fail(f"templates.{mode}", "missing")
-
-    palette = {k: _hex(v, f"palette.{k}") for k, v in _get(data, "palette", dict, "top").items()}
-    accents = _names(_get(data, "accents", list, "top level"), palette, "accents")
+    for moved in ("palette", "fonts", "templates"):  # B-8: they belong to voices now
+        if moved in data:
+            raise _fail(moved, "belongs to a voice, not the system (B-8)")
+    palette = _names(_get(data, "palette_roles", list, "top level"), _AnyName(), "palette_roles")
+    if len(set(palette)) != len(palette):
+        raise _fail("palette_roles", "roles must be unique")
+    palette_set = set(palette)
+    accents = _names(_get(data, "accents", list, "top level"), palette_set, "accents")
     budget = _get(data, "accent_budget", int, "top level")
     containers = _get(data, "containers", str, "top level")
     if containers not in ("rules", "boxes", "none"):
@@ -269,9 +259,9 @@ def _build(data: dict, directory: Path) -> Pack:
         where = f"surfaces.{sname}"
         surfaces[sname] = Surface(
             sname,
-            _names([_get(s, "background", str, where)], palette, f"{where}.background")[0],
-            _names(_get(s, "text", list, where), palette, f"{where}.text"),
-            _names([_get(s, "accent", str, where)], palette, f"{where}.accent")[0],
+            _names([_get(s, "background", str, where)], palette_set, f"{where}.background")[0],
+            _names(_get(s, "text", list, where), palette_set, f"{where}.text"),
+            _names([_get(s, "accent", str, where)], palette_set, f"{where}.accent")[0],
         )
 
     g = _get(data, "grid", dict, "top level")
@@ -291,14 +281,14 @@ def _build(data: dict, directory: Path) -> Pack:
     ):
         raise _fail("grid", "columns, gutters and margins must fill the slide width exactly")
     rule = _get(data, "keyline_rule", dict, "top level")
-    _names([_get(rule, "color", str, "keyline_rule")], palette, "keyline_rule.color")
+    _names([_get(rule, "color", str, "keyline_rule")], palette_set, "keyline_rule.color")
 
     styles: dict[str, dict[str, Style]] = {}
     raw_styles = _get(data, "styles", dict, "top level")
     for mode in modes:
         styles[mode] = {}
         for sname, s in _get(raw_styles, mode, dict, "styles").items():
-            styles[mode][sname] = _style(sname, s, f"styles.{mode}.{sname}", palette, surfaces)
+            styles[mode][sname] = _style(sname, s, f"styles.{mode}.{sname}", surfaces)
     if len({frozenset(v) for v in styles.values()}) > 1:
         raise _fail("styles", "every mode must define the same styles")
 
@@ -324,7 +314,7 @@ def _build(data: dict, directory: Path) -> Pack:
     if set(theme) != set(THEME_SLOTS):
         raise _fail("theme", f"needs exactly the slots {', '.join(THEME_SLOTS)}")
     for slot, pname in theme.items():
-        _names([pname], palette, f"theme.{slot}")
+        _names([pname], palette_set, f"theme.{slot}")
     ph = _get(data, "placeholders", dict, "top level")
     ph_idx = _get(ph, "idx", dict, "placeholders")
     for region, idx in ph_idx.items():
@@ -355,9 +345,7 @@ def _build(data: dict, directory: Path) -> Pack:
         version=_get(data, "version", str, "top level"),
         directory=directory,
         modes=modes,
-        templates={m: templates[m] for m in modes},
-        fonts=_names(_get(data, "fonts", list, "top level"), _AnyName(), "fonts"),
-        palette=palette,
+        palette_roles=palette,
         accents=accents,
         accent_budget=budget,
         containers=containers,
@@ -381,15 +369,20 @@ class _AnyName(set):
         return isinstance(item, str) and bool(item.strip())
 
 
-def _style(name: str, s: dict, where: str, palette: dict, surfaces: dict) -> Style:
+def _style(name: str, s: dict, where: str, surfaces: dict) -> Style:
     weight = _get(s, "weight", str, where)
     if weight not in WEIGHTS:
         raise _fail(f"{where}.weight", "must be regular or bold")
+    font = _get(s, "font", str, where)
+    if font not in FONT_SLOTS:
+        raise _fail(f"{where}.font", "must be display or text")
     color = _get(s, "color", dict, where)
     for surface, pname in color.items():
         if surface not in surfaces:
             raise _fail(f"{where}.color", f"unknown surface {surface!r}")
-        _names([pname], palette, f"{where}.color.{surface}")
+        # a style may use a role on a surface only if the surface allows it as text (Q-28)
+        if pname not in surfaces[surface].text:
+            raise _fail(f"{where}.color.{surface}", f"{pname!r} is not a text role on {surface}")
     size = _number(_get(s, "size_pt", (int, float), where), f"{where}.size_pt")
     if size <= 0 or (size * 100).denominator != 1:
         raise _fail(f"{where}.size_pt", "must be positive, in hundredths of a point")
@@ -398,6 +391,7 @@ def _style(name: str, s: dict, where: str, palette: dict, surfaces: dict) -> Sty
         raise _fail(f"{where}.line_spacing", "must be at least 1.0 (§6.4)")
     return Style(
         name=name,
+        font=font,
         size_pt=size,
         weight=weight,
         color=dict(color),

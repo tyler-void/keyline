@@ -599,8 +599,8 @@ Each has a proposal; implementation follows the proposal unless Tyler rules othe
     `+mj-lt` for display and `+mn-lt` for text, so hand-typed text follows the voice.
 28. **Q-28 · The pairs `voice-contrast` checks.** "A (text color, surface) pair that the
     system allows." *Proposal:* every role in `surfaces.<s>.text` against
-    `surfaces.<s>.background`. The loader already requires each style colour on a
-    surface to be in that list, so these are all the pairs any style allows; for Swiss
+    `surfaces.<s>.background`. The loader requires each style colour on a surface to be
+    in that list (added in T-08r), so these are all the pairs any style allows; for Swiss
     they are exactly the five columns of B-8's check table. `hairline` is not text and
     is not checked.
 29. **Q-29 · Voice findings outside `keyline brief`.** B-8.5 runs the voice checks "in
@@ -615,7 +615,8 @@ Each has a proposal; implementation follows the proposal unless Tyler rules othe
 30. **Q-30 · Voice file details.** *Proposal:* a pack voice's `name` matches
     `^[a-z0-9-]+$` and equals its file stem, else a schema error; hex values match
     `^[0-9A-Fa-f]{6}$` (no `#`) and are stored upper case; fonts match a
-    `portable_fonts` family after A-8 normalisation and are stored in its spelling;
+    `portable_fonts` family after casefolding and whitespace collapse, and are stored in
+    its spelling (not A-8's weight stripping: "Calibri Light" has no twin);
     `schema = 1` is required in a voice file and optional in an inline `[voice]` (the
     brief's `schema` governs); `[why]` keys that are not roles are ignored (§4.1's
     unknown-keys rule); an empty `why` line counts as missing; `voice-why` gives one

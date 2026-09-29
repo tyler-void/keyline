@@ -1,0 +1,24 @@
+# Swiss voice "neutral" (amendment B-8.10). Values are normative; the check numbers in the
+# comments are WCAG 2.x contrast ratios and §3.3 colour coordinates, asserted by AC-9.
+schema = 1
+name = "neutral"
+
+[fonts]
+display = "Arial"
+text = "Arial"
+
+[palette]
+paper = "F2F2F0"                   # CIELAB L* 95.4, C* 1.02, h 110: neutral, not cream
+ink = "111111"                     # 16.85 : 1 on paper
+muted = "5C5C5A"                   # 5.98 : 1 on paper
+hairline = "B8B8B4"                # rules only, never text
+accent = "CC3322"                  # 4.61 : 1 on paper; HSL hue 6 (signal red)
+accent_on_ink = "E8422E"           # 4.72 : 1 on ink
+
+[why]
+paper = "uncoated offset paper, grey-white and deliberately not cream"
+ink = "near-black printing ink"
+muted = "pencil grey for labels and source lines"
+hairline = "the faint grey of a ruled line"
+accent = "the signal red of Swiss posters and road signs"
+accent_on_ink = "the same red, lifted so it still reads on ink"

@@ -12,18 +12,19 @@ from keyline.ooxml.ns import NS, q
 from keyline.ooxml.package import Package
 from keyline.ooxml.theme import parse_theme
 from keyline.packs import resolve
-from keyline.packs.templates import build
+from keyline.packs.templates import build, committed
 from keyline.roles import ROLES
 from keyline.roles import parse as parse_role
 from keyline.units import cm_to_emu
 
 PACK = resolve("swiss")
+NEUTRAL = PACK.voice("neutral")
 MODES = ("presented", "read")
 MARGIN = cm_to_emu("1.27")  # edge_margin_cm
 
 
 def parts(mode):
-    pkg = Package(PACK.template(mode))
+    pkg = Package(committed(PACK, mode))
     pres = pkg.xml(pkg.main_part)
     master_part = pkg.rel_targets(
         pkg.main_part,
@@ -41,7 +42,7 @@ def parts(mode):
 
 @pytest.mark.parametrize("mode", MODES)
 def test_rebuild_is_byte_identical(mode):
-    assert build(PACK, mode) == PACK.template(mode).read_bytes()
+    assert build(PACK, NEUTRAL, mode) == committed(PACK, mode).read_bytes()
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -57,11 +58,11 @@ def test_backgrounds(mode):
     _, _, master, layouts, theme = parts(mode)
     ctx = ColorContext(parse_theme(theme).colors, dict(DEFAULT_CLR_MAP))
     th = parse_theme(theme)
-    assert background([master], th, ctx).fill == f"solid:#{PACK.hex('paper')}"
+    assert background([master], th, ctx).fill == f"solid:#{NEUTRAL.hex('paper')}"
     for layout in layouts:
         name = layout.find("p:cSld", NS).get("name")
         want = "ink" if name == "keyline:section" else "paper"
-        assert background([layout, master], th, ctx).fill == f"solid:#{PACK.hex(want)}", name
+        assert background([layout, master], th, ctx).fill == f"solid:#{NEUTRAL.hex(want)}", name
 
 
 def _shapes(root):
@@ -95,9 +96,11 @@ def test_theme_fonts_and_colours(mode):
     th = parse_theme(theme)
     assert (th.major_latin, th.minor_latin) == ("Arial", "Arial")
     assert len(th.colors) == 12
-    assert set(th.colors.values()) <= set(PACK.palette.values())
-    assert th.colors["dk1"] == PACK.hex("ink") and th.colors["lt1"] == PACK.hex("paper")
-    assert th.colors["accent1"] == PACK.hex("accent") and th.colors["hlink"] == PACK.hex("ink")
+    assert set(th.colors.values()) <= set(NEUTRAL.palette.values())
+    assert th.colors["dk1"] == NEUTRAL.hex("ink") and th.colors["lt1"] == NEUTRAL.hex("paper")
+    assert th.colors["accent1"] == NEUTRAL.hex("accent") and th.colors["hlink"] == NEUTRAL.hex(
+        "ink"
+    )
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -132,7 +135,7 @@ def test_placeholder_styles_carry_the_pack_scale(mode):
                 region = {v: k for k, v in PACK.placeholder_idx.items()}[int(ph.get("idx"))]
                 style = styles[PACK.placeholder_styles[name][region]]
             assert _sz(ppr) == style.size_hundredths, (name, style.name)
-            assert _colour(ppr) == PACK.hex(style.color[role.surface]), (name, style.name)
+            assert _colour(ppr) == NEUTRAL.hex(style.color[role.surface]), (name, style.name)
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -140,7 +143,7 @@ def test_section_placeholders_are_paper_and_accent_on_ink(mode):
     *_, layouts, _ = parts(mode)
     (section,) = [x for x in layouts if x.find("p:cSld", NS).get("name") == "keyline:section"]
     colours = {_colour(s.find("p:txBody/a:lstStyle/a:lvl1pPr", NS)) for s in _shapes(section)}
-    assert colours == {PACK.hex("paper"), PACK.hex("accent_on_ink")}
+    assert colours == {NEUTRAL.hex("paper"), NEUTRAL.hex("accent_on_ink")}
 
 
 @pytest.mark.parametrize("mode", MODES)
@@ -161,7 +164,7 @@ def test_python_pptx_round_trip_lints_on_scale(mode, tmp_path):
     pptx = pytest.importorskip("pptx")
     from keyline.ooxml.adapter import load_deck
 
-    prs = pptx.Presentation(str(PACK.template(mode)))
+    prs = pptx.Presentation(str(committed(PACK, mode)))
     for layout in prs.slide_layouts:
         slide = prs.slides.add_slide(layout)
         for ph in slide.placeholders:
@@ -181,11 +184,11 @@ def test_python_pptx_round_trip_lints_on_scale(mode, tmp_path):
 @pytest.mark.parametrize("mode", MODES)
 def test_officecli_validate(mode):
     proc = subprocess.run(
-        ["officecli", "validate", str(PACK.template(mode))], capture_output=True, text=True
+        ["officecli", "validate", str(committed(PACK, mode))], capture_output=True, text=True
     )
     assert proc.returncode == 0 and "Validation passed" in proc.stdout, proc.stdout
 
 
 def test_templates_are_package_data_next_to_pack_toml():
     for mode in MODES:
-        assert PACK.template(mode).parent == PACK.directory
+        assert committed(PACK, mode).parent == PACK.directory

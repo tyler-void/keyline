@@ -1,7 +1,9 @@
-"""Build a pack's templates from its pack.toml, as raw OOXML (spec 002 §5.3, plan Q-17).
+"""Build a pack's templates as raw OOXML (spec 002 §5.3, plan Q-17, amendment B-8.9).
 
-One template per mode: a 16:9 package with no slides, one master, one layout per layout
-name in the pack's regions, and a theme whose colours and fonts are pack values. Master
+One template per (system, voice, mode): a 16:9 package with no slides, one master, one
+layout per layout name in the pack's regions, and a theme whose colours are the voice's
+values for the system's roles and whose major and minor fonts are the voice's display and
+text families. Master
 and layouts hold placeholders only (FP-2: spec 001 does not lint layout or master
 shapes); every placeholder sits on a region box and carries its style's size, weight,
 colour, caps, tracking and spacing in its lstStyle, so text typed by hand lands on scale.
@@ -19,6 +21,7 @@ from lxml import etree
 
 from keyline import zipnorm
 from keyline.packs import SLIDE_H, SLIDE_W, THEME_SLOTS, Pack, Style
+from keyline.packs.voices import Voice
 
 CREATED = "2026-09-27T00:00:00Z"  # fixed, so the pen can copy it into every deck (§6.5)
 A = "http://schemas.openxmlformats.org/drawingml/2006/main"
@@ -56,13 +59,13 @@ def _solid(hex_rgb: str) -> str:
     return f'<a:solidFill><a:srgbClr val="{hex_rgb}"/></a:solidFill>'
 
 
-def _ppr(pack: Pack, style: Style, surface: str, level: int, title: bool) -> str:
+def _ppr(voice: Voice, style: Style, surface: str, level: int) -> str:
     """One a:lvlNpPr carrying the style (lstStyle, txStyles and defaultTextStyle use it)."""
-    colour = pack.hex(style.color.get(surface, next(iter(style.color.values()))))
+    colour = voice.hex(style.color.get(surface, next(iter(style.color.values()))))
     spc = int(style.tracking * style.size_pt * 100)  # tracking as 1/100 pt
     caps = ' cap="all"' if style.caps else ""
     bold = "1" if style.weight == "bold" else "0"
-    font = "+mj-lt" if title else "+mn-lt"
+    font = "+mj-lt" if style.font == "display" else "+mn-lt"  # theme major / minor (Q-27)
     return (
         f'<a:lvl{level}pPr marL="0" indent="0" algn="l">'
         f'<a:lnSpc><a:spcPct val="{int(style.line_spacing * 100000)}"/></a:lnSpc>'
@@ -74,8 +77,8 @@ def _ppr(pack: Pack, style: Style, surface: str, level: int, title: bool) -> str
     )
 
 
-def _levels(pack: Pack, style: Style, surface: str, title: bool) -> str:
-    return "".join(_ppr(pack, style, surface, n, title) for n in range(1, 10))
+def _levels(voice: Voice, style: Style, surface: str) -> str:
+    return "".join(_ppr(voice, style, surface, n) for n in range(1, 10))
 
 
 _BODY_PR = (
@@ -108,7 +111,7 @@ def _bg(hex_rgb: str) -> str:
     return f"<p:bg><p:bgPr>{_solid(hex_rgb)}<a:effectLst/></p:bgPr></p:bg>"
 
 
-def _layout(pack: Pack, mode: str, layout: str) -> bytes:
+def _layout(pack: Pack, voice: Voice, mode: str, layout: str) -> bytes:
     role = pack.layout_role(layout)
     surface = pack.surfaces[role.surface]
     styles = pack.styles[mode]
@@ -119,15 +122,13 @@ def _layout(pack: Pack, mode: str, layout: str) -> bytes:
         if region == "title":
             style = styles[role.title]
             ph = '<p:ph type="title" hasCustomPrompt="1"/>'
-            is_title = True
         else:
             style = styles[pack.placeholder_styles[layout][region]]
             ph = f'<p:ph type="body" idx="{pack.placeholder_idx[region]}" hasCustomPrompt="1"/>'
-            is_title = False
-        lst = _ppr(pack, style, role.surface, 1, is_title)
+        lst = _ppr(voice, style, role.surface, 1)
         shapes.append(_placeholder(sid, region.capitalize(), ph, box, lst, PROMPTS[region]))
         sid += 1
-    background = _bg(pack.hex(surface.background)) if role.surface != "paper" else ""
+    background = _bg(voice.hex(surface.background)) if role.surface != "paper" else ""
     return _xml(
         f'<p:sldLayout {NS} preserve="1" userDrawn="1"><p:cSld name="{layout}">{background}'
         f"<p:spTree>{_TREE_HEAD}{''.join(shapes)}</p:spTree></p:cSld>"
@@ -135,7 +136,7 @@ def _layout(pack: Pack, mode: str, layout: str) -> bytes:
     )
 
 
-def _master(pack: Pack, mode: str, layout_count: int) -> bytes:
+def _master(pack: Pack, voice: Voice, mode: str, layout_count: int) -> bytes:
     styles = pack.styles[mode]
     title, body = styles["headline"], styles["body"]
     ref = "keyline:evidence"
@@ -144,14 +145,14 @@ def _master(pack: Pack, mode: str, layout_count: int) -> bytes:
         "Title",
         '<p:ph type="title"/>',
         pack.region_box(ref, "title"),
-        _ppr(pack, title, "paper", 1, True),
+        _ppr(voice, title, "paper", 1),
         PROMPTS["title"],
     ) + _placeholder(
         3,
         "Main",
         f'<p:ph type="body" idx="{pack.placeholder_idx["main"]}"/>',
         pack.region_box(ref, "main"),
-        _ppr(pack, body, "paper", 1, False),
+        _ppr(voice, body, "paper", 1),
         PROMPTS["main"],
     )
     clr_map = (
@@ -163,21 +164,21 @@ def _master(pack: Pack, mode: str, layout_count: int) -> bytes:
         f'<p:sldLayoutId id="{2147483649 + i}" r:id="rId{i + 1}"/>' for i in range(layout_count)
     )
     return _xml(
-        f"<p:sldMaster {NS}><p:cSld>{_bg(pack.hex('paper'))}<p:spTree>{_TREE_HEAD}{shapes}"
+        f"<p:sldMaster {NS}><p:cSld>{_bg(voice.hex('paper'))}<p:spTree>{_TREE_HEAD}{shapes}"
         f"</p:spTree></p:cSld><p:clrMap {clr_map}/><p:sldLayoutIdLst>{ids}</p:sldLayoutIdLst>"
         "<p:txStyles>"
-        f"<p:titleStyle>{_levels(pack, title, 'paper', True)}</p:titleStyle>"
-        f"<p:bodyStyle>{_levels(pack, body, 'paper', False)}</p:bodyStyle>"
-        f"<p:otherStyle>{_levels(pack, body, 'paper', False)}</p:otherStyle>"
+        f"<p:titleStyle>{_levels(voice, title, 'paper')}</p:titleStyle>"
+        f"<p:bodyStyle>{_levels(voice, body, 'paper')}</p:bodyStyle>"
+        f"<p:otherStyle>{_levels(voice, body, 'paper')}</p:otherStyle>"
         "</p:txStyles></p:sldMaster>"
     )
 
 
-def _theme(pack: Pack) -> bytes:
+def _theme(pack: Pack, voice: Voice) -> bytes:
     slots = "".join(
-        f'<a:{s}><a:srgbClr val="{pack.hex(pack.theme[s])}"/></a:{s}>' for s in THEME_SLOTS
+        f'<a:{s}><a:srgbClr val="{voice.hex(pack.theme[s])}"/></a:{s}>' for s in THEME_SLOTS
     )
-    major = minor = pack.fonts[0]
+    major, minor = voice.display, voice.text
     fonts = (
         f'<a:majorFont><a:latin typeface="{major}"/><a:ea typeface=""/><a:cs typeface=""/>'
         f'</a:majorFont><a:minorFont><a:latin typeface="{minor}"/><a:ea typeface=""/>'
@@ -197,13 +198,13 @@ def _theme(pack: Pack) -> bytes:
     )
 
 
-def _presentation(pack: Pack, mode: str) -> bytes:
+def _presentation(pack: Pack, voice: Voice, mode: str) -> bytes:
     body = pack.styles[mode]["body"]
     return _xml(
         f'<p:presentation {NS} saveSubsetFonts="1"><p:sldMasterIdLst>'
         '<p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst>'
         f'<p:sldSz cx="{SLIDE_W}" cy="{SLIDE_H}"/><p:notesSz cx="6858000" cy="9144000"/>'
-        f"<p:defaultTextStyle>{_levels(pack, body, 'paper', False)}</p:defaultTextStyle>"
+        f"<p:defaultTextStyle>{_levels(voice, body, 'paper')}</p:defaultTextStyle>"
         "</p:presentation>"
     )
 
@@ -222,8 +223,8 @@ def _core(pack: Pack, mode: str) -> bytes:
     )
 
 
-def build(pack: Pack, mode: str) -> bytes:
-    """The template for one mode, as normalised zip bytes."""
+def build(pack: Pack, voice: Voice, mode: str) -> bytes:
+    """The template for one voice and mode, as normalised zip bytes (B-8.9)."""
     layouts = list(pack.regions)
     n = len(layouts)
     overrides = [
@@ -271,7 +272,7 @@ def build(pack: Pack, mode: str) -> bytes:
                 "<PresentationFormat>Widescreen</PresentationFormat></Properties>"
             ),
         ),
-        ("ppt/presentation.xml", _presentation(pack, mode)),
+        ("ppt/presentation.xml", _presentation(pack, voice, mode)),
         (
             "ppt/_rels/presentation.xml.rels",
             _rels(
@@ -296,8 +297,8 @@ def build(pack: Pack, mode: str) -> bytes:
             "ppt/tableStyles.xml",
             _xml(f'<a:tblStyleLst xmlns:a="{A}" def="{{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}}"/>'),
         ),
-        ("ppt/theme/theme1.xml", _theme(pack)),
-        ("ppt/slideMasters/slideMaster1.xml", _master(pack, mode, n)),
+        ("ppt/theme/theme1.xml", _theme(pack, voice)),
+        ("ppt/slideMasters/slideMaster1.xml", _master(pack, voice, mode, n)),
         (
             "ppt/slideMasters/_rels/slideMaster1.xml.rels",
             _rels(
@@ -310,7 +311,9 @@ def build(pack: Pack, mode: str) -> bytes:
         ),
     ]
     for i, layout in enumerate(layouts):
-        entries.append((f"ppt/slideLayouts/slideLayout{i + 1}.xml", _layout(pack, mode, layout)))
+        entries.append(
+            (f"ppt/slideLayouts/slideLayout{i + 1}.xml", _layout(pack, voice, mode, layout))
+        )
         entries.append(
             (
                 f"ppt/slideLayouts/_rels/slideLayout{i + 1}.xml.rels",
@@ -320,12 +323,25 @@ def build(pack: Pack, mode: str) -> bytes:
     return zipnorm.pack_bytes(entries)
 
 
-def write_all(pack: Pack, out_dir: Path | None = None) -> list[Path]:
-    """Write every mode's template (into the pack directory unless `out_dir` is given)."""
+COMMITTED_VOICE = "neutral"  # only these templates are committed (B-8.9, plan Q-26)
+
+
+def filename(pack: Pack, voice: Voice, mode: str) -> str:
+    return f"{pack.name}-{voice.name}-{mode}.pptx"
+
+
+def committed(pack: Pack, mode: str) -> Path:
+    """The committed template of the neutral voice, for inspection and AC-9."""
+    return pack.directory / f"{pack.name}-{COMMITTED_VOICE}-{mode}.pptx"
+
+
+def write_all(pack: Pack, voice: Voice, out_dir: Path | None = None) -> list[Path]:
+    """Write the voice's template for every mode (into the pack directory unless `out_dir`
+    is given)."""
     out_dir = Path(out_dir) if out_dir is not None else pack.directory
     written = []
     for mode in pack.modes:
-        path = out_dir / pack.templates[mode]
-        path.write_bytes(build(pack, mode))
+        path = out_dir / filename(pack, voice, mode)
+        path.write_bytes(build(pack, voice, mode))
         written.append(path)
     return written

@@ -88,11 +88,27 @@ def cmd_packs(args: argparse.Namespace) -> int:
     from keyline.packs import bundled, resolve
 
     packs = [resolve(name) for name in bundled()]
-    rows = [{"name": p.name, "version": p.version, "modes": list(p.modes)} for p in packs]
+    rows = []
+    for p in packs:
+        voices = [p.voice(v) for v in p.voices()]
+        rows.append(
+            {
+                "name": p.name,
+                "version": p.version,
+                "modes": list(p.modes),
+                "voices": [{"name": v.name, "display": v.display, "text": v.text} for v in voices],
+            }
+        )
     if args.json:
         _out_json(json.dumps(rows, ensure_ascii=False, indent=2) + "\n")
     else:
-        _out("".join(f"{r['name']}  {r['version']}  {', '.join(r['modes'])}\n" for r in rows))
+        _out(
+            "".join(
+                f"{r['name']}  {r['version']}  {', '.join(r['modes'])}  voices: "
+                f"{', '.join(v['name'] for v in r['voices'])}\n"
+                for r in rows
+            )
+        )
     return 0
 
 

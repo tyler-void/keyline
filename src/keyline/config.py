@@ -69,11 +69,16 @@ KEYS = (
     "closing_cliches",
     "mood_words",
     "statement_min_slides",
+    # spec 002 B-8.3, common
+    "portable_fonts",
 )
 
 # Keys whose value is a list of strings (NFC-normalised and casefolded on load); every
 # other key is a number.
 LIST_KEYS = frozenset({"source_prefixes", "note_prefixes", "closing_cliches", "mood_words"})
+# Keys whose value is a list of { family, metric_twin } tables (B-8.3, plan Q-38), kept as
+# written: a tuple of (family, metric_twin) pairs.
+FONT_KEYS = frozenset({"portable_fonts"})
 
 
 class ConfigError(ValueError):
@@ -84,7 +89,7 @@ class ConfigError(ValueError):
 class Config:
     mode: str
     calibrated: bool
-    values: dict[str, Fraction | tuple[str, ...]]
+    values: dict[str, Fraction | tuple[str, ...] | tuple[tuple[str, str], ...]]
 
     def __getattr__(self, name: str) -> Any:
         try:
@@ -111,7 +116,26 @@ def _strings(key: str, raw: Any) -> tuple[str, ...]:
     return tuple(unicodedata.normalize("NFC", s).casefold() for s in raw)
 
 
-def _value(key: str, raw: Any) -> Fraction | tuple[str, ...]:
+def _fonts(key: str, raw: Any) -> tuple[tuple[str, str], ...]:
+    bad = ConfigError(f"{key} must be a list of {{ family, metric_twin }} tables, got {raw!r}")
+    if not isinstance(raw, list):
+        raise bad
+    pairs = []
+    for item in raw:
+        if not isinstance(item, dict) or set(item) != {"family", "metric_twin"}:
+            raise bad
+        if not all(isinstance(v, str) and v.strip() for v in item.values()):
+            raise bad
+        pairs.append((item["family"].strip(), item["metric_twin"].strip()))
+    folded = [f.casefold() for f, _ in pairs]
+    if len(set(folded)) != len(folded):
+        raise ConfigError(f"{key} lists a family twice")
+    return tuple(pairs)
+
+
+def _value(key: str, raw: Any) -> Fraction | tuple:
+    if key in FONT_KEYS:
+        return _fonts(key, raw)
     return _strings(key, raw) if key in LIST_KEYS else _number(key, raw)
 
 
@@ -125,7 +149,7 @@ def parse(data: dict[str, Any], mode: str) -> Config:
     extra = set(data) - allowed
     if extra:
         raise ConfigError(f"unknown top-level keys: {', '.join(sorted(extra))}")
-    merged: dict[str, Fraction | tuple[str, ...]] = {}
+    merged: dict[str, Fraction | tuple] = {}
     for table in ("common", mode):
         for key, raw in data.get(table, {}).items():
             if key not in KEYS:

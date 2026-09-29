@@ -1,24 +1,17 @@
-# Swiss pack v1 (spec 002 §5.2). Every value here is data: the pen writes only these
-# tokens, and the pack rules check decks against them. Direction and reasons: README.md.
+# Swiss pack v1: the system (spec 002 §5.2, amendment B-8). Every value here is data: the
+# pen writes only these tokens, and the pack rules check decks against them. Colours are
+# named by role; a voice (voices/*.toml, or a brief's inline [voice]) gives each role its
+# value and names the display and text fonts. Direction and reasons: README.md.
 schema = 1
 name = "swiss"
 version = "1.0.0"
 modes = ["presented", "read"]
-templates = { presented = "swiss-presented.pptx", read = "swiss-read.pptx" }
-fonts = ["Arial"]                  # D-017: until M3 embeds fonts
+palette_roles = ["paper", "ink", "muted", "hairline", "accent", "accent_on_ink"]
 containers = "rules"               # hairlines, not boxes
 alignment = "left"                 # flush left, ragged right
 accent_budget = 1
 accents = ["accent", "accent_on_ink"]
 accepted = []
-
-[palette]
-paper = "F2F2F0"                   # CIELAB C* 1.02: neutral, not cream
-ink = "111111"                     # 16.85 : 1 on paper
-muted = "5C5C5A"                   # 5.98 : 1 on paper; labels and source lines
-hairline = "B8B8B4"                # light rules only, never text
-accent = "CC3322"                  # 4.61 : 1 on paper; HSL hue 6.0 (signal red)
-accent_on_ink = "E8422E"           # 4.72 : 1 on ink
 
 [surfaces.paper]
 background = "paper"
@@ -27,7 +20,7 @@ accent = "accent"                  # what figure(accent=True) uses on this surfa
 
 [surfaces.ink]
 background = "ink"
-text = ["paper", "accent_on_ink"]  # muted on ink is only 2.82 : 1
+text = ["paper", "accent_on_ink"]  # muted on ink is only 2.82 : 1 in the neutral voice
 accent = "accent_on_ink"
 
 [grid]                             # plan 002 §2.5; EMU, so every region edge is an integer
@@ -38,7 +31,7 @@ margin_y_emu = 549000              # 1.525 cm
 row_emu = 90000                    # 0.25 cm; 64 rows fill the content height
 rows = 64
 
-[theme]                            # the 12 theme slots, all palette values (§5.3)
+[theme]                            # the 12 theme slots, all palette roles (§5.3)
 dk1 = "ink"
 lt1 = "paper"
 dk2 = "muted"
@@ -58,30 +51,37 @@ row = 18
 thickness_emu = 43200              # 0.12 cm
 
 # ---------------------------------------------------------------------------------------
-# Type scale. color = palette name, or { surface = palette name }. tracking is a fraction
-# of the size (0.08 = +8 %); line_spacing multiplies the 1.2 em line pitch (§6.4).
+# Type scale. color = { surface = palette role }. font = the voice's display or text family
+# (plan Q-27). tracking is a fraction of the size (0.08 = +8 %); line_spacing multiplies
+# the 1.2 em line pitch (§6.4).
 [styles.presented.cover_title]
+font = "display"
 size_pt = 66
 weight = "bold"
 color = { paper = "ink" }
 [styles.presented.statement]
+font = "display"
 size_pt = 60
 weight = "bold"
 color = { paper = "ink" }
 [styles.presented.headline]
+font = "display"
 size_pt = 48
 weight = "bold"
 color = { paper = "ink", ink = "paper" }
 [styles.presented.quote]
+font = "display"
 size_pt = 44
 weight = "regular"
 color = { paper = "ink" }
 [styles.presented.lede]
+font = "text"
 size_pt = 28
 weight = "regular"
 color = { paper = "ink" }
 line_spacing = 1.1
 [styles.presented.body]
+font = "text"
 size_pt = 24
 weight = "regular"
 color = { paper = "ink" }
@@ -90,42 +90,51 @@ space_after_pt = 6
 bullet_indent_emu = 342900
 bullet_marker = "–"
 [styles.presented.numeral]
+font = "display"
 size_pt = 120
 weight = "bold"
 color = { paper = "ink" }
 [styles.presented.label]
+font = "text"
 size_pt = 14
 weight = "bold"
 color = { paper = "muted", ink = "accent_on_ink" }
 caps = true
 tracking = 0.08
 [styles.presented.source]
+font = "text"
 size_pt = 12
 weight = "regular"
 color = { paper = "muted" }
 
 [styles.read.cover_title]
+font = "display"
 size_pt = 40
 weight = "bold"
 color = { paper = "ink" }
 [styles.read.statement]
+font = "display"
 size_pt = 36
 weight = "bold"
 color = { paper = "ink" }
 [styles.read.headline]
+font = "display"
 size_pt = 28
 weight = "bold"
 color = { paper = "ink", ink = "paper" }
 [styles.read.quote]
+font = "display"
 size_pt = 24
 weight = "regular"
 color = { paper = "ink" }
 [styles.read.lede]
+font = "text"
 size_pt = 16
 weight = "regular"
 color = { paper = "ink" }
 line_spacing = 1.1
 [styles.read.body]
+font = "text"
 size_pt = 13
 weight = "regular"
 color = { paper = "ink" }
@@ -134,16 +143,19 @@ space_after_pt = 4
 bullet_indent_emu = 228600
 bullet_marker = "–"
 [styles.read.numeral]
+font = "display"
 size_pt = 60
 weight = "bold"
 color = { paper = "ink" }
 [styles.read.label]
+font = "text"
 size_pt = 10
 weight = "bold"
 color = { paper = "muted", ink = "accent_on_ink" }
 caps = true
 tracking = 0.08
 [styles.read.source]
+font = "text"
 size_pt = 9
 weight = "regular"
 color = { paper = "muted" }

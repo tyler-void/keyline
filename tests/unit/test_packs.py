@@ -37,8 +37,16 @@ def test_grid_and_regions():
 @pytest.mark.parametrize(
     ("mutate", "message"),
     [
-        (lambda d: d.pop("palette"), "missing key 'palette'"),
-        (lambda d: d["palette"].update(ink="11111G"), "palette.ink: must be RRGGBB"),
+        (lambda d: d.pop("palette_roles"), "missing key 'palette_roles'"),
+        (lambda d: d["palette_roles"].append("ink"), "roles must be unique"),
+        (lambda d: d.update(palette={"paper": "FFFFFF"}), "palette: belongs to a voice"),
+        (lambda d: d.update(fonts=["Arial"]), "fonts: belongs to a voice"),
+        (lambda d: d["theme"].update(dk1="gold"), "theme.dk1: unknown name 'gold'"),
+        (lambda d: d["styles"]["read"]["body"].update(font="serif"), "display or text"),
+        (
+            lambda d: d["styles"]["read"]["body"]["color"].update(paper="hairline"),
+            "'hairline' is not a text role on paper",
+        ),
         (lambda d: d["surfaces"]["paper"].update(text=["ink", "gold"]), "unknown name 'gold'"),
         (lambda d: d["styles"]["read"]["body"].update(line_spacing=0.9), "at least 1.0"),
         (lambda d: d["styles"]["read"]["body"].update(weight="light"), "regular or bold"),
@@ -73,6 +81,17 @@ def test_grid_and_regions():
 def test_validation_errors_name_the_key(mutate, message):
     with pytest.raises(PackError, match=message):
         build(mutate)
+
+
+def test_system_has_roles_and_font_slots_not_values():
+    p = load(SWISS)
+    assert p.palette_roles == ("paper", "ink", "muted", "hairline", "accent", "accent_on_ink")
+    assert p.voices() == ["field", "neutral", "night"]
+    display = {n for n, st in p.styles["presented"].items() if st.font == "display"}
+    assert display == {"cover_title", "statement", "headline", "quote", "numeral"}  # Q-27
+    for mode in p.modes:
+        assert {st.font for st in p.styles[mode].values()} == {"display", "text"}
+    assert not hasattr(p, "palette") and not hasattr(p, "fonts")
 
 
 def test_accepted_entries_are_rule_and_reason():

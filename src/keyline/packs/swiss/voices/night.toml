@@ -1,0 +1,24 @@
+# Swiss voice "night" (amendment B-8.10). Paper is the dark surface and ink the light one,
+# so section slides (ink surface) are light: sections invert in every voice.
+schema = 1
+name = "night"
+
+[fonts]
+display = "Arial"
+text = "Arial"
+
+[palette]
+paper = "16181B"                   # CIELAB L* 8.2, C* 2.44, h 267
+ink = "ECECE8"                     # 15.02 : 1 on paper
+muted = "A3A7AC"                   # 7.35 : 1 on paper
+hairline = "3D4148"                # rules only, never text
+accent = "F0B429"                  # 9.54 : 1 on paper; HSL hue 42 (amber)
+accent_on_ink = "8A5A00"           # 5.00 : 1 on ink
+
+[why]
+paper = "a darkened room, for screens in low light"
+ink = "off-white, like chalk on a slate"
+muted = "cool grey of a switched-off screen"
+hairline = "a dim slate rule that separates without glowing"
+accent = "the amber of an instrument lamp"
+accent_on_ink = "the same amber, darkened for the light sections"

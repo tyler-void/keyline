@@ -1,0 +1,24 @@
+# Swiss voice "field" (amendment B-8.10). A serif voice: Georgia, whose metric twin is
+# Gelasio (B-8.3).
+schema = 1
+name = "field"
+
+[fonts]
+display = "Georgia"
+text = "Georgia"
+
+[palette]
+paper = "EEF2EE"                   # CIELAB L* 95.1, C* 2.51, h 144: pale green, not cream
+ink = "16251D"                     # 14.11 : 1 on paper
+muted = "4A5A51"                   # 6.47 : 1 on paper
+hairline = "B6C2BA"                # rules only, never text
+accent = "1D4FB8"                  # 6.49 : 1 on paper; HSL hue 221 (blue)
+accent_on_ink = "8DB2FF"           # 7.55 : 1 on ink
+
+[why]
+paper = "the pale sage page of a field notebook"
+ink = "deep forest green-black"
+muted = "lichen grey-green"
+hairline = "the faint green of a survey grid"
+accent = "survey-marker blue"
+accent_on_ink = "sky blue above the treeline"

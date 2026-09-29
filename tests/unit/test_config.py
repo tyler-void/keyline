@@ -86,6 +86,29 @@ def test_list_and_number_types_are_enforced():
         parse({"calibrated": False, "read": {"reads_max": ["5"]}}, "read")
 
 
+def test_portable_fonts_are_family_and_twin_pairs():
+    """B-8.3: six families, each with its open metric-compatible twin (plan Q-38)."""
+    assert load().portable_fonts == (
+        ("Arial", "Liberation Sans"),
+        ("Times New Roman", "Liberation Serif"),
+        ("Courier New", "Liberation Mono"),
+        ("Georgia", "Gelasio"),
+        ("Calibri", "Carlito"),
+        ("Cambria", "Caladea"),
+    )
+    for bad in (
+        ["Arial"],
+        [{"family": "Arial"}],
+        [{"family": "Arial", "metric_twin": ""}],
+        [{"family": "Arial", "metric_twin": "Arimo", "note": "x"}],
+    ):
+        with pytest.raises(ConfigError, match="family, metric_twin"):
+            parse({"calibrated": False, "common": {"portable_fonts": bad}}, "read")
+    twice = [{"family": f, "metric_twin": "Arimo"} for f in ("Arial", "arial")]
+    with pytest.raises(ConfigError, match="lists a family twice"):
+        parse({"calibrated": False, "common": {"portable_fonts": twice}}, "read")
+
+
 def _minimal_common():
     """Every key of the shipped file, so a test can override one."""
     import tomllib
