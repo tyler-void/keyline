@@ -133,3 +133,27 @@ the layout.
 The uncompressed-size cap (512 MB) counts only XML and `.rels` parts, the only parts
 keyline ever decompresses. Media members (video, images) are never read, so a deck with
 600 MB of embedded video is linted normally. The member-count cap (20,000) is unchanged.
+
+## Slide roles (spec 002 §2)
+
+A slide's layout name gives its role: `keyline:<role>` or `keyline:<role>:<variant>`,
+with the role one of `cover`, `section`, `statement`, `evidence`, `quote` and `close`
+(`^keyline:(cover|section|statement|evidence|quote|close)(?::([a-z0-9-]+))?$`). Any other
+name leaves `Slide.role` and `Slide.variant` as None, and the M1 behaviour applies (slide
+1 is the cover). With a role:
+
+- `dead-band` looks only at `evidence` slides;
+- `notes-missing` looks at every role except `cover` and `section`, even on slide 1;
+- `title-too-long` exempts `quote`, whose title is the quote itself;
+- `brief-role` compares the role with the brief's.
+
+The role travels with the layout, so it survives editing in PowerPoint (D-016).
+
+## Table text (spec 002 §3.4)
+
+A table frame's cell text is read into `Shape.table_text`: plain text, row-major, with
+the paragraphs of a cell joined by a newline, cells by a tab and rows by a newline. It
+is read only by the numeric-token scan (§4.4) for `unsourced-number` and
+`source-missing`. `Shape.paragraphs` stays empty for tables, so `font-count`, the pack
+rules and every M1 rule see no table text, and the M1 `unsupported-content` advisory
+("table text is not read in M1") stays.
