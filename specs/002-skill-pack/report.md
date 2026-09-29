@@ -893,3 +893,79 @@ exit 1                                                   (no L-002 note)
   - Why: spec 001's `test_render_without_officecli_exits_1` asserts L-002 in exactly
     that case, and AC-2 does not allow changing it.
 
+---
+
+# Report A2 (in progress)
+
+## T-20 · B-7 measurement on LibreOffice 26.8.0.3 · STOPPED: the wrap margin differs
+
+- **Tool:** `tools/measure_lo.py` (dev only).
+  - The probe decks name the six portable families. Fontconfig resolved each to its
+    twin; the script checks that first and would stop otherwise (Q-44a).
+  - The decks go through keyline's own `render.convert_to_pdf` (the render engine's
+    soffice command), and glyph origins are read back with pypdfium2.
+- **Evidence:** `specs/002-skill-pack/evidence/lo-26.8.0.3-measurements.txt`. Every value
+  in it is tagged with `LibreOffice 26.8.0.3 680(Build:3)` (Q-44b). A second run gave the
+  same numbers.
+
+```
+$ python tools/measure_lo.py specs/002-skill-pack/evidence/lo-26.8.0.3-measurements.txt
+version: LibreOffice 26.8.0.3 680(Build:3)
+fc-match: Arial -> Liberation Sans, Times New Roman -> Liberation Serif, Courier New ->
+  Liberation Mono, Georgia -> Gelasio, Calibri -> Carlito, Cambria -> Caladea (all ok)
+against spec 002 §6.4 (LibreOffice 24.2):
+  pitch, Arial -> Liberation Sans: 1.2000 … 1.2015 em; §6.4 says 1.20 (±0.005): MATCHES
+  wrap, Arial bold 14 pt: 2 lines at 1.000x and 1.002x, 1 line at 1.005x and 1.010x: DIFFERS
+exit 2
+```
+
+### Line pitch · matches §6.4
+
+- **1.2000 em** at 24, 48 and 60 pt, regular and bold, for all six twins. This holds for
+  line breaks inside one paragraph and for separate paragraphs alike.
+- **1.2015 em at 13 pt,** for all six twins (15.62 pt instead of 15.60). LibreOffice
+  positions text in 1/100 mm, so this is rounding, and it is inside the ±0.005 em
+  tolerance.
+- **Also measured:** the first baseline sits 1.000 em (±0.001) below the box top, in
+  every twin. AC-13(b) will need this.
+
+### Wrap margin · differs from §6.4's 24.2 observation
+
+§6.4 says: a bold 14 pt label wraps to 2 lines at 1.000× and 1.002× its advance sum,
+but not at 1.005×. On 26.8.0.3, the smallest box that holds each bold 14 pt label on one
+line (as box width ÷ fontTools advance sum; scanned 0.9800 … 1.0100 in 0.0005 steps) is:
+
+| family (twin) | ACTIVE KEEPERS BY MONTH | median wait for a match | Oldest tree on the waitlist |
+|---|---|---|---|
+| Arial (Liberation Sans) | **1.0020** | 1.0030 | 1.0030 |
+| Times New Roman (Liberation Serif) | 1.0005 | 1.0010 | 1.0010 |
+| Courier New (Liberation Mono) | 1.0030 | 1.0030 | 1.0030 |
+| Georgia (Gelasio) | 1.0030 | 1.0030 | 1.0030 |
+| Calibri (Carlito) | 0.9985 | 0.9980 | 0.9990 |
+| Cambria (Caladea) | 0.9995 | 1.0000 | 1.0000 |
+
+- **The difference.** For Arial, two of the three labels match §6.4's description
+  exactly: they wrap at 1.002× and fit at 1.005×. "ACTIVE KEEPERS BY MONTH" already fits
+  at 1.0020×.
+- **Why this probably isn't a 24.2-vs-26.8 change.** The threshold depends on the
+  string. §6.4 doesn't record which label the 24.2 reviewer measured, so these numbers
+  can't be compared like for like.
+- **Carlito and Caladea** fit below their advance sums. Their layout comes out narrower
+  than the unkerned sum.
+- **What does not change.** Every family and label fits by **1.0030×**. §6.4's 0.99
+  margin accepts text only in a box at least 1/0.99 = **1.0101×** its advance sum, which
+  leaves at least 0.7 % slack in every case measured.
+
+### Proposal, for Tyler or the auditor to rule (B-7: no constant is set before that)
+
+1. Keep §6.4's wrap margin: a line fits when its advance sum ≤ 0.99 × the available
+   width. On 26.8.0.3 it is conservative for all six twins; the largest measured
+   threshold is 1.0030×.
+2. Set `line_pitch_em = 1.2` for all six twins, each table stored with
+   `LibreOffice 26.8.0.3 680(Build:3)` (Q-44b).
+3. Record in §6.4's place (as an amendment, if you want it in the spec) that on 26.8.0.3
+   the one-line threshold is 0.998× … 1.003× the advance sum, depending on the string
+   and the family. The 24.2 phrase "wraps at 1.002×" holds for some strings, not all.
+
+**T-21 … T-32 have not started.** They wait for this ruling, as T-20 says.
+
