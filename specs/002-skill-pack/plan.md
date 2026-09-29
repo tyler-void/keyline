@@ -720,6 +720,12 @@ see `report.md`, A1 fixes).
 - **T-20:** record the actual `soffice --version` at run time; if it is not 26.8.0.3,
   say so. The stop-and-report rule applies unchanged.
 
+**Rulings (audit 04, [audit-04-t20.md](audit-04-t20.md), amendment B-21):** keep the 0.99
+wrap margin; `line_pitch_em = 1.2` for all six twins, with 0.01 mm per line in the height
+test; the widened measurement (stress set, pack spacings) must pass B-21's two criteria
+(it did on 26.8.0.3, `e93fa4a`); the fit tables list each twin's missing Vietnamese
+letters, and the pen warns once per deck when text uses them (not a registry entry).
+
 42. **Q-42 · Specimen files for three voices** (B-8.13). *Proposal:*
     `fixtures/packs/swiss-specimen-presented.brief.toml` (voice `neutral`),
     `swiss-specimen-presented-night.brief.toml` (voice `night`) and
