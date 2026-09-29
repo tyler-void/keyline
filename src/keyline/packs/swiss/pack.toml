@@ -38,6 +38,20 @@ margin_y_emu = 549000              # 1.525 cm
 row_emu = 90000                    # 0.25 cm; 64 rows fill the content height
 rows = 64
 
+[theme]                            # the 12 theme slots, all palette values (§5.3)
+dk1 = "ink"
+lt1 = "paper"
+dk2 = "muted"
+lt2 = "hairline"
+accent1 = "accent"
+accent2 = "accent_on_ink"
+accent3 = "muted"
+accent4 = "hairline"
+accent5 = "ink"
+accent6 = "muted"
+hlink = "ink"                      # not accent: a link would spend the slide's accent budget (Q-20)
+folHlink = "muted"
+
 [keyline_rule]                     # the pack's one device, drawn by the pen on evidence slides
 color = "ink"
 row = 18
@@ -216,3 +230,20 @@ main = { col = 1, span = 10, row = 48, rows = 3 }
 title = { col = 1, span = 10, row = 8, rows = 24 }
 main = { col = 1, span = 10, row = 34, rows = 23 }
 footer = { col = 1, span = 12, row = 58, rows = 6 }
+
+# ---------------------------------------------------------------------------------------
+# Template placeholders (§5.3, plan Q-21). Every region that holds text is a placeholder;
+# the title region is the title placeholder, the others are body placeholders with a fixed
+# idx, so switching layouts in PowerPoint keeps text in the matching region. Each carries
+# the style below, so text typed into it by hand lands on the scale.
+[placeholders]
+idx = { main = 1, side = 2, footer = 3 }
+
+[placeholders.styles]
+"keyline:cover" = { main = "lede", footer = "source" }
+"keyline:section" = { main = "label" }
+"keyline:statement" = { main = "lede", footer = "source" }
+"keyline:evidence" = { main = "body", footer = "source" }
+"keyline:evidence:figure" = { main = "body", side = "body", footer = "source" }
+"keyline:quote" = { main = "label" }
+"keyline:close" = { main = "lede", footer = "source" }

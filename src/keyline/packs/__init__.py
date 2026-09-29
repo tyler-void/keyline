@@ -32,6 +32,20 @@ COMPONENTS = (
     "note",
 )
 WEIGHTS = ("regular", "bold")
+THEME_SLOTS = (
+    "dk1",
+    "lt1",
+    "dk2",
+    "lt2",
+    "accent1",
+    "accent2",
+    "accent3",
+    "accent4",
+    "accent5",
+    "accent6",
+    "hlink",
+    "folHlink",
+)
 SLIDE_W, SLIDE_H = 12192000, 6858000  # 16:9 (§5.3)
 
 
@@ -121,6 +135,9 @@ class Pack:
     surfaces: dict[str, Surface]
     grid: Grid
     keyline_rule: dict[str, Any]
+    theme: dict[str, str]  # theme slot (dk1 … folHlink) -> palette name
+    placeholder_idx: dict[str, int]  # non-title region name -> placeholder idx
+    placeholder_styles: dict[str, dict[str, str]]  # layout -> region -> style name
     styles: dict[str, dict[str, Style]]  # mode -> style name -> Style
     roles: dict[str, Role]
     regions: dict[str, dict[str, Region]]  # layout name -> region name -> Region
@@ -140,6 +157,9 @@ class Pack:
 
     def region_box(self, layout: str, region: str) -> Box:
         return self.grid.box(self.regions[layout][region])
+
+    def layout_role(self, layout: str) -> Role:
+        return self.roles[parse_layout(layout)[0]]
 
     def scale(self, mode: str) -> set[int]:
         """The mode's type scale as OOXML sizes (1/100 pt)."""
@@ -300,6 +320,36 @@ def _build(data: dict, directory: Path) -> Pack:
             if layout not in regions:
                 raise _fail(f"roles.{role.name}.layouts", f"no regions for {layout}")
 
+    theme = _get(data, "theme", dict, "top level")
+    if set(theme) != set(THEME_SLOTS):
+        raise _fail("theme", f"needs exactly the slots {', '.join(THEME_SLOTS)}")
+    for slot, pname in theme.items():
+        _names([pname], palette, f"theme.{slot}")
+    ph = _get(data, "placeholders", dict, "top level")
+    ph_idx = _get(ph, "idx", dict, "placeholders")
+    for region, idx in ph_idx.items():
+        if isinstance(idx, bool) or not isinstance(idx, int) or idx < 1:
+            raise _fail(f"placeholders.idx.{region}", "must be a positive integer")
+    if len(set(ph_idx.values())) != len(ph_idx):
+        raise _fail("placeholders.idx", "idx values must be unique")
+    ph_styles = _get(ph, "styles", dict, "placeholders")
+    for layout, rs in regions.items():
+        role = roles[parse_layout(layout)[0]]
+        styles_here = ph_styles.get(layout, {})
+        for region in rs:
+            if region == "title":
+                continue
+            where = f"placeholders.styles.{layout}.{region}"
+            if region not in ph_idx:
+                raise _fail("placeholders.idx", f"no idx for region {region!r}")
+            if region not in styles_here:
+                raise _fail(where, "missing")
+            sname = styles_here[region]
+            for mode in modes:
+                allowed = {s for ss in role.components[mode].values() for s in ss}
+                if sname not in allowed:
+                    raise _fail(where, f"style {sname!r} is not allowed on {role.name} in {mode}")
+
     return Pack(
         name=name,
         version=_get(data, "version", str, "top level"),
@@ -316,6 +366,9 @@ def _build(data: dict, directory: Path) -> Pack:
         surfaces=surfaces,
         grid=grid,
         keyline_rule=rule,
+        theme=dict(theme),
+        placeholder_idx=dict(ph_idx),
+        placeholder_styles={k: dict(v) for k, v in ph_styles.items()},
         styles=styles,
         roles=roles,
         regions=regions,
