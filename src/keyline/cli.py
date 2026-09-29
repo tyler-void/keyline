@@ -48,22 +48,52 @@ class UsageError(ValueError):
 
 
 def _context(args: argparse.Namespace):
-    """The pack (system) and voice from --pack and --voice (spec 002 §3.5, B-8.8)."""
+    """Mode, pack, voice and brief from the flags (spec 002 §3.5, B-8.8). `--brief`
+    supplies all of them; an explicit flag that disagrees with it is a conflict. With no
+    flag and no brief: presented mode (D-008), no pack. Returns (mode, LintContext)."""
+    from keyline.brief import BriefError
+    from keyline.brief import load as load_brief
     from keyline.context import EMPTY, LintContext
     from keyline.packs import PackError, resolve
 
-    if args.pack is None:
-        if args.voice is not None:
-            raise UsageError("--voice needs a pack (--pack or --brief)")
-        return EMPTY
-    if args.voice is None:
-        raise UsageError("pack rules need a voice (--voice or --brief)")
+    brief = None
+    if args.brief is not None:
+        try:
+            brief = load_brief(args.brief)
+        except BriefError as exc:
+            raise UsageError(f"{Path(args.brief).name}: {exc}") from exc
     try:
-        pack = resolve(args.pack, base=Path.cwd())
-        voice = pack.voice(args.voice, base=Path.cwd())
+        pack = resolve(args.pack, base=Path.cwd()) if args.pack is not None else None
     except PackError as exc:
         raise UsageError(str(exc)) from exc
-    return LintContext(pack=pack, voice=voice)
+
+    if brief is None:
+        mode = args.mode or "presented"
+        if pack is None:
+            if args.voice is not None:
+                raise UsageError("--voice needs a pack (--pack or --brief)")
+            return mode, EMPTY
+        if args.voice is None:
+            raise UsageError("pack rules need a voice (--voice or --brief)")
+        try:
+            voice = pack.voice(args.voice, base=Path.cwd())
+        except PackError as exc:
+            raise UsageError(str(exc)) from exc
+        return mode, LintContext(pack=pack, voice=voice)
+
+    if args.mode is not None and args.mode != brief.mode:
+        raise UsageError(f"mode conflict: --mode {args.mode}, brief says {brief.mode}")
+    if pack is not None and pack.directory != brief.pack.directory:  # plan Q-13
+        raise UsageError(f"pack conflict: --pack {args.pack}, brief says {brief.pack.name}")
+    if args.voice is not None:
+        try:
+            voice = brief.pack.voice(args.voice, base=Path.cwd())
+        except PackError as exc:
+            raise UsageError(str(exc)) from exc
+        if not voice.same_as(brief.voice):  # plan Q-35: by content, not by name
+            raise UsageError(f"voice conflict: --voice {args.voice}, brief says {brief.voice.name}")
+    ctx = LintContext(pack=brief.pack, voice=brief.voice, brief=brief, evidence=brief.evidence)
+    return brief.mode, ctx
 
 
 def _voice_notices(ctx, mode: str) -> None:
@@ -88,13 +118,13 @@ def _lint(path: str, mode: str, ctx=None):
 def _lint_command(args: argparse.Namespace):
     """Resolve the context, then lint; returns (result, None) or (None, exit code)."""
     try:
-        ctx = _context(args)
+        mode, ctx = _context(args)
     except UsageError as exc:
         _err(f"keyline: {exc}\n")
         return None, EXIT_SCAN_FAILED
-    _voice_notices(ctx, args.mode)
+    _voice_notices(ctx, mode)
     try:
-        return _lint(args.deck, args.mode, ctx), None
+        return _lint(args.deck, mode, ctx), None
     except ScanError as exc:
         _err(f"keyline: cannot scan {args.deck}: {exc}\n")
         return None, EXIT_SCAN_FAILED
@@ -219,6 +249,7 @@ def cmd_check(args: argparse.Namespace) -> int:
 
 
 def _pack_arguments(p: argparse.ArgumentParser) -> None:
+    p.add_argument("--brief", metavar="FILE", help="a brief: supplies mode, pack and voice")
     p.add_argument("--pack", metavar="NAME|DIR", help="a bundled pack name or a pack directory")
     p.add_argument(
         "--voice", metavar="NAME|FILE", help="a voice of the pack, or a voice file (.toml)"
@@ -239,7 +270,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("lint", help="run the rule registry on a .pptx", parents=[common])
     p.add_argument("deck")
-    p.add_argument("--mode", choices=MODES, default="presented")
+    p.add_argument("--mode", choices=MODES, default=None, help="default: presented (D-008)")
     _pack_arguments(p)
     p.add_argument("--json", action="store_true", help="write findings as JSON to stdout")
     p.set_defaults(func=cmd_lint)
@@ -266,7 +297,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("check", help="lint, then a best-effort render", parents=[common])
     p.add_argument("deck")
-    p.add_argument("--mode", choices=MODES, default="presented")
+    p.add_argument("--mode", choices=MODES, default=None, help="default: presented (D-008)")
     _pack_arguments(p)
     p.add_argument("-o", "--out", help="render directory (default: <deck>-render)")
     p.add_argument("--json", action="store_true")

@@ -30,5 +30,6 @@ def load_all() -> None:
     # the §4.3 and voice entries, which `keyline brief` reports (spec 002 §3.4).
     import_module("keyline.ooxml.adapter")
     import_module("keyline.brief")
+    import_module("keyline.briefcheck")
     for name in RULE_MODULES:
         import_module(f"keyline.rules.{name}")

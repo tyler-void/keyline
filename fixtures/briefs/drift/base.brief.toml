@@ -1,0 +1,46 @@
+# AC-8 (spec 002, amendment B-3): the brief of the drift decks. base.pptx follows it
+# exactly; each drift-*.pptx is base.pptx with one pinned change and one expected finding.
+# Evidence is the demo's read-only product.toml.
+schema = 1
+mode = "presented"
+pack = "swiss"
+voice = "neutral"
+evidence = ["../../../examples/bonsaihub/product.toml"]
+
+[direction]
+audience = "Demo-day judges"
+decision = "Back a slow dating app for bonsai trees"
+thesis = "Patient keepers, not fast swipes, keep trees alive"
+own_world = ["juniper", "copper wire", "moss", "a watering can"]
+motif = "One waiting tree, named on the cover and adopted on the close"
+
+[[slides]]
+role = "cover"
+headline = "BonsaiHub"
+reads = ["what BonsaiHub is"]
+
+[[slides]]
+role = "statement"
+headline = "Every tree deserves a patient keeper"
+reads = ["the claim"]
+notes = "Say it, then wait."
+
+[[slides]]
+role = "evidence"
+headline = "The waitlist grew faster than keepers could sign up"
+reads = ["how many trees wait"]
+evidence = ["waitlist_trees"]
+notes = "Twelve thousand four hundred trees."
+
+[[slides]]
+role = "evidence"
+headline = "Most keepers stay for the whole season"
+reads = ["how many keepers stay"]
+evidence = ["retention_90d"]
+notes = "Seventy-one percent after ninety days."
+
+[[slides]]
+role = "close"
+headline = "Put a keeper on every waiting tree"
+reads = ["the ask"]
+notes = "End on the ask."

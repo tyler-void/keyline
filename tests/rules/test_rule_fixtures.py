@@ -1,7 +1,8 @@
 """Every rule's positive and negative decks (constitution VI), driven by expect.toml.
 
 A case may name a `pack` and, since amendment B-8.8, must then name its `voice` (plan
-Q-36); the harness passes both to lint (spec 002 AC-2)."""
+Q-36), or a `brief` (a path relative to fixtures/rules), which supplies mode, pack and
+voice; the harness passes them to lint (spec 002 AC-2)."""
 
 import tomllib
 
@@ -22,6 +23,12 @@ def _parse(spec: str) -> tuple[str, str | None, str | None]:
 
 
 def _context(case) -> LintContext:
+    if "brief" in case:
+        from keyline.brief import load
+
+        brief = load(RULES / case["brief"])
+        assert case.get("mode", brief.mode) == brief.mode, "the brief decides the mode"
+        return LintContext(brief.pack, brief.voice, brief, brief.evidence)
     if "pack" not in case:
         assert "voice" not in case, "a voice needs a pack"
         return EMPTY
@@ -49,7 +56,9 @@ def _id(c):
 
 @pytest.mark.parametrize("case", CASES, ids=[_id(c) for c in CASES])
 def test_rule_fixture(case):
-    result = lint_path(RULES / case["deck"], case.get("mode", "presented"), _context(case))
+    ctx = _context(case)
+    mode = ctx.brief.mode if ctx.brief else case.get("mode", "presented")
+    result = lint_path(RULES / case["deck"], mode, ctx)
     for spec in case.get("must", []):
         rule, shape, sev = _parse(spec)
         assert any(_matches(f, rule, shape, sev) for f in result.findings), (

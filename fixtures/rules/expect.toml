@@ -247,3 +247,41 @@ deck = "pack-voice-field.pptx"
 pack = "swiss"
 voice = "neutral"
 must = ["off-pack-font@-:warning", "off-palette-color@keyline:warning"]
+
+# ---------- spec 002 §4.5: deck vs brief, on the AC-8 drift decks (B-3) ----------
+# base.pptx is the negative for all six; each drift is the positive for one.
+[[case]]
+deck = "../briefs/drift/base.pptx"
+brief = "../briefs/drift/base.brief.toml"
+absent = ["brief-slide-count", "brief-role", "brief-headline", "unsourced-number",
+  "source-missing", "fiction-undisclosed"]
+
+[[case]]
+deck = "../briefs/drift/drift-headline.pptx"
+brief = "../briefs/drift/base.brief.toml"
+must = ["brief-headline@Title 1:warning"]
+
+[[case]]
+deck = "../briefs/drift/drift-slide-count.pptx"
+brief = "../briefs/drift/base.brief.toml"
+must = ["brief-slide-count@-:error"]
+
+[[case]]
+deck = "../briefs/drift/drift-unsourced.pptx"
+brief = "../briefs/drift/base.brief.toml"
+must = ["unsourced-number@Text Placeholder 2:warning"]
+
+[[case]]
+deck = "../briefs/drift/drift-source-missing.pptx"
+brief = "../briefs/drift/base.brief.toml"
+must = ["source-missing@-:warning"]
+
+[[case]]
+deck = "../briefs/drift/drift-undisclosed.pptx"
+brief = "../briefs/drift/base.brief.toml"
+must = ["fiction-undisclosed@-:warning"]
+
+[[case]]
+deck = "../briefs/drift/drift-role.pptx"
+brief = "../briefs/drift/base.brief.toml"
+must = ["brief-role@-:warning"]

@@ -37,7 +37,7 @@ ID_RE = re.compile(r"^[a-z0-9_]+$")
 NOTES_ROLES = ("statement", "evidence", "quote", "close")  # brief-notes (§4.3)
 NO_EVIDENCE_ROLES = ("section", "quote")  # no room for a source line (§5.2)
 MOOD_STRIP = ".,;:!?"
-RESEARCH_LOOK = "research §\"Editorial\" has become Claude's look: the Swiss pack needs hard guards"
+RESEARCH_LOOK = 'research §"Editorial" has become Claude\'s look: the Swiss pack needs hard guards'
 
 
 class BriefError(ValueError):
@@ -87,7 +87,7 @@ BRIEF_NOTES = _entry(
     "slide",
     "structure",
     "A presented statement, evidence, quote or close slide has no notes in the brief",
-    RESEARCH_CANON,
+    RESEARCH_TELLS,
 )
 BRIEF_HEADLINE_LONG = _entry(
     "brief-headline-long",
@@ -103,7 +103,7 @@ BRIEF_NO_STATEMENT = _entry(
     "deck",
     "structure",
     "A long presented brief has no statement slide",
-    RESEARCH_CANON,
+    RESEARCH_TELLS,
 )
 VOICE_CONTRAST = _entry(
     "voice-contrast",
@@ -433,9 +433,7 @@ def findings(brief: Brief) -> list[Finding]:
             )
     for item in brief.direction.own_world:
         if _mood_only(item, cfg.mood_words):
-            out.append(
-                BRIEF_MOOD.finding(0, None, f"own_world item {item!r} is only mood words")
-            )
+            out.append(BRIEF_MOOD.finding(0, None, f"own_world item {item!r} is only mood words"))
     count = len(brief.slides)
     if (
         presented
@@ -492,4 +490,3 @@ def _apply_accepted(out: list[Finding], brief: Brief) -> list[Finding]:
         else f
         for f in out
     ]
-
