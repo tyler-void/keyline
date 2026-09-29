@@ -3,6 +3,7 @@ with no slides, an unusable -o and a timeout fail cleanly; a reused output direc
 loses the earlier render's PNGs."""
 
 import os
+import shutil
 import stat
 import time
 
@@ -137,10 +138,12 @@ def test_a_reused_output_directory_loses_the_old_pngs(tmp_path):
 
 
 @pytest.mark.skipif(os.name != "posix", reason="process groups")
+@pytest.mark.skipif(shutil.which("sleep") is None, reason="no sleep binary for the stand-in")
 def test_a_timeout_kills_the_group_and_removes_the_temp_directory(tmp_path, monkeypatch):
     pidfile = tmp_path / "child.pid"
     fake = tmp_path / "soffice"
-    fake.write_text(f"#!/bin/sh\nsleep 300 &\necho $! > {pidfile}\nwait\n")
+    sleep = shutil.which("sleep")
+    fake.write_text(f"#!/bin/sh\n{sleep} 300 &\necho $! > {pidfile}\nwait\n")
     fake.chmod(fake.stat().st_mode | stat.S_IEXEC)
     made = []
     real_mkdtemp = render_mod.tempfile.mkdtemp

@@ -28,6 +28,8 @@ pytestmark = pytest.mark.skipif(sys.platform != "linux", reason="process groups 
 CLEAN = GOLDEN / "editorial-fixed.pptx"
 KPI = GOLDEN / "kpi-recipe.pptx"
 SLEEP = shutil.which("sleep")
+# the stand-in engines start a real `sleep`; with no PATH (the empty-PATH run) they cannot
+needs_sleep = pytest.mark.skipif(SLEEP is None, reason="no sleep binary for the stand-ins")
 
 
 def _stand_in(bin_dir: Path, name: str, pidfile: Path, version: str) -> None:
@@ -106,6 +108,7 @@ def _no_keyline_dirs(tmpdir):
 # signals, with stand-in engines (runs anywhere, CI included)
 
 
+@needs_sleep
 @pytest.mark.parametrize("sig", [signal.SIGINT, signal.SIGTERM])
 def test_a_signal_mid_validate_cleans_up(tmp_path, sig):
     pidfile = tmp_path / "child.pid"
@@ -124,6 +127,7 @@ def test_a_signal_mid_validate_cleans_up(tmp_path, sig):
     assert b"internal error" not in err
 
 
+@needs_sleep
 @pytest.mark.parametrize("sig", [signal.SIGINT, signal.SIGTERM])
 def test_a_signal_mid_render_cleans_up(tmp_path, sig):
     pytest.importorskip("pypdfium2")  # the rasterizer that makes auto pick LibreOffice
@@ -210,6 +214,7 @@ def test_engine_output_that_is_not_utf8(tmp_path):
     assert validator["token"] == "NO_VALIDATOR" and "�" in validator["detail"]
 
 
+@needs_sleep
 def test_a_validate_timeout_kills_the_group(tmp_path, monkeypatch):
     pidfile = tmp_path / "child.pid"
     _stand_in(tmp_path / "bin", "officecli", pidfile, "1.0.152")
