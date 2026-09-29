@@ -273,34 +273,48 @@ def _render_officecli(deck: Path, out_dir: Path, count: int) -> list[Path]:
     return pngs
 
 
+def convert_to_pdf(deck: Path, soffice: str, tmp_dir: Path) -> Path:
+    """The deck as a PDF, hidden slides included (B-13), in `tmp_dir`.
+
+    soffice converts a private copy with a fixed name (`deck.pptx`, or `deck.pptm` for a
+    .pptm deck; B-19), so a symlink, an odd name or a name ending in "." cannot change the
+    PDF's name, and the user's path never reaches the engine. The private profile and
+    --outdir are both kept (§7)."""
+    suffix = ".pptm" if deck.suffix.casefold() == ".pptm" else ".pptx"
+    copy = tmp_dir / f"deck{suffix}"
+    shutil.copyfile(deck, copy)
+    pdf_dir = tmp_dir / "pdf"
+    cmd = [
+        soffice,
+        "--headless",
+        "--norestore",
+        f"-env:UserInstallation={(tmp_dir / 'profile').as_uri()}",
+        "--convert-to",
+        LO_PDF_FILTER,
+        "--outdir",
+        str(pdf_dir),
+        str(copy),
+    ]
+    try:
+        proc = _run(cmd, LO_TIMEOUT_S)
+    except subprocess.TimeoutExpired as exc:
+        raise RenderError(f"libreoffice timed out after {LO_TIMEOUT_S} s") from exc
+    pdf = pdf_dir / "deck.pdf"
+    if not pdf.is_file():
+        detail = (proc.stderr or proc.stdout).strip().splitlines()
+        reason = detail[-1] if detail else f"exit {proc.returncode}"
+        raise RenderError(f"libreoffice wrote no PDF: {reason}")
+    return pdf
+
+
 def _render_libreoffice(
     deck: Path, out_dir: Path, soffice: str, raster: str, count: int
 ) -> list[Path]:
-    """soffice to PDF with a private profile and --outdir (both kept, §7), hidden slides
-    included (B-13), then one PNG per page. The temp directory is always removed."""
+    """The deck to PDF (convert_to_pdf), then one PNG per page. The temp directory is
+    always removed."""
     tmp_dir = Path(tempfile.mkdtemp(prefix="keyline-lo-"))
     try:
-        pdf_dir = tmp_dir / "pdf"
-        cmd = [
-            soffice,
-            "--headless",
-            "--norestore",
-            f"-env:UserInstallation={(tmp_dir / 'profile').as_uri()}",
-            "--convert-to",
-            LO_PDF_FILTER,
-            "--outdir",
-            str(pdf_dir),
-            str(deck.resolve()),
-        ]
-        try:
-            proc = _run(cmd, LO_TIMEOUT_S)
-        except subprocess.TimeoutExpired as exc:
-            raise RenderError(f"libreoffice timed out after {LO_TIMEOUT_S} s") from exc
-        pdf = pdf_dir / f"{deck.stem}.pdf"
-        if not pdf.is_file():
-            detail = (proc.stderr or proc.stdout).strip().splitlines()
-            reason = detail[-1] if detail else f"exit {proc.returncode}"
-            raise RenderError(f"libreoffice wrote no PDF: {reason}")
+        pdf = convert_to_pdf(deck, soffice, tmp_dir)
         pngs = rasterize(pdf, out_dir, raster, tmp_dir, count)
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)

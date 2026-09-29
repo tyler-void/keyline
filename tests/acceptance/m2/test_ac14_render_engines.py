@@ -136,4 +136,4 @@ def test_the_libreoffice_command_keeps_the_profile_and_outdir(tmp_path, monkeypa
     assert cmd[:3] == ["soffice", "--headless", "--norestore"]
     assert cmd[3].startswith("-env:UserInstallation=file://")
     assert cmd[4:7] == ["--convert-to", render_mod.LO_PDF_FILTER, "--outdir"]
-    assert cmd[-1] == str(KPI.resolve())
+    assert cmd[-1].endswith("/deck.pptx") and cmd[-1] != str(KPI.resolve())  # B-19
