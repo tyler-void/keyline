@@ -20,7 +20,7 @@ fallbacks for when the user asks for a plain look or gives no subject world.
 | voice | fonts | paper | ink | accent | where it comes from |
 |---|---|---|---|---|---|
 | `neutral` | Arial | `F2F2F0` | `111111` | `CC3322` | uncoated offset paper, printing ink, a Swiss signal red |
-| `night` | Arial | `16181B` | `ECECE8` | `F0B429` | a darkened room, chalk on slate, an instrument lamp |
+| `night` | Arial | `16181B` | `ECECEC` | `F0B429` | a darkened room, chalk on slate, an instrument lamp |
 | `field` | Georgia | `EEF2EE` | `16251D` | `1D4FB8` | a field notebook, forest ink, a survey marker |
 
 Each voice's `[why]` table gives the reason for every role. In `night`, paper is the
@@ -29,9 +29,10 @@ every voice.
 
 ## Why these choices
 
-- **Paper is never cream.** A cream paper with a terracotta accent is the documented
+- **No background is cream.** A cream paper with a terracotta accent is the documented
   "Claude look" (L-007). The `neutral` paper is `F2F2F0` (CIELAB C\* 1.02), and
-  `voice-claude-look` checks every other voice.
+  `voice-claude-look` checks every background role of every voice: paper, and ink,
+  which is the section surface (B-9).
 - **The accent must read at any size.** Every (text colour, surface) pair a voice allows
   reaches 4.5 : 1, which `voice-contrast` checks. That is why the ink surface has its own
   accent value: in `neutral`, `CC3322` reaches 4.61 : 1 on paper but only 3.65 : 1 on

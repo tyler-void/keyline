@@ -3,12 +3,14 @@ modes. Under B-8.7, invariants 1, 2, 3 and 7 are checked on the system, 4 (contr
 (fonts) per voice, and 5 (neutral paper, no terracotta) on the neutral voice only; every
 other voice is covered by voice-claude-look. The template part is test_ac09_templates.py."""
 
+from dataclasses import replace
+
 import pytest
 
 from keyline.colorspace import hsl, lab
 from keyline.config import load as load_cfg
 from keyline.packs import resolve
-from keyline.packs.voices import claude_look, contrast_pairs, low_contrast
+from keyline.packs.voices import background_roles, claude_look, contrast_pairs, low_contrast
 from keyline.rules.claude_look_palette import is_cream, is_terracotta
 from keyline.rules.font_count import family
 from keyline.rules.text_contrast import contrast
@@ -19,7 +21,7 @@ NOT_BODY = {"label", "numeral", "source"}  # the pen writes each as its own capp
 MODES = ("presented", "read")
 
 # B-8.10, normative values and the auditor's checks: contrast ratios, then the paper's
-# CIELAB L*, C*, h and the accent's HSL hue.
+# CIELAB L*, C*, h and the accent's HSL hue. night's ink is B-9's ECECEC (was ECECE8).
 STOCK = {
     "neutral": (
         ("Arial", "Arial"),
@@ -29,8 +31,8 @@ STOCK = {
     ),
     "night": (
         ("Arial", "Arial"),
-        ("16181B", "ECECE8", "A3A7AC", "3D4148", "F0B429", "8A5A00"),
-        (15.02, 7.35, 9.54, 15.02, 5.00),
+        ("16181B", "ECECEC", "A3A7AC", "3D4148", "F0B429", "8A5A00"),
+        (15.06, 7.35, 9.54, 15.06, 5.02),
         (8.2, 2.44, 267, 42),
     ),
     "field": (
@@ -117,13 +119,17 @@ def test_5_neutral_paper_and_no_terracotta():
 
 @pytest.mark.parametrize("name", sorted(STOCK))
 def test_5b_no_stock_voice_trips_voice_claude_look(name):
-    look = claude_look(VOICES[name], load_cfg())
-    assert not look.cream_paper and look.terracotta == ()
+    look = claude_look(PACK, VOICES[name], load_cfg())
+    assert look.cream == () and look.terracotta == ()
 
 
-def test_night_ink_is_in_the_cream_band():
-    """Plan Q-34: pinned, not a finding. voice-claude-look tests paper only."""
-    assert is_cream(VOICES["night"].hex("ink"), load_cfg())
+def test_voice_claude_look_tests_every_background_role():
+    """B-9 (Q-34 overruled): ink is the section surface, so a cream ink counts too."""
+    assert background_roles(PACK) == ("paper", "ink")
+    old_night = replace(VOICES["night"], palette={**VOICES["night"].palette, "ink": "ECECE8"})
+    assert is_cream("ECECE8", load_cfg())
+    assert claude_look(PACK, old_night, load_cfg()).cream == ("ink",)
+    assert not is_cream(VOICES["night"].hex("ink"), load_cfg())
 
 
 @pytest.mark.parametrize("name", sorted(STOCK))

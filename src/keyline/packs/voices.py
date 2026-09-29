@@ -209,20 +209,27 @@ def low_contrast(pack: Pack, voice: Voice, cfg) -> list[Pair]:
 
 @dataclass(frozen=True)
 class ClaudeLook:
-    cream_paper: bool
+    cream: tuple[str, ...]  # background roles whose value is in the cream band
     terracotta: tuple[str, ...]  # palette roles whose value is in the terracotta band
 
     @property
     def fires(self) -> bool:
-        return self.cream_paper
+        return bool(self.cream)
 
 
-def claude_look(voice: Voice, cfg) -> ClaudeLook:
-    """`voice-claude-look`: cream paper (warning with a terracotta, else advisory)."""
+def background_roles(pack: Pack) -> tuple[str, ...]:
+    """The palette roles a system surface uses as its background (Swiss: paper, ink)."""
+    return tuple(dict.fromkeys(s.background for s in pack.surfaces.values()))
+
+
+def claude_look(pack: Pack, voice: Voice, cfg) -> ClaudeLook:
+    """`voice-claude-look`: a cream background (warning with a terracotta, else advisory).
+    Every background role is tested, not only paper (amendment B-9)."""
     from keyline.rules.claude_look_palette import is_cream, is_terracotta
 
+    cream = tuple(r for r in background_roles(pack) if is_cream(voice.hex(r), cfg))
     terracotta = tuple(r for r, v in voice.palette.items() if is_terracotta(v, cfg))
-    return ClaudeLook(is_cream(voice.hex("paper"), cfg), terracotta)
+    return ClaudeLook(cream, terracotta)
 
 
 def missing_why(pack: Pack, voice: Voice) -> list[str]:
@@ -250,11 +257,12 @@ def contrast_message(pair: Pair, voice: Voice, need) -> str:
 
 
 def claude_look_message(look: ClaudeLook, voice: Voice) -> str:
-    paper = f"paper #{voice.hex('paper')} is cream"
+    cream = " and ".join(f"{r} #{voice.hex(r)}" for r in look.cream)
+    cream += " are cream" if len(look.cream) > 1 else " is cream"
     if not look.terracotta:
-        return f"{paper}; no terracotta"
+        return f"{cream}; no terracotta"
     role = look.terracotta[0]
-    return f"{paper} and {role} #{voice.hex(role)} is a terracotta"
+    return f"{cream} and {role} #{voice.hex(role)} is a terracotta"
 
 
 def notices(pack: Pack, voice: Voice, cfg) -> list[str]:
@@ -267,7 +275,7 @@ def notices(pack: Pack, voice: Voice, cfg) -> list[str]:
         need = cfg.contrast_normal
         for pair in low_contrast(pack, voice, cfg):
             out.append(f"voice {voice.name}: voice-contrast: {contrast_message(pair, voice, need)}")
-    look = claude_look(voice, cfg)
+    look = claude_look(pack, voice, cfg)
     if look.fires and look.terracotta and "voice-claude-look" not in accepted:
         out.append(f"voice {voice.name}: voice-claude-look: {claude_look_message(look, voice)}")
     return out

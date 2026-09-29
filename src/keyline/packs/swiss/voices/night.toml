@@ -9,11 +9,11 @@ text = "Arial"
 
 [palette]
 paper = "16181B"                   # CIELAB L* 8.2, C* 2.44, h 267
-ink = "ECECE8"                     # 15.02 : 1 on paper
+ink = "ECECEC"                     # 15.06 : 1 on paper; C* 0.00 (B-9: not cream)
 muted = "A3A7AC"                   # 7.35 : 1 on paper
 hairline = "3D4148"                # rules only, never text
 accent = "F0B429"                  # 9.54 : 1 on paper; HSL hue 42 (amber)
-accent_on_ink = "8A5A00"           # 5.00 : 1 on ink
+accent_on_ink = "8A5A00"           # 5.02 : 1 on ink
 
 [why]
 paper = "a darkened room, for screens in low light"

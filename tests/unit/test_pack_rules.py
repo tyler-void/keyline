@@ -72,3 +72,22 @@ def test_pack_rules_need_both_system_and_voice():
     deck = _deck([_text(2, font="Georgia", color="333333", size=2000)])
     assert _run(deck, LintContext(pack=PACK)) == []
     assert {f.rule for f in _run(deck)} == {"off-palette-color", "off-scale-size", "off-pack-font"}
+
+
+def test_off_pack_font_matches_exact_names():
+    """Amendment B-11: casefold and whitespace collapse only; a style word is a new family.
+    font-count keeps A-8, so it still counts "Arial Black" as Arial."""
+    found = {
+        f.message.split(" is not")[0]
+        for f in _run(
+            _deck(
+                [_text(2, font="Arial Black")],
+                [_text(3, font="  ARIAL  ")],
+                [_text(4, font="Arial Narrow")],
+            )
+        )
+    }
+    assert found == {"Arial Black", "Arial Narrow"}
+    from keyline.rules.font_count import family as a8_family
+
+    assert a8_family("Arial Black") == a8_family("Arial Narrow") == "arial"

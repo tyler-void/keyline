@@ -560,7 +560,8 @@ def off_scale_size_neg():
 @deck("off-pack-font--pos")
 def off_pack_font_pos():
     prs = d.swiss_deck()
-    for n, font in enumerate(("Calibri", "Calibri", "Georgia")):
+    # B-11: exact names, so Arial Black and Arial Narrow are not Arial
+    for n, font in enumerate(("Calibri", "Calibri", "Georgia", "Arial Black", "Arial Narrow")):
         s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE)
         d.text(s, 1.5, 6, 20, 2, f"Line {n + 1} in {font}", size=24, font=font, name="line")
     return prs
@@ -571,7 +572,8 @@ def off_pack_font_neg():
     prs = d.swiss_deck()
     s = d.swiss_slide(prs, "keyline:evidence", title=HEADLINE, main="Theme fonts resolve")
     d.text(s, 1.5, 12, 20, 2, "Named Arial", size=24, font="Arial", name="arial")
-    d.text(s, 1.5, 15, 20, 2, "Arial Bold is Arial", size=24, font="Arial Bold", name="bold")
+    # B-11: case and whitespace do not matter; a style word does (see the --pos deck)
+    d.text(s, 1.5, 15, 20, 2, "Spelled loosely", size=24, font="  ARIAL ", name="loose")
     return prs
 
 

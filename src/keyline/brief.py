@@ -121,9 +121,9 @@ VOICE_CLAUDE_LOOK = _entry(
     "warning",
     "deck",
     "color",
-    "The voice has cream paper and a terracotta colour (the Claude look)",
+    "The voice has a cream background and a terracotta colour (the Claude look)",
     "L-007",
-    "advisory when only the paper is cream, or when the voice or pack accepts it",
+    "advisory when only a background is cream, or when the voice or pack accepts it",
 )
 VOICE_WHY = _entry(
     "voice-why",
@@ -490,7 +490,7 @@ def voice_findings(pack: Pack, voice: Voice, cfg) -> list[Finding]:
                 threshold=float(need),
             )
         )
-    look = claude_look(voice, cfg)
+    look = claude_look(pack, voice, cfg)
     if look.fires:
         out.append(
             VOICE_CLAUDE_LOOK.finding(

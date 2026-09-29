@@ -123,12 +123,14 @@ def test_low_contrast_names_each_pair():
 
 
 def test_claude_look_states():
-    assert not claude_look(load(PACK, "neutral"), CFG).fires
+    assert not claude_look(PACK, load(PACK, "neutral"), CFG).fires
     cream = voice(lambda d: d["palette"].update(paper="F4F3EE"))
-    look = claude_look(cream, CFG)
-    assert look.fires and look.terracotta == ()  # advisory: cream alone
+    look = claude_look(PACK, cream, CFG)
+    assert look.fires and look.cream == ("paper",) and look.terracotta == ()  # advisory
     both = voice(lambda d: d["palette"].update(paper="F4F3EE", accent="C96442"))
-    assert claude_look(both, CFG).terracotta == ("accent",)  # warning
+    assert claude_look(PACK, both, CFG).terracotta == ("accent",)  # warning
+    dark = voice(lambda d: d["palette"].update(paper="16181B", ink="F4F3EE"))
+    assert claude_look(PACK, dark, CFG).cream == ("ink",)  # B-9: the section surface
 
 
 def test_missing_why_per_role():

@@ -4,9 +4,15 @@ from __future__ import annotations
 
 from keyline.registry import rule
 from keyline.rules._pack import PACK_DATA
-from keyline.rules.font_count import family
 
 MAX_SLIDES_LISTED = 5
+
+
+def family(name: str) -> str:
+    """Exact family names after casefold and whitespace collapse, as voice fonts are
+    matched (amendment B-11): A-8's weight stripping would let "Arial Black" and "Arial
+    Narrow" pass as Arial. font-count keeps A-8."""
+    return " ".join(name.split()).casefold()
 
 
 @rule(
