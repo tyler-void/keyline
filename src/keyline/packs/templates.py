@@ -209,13 +209,13 @@ def _presentation(pack: Pack, voice: Voice, mode: str) -> bytes:
     )
 
 
-def _core(pack: Pack, mode: str) -> bytes:
+def _core(pack: Pack, voice: Voice, mode: str) -> bytes:
     return _xml(
         '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/'
         'metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" '
         'xmlns:dcterms="http://purl.org/dc/terms/" '
         'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">'
-        f"<dc:title>keyline {pack.name} ({mode})</dc:title><dc:creator></dc:creator>"
+        f"<dc:title>keyline {pack.name} {voice.name} ({mode})</dc:title><dc:creator></dc:creator>"
         "<cp:lastModifiedBy></cp:lastModifiedBy><cp:revision>1</cp:revision>"
         f'<dcterms:created xsi:type="dcterms:W3CDTF">{CREATED}</dcterms:created>'
         f'<dcterms:modified xsi:type="dcterms:W3CDTF">{CREATED}</dcterms:modified>'
@@ -263,7 +263,7 @@ def build(pack: Pack, voice: Voice, mode: str) -> bytes:
                 ]
             ),
         ),
-        ("docProps/core.xml", _core(pack, mode)),
+        ("docProps/core.xml", _core(pack, voice, mode)),
         (
             "docProps/app.xml",
             _xml(
