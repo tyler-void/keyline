@@ -65,21 +65,52 @@ are adjusted below; the new questions are plan Q-26 … Q-41.
 | T-18 | ⚑ **A1 acceptance sweep.** AC-1 (**35** entries: 32 + 3 voice ids, B-8.6), AC-2 (baseline identity; the stress re-lint table; the list of M1 test changes; `test_rules_listing` accepts the same 35), an import-boundary test (lint never imports `pptx`, `pypdfium2`, `keyline.pen`, `keyline.render`); README, `docs/adapter.md` (roles, table text), CHANGELOG | every A1 AC test green locally; CI green |
 | T-19 | **Report A1** in `report.md`: each A1 AC (AC-1 … AC-9, AC-14, AC-14b, AC-16) with command, output excerpt and PASS/FAIL; for B-8: the three stock voices' checks with the computed numbers, the neutral templates rebuilt byte-identically, the 35 registry entries, and which fit-table twins are present here; Deviations; Open questions. Then **stop** for the A1 audit (Q-15) | review by Tyler; audit by the external session |
 
-## Phase A2: pen (tasks written after the A1 audit)
+## Phase A2: pen
 
-Outline, from plan §3: pen public API and token guard; region model; python-pptx writer
-module; verbs (`text`, `bullets`, `figure`, `table`, `chart_bar`, `image`,
-`attribution`, `source`, `note`, `notes`); fit tables generator and estimator;
-determinism (zip, core properties, chart workbook, axis ids); fit tables for all six
-`portable_fonts` families (B-8.11); specimen briefs, evidence and decks in three voices
-(B-8.13); AC-8 repeated on a pen-built deck; AC-10 … AC-13, AC-15; report A2; G-1.
+Written after audit 02 (FIX, then A2), from plan §3 and the audit's "Carry into A2". The
+metric twins of all six portable families are installed on Tyler's machine (Q-41;
+`report.md`, A1 fixes). **A2 implementation waits for Tyler.**
+
+### Measure first
+
+| id | task | done when |
+|---|---|---|
+| T-20 | ⚑ **B-7 measurement on LibreOffice 26.8.0.3** (Q-44). `tools/measure_lo.py` (dev only) builds probe decks with python-pptx and converts them with the same soffice command as the render engine. It then reads glyph positions from the PDF with pypdfium2 and measures: line pitch as a multiple of size at 13, 24, 48 and 60 pt, regular and bold, for each of the six metric twins; and the wrap margin, as the line count of a bold 14 pt label in a box 1.000×, 1.002×, 1.005× and 1.010× its advance sum (fontTools). It prints a table with the LibreOffice version, and the output goes into report A2 against §6.4's 24.2 values (1.2 em; wraps at 1.000× and 1.002×, not at 1.005×). If 26.8 differs, **stop and report**: no fit constant is set until Tyler or the auditor rules | the script's output is committed under `specs/002-skill-pack/evidence/`, and any difference is reported and ruled |
+
+### Fit
+
+| id | task | done when |
+|---|---|---|
+| T-21 | ⚑ **Fit tables for the six twins (B-8.11, Q-44).** `tools/gen_fit_tables.py` (fontTools, dev only) writes `src/keyline/fit/tables/<twin>-{regular,bold}.json`: per-codepoint advances in units per em, the maximum advance, and `line_pitch_em` from T-20's ruling. Each table records the source file's name, version and licence, and so does `NOTICE`. Rebuilding is byte-stable | tables for Liberation Sans, Serif and Mono, Gelasio, Carlito and Caladea; `NOTICE` lists all six; a rebuild is byte-identical |
+| T-22 | **Estimator (§6.4).** `fit/__init__.py`: the width of a string as rendered (caps, tracking × size per character; a missing character uses the maximum advance), `marL` and table cell margins subtracted, greedy wrapping at the margin T-20 settles, line pitch × the style's line spacing plus `spcBef`/`spcAft`, and bullets and tables as §6.4 says. It raises `DoesNotFit` with "needs N lines, region holds M". AC-13(a): committed test strings (Latin, Vietnamese with diacritics, digits, caps with tracking) against Pillow `ImageFont.Layout.BASIC` at 1000 px, for each twin whose TTF is present (the others skip by name) | `tests/unit/test_fit.py`; `test_ac13a_fit_widths.py` gives ratios in [0.995, 1.25] for all six twins here |
+
+### Pen
+
+| id | task | done when |
+|---|---|---|
+| T-23 | ⚑ **Pen skeleton and writer isolation (§6.1, D-015, Q-21, Q-45, Q-46).** `keyline.pen` exposes `Deck`, `PenError`, `DoesNotFit` and `EvidenceError`; `_api`, `_regions` and `_writer_pptx` are internal, and only `_writer_pptx` imports python-pptx. `Deck(pack=…, mode=…, voice=…, evidence=None)` and `Deck.from_brief(path)` build the voice's template in memory (B-8.9). The pen **refuses a voice with an error-level `voice-*` finding** (`PenError`, audit 02 on Q-29). `deck.next()` / `deck.add(role, headline, notes=None)` put the headline in the title placeholder (the quote slide's headline in the `quote` style, with no added quote marks). Unfilled placeholders are removed. The keyline rule is drawn on evidence slides. `_check_token()` rejects hex, `NNpt`, `NNcm`, `NNin`, `NNpx` and `NNemu` | AC-10 part 1: a test inspects every public signature and return type |
+| T-24 | **Text verbs.** `text`, `bullets` (≤ `bullets_max`), `source` (built from the brief slide's evidence sources, first-seen order, "; ", "Source: "), `note` (the disclosure on cover and close by default; "Note: " added if missing), `notes`, `attribution`. One component per region; style and component allowed by the role and mode; caption caps; no italic, no centering, `noAutofit`, `wrap="square"`, zero insets; every text checked by the estimator | AC-10's `PenError` cases for these verbs, and `DoesNotFit` naming lines needed against lines available |
+| T-25 | ⚑ **`figure()` with sub-boxes** (audit 01 note, carried by audit 02; Q-43). The numeral and the label are two shapes, each with its own box inside the figure region. At most `numerals_max` per slide; a `series` entry raises `PenError`; `accent=True` counts against `accent_budget` | AC-10's figure cases; the two boxes lie inside the region and do not overlap |
+| T-26 | **`table`, `chart_bar`, `image` (§6.1, §6.6).** Tables: hairline rules, no fills, header cells in `label` capped at `caption_exempt_words`. Charts from a `series` entry: pack fonts and the voice's colours, muted bars, at most one highlight in accent (counted against the budget), no legend, direct labels; axis ids rewritten to positive deterministic UInt32s with `axId`/`crossAx` kept paired. Images fitted without cropping, `alt` written to `descr` | unit tests per verb; `officecli validate` 0 errors on a chart deck (skips without OfficeCLI) |
+| T-27 | **Determinism (§6.5).** Save through `zipnorm`; core properties from the template, author and last-modified-by from the argument; each chart workbook's `core.xml` set to the template's `created` and its inner zip normalised | building a deck with a chart twice gives identical bytes |
+
+### Specimens and acceptance
+
+| id | task | done when |
+|---|---|---|
+| T-28 | ⚑ **Specimens in three voices (B-8.13, Q-42).** `fixtures/packs/swiss-specimen.evidence.toml`, and three briefs: presented in `neutral`, presented in `night`, read in `field`. Each has one slide per role, uses every verb, and has real sentences about the pack. They are built by a committed script with `Deck.from_brief` | AC-11: each builds twice byte-identically. AC-12: `keyline brief` exits 0 and `check --brief` exits 0 on each, with no `adapter-unresolved` and no `ooxml-invalid` (OfficeCLI present) |
+| T-29 | **AC-8 again, and core purity (B-3, AC-15).** The drift base is rebuilt with the pen from its brief and the six drifts re-applied, each giving exactly its one finding. A subprocess runs `keyline lint --brief` on the presented specimen and asserts that neither `pptx` nor `pypdfium2` is in `sys.modules` | `test_ac08_drift_pen.py`, `test_ac15_core_purity.py` |
+| T-30 | **AC-13(b) fit stress.** A deck with every text at the longest length the estimator accepts for its region, rendered with LibreOffice (its version recorded, B-7): no text ink falls outside its region box by more than 2 px at 1280 px | `test_ac13b_fit_stress.py` (skips without LibreOffice) |
+| T-31 | **A2 acceptance sweep.** AC-10 … AC-13 and AC-15; the M1 baseline unchanged; the import boundary still holds (lint never imports `keyline.pen`); README and CHANGELOG | every A2 AC test green locally; CI green |
+| T-32 | **Report A2** in `report.md`: each A2 AC with command, output and PASS/FAIL; T-20's measurements; the three contact sheets. Then **G-1** (Tyler: the three specimen contact sheets; both templates and the specimens opened in PowerPoint, noting any repair prompt (B-6); a new text box on the `night` specimen is readable (Q-33)), in parallel with the A2 audit. **Stop** | review by Tyler; audit by the external session |
 
 ## Phase B: skill (tasks written after the A2 audit)
 
 Outline, from plan §4: `skill/keyline/` (SKILL.md, references, `kl.py`);
 the voice step (B-8.15); `tools/gen_docs.py`; `tools/build_skill.py`; the BonsaiHub demo
 with inline voices (B-8.14) in a fresh session with G-2a (Q-16); AC-17 … AC-23; report B;
-G-2.
+G-2. `references/check.md` carries the known limits: B-5, audit 02's FX-8 list, and source
+lines inside table cells (B-12, continued), as the `numtokens` docstring lists them.
 
 ## Acceptance map
 
@@ -92,10 +123,14 @@ G-2.
 | AC-5 | A1 | T-05 |
 | AC-6 | A1 | T-06 |
 | AC-7 | A1 | T-12 (with the voice, B-8.4, B-8.5) |
-| AC-8 | A1 (repeated in A2) | T-13, T-14 |
+| AC-8 | A1 (repeated in A2) | T-13, T-14; T-29 |
 | AC-9 | A1 | T-08, T-08r, T-09, T-09r |
 | AC-14 | A1 | T-15 |
 | AC-14b | A1 | T-16 |
 | AC-16 | A1 | T-17 |
-| AC-10 … AC-13, AC-15 | A2 | — |
+| AC-10 | A2 | T-23, T-24, T-25, T-26 |
+| AC-11 | A2 | T-27, T-28 |
+| AC-12 | A2 | T-26, T-28 |
+| AC-13 | A2 | T-20, T-21, T-22 (a); T-30 (b) |
+| AC-15 | A2 | T-29 |
 | AC-17 … AC-23 | B | — |

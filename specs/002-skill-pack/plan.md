@@ -8,6 +8,10 @@
   2026-09-29): a pack is one system plus voices. It arrived after T-09 part 2 had landed
   (`b35ff05`), so it reworks T-08 and T-09 and adjusts T-10, T-12, T-17 and T-18. The
   sections below are updated in place; the new ambiguities are Q-26 … Q-41.
+- **Audit 02** ([audit-02-a1.md](audit-02-a1.md), 2026-09-29) of phase A1: FIX, then A2.
+  Its rulings on Q-24 and Q-26 … Q-41 are marked below; amendments B-9 … B-15 are in the
+  spec's amendment log; the fixes are in [`report.md`](report.md) (A1 fixes). The A2
+  tasks follow §3 and the audit's "Carry into A2".
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -390,7 +394,14 @@ voice are unioned (Q-31).
 
 ---
 
-## 3. Phase A2: pen, fit, determinism (plan only)
+## 3. Phase A2: pen, fit, determinism
+
+Tasks T-20 … T-32 in [`tasks.md`](tasks.md). From audit 02's "Carry into A2": B-7's
+measurement on LibreOffice 26.8.0.3 comes first, before any fit constant is used; the
+numeral and the label of `figure()` each get their own box inside the figure region;
+the pen refuses a voice with an error-level `voice-*` finding (Q-29); AC-8 runs again
+on a pen-built deck (B-3). B-8.11 and B-8.13 add fit tables for all six portable families
+and specimens in three voices.
 
 - **Public API (`keyline.pen`):** `Deck.from_brief(path)`, `Deck(pack, mode, voice,
   evidence=None)` (B-8.9: the deck builds its voice's template in memory), `deck.next()`, `deck.add(role, headline, notes=None)`, the builder's
@@ -581,10 +592,19 @@ Each has a proposal; implementation follows the proposal unless Tyler rules othe
     of the art" does not. *Proposal:* as specified.
 24. **Q-24 · `accepted`.** *Proposal:* any registry id, downgraded to advisory only
     when that pack is in effect.
+    **Ruling (audit 02): superseded by B-10.** Only `acceptable_rules`, each with a reason.
 25. **Q-25 · Cream ratio denominator.** *Proposal:* all slides; unknown backgrounds are
     not cream.
 
 ### B-8 questions (2026-09-29)
+
+**Rulings (audit 02):** accepted: Q-26, Q-27, Q-28, Q-30 (with `fullmatch`, B-12 item 1),
+Q-32 (a schema error under B-12 item 4), Q-33 (G-1 checks in PowerPoint that a new text
+box on the `night` specimen is readable), Q-35 (for the CLI; a brief's `voice` is a name
+only, B-12 item 3), Q-36 … Q-40. Q-29: (a), (b) and (d) accepted; (c) stands, and in A2
+the pen refuses (`PenError`) a voice with an error-level `voice-*` finding. **Q-31
+overruled** by B-10; **Q-34 overruled** by B-9. Q-41: install the twins before A2 (done;
+see `report.md`, A1 fixes).
 
 26. **Q-26 · Template files and the `templates` key.** Templates are now built per
     (system, voice, mode) in memory (B-8.9), so the system cannot name fixed files, and
@@ -671,3 +691,29 @@ Each has a proposal; implementation follows the proposal unless Tyler rules othe
     `FONT_SUBSTITUTED` for those three here. *Proposal:* report A1 records it; before
     A2, Tyler decides whether to install them here (system packages and Gelasio's
     upstream release) or let AC-13(a) skip them by name.
+
+### A2 questions (2026-09-29, with the A2 tasks)
+
+42. **Q-42 · Specimen files for three voices** (B-8.13). *Proposal:*
+    `fixtures/packs/swiss-specimen-presented.brief.toml` (voice `neutral`),
+    `swiss-specimen-presented-night.brief.toml` (voice `night`) and
+    `swiss-specimen-read.brief.toml` (voice `field`), one shared
+    `swiss-specimen.evidence.toml`, and decks with the same stems. AC-11 and AC-12 apply
+    to all three.
+43. **Q-43 · Figure sub-boxes.** §6.3 says a pen shape's box is its full region box; the
+    audit asks for separate boxes for the numeral and the label. *Proposal:* the
+    numeral's box is the top of the figure region, one numeral line tall (size × line
+    pitch, rounded up to whole grid rows); the label's box is the rest of the region
+    below it. Together they cover the region, so `dead-band` still sees the layout's
+    composition, and neither shape is body text.
+44. **Q-44 · Where the B-7 measurements go.** *Proposal:* `tools/measure_lo.py` output is
+    committed as evidence, `line_pitch_em` is stored per twin in its width table (as
+    §6.4 says for Liberation Sans), and the wrap margin is one constant in the
+    estimator. Values differing from §6.4's 24.2 figures wait for a ruling (B-7).
+45. **Q-45 · The brief-less `Deck` needs a voice** (B-8). *Proposal:* `Deck(pack=…,
+    mode=…, voice=…, evidence=None)` with `voice` required (a name of the pack or a
+    voice file, as `--voice`); `Deck.from_brief(path)` takes the brief's voice.
+46. **Q-46 · The pen's template.** *Proposal:* the pen builds its voice's template in
+    memory (`templates.build(pack, voice, mode)`) and opens it with python-pptx; the
+    committed neutral files are for inspection and tests only.
+

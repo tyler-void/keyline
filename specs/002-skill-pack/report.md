@@ -690,6 +690,39 @@ $ pytest -q tests/unit/test_numtokens.py
 38 passed
 ```
 
+### Metric twins installed (Q-41)
+
+Gelasio came from its upstream repository, whose TTFs sit in `fonts/ttf` (it publishes no
+releases), into `~/.local/share/fonts/gelasio/`, with no sudo:
+
+```
+$ sha256sum ~/.local/share/fonts/gelasio/*.ttf
+e0ef3addf1acf35f5c6aef2be00d0a2c01363bf70a5950e16650976051a0c462  Gelasio-Bold.ttf
+48c797fbe0e07c48a18cb962e7bdfa23f19618327dddf54093265328dc9eb39d  Gelasio-Regular.ttf
+$ fc-cache -f && fc-match Georgia && fc-match "Georgia:bold"
+Gelasio-Regular.ttf: "Gelasio" "Regular"
+Gelasio-Bold.ttf: "Gelasio" "Bold"
+```
+
+Carlito and Caladea were already installed as system packages (`sudo pacman -S
+ttf-carlito ttf-caladea`; `pacman -Qi` shows them installed on 2026-09-29 at 16:05 +07,
+before this step):
+
+```
+$ fc-match Calibri; fc-match Cambria
+Carlito-Regular.ttf: "Carlito" "Regular"
+Caladea-Regular.ttf: "Caladea" "Regular"
+$ keyline doctor | grep FONT
+FONT_OK             Arial: fc-match gives Liberation Sans
+FONT_OK             Times New Roman: fc-match gives Liberation Serif
+FONT_OK             Courier New: fc-match gives Liberation Mono
+FONT_OK             Georgia: fc-match gives Gelasio
+FONT_OK             Calibri: fc-match gives Carlito
+FONT_OK             Cambria: fc-match gives Caladea
+```
+
+So all six families' twins are present here, and A2's AC-13(a) can cover each of them.
+
 ### Open questions (audit 02)
 
 1. **X-17 in the amendment log.** The `--pack NAME` rule is implemented but was not
