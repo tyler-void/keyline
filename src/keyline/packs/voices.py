@@ -11,7 +11,6 @@ belong to the brief (T-12). Pure data: no deck, no python-pptx.
 from __future__ import annotations
 
 import re
-import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -19,8 +18,8 @@ from typing import Any
 from keyline.colorspace import hsl, lab
 from keyline.packs import Pack, PackError, check_accepted
 
-NAME_RE = re.compile(r"^[a-z0-9-]+$")
-HEX_RE = re.compile(r"^[0-9A-Fa-f]{6}$")
+NAME_RE = re.compile(r"[a-z0-9-]+")  # both matched with fullmatch (B-12 item 1)
+HEX_RE = re.compile(r"[0-9A-Fa-f]{6}")
 INLINE = "inline"
 
 
@@ -80,27 +79,26 @@ def load(pack: Pack, name_or_path: str | Path, base: Path | None = None) -> Voic
         path = Path(name_or_path)
         if not path.is_absolute() and base is not None:
             path = base / path
-        if not path.is_file():
+        if not path.exists():
             raise VoiceError(f"voice file not found: {name_or_path}")
         return _load_file(pack, path, name=None)
     name = str(name_or_path)
     path = pack.directory / "voices" / f"{name}.toml"
-    if not NAME_RE.match(name) or not path.is_file():
+    if not NAME_RE.fullmatch(name) or not path.is_file():
         known = ", ".join(pack.voices()) or "none"
         raise VoiceError(f"unknown voice {name!r} for pack {pack.name} (voices: {known})")
     return _load_file(pack, path, name=name)
 
 
 def _load_file(pack: Pack, path: Path, name: str | None) -> Voice:
-    try:
-        data = tomllib.loads(path.read_text(encoding="utf-8"))
-    except tomllib.TOMLDecodeError as exc:
-        raise VoiceError(f"voice {path.name} is not valid TOML: {exc}") from exc
+    from keyline.brief import read_toml
+
+    data = read_toml(path, "voice file", VoiceError)
     where = f"voice {path.name}"
     if data.get("schema") != 1:
         raise VoiceError(f"{where}: schema must be 1")
     stated = data.get("name")
-    if not isinstance(stated, str) or not NAME_RE.match(stated):
+    if not isinstance(stated, str) or not NAME_RE.fullmatch(stated):
         raise VoiceError(f"{where}: name must match {NAME_RE.pattern}")
     if stated != path.stem:
         raise VoiceError(f"{where}: name {stated!r} must equal the file name {path.stem!r}")
@@ -140,7 +138,7 @@ def parse(
     palette = {}
     for role in roles:
         value = raw[role]
-        if not isinstance(value, str) or not HEX_RE.match(value):
+        if not isinstance(value, str) or not HEX_RE.fullmatch(value):
             raise VoiceError(f"{where}: palette.{role} {value!r} is not 6-digit hex (RRGGBB)")
         palette[role] = value.upper()
     for accent in pack.accents:  # plan Q-32: an accent value must mean only "accent"

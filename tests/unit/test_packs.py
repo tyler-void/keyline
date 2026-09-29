@@ -21,7 +21,7 @@ def test_bundled_and_resolve():
     assert bundled() == ["swiss"]
     assert resolve("swiss").name == "swiss"
     assert resolve(SWISS).directory == SWISS.resolve()
-    assert resolve("swiss", base=SWISS.parent).name == "swiss"  # a directory relative to base
+    assert resolve("./swiss", base=SWISS.parent).name == "swiss"  # a directory relative to base
     with pytest.raises(PackError, match="pack not found: nope"):
         resolve("nope")
 

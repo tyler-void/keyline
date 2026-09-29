@@ -68,6 +68,9 @@ def _context(args: argparse.Namespace):
 
     if brief is None:
         mode = args.mode or "presented"
+        if pack is not None and mode not in pack.modes:  # B-12 item 6: B-4 on the CLI path
+            modes = ", ".join(pack.modes)
+            raise UsageError(f"mode: pack {pack.name} has no {mode} mode ({modes})")
         if pack is None:
             if args.voice is not None:
                 raise UsageError("--voice needs a pack (--pack or --brief)")

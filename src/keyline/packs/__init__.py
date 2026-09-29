@@ -9,7 +9,8 @@ code needs from it (region boxes in EMU). It never imports python-pptx.
 
 from __future__ import annotations
 
-import tomllib
+import math
+import re
 from dataclasses import dataclass, field
 from fractions import Fraction
 from pathlib import Path
@@ -49,6 +50,7 @@ THEME_SLOTS = (
     "folHlink",
 )
 SLIDE_W, SLIDE_H = 12192000, 6858000  # 16:9 (§5.3)
+NAME_RE = re.compile(r"[a-z0-9-]+")  # pack names; matched with fullmatch (B-12 item 1)
 
 
 class PackError(ValueError):
@@ -199,27 +201,31 @@ def bundled() -> list[str]:
     return sorted(p.parent.name for p in BUNDLED.glob("*/pack.toml"))
 
 
+def is_pack_path(name_or_dir: str | Path) -> bool:
+    """A bare name means a bundled pack; a path needs a separator or a leading "." (audit
+    02, X-17), so a local directory can never shadow a bundled pack."""
+    text = str(name_or_dir)
+    return isinstance(name_or_dir, Path) or "/" in text or "\\" in text or text.startswith(".")
+
+
 def resolve(name_or_dir: str | Path, base: Path | None = None) -> Pack:
-    """A pack directory (relative to `base` when given) or a bundled pack name."""
-    candidate = Path(name_or_dir)
-    if not candidate.is_absolute() and base is not None:
-        candidate = base / candidate
-    if (candidate / "pack.toml").is_file():
-        return load(candidate)
-    name = str(name_or_dir)
-    if "/" not in name and "\\" not in name and (BUNDLED / name / "pack.toml").is_file():
-        return load(BUNDLED / name)
+    """A bundled pack by name, or a pack directory (relative to `base` when given)."""
+    if is_pack_path(name_or_dir):
+        candidate = Path(name_or_dir)
+        if not candidate.is_absolute() and base is not None:
+            candidate = base / candidate
+        if (candidate / "pack.toml").exists():
+            return load(candidate)
+    elif NAME_RE.fullmatch(str(name_or_dir)) and (BUNDLED / str(name_or_dir)).is_dir():
+        return load(BUNDLED / str(name_or_dir))
     raise PackError(f"pack not found: {name_or_dir}")
 
 
 def load(directory: str | Path) -> Pack:
+    from keyline.brief import read_toml
+
     directory = Path(directory).resolve()
-    try:
-        data = tomllib.loads((directory / "pack.toml").read_text(encoding="utf-8"))
-    except FileNotFoundError as exc:
-        raise PackError(f"no pack.toml in {directory}") from exc
-    except tomllib.TOMLDecodeError as exc:
-        raise PackError(f"{directory.name}/pack.toml is not valid TOML: {exc}") from exc
+    data = read_toml(directory / "pack.toml", f"{directory.name}/pack.toml", PackError)
     return _build(data, directory)
 
 
@@ -227,7 +233,15 @@ def _fail(where: str, why: str) -> PackError:
     return PackError(f"pack.toml: {where}: {why}")
 
 
+def _table(value: Any, where: str) -> dict:
+    """Every table the loader walks is type-checked (amendment B-12 item 5)."""
+    if not isinstance(value, dict):
+        raise _fail(where, "must be a table")
+    return value
+
+
 def _get(d: dict, key: str, kind: type | tuple, where: str) -> Any:
+    _table(d, where)
     if key not in d:
         raise _fail(where, f"missing key {key!r}")
     value = d[key]
@@ -241,7 +255,18 @@ def _get(d: dict, key: str, kind: type | tuple, where: str) -> Any:
 def _number(value: Any, where: str) -> Fraction:
     if isinstance(value, bool) or not isinstance(value, int | float):
         raise _fail(where, "must be a number")
+    if isinstance(value, float) and not math.isfinite(value):
+        raise _fail(where, "must be a finite number")
     return Fraction(repr(value)) if isinstance(value, float) else Fraction(value)
+
+
+def _int(d: dict, key: str, where: str, *, minimum: int, default: int | None = None) -> int:
+    if default is not None and key not in d:
+        return default
+    value = _get(d, key, int, where)
+    if value < minimum:
+        raise _fail(f"{where}.{key}", f"must be at least {minimum}")
+    return value
 
 
 def _names(values: Any, known: dict | set, where: str) -> tuple[str, ...]:
@@ -257,7 +282,12 @@ def _build(data: dict, directory: Path) -> Pack:
     if data.get("schema") != 1:
         raise _fail("schema", "must be 1")
     name = _get(data, "name", str, "top level")
+    if not NAME_RE.fullmatch(name):
+        raise _fail("name", f"must match {NAME_RE.pattern}")
+    _get(data, "version", str, "top level")
     modes = _names(_get(data, "modes", list, "top level"), set(MODES), "modes")
+    if not modes:
+        raise _fail("modes", "must name at least one mode")
     for moved in ("palette", "fonts", "templates"):  # B-8: they belong to voices now
         if moved in data:
             raise _fail(moved, "belongs to a voice, not the system (B-8)")
@@ -266,7 +296,7 @@ def _build(data: dict, directory: Path) -> Pack:
         raise _fail("palette_roles", "roles must be unique")
     palette_set = set(palette)
     accents = _names(_get(data, "accents", list, "top level"), palette_set, "accents")
-    budget = _get(data, "accent_budget", int, "top level")
+    budget = _int(data, "accent_budget", "top level", minimum=0)
     containers = _get(data, "containers", str, "top level")
     if containers not in ("rules", "boxes", "none"):
         raise _fail("containers", "must be rules, boxes or none")
@@ -290,10 +320,10 @@ def _build(data: dict, directory: Path) -> Pack:
 
     g = _get(data, "grid", dict, "top level")
     grid = Grid(
-        *(
-            _get(g, k, int, "grid")
-            for k in ("columns", "gutter_emu", "margin_x_emu", "margin_y_emu", "row_emu", "rows")
-        )
+        _int(g, "columns", "grid", minimum=1),
+        *(_int(g, k, "grid", minimum=0) for k in ("gutter_emu", "margin_x_emu", "margin_y_emu")),
+        _int(g, "row_emu", "grid", minimum=1),
+        _int(g, "rows", "grid", minimum=1),
     )
     if grid.margin_y_emu * 2 + grid.rows * grid.row_emu != SLIDE_H:
         raise _fail("grid", "margins and rows must fill the slide height exactly")
@@ -306,25 +336,30 @@ def _build(data: dict, directory: Path) -> Pack:
         raise _fail("grid", "columns, gutters and margins must fill the slide width exactly")
     rule = _get(data, "keyline_rule", dict, "top level")
     _names([_get(rule, "color", str, "keyline_rule")], palette_set, "keyline_rule.color")
+    if _int(rule, "row", "keyline_rule", minimum=0) >= grid.rows:
+        raise _fail("keyline_rule.row", "is outside the grid")
+    _int(rule, "thickness_emu", "keyline_rule", minimum=1)
 
     styles: dict[str, dict[str, Style]] = {}
     raw_styles = _get(data, "styles", dict, "top level")
     for mode in modes:
         styles[mode] = {}
         for sname, s in _get(raw_styles, mode, dict, "styles").items():
+            _table(s, f"styles.{mode}.{sname}")
             styles[mode][sname] = _style(sname, s, f"styles.{mode}.{sname}", surfaces)
     if len({frozenset(v) for v in styles.values()}) > 1:
         raise _fail("styles", "every mode must define the same styles")
 
     roles = {}
     for rname, r in _get(data, "roles", dict, "top level").items():
-        roles[rname] = _role(rname, r, modes, styles, surfaces)
+        roles[rname] = _role(rname, _table(r, f"roles.{rname}"), modes, styles, surfaces)
     missing = set(ROLES) - set(roles)
     if missing:
         raise _fail("roles", f"missing roles: {', '.join(sorted(missing))}")
 
     regions: dict[str, dict[str, Region]] = {}
     for lname, rs in _get(data, "regions", dict, "top level").items():
+        rs = _table(rs, f"regions.{lname}")
         regions[lname] = {k: _region(v, f"regions.{lname}.{k}", grid) for k, v in rs.items()}
         if "title" not in regions[lname]:
             raise _fail(f"regions.{lname}", "needs a title region")
@@ -347,6 +382,10 @@ def _build(data: dict, directory: Path) -> Pack:
     if len(set(ph_idx.values())) != len(ph_idx):
         raise _fail("placeholders.idx", "idx values must be unique")
     ph_styles = _get(ph, "styles", dict, "placeholders")
+    for layout, rs in ph_styles.items():
+        for region, sname in _table(rs, f"placeholders.styles.{layout}").items():
+            if not isinstance(sname, str):
+                raise _fail(f"placeholders.styles.{layout}.{region}", "must be a style name")
     for layout, rs in regions.items():
         role = roles[parse_layout(layout)[0]]
         styles_here = ph_styles.get(layout, {})
@@ -419,14 +458,25 @@ def _style(name: str, s: dict, where: str, surfaces: dict) -> Style:
         size_pt=size,
         weight=weight,
         color=dict(color),
-        caps=bool(s.get("caps", False)),
+        caps=_flag(s, "caps", where),
         tracking=_number(s.get("tracking", 0), f"{where}.tracking"),
         line_spacing=line_spacing,
-        space_before_pt=_number(s.get("space_before_pt", 0), f"{where}.space_before_pt"),
-        space_after_pt=_number(s.get("space_after_pt", 0), f"{where}.space_after_pt"),
-        bullet_indent_emu=int(s.get("bullet_indent_emu", 0)),
-        bullet_marker=str(s.get("bullet_marker", "")),
+        space_before_pt=_spacing(s, "space_before_pt", where),
+        space_after_pt=_spacing(s, "space_after_pt", where),
+        bullet_indent_emu=_int(s, "bullet_indent_emu", where, minimum=0, default=0),
+        bullet_marker=_get(s, "bullet_marker", str, where) if "bullet_marker" in s else "",
     )
+
+
+def _flag(s: dict, key: str, where: str) -> bool:
+    return _get(s, key, bool, where) if key in s else False
+
+
+def _spacing(s: dict, key: str, where: str) -> Fraction:
+    value = _number(s.get(key, 0), f"{where}.{key}")
+    if value < 0:
+        raise _fail(f"{where}.{key}", "must not be negative")
+    return value
 
 
 def _role(name: str, r: dict, modes: tuple, styles: dict, surfaces: dict) -> Role:
@@ -437,7 +487,7 @@ def _role(name: str, r: dict, modes: tuple, styles: dict, surfaces: dict) -> Rol
     if surface not in surfaces:
         raise _fail(f"{where}.surface", f"unknown surface {surface!r}")
     title = _get(r, "title", str, where)
-    layouts = tuple(_get(r, "layouts", list, where))
+    layouts = _names(_get(r, "layouts", list, where), _AnyName(), f"{where}.layouts")
     for layout in layouts:
         if parse_layout(layout)[0] != name:
             raise _fail(f"{where}.layouts", f"{layout!r} is not a {name} layout name")
@@ -449,6 +499,9 @@ def _role(name: str, r: dict, modes: tuple, styles: dict, surfaces: dict) -> Rol
         if surface not in styles[mode][title].color:
             raise _fail(f"{where}.title", f"style {title} has no colour on {surface}")
         cm = _get(comps, mode, dict, f"{where}.components")
+        for comp, allowed in cm.items():
+            if not isinstance(allowed, list):
+                raise _fail(f"{where}.components.{mode}.{comp}", "must be a list of styles")
         components[mode] = {}
         for comp, allowed in cm.items():
             if comp not in COMPONENTS:

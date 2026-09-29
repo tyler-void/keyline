@@ -25,6 +25,7 @@ from keyline.packs.voices import (
     claude_look,
     claude_look_message,
     contrast_message,
+    is_path,
     low_contrast,
     missing_why,
 )
@@ -33,7 +34,9 @@ from keyline.registry import RuleSpec, register
 from keyline.roles import ROLES
 from keyline.rules._common import RESEARCH_CANON, RESEARCH_TELLS, words
 
-ID_RE = re.compile(r"^[a-z0-9_]+$")
+ID_RE = re.compile(r"[a-z0-9_]+")  # matched with fullmatch (B-12 item 1)
+# B-12 item 2: the spine is one line per slide (every break str.splitlines() honours)
+LINE_BREAKS = "\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029"
 NOTES_ROLES = ("statement", "evidence", "quote", "close")  # brief-notes (§4.3)
 NO_EVIDENCE_ROLES = ("section", "quote")  # no room for a source line (§5.2)
 MOOD_STRIP = ".,;:!?"
@@ -203,13 +206,29 @@ class Brief:
 # loading
 
 
-def _read_toml(path: Path, what: str) -> dict:
+def read_toml(path: Path, what: str, error: type[Exception] = ValueError) -> dict:
+    """A TOML file, or `error` with one line (B-12 item 7): missing, a directory,
+    unreadable, not UTF-8, not TOML, or nested beyond the parser's limit."""
     try:
-        return tomllib.loads(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
     except FileNotFoundError as exc:
-        raise BriefError(f"{what} not found: {path.name}") from exc
-    except (tomllib.TOMLDecodeError, UnicodeDecodeError) as exc:
-        raise BriefError(f"{what} {path.name} is not valid TOML: {exc}") from exc
+        raise error(f"{what} not found: {path.name}") from exc
+    except IsADirectoryError as exc:
+        raise error(f"{what} {path.name} is a directory, not a file") from exc
+    except UnicodeDecodeError as exc:
+        raise error(f"{what} {path.name} is not UTF-8") from exc
+    except OSError as exc:
+        raise error(f"{what} {path.name} cannot be read: {exc.strerror or exc}") from exc
+    try:
+        return tomllib.loads(text)
+    except tomllib.TOMLDecodeError as exc:
+        raise error(f"{what} {path.name} is not valid TOML: {exc}") from exc
+    except RecursionError as exc:
+        raise error(f"{what} {path.name} nests too deeply") from exc
+
+
+def _read_toml(path: Path, what: str) -> dict:
+    return read_toml(path, what, BriefError)
 
 
 def _str(d: dict, key: str, where: str, *, required: bool = True, empty: bool = False) -> str:
@@ -295,6 +314,8 @@ def _voice(data: dict, pack: Pack, path: Path) -> Voice:
         raise BriefError("voice: missing; name a voice (voice = NAME) or give a [voice] table")
     try:
         if isinstance(raw, str):
+            if is_path(raw):  # B-12 item 3: a brief names a voice; only --voice takes a file
+                raise BriefError(f"voice: {raw!r} is a path; a brief names a voice of its pack")
             return pack.voice(raw)
         if isinstance(raw, dict):
             return parse_voice(raw, pack, where="[voice]")
@@ -314,6 +335,12 @@ def _slide(index: int, s: Any, evidence: EvidenceSet) -> BriefSlide:
     reads = _strings(s, "reads", where)
     if not reads:
         raise BriefError(f"{where}reads: needs at least one item")
+    for key, text in [
+        ("headline", headline),
+        *((f"reads[{i}]", r) for i, r in enumerate(reads, 1)),
+    ]:
+        if any(ch in LINE_BREAKS for ch in text):
+            raise BriefError(f"{where}{key}: must be one line (it contains a line break)")
     ids = _strings(s, "evidence", where, required=False)
     for eid in ids:
         if eid not in evidence.entries:
@@ -360,7 +387,7 @@ def _entry_of(e: Any, where: str, cfg) -> Entry:
     if not isinstance(e, dict):
         raise BriefError(f"{where.rstrip('.')}: must be a table")
     eid = _str(e, "id", where)
-    if not ID_RE.match(eid):
+    if not ID_RE.fullmatch(eid):
         raise BriefError(f"{where}id: {eid!r} must match {ID_RE.pattern}")
     label = _str(e, "label", where)
     n = words(label)
