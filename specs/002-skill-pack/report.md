@@ -4,6 +4,8 @@
   amendments B-1 … B-8. Phase A2 (pen) and B (skill) have not started.
 - **Branch:** `002-skill-pack`, head `c335e18` when this report was written (the report's
   own commit follows it). Branched from `main` at `678c69a`.
+- **Audit 02** ([audit-02-a1.md](audit-02-a1.md), verdict FIX): the fixes FX-1 … FX-8
+  and amendments B-9 … B-15 are in [A1 fixes](#a1-fixes-audit-02) at the end.
 - **Status:** every A1 acceptance criterion passes locally, including the LibreOffice and
   OfficeCLI paths. CI (Python 3.11 and 3.13, no LibreOffice, no OfficeCLI) is green on
   every task commit except `ff1717f` (T-12), which failed `ruff format --check`; see
@@ -480,3 +482,220 @@ https://github.com/SorkinType/Gelasio (OFL-1.1), which is where doctor points.
 4. **G-1 and B-6:** only the neutral templates are committed. For the PowerPoint check,
    `python src/keyline/packs/swiss/src/build_templates.py OUT_DIR --voice night` (or
    `field`) writes the others.
+
+---
+
+## A1 fixes (audit 02)
+
+Audit 02 ruled FIX, then A2. Its file is committed unchanged (`59360d1`, with B-9 … B-15
+appended to the spec's amendment log and L-016 to the lessons). Each fix below landed
+as its own commit with its tests. After each one, `pytest -q` passed in full and
+`python tools/m1_baseline.py` printed `baseline: no differences`.
+
+| FX | commit | full suite after it | M1 baseline |
+|---|---|---|---|
+| FX-1 | `5ed1fb6` | 619 passed | no differences |
+| FX-2 | `9ad763d` | 624 passed | no differences |
+| FX-3 | `6efe82f` | 631 passed | no differences |
+| FX-4 | `af571f3` | 636 passed | no differences |
+| FX-5 | `275082a` | 657 passed | no differences |
+| FX-6 | `3275883` | 662 passed | no differences |
+| FX-7 | `3477af7` | 663 passed | no differences |
+| FX-8 | `a910810` | 669 passed | no differences |
+
+### FX-1 · OfficeCLI works on private copies (B-14, L-016) · `5ed1fb6`
+
+- **What changed.** `keyline.officecli.private_copy()` copies the deck to a
+  unique file in a fresh temp directory. It runs `officecli close <copy>` in a `finally`
+  and deletes the directory. The validate step and the officecli render engine use it,
+  so the user's path never reaches OfficeCLI.
+- **Reproduced first.** `officecli validate P` on a clean deck, then on the bogus deck
+  copied to the same `P`, printed "Validation passed" twice; after `officecli close P` it
+  reported the error.
+- **Test:** `tests/acceptance/m2/test_fx1_officecli_copies.py`: sequences A (clean, then
+  bogus) and B (bogus, then clean) on one path, each run twice in a row; four `check`
+  runs in a row on a replaced deck (0, 1, 0, 1 `ooxml-invalid`); an officecli render
+  after the deck is replaced (5 PNGs for the new 5-slide deck); the copy is unique,
+  released and deleted, also when the call fails.
+
+```
+$ git stash push src/keyline/validate.py && pytest -q tests/acceptance/m2/test_fx1_officecli_copies.py -k sequence
+4 failed, 4 deselected in 5.93s          (the old code: every sequence run is stale)
+$ git stash pop && pytest -q tests/acceptance/m2/test_fx1_officecli_copies.py
+8 passed in 35.08s
+```
+
+### FX-2 · `accepted` is limited to `acceptable_rules` (B-10) · `9ad763d`
+
+- **What changed.** `thresholds.toml` `[common]` gains `acceptable_rules`. `accepted`
+  in a pack, a pack voice or an inline voice may list only those rules, each with a
+  non-empty reason. Anything else is a schema error.
+- **Test:** `tests/unit/test_packs.py` and `test_voices.py` (gates and empty reasons are
+  refused); the brief fixture `voice-accepted-gate.brief.toml`;
+  `test_cli_resolution.py::test_a_brief_cannot_waive_a_gate` (the audit's scenario:
+  `drift-undisclosed.pptx` with a waiving brief now exits 1, not 0).
+
+```
+$ keyline brief fixtures/briefs/voice-accepted-gate.brief.toml
+keyline: voice-accepted-gate.brief.toml: [voice]: accepted[1]: 'fiction-undisclosed' cannot be accepted (only claude-look-palette, voice-claude-look, closing-cliche, accent-overuse, equal-card-row, title-underline)
+exit 1
+```
+
+### FX-3 · Render numbering and hygiene (B-13) · `6efe82f`
+
+- **What changed.**
+  - LibreOffice exports hidden slides (`impress_pdf_Export` with
+    `ExportHiddenSlides`). Checked on 26.8.0.3: a 4-slide deck with one hidden slide gave
+    3 pages before and 4 after.
+  - A page count that still differs is a render failure.
+  - A deck with no slides fails with "deck has no slides".
+  - Earlier `slide-*.png` and `contact.png` files are removed.
+  - Names are zero-padded to max(2, digits).
+  - `soffice` and `officecli` run in their own process group, which a timeout kills
+    whole, and LibreOffice's temp directory is always removed.
+  - An unusable `-o` is a render failure.
+- **Test:** `tests/acceptance/m2/test_fx3_render.py`:
+  - the hidden-slide deck's four PNGs are pixel-identical to the unhidden deck's;
+  - padding, including a 3-page PDF named for a 120-slide deck;
+  - the 0-slide neutral template;
+  - `-o` on a file;
+  - a reused directory;
+  - a fake `soffice` whose child process dies on a 1 s timeout.
+
+```
+$ keyline render src/keyline/packs/swiss/swiss-neutral-presented.pptx -o $SCRATCH/e
+keyline: render failed: deck has no slides
+exit 1
+$ keyline check fixtures/golden/kpi-recipe.pptx -o $SCRATCH/afile --no-validate     (afile is a file)
+7 findings: 0 error, 7 warning, 0 advisory
+render: skipped (cannot use $SCRATCH/afile as the output directory: File exists)
+exit 2
+$ pytest -q tests/acceptance/m2/test_fx3_render.py
+7 passed
+```
+
+### FX-4 · The validate step's error paths (B-15) · `af571f3`
+
+- **What changed.**
+  - OfficeCLI's error envelope becomes one `ooxml-invalid` finding that carries its
+    message, with the copy's name replaced by the deck's.
+  - An officecli that cannot start (`officecli --version` fails) counts as absent:
+    `validate: skipped (officecli could not run: …)`, `auto` render does not pick it,
+    and doctor reports `NO_VALIDATOR` with the reason.
+  - `test_auto_falls_back_to_officecli_without_soffice` links node beside an npm
+    launcher, or skips when node is unreachable.
+- **Test:** `tests/acceptance/m2/test_fx4_validate_errors.py`:
+  - the envelope as parsed, and named after the user's deck;
+  - the real OfficeCLI on a file it cannot open;
+  - a stand-in `officecli` that exits 127 with "env: 'node': No such file or directory",
+    for `check`, render and doctor.
+
+```
+$ pytest -q tests/acceptance/m2/test_fx4_validate_errors.py
+5 passed
+```
+
+### FX-5 · Schema tightening and one-line errors (B-12 items 1–7, X-17) · `275082a`
+
+- **What changed.**
+  - `fullmatch` for ids, hex values and names.
+  - Line breaks in headlines and reads are refused.
+  - A brief's `voice` must be a name.
+  - Every table in the pack loader is type-checked, with non-empty `modes`, bounded
+    grid integers and finite numbers.
+  - `--pack` with a mode the pack lacks is exit 1.
+  - Paths that are directories, unreadable, not UTF-8 or nested too deeply are one-line
+    errors.
+  - `--pack NAME` always means the bundled pack (a path needs a separator or a leading
+    `.`).
+- **Test:**
+  - `tests/unit/test_schema_mutations.py` replaces every value in `pack.toml` (6,524
+    mutants), the neutral voice, the valid brief and both evidence files with 13 other
+    values, or removes it. Each gives a one-line error or loads. Before the fix, 498
+    pack mutants and 3 brief mutants raised other exceptions.
+  - `tests/acceptance/m2/test_fx5_schema.py` has one test per item.
+
+```
+$ keyline brief fixtures/briefs
+keyline: briefs: brief briefs is a directory, not a file
+exit 1
+$ keyline lint fixtures/briefs/drift/base.pptx --pack fixtures/briefs/packs/presented-only --voice src/keyline/packs/swiss/voices/neutral.toml --mode read
+keyline: mode: pack swiss has no read mode (presented)
+exit 1
+$ pytest -q tests/acceptance/m2/test_fx5_schema.py tests/unit/test_schema_mutations.py
+21 passed
+```
+
+The `--pack NAME` rule (X-17) is part of FX-5 in the audit but sits outside its
+"B-12 (to append)" paragraph, so it is not in the spec's amendment log; see *Open
+questions (audit 02)*.
+
+### FX-6 · Source and note line detection (B-12, continued) · `3275883`
+
+- **What changed.** The spaces before the colon may be any Unicode space separator (Zs)
+  or a tab. Classification reads the paragraph's inked text, the text §4.4 scans.
+- **Test:** `tests/unit/test_line_kind.py`:
+  - no-break, narrow no-break and ideographic spaces;
+  - a zero-width space is not a space;
+  - a hidden "Source: " prefix leaves "12,400 trees" in the scan.
+
+```
+$ pytest -q tests/unit/test_line_kind.py
+19 passed
+```
+
+### FX-7 · `night`'s ink, every background checked, exact font names (B-9, B-11) · `3477af7`
+
+- **What changed.**
+  - `voice-claude-look` tests every background role (Swiss: paper and ink).
+  - `night`'s ink is `ECECEC`. Recomputed: C\* 0.00; ink/paper 15.06, paper/ink 15.06,
+    accent_on_ink/ink 5.02, the auditor's values. muted/paper 7.35 and accent/paper
+    9.54 are unchanged.
+  - `off-pack-font` compares exact names after casefold and whitespace collapse.
+- **Fixtures changed by the rulings:**
+  - `off-pack-font--pos` gains Arial Black and Arial Narrow;
+  - `off-pack-font--neg` replaces "Arial Bold", now a finding, with "  ARIAL ";
+  - `pack-voice-night` is rebuilt with the new ink.
+
+  These are spec 002 fixtures; no golden or provided fixture changed.
+- **Test:**
+  - `test_ac09_pack_invariants.py` carries B-9's `night` values, and a new test shows a
+    cream ink fires;
+  - `test_pack_rules.py::test_off_pack_font_matches_exact_names`, while `font-count`'s
+    A-8 still folds both names into Arial.
+
+```
+$ keyline brief fixtures/briefs/named-voice.brief.toml      (voice = "night")
+0 findings: 0 error, 0 warning, 0 advisory
+$ pytest -q tests/acceptance/m2/test_ac09_pack_invariants.py tests/unit/test_pack_rules.py
+36 passed
+```
+
+### FX-8 · The recorded limits · `a910810`
+
+- **What changed.** The `numtokens` docstring lists B-5's limits and the audit's new
+  ones. Each new limit is pinned by a test and agrees with the oracle:
+  - "B2B" gives `2B`, "4K" gives `4K`, "COVID-19" gives `19`, "iPhone 15" gives `15`;
+  - "5 %" with a no-break space gives a non-significant `5`;
+  - a source line inside a table cell is not recognised.
+
+  `build_drift.py` pins python-pptx 1.0.2 (the ruling on deviation 4). L-016 landed with
+  the audit commit.
+- The commit is typed `docs:` rather than `fix:` because it changes no behaviour.
+- `check.md` does not exist before phase B; its task carries these limits (see
+  `tasks.md`).
+
+```
+$ pytest -q tests/unit/test_numtokens.py
+38 passed
+```
+
+### Open questions (audit 02)
+
+1. **X-17 in the amendment log.** The `--pack NAME` rule is implemented but was not
+   appended, because it sits outside the "B-12 (to append)" paragraph. Should it be
+   recorded, for example as part of B-12?
+2. **Line breaks (B-12 item 2).** B-12 lists `\n \r \v U+2028 U+2029`. The check also
+   refuses the other characters `str.splitlines()` splits on (`\f`, `\x1c`–`\x1e`,
+   `\x85`), since each would also break the one-line spine.
+
