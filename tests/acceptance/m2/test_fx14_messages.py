@@ -21,11 +21,11 @@ PACK_TOML = (PACK.directory / "pack.toml").read_text(encoding="utf-8")
 DECK = BRIEFS / "drift/base.pptx"
 
 
-@pytest.mark.parametrize("reason", ["​", "﻿", "　\t", "\x00", " ⁠ "])
+@pytest.mark.parametrize("reason", ["\u200b", "\ufeff", "\u3000\t", "\x00", " \u2060 "])
 def test_an_invisible_reason_is_empty(reason):
     with pytest.raises(ValueError, match="the reason must not be empty"):
         check_accepted([{"rule": "accent-overuse", "reason": reason}])
-    assert check_accepted([{"rule": "accent-overuse", "reason": "​poster"}])
+    assert check_accepted([{"rule": "accent-overuse", "reason": "\u200bposter"}])
 
 
 def _brief(tmp_path, text, evidence=None):
@@ -63,7 +63,7 @@ def test_schema_is_the_integer_one_everywhere(tmp_path, value):
     "args",
     [
         ["lint", DECK, "--pack", "swiss\nkeyline: all clear", "--voice", "neutral"],
-        ["lint", DECK, "--pack", "swiss", "--voice", "dusk ok"],
+        ["lint", DECK, "--pack", "swiss", "--voice", "dusk\u2028ok"],
         ["lint", "no\nsuch.pptx"],
         ["render", "no\rsuch.pptx", "-o", "out"],
     ],
@@ -113,5 +113,5 @@ def test_file_messages_name_the_file_once(tmp_path):
 
 def test_esc_is_idempotent_and_keeps_printable_text():
     assert esc("Nguồn: khảo sát") == "Nguồn: khảo sát"
-    assert esc("a\nb c\x85d​e") == "a\\nb\\u2028c\\x85d\\u200be"
+    assert esc("a\nb\u2028c\x85d\u200be") == "a\\nb\\u2028c\\x85d\\u200be"
     assert esc(esc("a\nb")) == esc("a\nb")
