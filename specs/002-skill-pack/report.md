@@ -740,3 +740,156 @@ So all six families' twins are present here, and A2's AC-13(a) can cover each of
    refuses the other characters `str.splitlines()` splits on (`\f`, `\x1c`–`\x1e`,
    `\x85`), since each would also break the one-line spine.
 
+---
+
+## A1 fixes, round 2 (audit 03)
+
+Audit 03 ([audit-03-a1fix.md](audit-03-a1fix.md)) accepted FX-1 … FX-8 and found
+FX-9 … FX-15. It is committed unchanged in `3e635cc`, with B-16 … B-20 appended to the
+spec's amendment log and the rulings on Q-42 … Q-46 recorded in `plan.md` and `tasks.md`.
+Each fix below landed as its own commit with its tests. Before each push, the full suite
+ran twice: once normally, and once with a CI-like PATH that holds every `/usr/bin`
+command except LibreOffice, OfficeCLI, pdftoppm and node (the lesson from `ecc017f`).
+`python tools/m1_baseline.py` printed `baseline: no differences` after each fix.
+
+| FX | amendment | commit | full suite | CI-like PATH |
+|---|---|---|---|---|
+| FX-9 | B-19 | `f43b9cf` | 675 passed | 649 passed, 26 skipped |
+| FX-10 | B-19 | `636965f` | 683 passed | 655 passed, 28 skipped |
+| FX-11 | B-19 | `2848e28` | 694 passed | 662 passed, 32 skipped |
+| FX-12 | B-18 | `a3c141b` | 700 passed | 668 passed, 32 skipped |
+| FX-13 | B-12 item 7 | `97b4e8c` | 701 passed | 669 passed, 32 skipped |
+| FX-14 | B-20 | `e9ed928` | 719 passed | 687 passed, 32 skipped |
+| FX-15 | — | `126fc59` | 720 passed | 688 passed, 32 skipped |
+
+### FX-9 · LibreOffice converts a private copy (B-19) · `f43b9cf`
+
+`convert_to_pdf()` copies the deck into the render's temp directory as `deck.pptx`
+(`deck.pptm` for a .pptm deck), converts that, and reads `deck.pdf`. T-20's
+measuring tool reuses it.
+- **Test:** `test_fx9_lo_private_copy.py`. The fixed name for three odd names is
+  checked in process, with no engine needed; a symlinked deck and a `deck.` name render
+  with LibreOffice.
+
+```
+$ ln -s real-target.pptx link.pptx && keyline render link.pptx -o out --engine libreoffice
+render engine: LibreOffice 26.8.0.3 680(Build:3), rasterized with pypdfium2
+out/slide-01.png … out/slide-04.png, out/contact.png
+exit 0
+```
+
+### FX-10 · The OfficeCLI copy is `.pptx` (B-19) · `636965f`
+
+The copy is `deck-<uuid>.pptx`, or `.pptm` only for a .pptm deck, compared
+case-insensitively.
+- **Test:** `test_fx10_officecli_suffix.py`:
+  - the suffix for six names (these fail on the old code);
+  - "clean v1.2" and "deck.pptx.bak" validate as clean decks with OfficeCLI.
+
+```
+$ keyline check "clean v1.2" -o blocker          ("clean v1.2" is golden/editorial.pptx)
+validate: passed
+13 findings: 0 error, 7 warning, 6 advisory
+```
+
+### FX-11 · Engine hygiene (B-19) · `2848e28`
+
+- **What changed.**
+  - Every engine call goes through `keyline._proc.run`. It runs in its own process
+    group, which a timeout or any interruption kills whole, and its output is decoded
+    as UTF-8 with replacement.
+  - The CLI turns SIGINT and SIGTERM into `Interrupted`, so every `finally` runs:
+    OfficeCLI copies are closed and temp directories removed. keyline then exits 130
+    or 143, and a second signal is ignored during cleanup.
+  - An explicit empty `-o` is an unusable `-o`.
+- **Test:** `test_fx11_engine_hygiene.py`. All 11 tests fail on the old code:
+  - SIGINT (to the group, as Ctrl-C sends it) and SIGTERM, mid-validate and mid-render;
+  - both with stand-in engines, which run anywhere, CI included, and with the real
+    LibreOffice (a 150-slide deck) and OfficeCLI;
+  - each asserts exit 130/143, no `keyline-*` directory in the private TMPDIR, and no
+    process whose command line mentions it, checked through `/proc`;
+  - non-UTF-8 stderr, a validate timeout, and an empty `-o`.
+
+```
+$ pytest -q tests/acceptance/m2/test_fx11_engine_hygiene.py
+11 passed
+$ keyline render real-target.pptx -o ''
+keyline: render failed: cannot use '' as the output directory: it is empty
+exit 1
+```
+
+### FX-12 · A voice's schema is closed (B-18) · `a3c141b`
+
+Allowed keys:
+- top level: `schema`, `name` (file only) and `accepted`;
+- `[fonts]`: `display` and `text`;
+- `[palette]` and `[why]`: palette roles.
+
+Any other key is a schema error that names it, and `why.accepted` gets the hint that
+`accepted` belongs before `[fonts]`. Evidence files keep §4.1's unknown-keys rule.
+- **Test:** `test_voices.py`: one test per closed table, plus the audit's repro as a
+  voice file. The voice mutation test now parses the inline form, so its mutants still
+  reach past the `name` check.
+
+```
+$ keyline lint base.pptx --pack swiss --voice ./spec.toml     (the audit's repro)
+keyline: voice spec.toml: why.accepted: accepted belongs before [fonts]
+exit 1
+```
+
+### FX-13 · An unreadable pack or voice path (B-12 item 7) · `97b4e8c`
+
+- **Test:** `test_fx13_unreadable_paths.py`. As a non-root user, both paths under a
+  mode-000 directory give one line and exit 1. This fails on the old code.
+
+```
+$ keyline lint base.pptx --pack ./locked/pk --voice neutral
+keyline: pack directory './locked/pk' cannot be read: Permission denied
+exit 1
+```
+
+### FX-14 · Reasons, schema types, one-line messages (B-20) · `e9ed928`
+
+- **What changed.**
+  - A reason needs a character outside Zs, Cc and Cf.
+  - `schema` is the integer 1 in all four file kinds.
+  - Every one-line error the CLI prints goes through `keyline.escape.esc`.
+  - The four garbled messages now name the file once, then the key.
+- **Test:** `test_fx14_messages.py`:
+  - invisible reasons;
+  - `schema` = true, 1.0, "1" and 2 in each file kind;
+  - forged lines through `--pack`, `--voice` and deck paths;
+  - a brief's pack with a line break;
+  - the four messages.
+
+```
+$ keyline lint real-target.pptx --pack $'swiss\nkeyline: all clear' --voice neutral
+keyline: pack not found: swiss\nkeyline: all clear
+exit 1
+```
+
+### FX-15 · Test, noise and a known limit · `126fc59`
+
+- **What changed.**
+  - The fallback test checks engine selection, and skips when the selected OfficeCLI
+    finds no headless browser.
+  - L-002 is no longer printed when OfficeCLI cannot start.
+  - The `numtokens` docstring records the invisible "Source: " limit (principle VIII).
+    Phase B's `check.md` task carries it.
+- **Test:** `test_no_l002_note_when_officecli_cannot_start`.
+
+```
+$ PATH=<a broken officecli only> keyline render real-target.pptx -o out2
+keyline: render failed: officecli could not run: env: node: No such file or directory; or install LibreOffice (…)
+exit 1                                                   (no L-002 note)
+```
+
+### Deviation (round 2)
+
+- **L-002 is still printed with the not-installed hint.**
+  - The audit said: print L-002 "only when OfficeCLI actually renders".
+  - Implemented: no note when OfficeCLI cannot start, but the note stays when OfficeCLI
+    is not installed.
+  - Why: spec 001's `test_render_without_officecli_exits_1` asserts L-002 in exactly
+    that case, and AC-2 does not allow changing it.
+
