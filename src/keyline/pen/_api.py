@@ -159,13 +159,13 @@ class Deck:
 
     def save(self, path: str, author: str = "") -> None:
         """Write the deck: python-pptx, then the zip normalised (§6.5)."""
-        from keyline import zipnorm
+        from keyline.pen._determinism import normalise
         from keyline.pen._writer_pptx import write
 
         if not isinstance(author, str):
             raise PenError("author must be text")
         data = write(self._template, [s._plan for s in self._slides], author)
-        zipnorm.write(path, zipnorm.read_entries(data))
+        Path(path).write_bytes(normalise(data))  # §6.5: byte-identical for the same input
         for family, chars in self._missing.items():  # one warning per deck (audit 04)
             sys.stderr.write(f"keyline pen: warning: {coverage_warning(family, chars)}\n")
 
