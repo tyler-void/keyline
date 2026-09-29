@@ -225,11 +225,23 @@ def cmd_render(args: argparse.Namespace) -> int:
 
 
 def cmd_check(args: argparse.Namespace) -> int:
+    from keyline import validate
+    from keyline.findings import exit_code, sort_findings
+    from keyline.lint import LintResult
     from keyline.render import RenderError, render
 
     result, failed = _lint_command(args)
     if result is None:
         return failed
+    if args.no_validate:
+        _err("validate: skipped (--no-validate)\n")
+    elif not validate.available():
+        _err("validate: skipped (officecli is not installed)\n")
+    else:  # after lint, before render (spec 002 §7)
+        invalid = validate.validate(args.deck)
+        _err(f"validate: {len(invalid)} schema error(s)\n" if invalid else "validate: passed\n")
+        findings = sort_findings([*result.findings, *invalid])
+        result = LintResult(findings, exit_code(findings))
     if args.json:
         _out_json(to_json(result.findings))
     _err(to_human(result.findings))
@@ -314,6 +326,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--require-render", action="store_true", help="exit 1 when the render step fails"
     )
+    p.add_argument("--no-validate", action="store_true", help="skip the officecli validate step")
     p.set_defaults(func=cmd_check)
     return parser
 

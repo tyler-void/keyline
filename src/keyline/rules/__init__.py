@@ -31,5 +31,6 @@ def load_all() -> None:
     import_module("keyline.ooxml.adapter")
     import_module("keyline.brief")
     import_module("keyline.briefcheck")
+    import_module("keyline.validate")  # ooxml-invalid: `check` only (plan Q-12)
     for name in RULE_MODULES:
         import_module(f"keyline.rules.{name}")
