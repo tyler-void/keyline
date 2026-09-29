@@ -4,8 +4,13 @@
 - **Status:** approved with amendments by [audit 01](audit-01-plan.md) (2026-09-27): every
   proposal below is accepted except Q-7 (overruled by B-2); Q-20's open choice is made.
   Amendments B-1 … B-7 are in the spec's amendment log.
+- **Amendment B-8** (systems and voices, D-020; [amendment-B8-voices.md](amendment-B8-voices.md),
+  2026-09-29): a pack is one system plus voices. It arrived after T-09 part 2 had landed
+  (`b35ff05`), so it reworks T-08 and T-09 and adjusts T-10, T-12, T-17 and T-18. The
+  sections below are updated in place; the new ambiguities are Q-26 … Q-41.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
-- **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`).
+- **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
+  D-020 (B-8) supersedes D-017's "Arial only".
 
 This plan covers all three phases (A1, A2, B). Only **A1** is broken down into tasks
 ([`tasks.md`](tasks.md)); A2 and B are broken down after the A1 audit, when their
@@ -39,7 +44,8 @@ The spec's §1 layout, with these refinements:
 | — | `src/keyline/context.py` | the `LintContext` passed to rules (`pack`, `brief`, `evidence`), so `lint.py` and the rules share one type |
 | `packs/swiss/src/` | `packs/swiss/src/build_templates.py` writing raw OOXML with lxml | no python-pptx default template (4:3 layouts, a third-party author in its `docProps`, a non-palette theme); byte-stable without the pen extra [Q-17] |
 | `pen/` | `pen/__init__.py` (public: `Deck`, `PenError`, `DoesNotFit`, `EvidenceError`), `pen/_api.py`, `pen/_regions.py`, `pen/_writer_pptx.py` | D-015: every python-pptx call lives in `_writer_pptx.py` behind an internal interface |
-| `fit/` | `fit/__init__.py` (estimator), `fit/tables/liberation-sans-{regular,bold}.json`, `tools/gen_fit_tables.py` | the tables are data; the generator is dev-only (fontTools) |
+| `fit/` | `fit/__init__.py` (estimator), `fit/tables/<twin>-{regular,bold}.json` for every `portable_fonts` family, `tools/gen_fit_tables.py` | the tables are data; the generator is dev-only (fontTools); B-8.11 |
+| — | `packs/voices.py`; `packs/<pack>/voices/<name>.toml` | B-8: loading and validating a voice (pack file, `--voice FILE` or a brief's inline table) and the three voice checks, pure data, no deck |
 
 Everything else is as in spec §1: `roles.py`, `brief.py`, `briefcheck.py`,
 `colorspace.py`, `packs/__init__.py`, `render.py`, `doctor.py`, `rules/`,
@@ -53,7 +59,8 @@ import `pptx`, `pypdfium2`, `keyline.pen` or `keyline.render`. `render.py` impor
 
 **pyproject:** runtime deps stay `lxml`, `Pillow`. Extras `pen = ["python-pptx>=1.0.2"]`,
 `render = ["pypdfium2"]`. The `dev` extra gains `pypdfium2` and `fontTools`. Package
-data: `packs/*/pack.toml`, `packs/*/README.md`, `packs/*/*.pptx`, `fit/tables/*.json`.
+data: `packs/*/pack.toml`, `packs/*/README.md`, `packs/*/voices/*.toml`, `packs/*/*.pptx`
+(the committed neutral templates, B-8.9), `fit/tables/*.json`.
 
 ---
 
@@ -115,7 +122,46 @@ pack rules.
 
 ### 2.5 Pack format (§5.1) and the Swiss pack (§5.2)
 
-**`pack.toml` shape** (every value is data; validated on load, errors name the key):
+**B-8: system and voices.** `pack.toml` is the **system**: structure only, colours
+named by role. A **voice** (`voices/<name>.toml`, or a brief's inline `[voice]`) gives
+the six roles their values and names two fonts. The loader validates both and returns
+a `Pack` (system) and a `Voice`; everything that used `pack.palette` or `pack.fonts`
+takes the pair. The shape below is the system as first planned; B-8 changes it as
+follows, and T-08's rework implements it:
+
+- `[palette]`, `fonts` and `templates` leave `pack.toml` (Q-26). `palette_roles =
+  ["paper", "ink", "muted", "hairline", "accent", "accent_on_ink"]` is added, and
+  every role name in the system (surfaces, style colours, theme, `accents`,
+  `keyline_rule`) must be one of them.
+- Every style gains `font = "display" | "text"` (Q-27).
+- `thresholds.toml` `[common]` gains `portable_fonts` (B-8.3) as a list of
+  `{ family, metric_twin }` tables (Q-38).
+- Voice file:
+
+```toml
+schema = 1
+name = "neutral"                   # equals the file stem (Q-30)
+[fonts]
+display = "Arial"                  # a portable_fonts family
+text = "Arial"
+[palette]                          # exactly the system's palette_roles
+paper = "F2F2F0"
+ink = "111111"
+muted = "5C5C5A"
+hairline = "B8B8B4"
+accent = "CC3322"
+accent_on_ink = "E8422E"
+[why]                              # optional in a pack voice; required per role inline
+paper = "…"
+accepted = []                      # optional { rule, reason } (Q-31)
+```
+
+- Stock voices (B-8.10): `neutral` (the values above), `night`, `field`. Their check
+  numbers were recomputed with `colorspace.py` and `text_contrast.contrast` on
+  2026-09-29 and match B-8's table to the printed precision.
+
+**`pack.toml` shape as first planned** (every value is data; validated on load, errors
+name the key):
 
 ```toml
 schema = 1
@@ -208,17 +254,27 @@ template adds `keyline:evidence:two-col`.
 
 **Theme colours** (all palette values, §5.3): dk1 ink, lt1 paper, dk2 muted,
 lt2 hairline, accent1 accent, accent2 accent_on_ink, accent3 muted, accent4 hairline,
-accent5 ink, accent6 muted, **hlink ink**, folHlink muted. Major and minor fonts: Arial.
+accent5 ink, accent6 muted, **hlink ink**, folHlink muted. The mapping is by role and
+lives in the system; each voice supplies the values (B-8.9), also for dark-paper voices
+(Q-33). Major font = the voice's display font, minor = its text font.
 `hlink` is ink, not accent (decided for Q-20 on the auditor's recommendation): a
 hyperlink in accent would be an accent element and spend the slide's whole
 `accent_budget` of 1.
 
 **Type scale:** as §5.2, unchanged. The §5.4 invariants were checked by hand against
 it (hierarchy: the tightest pair is presented evidence 48/24 = 2.00; read evidence
-28/16 = 1.75 ≥ 1.6), and T-08 turns them into tests.
+28/16 = 1.75 ≥ 1.6), and T-08 turns them into tests. Under B-8.7, invariants 1, 2, 3
+and 7 are tested on the system, 4 (contrast) and 6 (fonts) per voice, and 5 (neutral
+paper, no terracotta) on `neutral` only.
 
 ### 2.6 Templates (§5.3)
 
+- **B-8.9:** built per (system, voice, mode) by `keyline.packs.templates.build(pack,
+  voice, mode)`, in memory and byte-stable. Theme colours come from the voice through
+  the role mapping; theme major font = display, minor = text; each placeholder's
+  `lstStyle` names `+mj-lt` or `+mn-lt` by its style's `font`. Only the `neutral`
+  templates are committed (`swiss-neutral-{presented,read}.pptx`, Q-26), and AC-9
+  rebuilds them byte-identically. The pen (A2) builds its voice's template in memory.
 - Built by `packs/swiss/src/build_templates.py` from raw OOXML parts (presentation,
   one master, the layouts, theme, `presProps`/`viewProps`/`tableStyles`, `docProps`
   with empty author), then `zipnorm.write()`; `created`/`modified` are a fixed date so
@@ -242,6 +298,13 @@ case-insensitive; sizes compared in hundredths of a point against the mode's sca
 families compared after A-8 normalisation; accent elements counted once per shape.
 Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
 
+B-8.8: the rules read the resolved **voice**: its palette values, its two fonts, and
+the values of the system's `accents` roles. `lint`/`check` gain `--voice NAME|FILE`
+(Q-35); `--brief` supplies the voice; a disagreeing `--voice` is exit 1; `--pack` with
+no voice is exit 1, "pack rules need a voice (--voice or --brief)". `expect.toml`
+cases gain `voice`, required with `pack` (Q-36). `accepted` from the pack and the
+voice are unioned (Q-31).
+
 ### 2.8 Evidence, briefs and `keyline brief` (§4.1–§4.3)
 
 - `brief.py`: loads the brief and its evidence files with `tomllib`, resolves paths
@@ -255,6 +318,14 @@ Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
   [Q-2].
 - Output: the spine to stderr (`NN role  headline`), `{"spine", "findings"}` JSON with
   `--json`, exit 0/1/2 as §4.3.
+- **Voice (B-8.4, B-8.5).** Exactly one of `voice = "<name>"` (a voice of the brief's
+  pack) or an inline `[voice]` table; neither or both is exit 1. The voice schema
+  errors (missing or extra role, malformed hex, a font outside `portable_fonts`, an
+  unknown voice name) are exit 1 with one line. `voice-contrast` (error),
+  `voice-claude-look` (warning; advisory on cream alone or when accepted) and
+  `voice-why` (warning, inline voices only) are registry entries with `requires =
+  "brief"`, category `quality`, scope `deck`, `slide` 0; they are `keyline brief`
+  findings (Q-28 … Q-30, Q-32, Q-34). Outside `keyline brief`, see Q-29.
 
 ### 2.9 Numeric tokens and table text (§4.4)
 
@@ -275,7 +346,9 @@ Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
   Conflicts are exit 1 (`mode conflict: --mode read, brief says presented`); an explicit
   `--pack` conflicts when it resolves to a different pack **directory** than the
   brief's [Q-13]. No flag and no brief: mode `presented`, no pack. New commands:
-  `brief`, `doctor`, `packs`.
+  `brief`, `doctor`, `packs`. B-8 adds `--voice NAME|FILE`, resolved like `--pack`
+  and compared with the brief's voice by content [Q-35]; `keyline packs` lists each
+  pack's voices [Q-39].
 - **AC-8 in A1** uses a deck built by a fixture script that writes what the pen will
   write (Swiss template layouts, region boxes, source and note lines), because the pen
   does not exist until A2; A2 re-runs AC-8 on a pen-built deck [Q-4].
@@ -300,7 +373,9 @@ Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
 - **doctor:** one line per §7 check with its token and, for anything missing, the
   install command; exit 0 iff Python ≥ 3.11 with lxml and Pillow; `--json` as an
   object. The font check uses `fc-match Arial` where it exists; elsewhere it looks for
-  Arial in the standard font folders [Q-22].
+  Arial in the standard font folders [Q-22]. **B-8.12:** the check covers every
+  `portable_fonts` family, one line each: `FONT_OK` when `fc-match` returns the family
+  or its metric twin, else `FONT_SUBSTITUTED` [Q-40, Q-41].
 
 ### 2.12 No-regression method (AC-2)
 
@@ -317,8 +392,8 @@ Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
 
 ## 3. Phase A2: pen, fit, determinism (plan only)
 
-- **Public API (`keyline.pen`):** `Deck.from_brief(path)`, `Deck(pack, mode,
-  evidence=None)`, `deck.next()`, `deck.add(role, headline, notes=None)`, the builder's
+- **Public API (`keyline.pen`):** `Deck.from_brief(path)`, `Deck(pack, mode, voice,
+  evidence=None)` (B-8.9: the deck builds its voice's template in memory), `deck.next()`, `deck.add(role, headline, notes=None)`, the builder's
   verbs (§6.1), `deck.save(path, author="")`. Parameters are only style names, region
   names, evidence ids and content; `_check_token()` rejects raw-looking strings
   (`#hex`, `NNpt`, `NNcm`, `NNin`, `NNpx`, `NNemu`). AC-10's signature test inspects
@@ -333,8 +408,10 @@ Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
   placeholders are removed from the slide; the keyline rule is drawn on evidence
   slides.
 - **Fit (§6.4):** `tools/gen_fit_tables.py` (fontTools) writes per-codepoint advance
-  widths (units per em) for Liberation Sans Regular and Bold, plus `line_pitch_em =
-  1.2`; the estimator wraps greedily at 0.99 × width, adds tracking and caps, and
+  widths (units per em) for the metric twin of every `portable_fonts` family, Regular
+  and Bold (B-8.11), recording each source file's name, version and licence in
+  `NOTICE`, plus `line_pitch_em = 1.2`; AC-13(a) runs per twin present and skips the
+  rest by name; the estimator wraps greedily at 0.99 × width, adds tracking and caps, and
   raises `DoesNotFit` with "needs N lines, region holds M". AC-13(a) compares with
   Pillow (BASIC layout); AC-13(b) renders a fit-stress deck with LibreOffice and checks
   ink stays inside each region box.
@@ -344,7 +421,8 @@ Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
   `axId`/`crossAx` pair kept consistent (§6.6).
 - **Specimens:** `fixtures/packs/swiss-specimen-{presented,read}.brief.toml` and
   `swiss-specimen.evidence.toml`, one slide per role, every verb used, real sentences
-  about the pack. AC-11 (two builds byte-identical), AC-12 (`check --brief` exit 0, no
+  about the pack. B-8.13: presented in `neutral` and in `night`, read in `field`;
+  AC-11 and AC-12 apply to all three, and G-1 reviews three contact sheets. AC-11 (two builds byte-identical), AC-12 (`check --brief` exit 0, no
   `adapter-unresolved`, no `ooxml-invalid` with OfficeCLI), AC-15 (core purity).
 - **Gate G-1:** Tyler reviews the specimen contact sheets (LibreOffice renders).
 
@@ -367,7 +445,12 @@ Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
   session with the skill installed from `dist/keyline.zip`, using prompts P-1 and P-2
   verbatim; Tyler approves each spine (G-2a). The implementing session cannot be that
   fresh session [Q-16]. AC-22 surface runs are Tyler's (manual).
-- **Gate G-2:** Tyler's soul verdict on both contact sheets.
+- **B-8.14, B-8.15:** the skill's loop gains a voice step after the direction (derive
+  the voice from `own_world`, one `why` line per role; stock voices only as a
+  fallback); `craft-floor.md` anchors `rule:voice-*`; `anti-tells.md` gains
+  `one-look-for-everything`. Each BonsaiHub brief carries an inline voice derived from
+  `[product.world]`, and `keyline brief` exits 0 on both.
+- **Gate G-2:** Tyler's soul verdict on both contact sheets, voice included.
 
 ---
 
@@ -380,13 +463,15 @@ Each gets `--pos`/`--neg` fixtures built from the Swiss template (AC-3).
 | `fixtures/briefs/drift/` (AC-8 base deck + six drifted copies) | `fixtures/briefs/src/build_drift.py`, from the Swiss template; the drifts are applied by lxml edits to named parts so that nothing else moves | AC-8 |
 | `fixtures/validate/editorial-bogus.pptx` | `editorial.pptx` with `<p:bogus/>` injected in slide 1's `p:cSld` by a committed script (the golden itself is not edited) | AC-14b |
 | `fixtures/expected/m1-baseline/` | captured in T-01 | AC-2 |
+| `fixtures/briefs/voice/` (one brief per voice schema error, both-or-neither, `--pos`/`--neg` per `voice-*` id, an inline voice) and `fixtures/voices/` (voice files for `--voice FILE`) | hand-written TOML | AC-7, B-8.5 |
 
 Every builder sets author and last-modified-by to `Tyler`; AC-12 of spec 001 keeps
 scanning every committed deck.
 
 ## 6. CI
 
-- `apt-get install fonts-liberation` (AC-23); `pip install -e .[dev]` with `dev` now
+- `apt-get install fonts-liberation fonts-crosextra-carlito fonts-crosextra-caladea`
+  (AC-23, B-8.11; Gelasio is not packaged there, so Georgia skips by name); `pip install -e .[dev]` with `dev` now
   including `pypdfium2` and `fontTools`.
 - LibreOffice and OfficeCLI are absent in CI, so render and validate tests skip there,
   as in spec 001; the report records where each ran.
@@ -405,7 +490,9 @@ scanning every committed deck.
 | R-6 | **Fit versus PowerPoint.** Liberation Sans is metric-compatible with Arial, but PowerPoint's line breaking is unverified (D-017). | The 1 % margin; G-1 in PowerPoint |
 | R-7 | **Sandbox assumptions.** python-pptx is documented as pre-installed in the API container; LibreOffice on claude.ai is inferred. | `doctor` tokens; AC-20 stands in for the sandbox; AC-22 records the real run |
 | R-8 | **Speed.** Spec 001's AC-9/AC-20 budgets still hold with seven more rules and the brief checks. | The rules are linear; AC-9/AC-20 stay in CI |
-| R-9 | **Licensing.** Width tables derive from Liberation Sans (OFL); skill text must not copy Anthropic's skills. | OFL notice in `NOTICE`; anti-tells cite `docs/research.md` only; AC-23 |
+| R-10 | **Voices widen the surface.** Every voice is a new colour and font combination the templates, the pack rules and (A2) the fit tables must handle; a dark-paper voice inverts the theme's dk/lt meaning (Q-33). | Invariants 4 and 6 per voice; the three stock voices in AC-9; specimens in three voices at G-1 |
+| R-11 | **Missing twins.** Carlito, Caladea and Gelasio are not installed on this machine (Q-41), so renders here substitute Noto for Calibri, Cambria and Georgia. | Doctor reports it per family; A2's AC-13(a) skips by name; the report lists what was present |
+| R-9 | **Licensing.** Width tables derive from Liberation Sans (OFL), and under B-8 from every twin (Liberation, Carlito, Caladea, Gelasio: OFL); skill text must not copy Anthropic's skills. | Each source font's file, version and licence in `NOTICE`; anti-tells cite `docs/research.md` only; AC-23 |
 
 ## 8. Order of work
 
@@ -496,3 +583,90 @@ Each has a proposal; implementation follows the proposal unless Tyler rules othe
     when that pack is in effect.
 25. **Q-25 · Cream ratio denominator.** *Proposal:* all slides; unknown backgrounds are
     not cream.
+
+### B-8 questions (2026-09-29)
+
+26. **Q-26 · Template files and the `templates` key.** Templates are now built per
+    (system, voice, mode) in memory (B-8.9), so the system cannot name fixed files, and
+    T-09 part 2 committed `swiss-presented.pptx`/`swiss-read.pptx` before B-8 arrived.
+    *Proposal:* drop `templates` from `pack.toml`; commit the neutral pair as
+    `packs/swiss/swiss-neutral-presented.pptx` and `swiss-neutral-read.pptx` (the voice
+    in the name, so nobody takes them for the only look); `build_templates.py
+    [OUT_DIR]` writes them; AC-9 rebuilds them byte-identically.
+27. **Q-27 · Display and text styles.** B-8 gives every style a `font` but does not
+    say which. *Proposal:* display: `cover_title`, `statement`, `headline`, `quote`,
+    `numeral`; text: `lede`, `body`, `label`, `source`. Placeholder `lstStyle`s use
+    `+mj-lt` for display and `+mn-lt` for text, so hand-typed text follows the voice.
+28. **Q-28 · The pairs `voice-contrast` checks.** "A (text color, surface) pair that the
+    system allows." *Proposal:* every role in `surfaces.<s>.text` against
+    `surfaces.<s>.background`. The loader already requires each style colour on a
+    surface to be in that list, so these are all the pairs any style allows; for Swiss
+    they are exactly the five columns of B-8's check table. `hairline` is not text and
+    is not checked.
+29. **Q-29 · Voice findings outside `keyline brief`.** B-8.5 runs the voice checks "in
+    `keyline brief`, and whenever a pack voice is loaded", but the three entries are
+    `requires = "brief"`, and §4.3 says brief findings are not repeated by `check`.
+    *Proposal:* (a) the schema errors apply on every load, in every command (exit 1);
+    (b) the three findings are `keyline brief` findings only (JSON and exit code);
+    (c) when `lint`, `check` or the pen load a voice that has a `voice-*` finding at
+    warning or error, stderr gets one line per finding (`voice night: …`) and the
+    deck's JSON is unchanged; (d) AC-9 asserts that no stock voice has any `voice-*`
+    finding.
+30. **Q-30 · Voice file details.** *Proposal:* a pack voice's `name` matches
+    `^[a-z0-9-]+$` and equals its file stem, else a schema error; hex values match
+    `^[0-9A-Fa-f]{6}$` (no `#`) and are stored upper case; fonts match a
+    `portable_fonts` family after A-8 normalisation and are stored in its spelling;
+    `schema = 1` is required in a voice file and optional in an inline `[voice]` (the
+    brief's `schema` governs); `[why]` keys that are not roles are ignored (§4.1's
+    unknown-keys rule); an empty `why` line counts as missing; `voice-why` gives one
+    finding per missing role.
+31. **Q-31 · `accepted` in a voice.** *Proposal:* as the pack's (Q-24): any registry id,
+    downgraded to advisory while that voice is in effect; the pack's and the voice's
+    lists are unioned.
+32. **Q-32 · An accent role sharing a value.** `accents` stays in the system as role
+    names. If a voice gave an accent role the same hex as a non-accent role (accent =
+    ink), `accent-overuse` would count every ink shape as an accent. *Proposal:* a
+    schema error, "accent has the same value as ink". It is not in B-8.5's list, so it
+    needs a ruling; no stock voice is affected.
+33. **Q-33 · Dark-paper voices and the theme.** In `night`, `paper` is dark and `ink`
+    light, so the plan's mapping gives dk1 = `ECECE8` (light) and lt1 = `16181B`
+    (dark). *Proposal:* keep the mapping literal, as B-8.9 says. The master's `clrMap`
+    (bg1 = lt1, tx1 = dk1) still resolves bg1 to paper and tx1 to ink, so scheme-coloured
+    text stays readable; only PowerPoint's theme picker shows "Dark 1" as a light swatch.
+    Checked in PowerPoint at G-1 with the `night` specimen.
+34. **Q-34 · `night`'s ink is in the cream band.** `ECECE8` has L\* 93.3, C\* 2.06,
+    h 110.0, inside §3.2's cream band. B-8.5 tests only `paper`, so `voice-claude-look`
+    is silent; but the deck rule `claude-look-palette` looks at resolved backgrounds,
+    and a `night` section slide (ink surface) is cream. The rule needs at least half the
+    slides cream, and stays advisory without a terracotta. *Proposal:* accept, and pin
+    it with a test; revisit if the `night` specimen shows it.
+35. **Q-35 · `--voice` resolution.** *Proposal:* a value containing a path separator or
+    ending in `.toml` is a voice file (pack-voice schema); otherwise a voice name of the
+    resolved pack. `--voice` with no pack from `--pack` or the brief is exit 1,
+    "--voice needs a pack (--pack or --brief)". It conflicts with the brief when the
+    resolved fonts or palette differ (content, as Q-13 compares directories):
+    `voice conflict: --voice night, brief says neutral`.
+36. **Q-36 · `expect.toml` with a pack.** *Proposal:* `voice` is required whenever
+    `pack` is given (B-8.8 makes a pack without a voice exit 1); the harness fails
+    loudly otherwise.
+37. **Q-37 · "One sans family".** §5.2's direction says one sans family; `field` is
+    Georgia (B-8.10). *Proposal:* the README says "one family per voice, regular and
+    bold" and lists the three voices with their `why` lines; §5.2 stays as written,
+    superseded by B-8.
+38. **Q-38 · `portable_fonts` in `config.py`.** Config accepts numbers and lists of
+    strings. *Proposal:* a third type, a list of `{family, metric_twin}` tables (both
+    non-empty strings, families unique after A-8 normalisation), exposed as a tuple of
+    pairs.
+39. **Q-39 · Voices in `keyline packs`.** *Proposal:* the listing adds the voice names;
+    `--json` adds `"voices": [{"name", "display", "text"}]`.
+40. **Q-40 · Doctor without `fc-match`** (extends Q-22). *Proposal:* each portable
+    family is `FONT_OK` when a known file for it or its twin is in the standard font
+    folders (a fixed table: `arial.ttf`, `times.ttf`, `cour.ttf`, `georgia.ttf`,
+    `calibri.ttf`, `cambria.ttc` and the twins' files), else `FONT_SUBSTITUTED`, with a
+    note that the check was by file name.
+41. **Q-41 · Twins on this machine.** Liberation Sans, Serif and Mono are installed;
+    Carlito, Caladea and Gelasio are not (`fc-match` gives Noto Serif for Georgia and
+    Cambria, Noto Sans for Calibri). A1 builds no fit tables, but doctor reports
+    `FONT_SUBSTITUTED` for those three here. *Proposal:* report A1 records it; before
+    A2, Tyler decides whether to install them here (system packages and Gelasio's
+    upstream release) or let AC-13(a) skip them by name.

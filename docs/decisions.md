@@ -110,3 +110,12 @@ Append-only. To change a decision, add a new entry that supersedes the old one.
     slide.
   - It stays safe for work.
   - It never imitates a real brand's marks or interface (`[product.brand].must_not`).
+- **D-020 · Systems and voices (Tyler, 2026-09-29).** A pack is one system (structure)
+  plus voices (palette and fonts). Each deck picks or derives its voice from its brief,
+  under measured checks (B-8).
+  - This supersedes D-017's "Swiss v1 uses Arial only". Voices may use any family in
+    `portable_fonts`: those present with Windows, macOS or Office that also have an
+    open metric-compatible twin.
+  - Why: a single fixed look becomes a tell at scale. Web design shows this with the
+    "Claude look". Diversity has to come from each deck's subject, not from a catalog
+    or chance.
