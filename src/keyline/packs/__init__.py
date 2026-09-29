@@ -62,6 +62,7 @@ def check_accepted(raw: Any) -> tuple[tuple[str, str], ...]:
     the `acceptable_rules` of thresholds.toml, each with a non-empty reason. Raises
     ValueError whose text follows the word "accepted"; the caller names the file."""
     from keyline.config import load as load_config
+    from keyline.escape import visible
 
     acceptable = load_config().acceptable_rules
     if not isinstance(raw, list):
@@ -76,7 +77,7 @@ def check_accepted(raw: Any) -> tuple[tuple[str, str], ...]:
         if item["rule"] not in acceptable:
             names = ", ".join(acceptable)
             raise ValueError(f"[{i}]: {item['rule']!r} cannot be accepted (only {names})")
-        if not item["reason"].strip():
+        if not visible(item["reason"]):  # B-20: not only spaces, controls or zero-width
             raise ValueError(f"[{i}]: the reason must not be empty")
         out.append((item["rule"], item["reason"]))
     return tuple(out)
@@ -218,7 +219,9 @@ def resolve(name_or_dir: str | Path, base: Path | None = None) -> Pack:
             return load(candidate)
     elif NAME_RE.fullmatch(str(name_or_dir)) and (BUNDLED / str(name_or_dir)).is_dir():
         return load(BUNDLED / str(name_or_dir))
-    raise PackError(f"pack not found: {name_or_dir}")
+    from keyline.escape import esc
+
+    raise PackError(f"pack not found: {esc(name_or_dir)}")
 
 
 def _exists(path: Path, what: str, error: type[Exception]) -> bool:
@@ -234,12 +237,14 @@ def load(directory: str | Path) -> Pack:
     from keyline.brief import read_toml
 
     directory = Path(directory).resolve()
-    data = read_toml(directory / "pack.toml", f"{directory.name}/pack.toml", PackError)
+    data = read_toml(directory / "pack.toml", "pack file", PackError, f"{directory.name}/pack.toml")
     return _build(data, directory)
 
 
 def _fail(where: str, why: str) -> PackError:
-    return PackError(f"pack.toml: {where}: {why}")
+    from keyline.escape import esc
+
+    return PackError(f"pack.toml: {esc(where)}: {why}")
 
 
 def _table(value: Any, where: str) -> dict:
@@ -288,8 +293,10 @@ def _names(values: Any, known: dict | set, where: str) -> tuple[str, ...]:
 
 
 def _build(data: dict, directory: Path) -> Pack:
-    if data.get("schema") != 1:
-        raise _fail("schema", "must be 1")
+    from keyline.escape import schema_is
+
+    if not schema_is(data.get("schema")):
+        raise _fail("schema", "must be the integer 1")
     name = _get(data, "name", str, "top level")
     if not NAME_RE.fullmatch(name):
         raise _fail("name", f"must match {NAME_RE.pattern}")
@@ -312,8 +319,9 @@ def _build(data: dict, directory: Path) -> Pack:
     alignment = _get(data, "alignment", str, "top level")
     if alignment not in ("left", "center"):
         raise _fail("alignment", "must be left or center")
+    raw_accepted = _get(data, "accepted", list, "top level")  # its own error, not wrapped
     try:
-        accepted = check_accepted(_get(data, "accepted", list, "top level"))
+        accepted = check_accepted(raw_accepted)
     except ValueError as exc:
         raise PackError(f"pack.toml: accepted{exc}") from exc
 
@@ -382,6 +390,8 @@ def _build(data: dict, directory: Path) -> Pack:
     if set(theme) != set(THEME_SLOTS):
         raise _fail("theme", f"needs exactly the slots {', '.join(THEME_SLOTS)}")
     for slot, pname in theme.items():
+        if not isinstance(pname, str):
+            raise _fail(f"theme.{slot}", "must be a palette role name")
         _names([pname], palette_set, f"theme.{slot}")
     ph = _get(data, "placeholders", dict, "top level")
     ph_idx = _get(ph, "idx", dict, "placeholders")

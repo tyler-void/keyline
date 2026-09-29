@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from keyline.colorspace import hsl, lab
+from keyline.escape import esc, schema_is
 from keyline.packs import Pack, PackError, _exists, check_accepted
 
 NAME_RE = re.compile(r"[a-z0-9-]+")  # both matched with fullmatch (B-12 item 1)
@@ -96,9 +97,9 @@ def _load_file(pack: Pack, path: Path, name: str | None) -> Voice:
     from keyline.brief import read_toml
 
     data = read_toml(path, "voice file", VoiceError)
-    where = f"voice {path.name}"
-    if data.get("schema") != 1:
-        raise VoiceError(f"{where}: schema must be 1")
+    where = f"voice {esc(path.name)}"
+    if not schema_is(data.get("schema")):
+        raise VoiceError(f"{where}: schema must be the integer 1")
     stated = data.get("name")
     if not isinstance(stated, str) or not NAME_RE.fullmatch(stated):
         raise VoiceError(f"{where}: name must match {NAME_RE.pattern}")
@@ -122,6 +123,8 @@ def parse(
     if not isinstance(data, dict):
         raise VoiceError(f"{where}: must be a table")
     allowed = TOP_KEYS | ({"name"} if path is not None else set())
+    if "schema" in data and not schema_is(data["schema"]):  # optional inline (Q-30)
+        raise VoiceError(f"{where}: schema must be the integer 1")
     for key in data:
         if key not in allowed:
             raise VoiceError(

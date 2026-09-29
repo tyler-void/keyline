@@ -106,17 +106,19 @@ def test_unreadable_paths_are_one_line(tmp_path):
     assert msg == f"evidence file {tmp_path.name} is a directory, not a file"
     proc = keyline("brief", BRIEFS)
     assert proc.returncode == 1
-    assert proc.stderr.decode() == "keyline: briefs: brief briefs is a directory, not a file\n"
+    assert proc.stderr.decode() == "keyline: briefs: brief is a directory, not a file\n"
     latin = tmp_path / "latin.brief.toml"
     latin.write_bytes(VALID.replace("Toolshed", "Tool\xe9shed").encode("latin-1"))
-    with pytest.raises(BriefError, match=r"brief latin\.brief\.toml is not UTF-8"):
+    with pytest.raises(BriefError, match=r"^brief is not UTF-8$"):
         load(latin)
     deep = tmp_path / "deep.brief.toml"
     deep.write_text("a = " + "[" * 5000 + "]" * 5000 + "\n", encoding="utf-8")
-    with pytest.raises(BriefError, match=r"deep\.brief\.toml (nests too deeply|is not valid TOML)"):
+    with pytest.raises(BriefError, match=r"^brief (nests too deeply|is not valid TOML)"):
         load(deep)
     (tmp_path / "packdir" / "pack.toml").mkdir(parents=True)
-    with pytest.raises(PackError, match=r"pack\.toml is a directory, not a file"):
+    with pytest.raises(
+        PackError, match=r"^pack file packdir/pack\.toml is a directory, not a file$"
+    ):
         resolve(tmp_path / "packdir")
     (tmp_path / "v.toml").mkdir()
     with pytest.raises(VoiceError, match=r"voice file v\.toml is a directory, not a file"):

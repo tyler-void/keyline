@@ -15,6 +15,7 @@ from pathlib import Path
 
 from keyline import __version__, progress
 from keyline.config import MODES
+from keyline.escape import esc
 from keyline.findings import EXIT_SCAN_FAILED, to_human, to_json
 
 
@@ -107,7 +108,7 @@ def _voice_notices(ctx, mode: str) -> None:
     from keyline.packs.voices import notices
 
     for line in notices(ctx.pack, ctx.voice, config.load(mode)):
-        _err(f"{line}\n")
+        _err(f"{esc(line)}\n")
 
 
 def _lint(path: str, mode: str, ctx=None):
@@ -125,7 +126,7 @@ def _lint_command(args: argparse.Namespace):
     try:
         mode, ctx = _context(args)
     except UsageError as exc:
-        _err(f"keyline: {exc}\n")
+        _err(f"keyline: {esc(exc)}\n")
         return None, EXIT_SCAN_FAILED
     _voice_notices(ctx, mode)
     from keyline.ooxml.package import ScanError  # lazy: lxml (so doctor runs without it)
@@ -133,7 +134,7 @@ def _lint_command(args: argparse.Namespace):
     try:
         return _lint(args.deck, mode, ctx), None
     except ScanError as exc:
-        _err(f"keyline: cannot scan {args.deck}: {exc}\n")
+        _err(f"keyline: cannot scan {esc(args.deck)}: {esc(exc)}\n")
         return None, EXIT_SCAN_FAILED
 
 
@@ -204,7 +205,7 @@ def cmd_brief(args: argparse.Namespace) -> int:
     try:
         brief = load(args.file)
     except BriefError as exc:
-        _err(f"keyline: {Path(args.file).name}: {exc}\n")
+        _err(f"keyline: {esc(Path(args.file).name)}: {esc(exc)}\n")
         return EXIT_SCAN_FAILED
     found = findings(brief)
     spine = brief.spine
@@ -235,7 +236,7 @@ def cmd_render(args: argparse.Namespace) -> int:
     try:
         result = render(args.deck, args.out, args.engine)
     except RenderError as exc:
-        _err(f"keyline: render failed: {exc}\n")
+        _err(f"keyline: render failed: {esc(exc)}\n")
         return EXIT_SCAN_FAILED
     for p in result.slides:
         _out(f"{p}\n")
@@ -258,7 +259,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     if args.no_validate:
         _err("validate: skipped (--no-validate)\n")
     elif not runnable:  # absent, or present but unable to start (B-15)
-        _err(f"validate: skipped ({reason})\n")
+        _err(f"validate: skipped ({esc(reason)})\n")
     else:  # after lint, before render (spec 002 §7)
         progress.reading.set("the validate step")
         invalid = validate.validate(args.deck)
@@ -274,7 +275,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     try:
         rendered = render(args.deck, out_dir, args.engine)
     except RenderError as exc:
-        _err(f"render: skipped ({exc})\n")
+        _err(f"render: skipped ({esc(exc)})\n")
         return EXIT_SCAN_FAILED if args.require_render else result.exit_code
     paths = [*rendered.slides, rendered.contact]
     listing = "".join(f"{p}\n" for p in paths)

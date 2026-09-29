@@ -88,7 +88,7 @@ def test_file_name_must_match_and_schema_is_required(tmp_path):
     with pytest.raises(VoiceError, match="name 'night' must equal the file name 'dusk'"):
         load(PACK, tmp_path / "dusk.toml")
     (tmp_path / "night.toml").write_text(text.replace("schema = 1", ""), encoding="utf-8")
-    with pytest.raises(VoiceError, match="schema must be 1"):
+    with pytest.raises(VoiceError, match="schema must be the integer 1"):
         load(PACK, tmp_path / "night.toml")
 
 

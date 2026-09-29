@@ -157,7 +157,7 @@ error = "voice: missing; name a voice (voice = NAME) or give a [voice] table"
 file = "voice-both.brief.toml"
 voice = true
 exit = 1
-error = "brief voice-both.brief.toml is not valid TOML: Cannot overwrite a value (at line 15, column 13)"
+error = "brief is not valid TOML: Cannot overwrite a value (at line 15, column 13)"
 
 [[case]]
 file = "voice-unknown-name.brief.toml"

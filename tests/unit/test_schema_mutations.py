@@ -82,10 +82,10 @@ def test_brief_and_evidence_mutations(target, monkeypatch):
     original = brief_mod._read_toml
     state = {}
 
-    def fake_read(path, what):
+    def fake_read(path, what, shown=None):
         if path.name == target:
             return copy.deepcopy(state["data"])
-        return original(path, what)
+        return original(path, what, shown)
 
     monkeypatch.setattr(brief_mod, "_read_toml", fake_read)
 

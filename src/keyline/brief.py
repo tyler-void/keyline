@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from keyline import config as config_mod
+from keyline.escape import esc, schema_is
 from keyline.findings import Finding, sort_findings
 from keyline.packs import Pack, PackError, resolve
 from keyline.packs.voices import (
@@ -206,29 +207,35 @@ class Brief:
 # loading
 
 
-def read_toml(path: Path, what: str, error: type[Exception] = ValueError) -> dict:
+def read_toml(
+    path: Path, what: str, error: type[Exception] = ValueError, shown: str | None = None
+) -> dict:
     """A TOML file, or `error` with one line (B-12 item 7): missing, a directory,
-    unreadable, not UTF-8, not TOML, or nested beyond the parser's limit."""
+    unreadable, not UTF-8, not TOML, or nested beyond the parser's limit. The message
+    names the file once: `what` and `shown` (default: the file name; "" when the caller
+    already names the file, as `keyline brief FILE` does)."""
+    shown = esc(path.name) if shown is None else esc(shown)
+    subject = f"{what} {shown}" if shown else what
     try:
         text = path.read_text(encoding="utf-8")
     except FileNotFoundError as exc:
-        raise error(f"{what} not found: {path.name}") from exc
+        raise error(f"{what} not found: {shown}" if shown else f"{what} not found") from exc
     except IsADirectoryError as exc:
-        raise error(f"{what} {path.name} is a directory, not a file") from exc
+        raise error(f"{subject} is a directory, not a file") from exc
     except UnicodeDecodeError as exc:
-        raise error(f"{what} {path.name} is not UTF-8") from exc
+        raise error(f"{subject} is not UTF-8") from exc
     except OSError as exc:
-        raise error(f"{what} {path.name} cannot be read: {exc.strerror or exc}") from exc
+        raise error(f"{subject} cannot be read: {exc.strerror or exc}") from exc
     try:
         return tomllib.loads(text)
     except tomllib.TOMLDecodeError as exc:
-        raise error(f"{what} {path.name} is not valid TOML: {exc}") from exc
+        raise error(f"{subject} is not valid TOML: {exc}") from exc
     except RecursionError as exc:
-        raise error(f"{what} {path.name} nests too deeply") from exc
+        raise error(f"{subject} nests too deeply") from exc
 
 
-def _read_toml(path: Path, what: str) -> dict:
-    return read_toml(path, what, BriefError)
+def _read_toml(path: Path, what: str, shown: str | None = None) -> dict:
+    return read_toml(path, what, BriefError, shown)
 
 
 def _str(d: dict, key: str, where: str, *, required: bool = True, empty: bool = False) -> str:
@@ -261,8 +268,8 @@ def _strings(d: dict, key: str, where: str, *, required: bool = True) -> tuple[s
 def load(path: str | Path) -> Brief:
     """Raises BriefError with a one-line reason on any schema error."""
     path = Path(path)
-    data = _read_toml(path, "brief")
-    if data.get("schema") != 1:
+    data = _read_toml(path, "brief", shown="")  # the CLI names the brief's file
+    if not schema_is(data.get("schema")):
         raise BriefError("schema: must be 1")
     mode = _str(data, "mode", "")
     if mode not in config_mod.MODES:
@@ -356,8 +363,8 @@ def _evidence(paths: list[Path], cfg) -> EvidenceSet:
     product = None
     for n, path in enumerate(paths):
         data = _read_toml(path, "evidence file")
-        name = path.name
-        if data.get("schema") != 1:
+        name = esc(path.name)
+        if not schema_is(data.get("schema")):
             raise BriefError(f"evidence file {name}: schema must be 1")
         if n == 0:  # only the primary file needs [product] (§4.1)
             product = _product(data.get("product"), name)
