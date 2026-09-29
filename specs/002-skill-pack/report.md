@@ -969,3 +969,41 @@ line (as box width ÷ fontTools advance sum; scanned 0.9800 … 1.0100 in 0.0005
 
 **T-21 … T-32 have not started.** They wait for this ruling, as T-20 says.
 
+### T-20 addendum · audit 04 and B-21 · both criteria hold
+
+- **Audit 04** ([audit-04-t20.md](audit-04-t20.md)) ran the same tool on LibreOffice
+  24.2.7.2 and got the same pitch table and the same four-factor wrap table. §6.4's
+  sentence had generalised one label; nothing changed between 24.2 and 26.8.
+- **The rulings (B-21):**
+  - keep the 0.99 wrap margin;
+  - `line_pitch_em = 1.2`;
+  - the height test adds 0.01 mm per line;
+  - the fit tables record each twin's missing Vietnamese letters.
+- **The tool.** `tools/measure_lo.py` now also runs the auditor's stress set: seven
+  strings, 9–24 pt, regular and bold, tracked caps and Vietnamese, in boxes up to
+  1/0.99× §6.4's estimate. It measures pitch at every (size, line spacing) of the Swiss
+  pack, and its verdict is B-21's two criteria. The output replaces the first run's file
+  under the same name, and a second run was identical.
+
+```
+$ python tools/measure_lo.py specs/002-skill-pack/evidence/lo-26.8.0.3-measurements.txt
+version: LibreOffice 26.8.0.3 680(Build:3)
+verdict (amendment B-21):
+  (a) no stress case wraps at 1/0.99 = 1.0101: 420 cases, 0 wrap: HOLDS
+  (b) every pitch <= size x 1.2 x line spacing + 0.01 mm (0.0283 pt): 198 probes, smallest slack 0.0000 pt: HOLDS
+exit 0
+```
+
+- **Wrap, smallest fitting factor per case:**
+  - 174 cases fit at ≤ 0.995×, 207 at 1.000× and 39 at 1.003×;
+  - none needs more;
+  - the auditor's 24.2 run gave 182 / 201 / 37.
+- **Pitch at 9 pt, the tightest case.** The pitch is exactly one LibreOffice unit over
+  1.2 em: 3.82 mm = 10.8283 pt, against 10.8000.
+  - So the 0.01 mm allowance is used up exactly (slack 1.8e-5 pt).
+  - The per-line steps read from the PDF scatter by about 0.001 pt, the PDF's coordinate
+    precision (10.8290, 10.8280, 10.8280), so the tool uses their mean.
+- **The first baseline** sits 1.00 em below the box top at line spacing 1.0, and
+  1.12 em at 1.1. That matches the auditor's reading.
+
+A2 continues from T-21.
