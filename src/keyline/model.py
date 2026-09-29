@@ -62,6 +62,9 @@ class Shape:
     st_cxn: int | None = None
     end_cxn: int | None = None
     paragraphs: list[Paragraph] = field(default_factory=list)
+    # spec 002 §3.4: plain cell text of a table, row-major (cells joined by a tab, rows by a
+    # newline). Read only by numtokens; kept out of `paragraphs` so no M1 rule sees it.
+    table_text: str | None = None
     _text_bearing: bool | None = field(default=None, repr=False, compare=False)
 
     @property

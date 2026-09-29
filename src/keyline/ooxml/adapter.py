@@ -349,10 +349,24 @@ def _build_shape(el: etree._Element, groups: tuple[Xfrm, ...], group_fill: str, 
         for what in dict.fromkeys(src.problems):
             ctx.diag(UNRESOLVED, shape, what, _unresolved_message(what))
     elif kind == "graphicFrame:table":
+        shape.table_text = _table_text(el)
         ctx.diag(UNSUPPORTED, shape, "table", "table text is not read in M1")
     elif kind == "graphicFrame:other":
         ctx.diag(UNSUPPORTED, shape, "graphicFrame", "SmartArt, OLE or media frame is not read")
     return shape
+
+
+def _table_text(el: etree._Element) -> str:
+    """Plain cell text, row-major: paragraphs joined by a newline within a cell, cells by a
+    tab, rows by a newline (spec 002 §3.4)."""
+    rows = []
+    for tr in el.iter(q("a:tr")):
+        cells = []
+        for tc in tr.iter(q("a:tc")):
+            paras = ["".join(t.text or "" for t in p.iter(q("a:t"))) for p in tc.iter(q("a:p"))]
+            cells.append("\n".join(paras))
+        rows.append("\t".join(cells))
+    return "\n".join(rows)
 
 
 def _notes_text(pkg: Package, slide_part: str) -> bool:
