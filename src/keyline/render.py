@@ -152,8 +152,9 @@ def choose(engine: str = "auto") -> str:
     """The engine that will run, or RenderError with the install hints."""
     if engine not in ENGINES:
         raise RenderError(f"unknown engine {engine!r}; expected one of {', '.join(ENGINES)}")
+    from keyline.officecli import NOT_INSTALLED, status
+
     lo = find_soffice() is not None and find_rasterizer() is not None
-    has_officecli = shutil.which("officecli") is not None
     if engine == "libreoffice":
         if find_soffice() is None:
             raise RenderError(f"libreoffice is not installed; {LO_INSTALL}")
@@ -161,11 +162,14 @@ def choose(engine: str = "auto") -> str:
             raise RenderError("no rasterizer for LibreOffice: pip install pypdfium2, or pdftoppm")
         return "libreoffice"
     if engine == "officecli" or not lo:
-        if has_officecli:
+        runnable, reason = status()  # an officecli that cannot start counts as absent (B-15)
+        if runnable:
             return "officecli"
         # the M1 wording stays first (plan Q-11); auto adds the LibreOffice hint
         hint = "" if engine == "officecli" else f"; or {LO_INSTALL}"
-        raise RenderError(f"officecli is not installed; install it with: {INSTALL}{hint}")
+        if reason == NOT_INSTALLED:
+            raise RenderError(f"officecli is not installed; install it with: {INSTALL}{hint}")
+        raise RenderError(f"{reason}{hint}")
     return "libreoffice"
 
 

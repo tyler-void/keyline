@@ -108,10 +108,12 @@ def _core() -> list[Line]:
 
 
 def _render() -> list[Line]:
+    from keyline.officecli import status
     from keyline.render import INSTALL, LO_INSTALL, find_rasterizer, find_soffice
 
     soffice, raster = find_soffice(), find_rasterizer()
-    officecli = shutil.which("officecli")
+    runnable, where = status()  # B-15: an officecli that cannot start counts as absent
+    officecli = where if runnable else None
     if soffice and raster:
         engine = Line("render", "RENDER_LIBREOFFICE", f"LibreOffice at {soffice}")
     elif officecli:
@@ -129,7 +131,7 @@ def _render() -> list[Line]:
     validator = (
         Line("validator", "VALIDATE_OFFICECLI", f"officecli validate at {officecli}")
         if officecli
-        else Line("validator", "NO_VALIDATOR", "check will skip validation", INSTALL)
+        else Line("validator", "NO_VALIDATOR", f"check will skip validation: {where}", INSTALL)
     )
     return [engine, rline, validator]
 

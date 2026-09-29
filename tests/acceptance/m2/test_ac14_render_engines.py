@@ -59,11 +59,24 @@ def test_pdftoppm_rasterizer(tmp_path, monkeypatch):
             assert im.width == render_mod.PNG_WIDTH
 
 
+def _needs_node(exe):
+    with open(exe, "rb") as f:
+        first = f.readline(200)
+    return first.startswith(b"#!") and b"node" in first
+
+
 @pytest.mark.officecli
 def test_auto_falls_back_to_officecli_without_soffice(tmp_path):
+    """Audit 02 FX-4: the npm launcher is a node script, so node goes on the PATH too."""
     only = tmp_path / "bin"
     only.mkdir()
-    (only / "officecli").symlink_to(shutil.which("officecli"))
+    exe = shutil.which("officecli")
+    (only / "officecli").symlink_to(exe)
+    if _needs_node(exe):
+        node = shutil.which("node")
+        if node is None:
+            pytest.skip("officecli is a node script and node is not on PATH")
+        (only / "node").symlink_to(node)
     proc = keyline("render", KPI, "-o", tmp_path / "out", env=_env_path(only))
     assert proc.returncode == 0, proc.stderr.decode()
     assert "L-002" in proc.stderr.decode()

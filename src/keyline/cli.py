@@ -247,10 +247,13 @@ def cmd_check(args: argparse.Namespace) -> int:
     result, failed = _lint_command(args)
     if result is None:
         return failed
+    from keyline.officecli import status
+
+    runnable, reason = (False, "") if args.no_validate else status()
     if args.no_validate:
         _err("validate: skipped (--no-validate)\n")
-    elif not validate.available():
-        _err("validate: skipped (officecli is not installed)\n")
+    elif not runnable:  # absent, or present but unable to start (B-15)
+        _err(f"validate: skipped ({reason})\n")
     else:  # after lint, before render (spec 002 §7)
         invalid = validate.validate(args.deck)
         _err(f"validate: {len(invalid)} schema error(s)\n" if invalid else "validate: passed\n")

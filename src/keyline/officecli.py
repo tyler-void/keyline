@@ -18,6 +18,27 @@ from collections.abc import Iterator
 from pathlib import Path
 
 CLOSE_TIMEOUT_S = 30
+PROBE_TIMEOUT_S = 30
+NOT_INSTALLED = "officecli is not installed"
+
+
+def status() -> tuple[bool, str]:
+    """(True, path) when `officecli --version` runs; else (False, reason). An officecli on
+    PATH that cannot start (the npm launcher without node, say) counts as absent (B-15)."""
+    exe = shutil.which("officecli")
+    if exe is None:
+        return False, NOT_INSTALLED
+    try:
+        proc = subprocess.run(
+            [exe, "--version"], capture_output=True, text=True, timeout=PROBE_TIMEOUT_S
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        reason = getattr(exc, "strerror", None) or type(exc).__name__
+        return False, f"officecli could not run: {reason}"
+    if proc.returncode != 0:
+        lines = (proc.stderr or proc.stdout).strip().splitlines()
+        return False, f"officecli could not run: {lines[0] if lines else f'exit {proc.returncode}'}"
+    return True, exe
 
 
 @contextlib.contextmanager

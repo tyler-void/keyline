@@ -31,7 +31,9 @@ OOXML_INVALID = register(
 
 
 def available() -> bool:
-    return shutil.which("officecli") is not None
+    from keyline.officecli import status
+
+    return status()[0]
 
 
 def validate(deck: str | Path) -> list[Finding]:
@@ -47,6 +49,7 @@ def validate(deck: str | Path) -> list[Finding]:
         except subprocess.TimeoutExpired:
             message = f"officecli validate timed out after {TIMEOUT_S} s"
             return [OOXML_INVALID.finding(0, None, message)]
+        copy_name = copy.name
     errors = parse(proc.stdout)
     if errors is None:
         first = (proc.stdout or proc.stderr).strip().splitlines()
@@ -54,7 +57,11 @@ def validate(deck: str | Path) -> list[Finding]:
         return [OOXML_INVALID.finding(0, None, f"officecli validate output not understood: {line}")]
     order = _slide_order(deck)
     return [
-        OOXML_INVALID.finding(order.get(part, 0), None, f"{part} {path}: {text}".strip())
+        OOXML_INVALID.finding(
+            order.get(part, 0),
+            None,
+            (f"{part} {path}: {text}" if part or path else text).replace(copy_name, deck.name),
+        )
         for text, path, part in errors
     ]
 
@@ -64,7 +71,8 @@ def parse(stdout: str) -> list[tuple[str, str, str]] | None:
 
     OfficeCLI 1.0.152 writes {"success": true, ...} for a valid deck, else {"success":
     false, "warnings": [...]}: a "Found N validation error(s):" header, then three entries
-    per error: the message, "Path: …", "Part: …"."""
+    per error: the message, "Path: …", "Part: …". A deck it cannot open gives the error
+    envelope {"success": false, "error": {"error": "…", …}}: one error (B-15)."""
     try:
         data = json.loads(stdout)
     except (json.JSONDecodeError, TypeError):
@@ -73,6 +81,9 @@ def parse(stdout: str) -> list[tuple[str, str, str]] | None:
         return None
     if data["success"]:
         return []
+    envelope = data.get("error")
+    if isinstance(envelope, dict) and isinstance(envelope.get("error"), str):
+        return [(envelope["error"], "", "")]
     entries = data.get("warnings")
     if not isinstance(entries, list):
         return None
