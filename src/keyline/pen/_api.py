@@ -17,10 +17,21 @@ from pathlib import Path
 from keyline import config as config_mod
 from keyline.fit import Setting, coverage_warning, fit, missing
 from keyline.pen._errors import DoesNotFit, PenError
-from keyline.pen._plan import ParaSpec, RectSpec, RunSpec, SlidePlan, TextSpec
+from keyline.pen._plan import (
+    ChartSpec,
+    ParaSpec,
+    PictureSpec,
+    RectSpec,
+    RunSpec,
+    SlidePlan,
+    TableSpec,
+    TextSpec,
+)
 from keyline.pen._regions import box, layout_for, regions, rule_box
 
 EMU_PER_PT = 12700
+CELL_MARGINS = (0, 91440, 45720, 45720)  # EMU: flush left, a gutter on the right (§6.4)
+RULE_WIDTH = 9525  # EMU, 0.75 pt: a hairline
 # a string that looks like a raw value where a token is expected (§6.2)
 RAW = re.compile(r"#[0-9a-f]{3,8}|[0-9a-f]{6}|-?\d+(\.\d+)?\s*(pt|cm|mm|in|px|emu)", re.IGNORECASE)
 
@@ -259,12 +270,14 @@ class SlideBuilder:
         paras = self._text(style, [headline], title_box, "headline")
         self._plan.shapes.append(TextSpec("title", title_box, paras, placeholder=0))
 
-    def _allowed(self, component: str, style: str | None = None) -> str:
+    def _allowed(self, component: str, style: str | None = None, styled: bool = True) -> str:
         """The style this component uses on this role in this mode (§5.1 `roles`)."""
         mode = self._deck._mode
         allowed = self._role.components[mode]
         if component not in allowed:
             raise PenError(f"role {self._role.name} does not allow {component} in {mode} mode")
+        if not styled:  # an image carries no text style
+            return ""
         if style is None:
             if not allowed[component]:
                 raise PenError(f"role {self._role.name} gives {component} no style")
@@ -422,6 +435,150 @@ class SlideBuilder:
         self._plan.shapes.append(TextSpec(f"{region}-label", rest, label_paras))
         self._used.add(region)
         self._figures += 1
+        return self
+
+    def _role_hex(self, role: str, fallback: str) -> str:
+        voice = self._deck._voice
+        return voice.hex(role) if role in voice.palette else voice.hex(fallback)
+
+    def table(
+        self, rows: list[list[str]], header: bool = True, region: str = "main"
+    ) -> SlideBuilder:
+        """A table of strings: hairline rules under each row, no fills; the header row in
+        the label style, each header cell at most caption_exempt_words words (§6.1). Each
+        column is as wide as its widest cell allows; rows grow to their tallest cell; the
+        table must fit the region (§6.4)."""
+        import math
+
+        from keyline.fit import width, wrap
+
+        body_name = self._allowed("table", "body")
+        label_name = self._allowed("table", "label") if header else body_name
+        region = self._region(region)
+        ok = isinstance(rows, list) and rows and all(isinstance(r, list) and r for r in rows)
+        if not ok or len({len(r) for r in rows}) != 1:
+            raise PenError("a table needs rows: a non-empty list of equally long lists")
+        for r in rows:
+            for cell in r:
+                if not isinstance(cell, str):
+                    raise PenError("table cells must be text")
+        if header:
+            for cell in rows[0]:
+                self._caption(cell, "header cell")
+        styles = self._deck._pack.styles[self._deck._mode]
+        row_styles = [
+            styles[label_name] if header and i == 0 else styles[body_name] for i in range(len(rows))
+        ]
+        settings = [self._deck._setting(st) for st in row_styles]
+        region_box = box(self._deck._pack, self._layout, region)
+        left, right, top, bottom = (Fraction(m, EMU_PER_PT) for m in CELL_MARGINS)
+        cols = len(rows[0])
+        natural = [
+            max(width(settings[i], rows[i][c]) for i in range(len(rows))) + left + right
+            for c in range(cols)
+        ]
+        region_w = Fraction(region_box.w, EMU_PER_PT)
+        widths = [n * region_w / sum(natural) for n in natural]
+        heights = []
+        for i, row in enumerate(rows):
+            lines = 0
+            for c, cell in enumerate(row):
+                self._deck._note_missing(settings[i], cell)
+                if cell.strip():
+                    lines = max(
+                        lines, len(wrap(settings[i], cell, widths[c] - left - right, "table cell"))
+                    )
+            heights.append(max(lines, 1) * settings[i].pitch + top + bottom)
+        region_h = Fraction(region_box.h, EMU_PER_PT)
+        if sum(heights) > region_h:
+            raise DoesNotFit(
+                f"table needs {float(sum(heights)):.1f} pt of height, region holds "
+                f"{float(region_h):.1f} pt: shorten it or split the slide"
+            )
+        col_emu = [math.floor(w * EMU_PER_PT) for w in widths[:-1]]
+        col_emu.append(region_box.w - sum(col_emu))
+        row_emu = [math.ceil(h * EMU_PER_PT) for h in heights]
+        cells = tuple(
+            tuple((self._para(row_styles[i], text),) for text in row) for i, row in enumerate(rows)
+        )
+        rule = self._role_hex("hairline", self._surface)
+        spec = TableSpec(
+            f"{region}-table",
+            region_box,
+            tuple(col_emu),
+            tuple(row_emu),
+            cells,
+            CELL_MARGINS,
+            rule,
+            RULE_WIDTH,
+        )
+        self._plan.shapes.append(spec)
+        self._used.add(region)
+        return self
+
+    def chart_bar(
+        self, evidence_id: str, region: str = "main", highlight: str | None = None
+    ) -> SlideBuilder:
+        """A column chart of a series entry: muted bars, at most one highlighted category
+        in the accent (counted against accent_budget), no legend, light horizontal rules,
+        direct data labels, in the voice's text font (§6.1)."""
+        label_name = self._allowed("chart_bar", "label")
+        region = self._region(region)
+        entry = self._entry(evidence_id)
+        if entry.series is None:
+            raise PenError(f"{evidence_id!r} has a value, not a series; use figure for it")
+        categories = [c for c, _v in entry.series]
+        index = None
+        if highlight is not None:
+            _check_content(highlight, "highlight")
+            if highlight not in categories:
+                raise PenError(f"highlight {highlight!r} is not a category of {evidence_id!r}")
+            index = categories.index(highlight)
+            self._check_accent("chart_bar(highlight=…)")
+        values = [v for _c, v in entry.series]
+        label = self._deck._pack.styles[self._deck._mode][label_name]
+        voice = self._deck._voice
+        spec = ChartSpec(
+            name=f"{region}-chart",
+            box=box(self._deck._pack, self._layout, region),
+            categories=tuple(categories),
+            values=tuple(float(v) for v in values),
+            number_format="#,##0" if all(isinstance(v, int) for v in values) else "#,##0.0",
+            bar=self._role_hex("muted", self._surface),
+            highlight=index,
+            accent=voice.hex(self._deck._pack.surfaces[self._surface].accent),
+            text=voice.hex(label.color[self._surface]),
+            rule=self._role_hex("hairline", self._surface),
+            font=voice.font(label.font),
+            size=label.size_hundredths,
+        )
+        self._plan.shapes.append(spec)
+        self._used.add(region)
+        if index is not None:
+            self._spend_accent("chart_bar(highlight=…)")
+        return self
+
+    def image(self, path: str, region: str = "main", *, alt: str) -> SlideBuilder:
+        """A picture fitted inside the region, without cropping or distortion, flush to its
+        top left; `alt` is required and written as its description."""
+        from PIL import Image
+
+        from keyline.geom import Box
+
+        self._allowed("image", styled=False)
+        region = self._region(region)
+        _check_content(path, "image path")
+        _check_content(alt, "alt")
+        try:
+            with Image.open(path) as im:
+                px_w, px_h = im.size
+        except OSError as exc:
+            raise PenError(f"image {Path(path).name!r} cannot be read: {exc}") from exc
+        region_box = box(self._deck._pack, self._layout, region)
+        scale = min(Fraction(region_box.w, px_w), Fraction(region_box.h, px_h))
+        fitted = Box(region_box.x, region_box.y, int(px_w * scale), int(px_h * scale))
+        self._plan.shapes.append(PictureSpec(f"{region}-image", fitted, str(path), alt))
+        self._used.add(region)
         return self
 
     def attribution(self, text: str) -> SlideBuilder:

@@ -51,3 +51,39 @@ class SlidePlan:
     layout: str
     shapes: list = field(default_factory=list)
     notes: str = ""
+
+
+@dataclass(frozen=True)
+class TableSpec:
+    name: str
+    box: Box
+    col_widths: tuple[int, ...]  # EMU; they sum to the box width
+    row_heights: tuple[int, ...]  # EMU
+    cells: tuple[tuple[tuple[ParaSpec, ...], ...], ...]  # rows × columns × paragraphs
+    margins: tuple[int, int, int, int]  # left, right, top, bottom (EMU)
+    rule: str  # RRGGBB of the hairline under each row
+    rule_width: int  # EMU
+
+
+@dataclass(frozen=True)
+class ChartSpec:
+    name: str
+    box: Box
+    categories: tuple[str, ...]
+    values: tuple[float, ...]
+    number_format: str
+    bar: str  # RRGGBB, muted bars
+    highlight: int | None  # the category index drawn in the accent
+    accent: str
+    text: str  # RRGGBB of labels
+    rule: str  # RRGGBB of the light horizontal rules
+    font: str  # the voice's text family
+    size: int  # hundredths of a point
+
+
+@dataclass(frozen=True)
+class PictureSpec:
+    name: str
+    box: Box
+    path: str
+    descr: str
