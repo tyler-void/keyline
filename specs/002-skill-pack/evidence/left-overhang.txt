@@ -1,0 +1,40 @@
+Arial regular -> Liberation Sans (2048 upm): j -50, w -3, A 4, y 5, v 7
+  presented body          24.0 pt  'j' reaches 0.78 px left
+  presented lede          28.0 pt  'j' reaches 0.91 px left
+  presented quote         44.0 pt  'j' reaches 1.43 px left
+  presented source        12.0 pt  'j' reaches 0.39 px left
+  read      body          13.0 pt  'j' reaches 0.42 px left
+  read      lede          16.0 pt  'j' reaches 0.52 px left
+  read      quote         24.0 pt  'j' reaches 0.78 px left
+  read      source         9.0 pt  'j' reaches 0.29 px left
+Arial bold -> Liberation Sans (2048 upm): j -32, w -6, W 2, v 8, V 14
+  presented cover_title   66.0 pt  'j' reaches 1.38 px left
+  presented headline      48.0 pt  'j' reaches 1.00 px left
+  presented label         14.0 pt  'j' reaches 0.29 px left
+  presented numeral      120.0 pt  'j' reaches 2.50 px left  > 2 px
+  presented statement     60.0 pt  'j' reaches 1.25 px left
+  read      cover_title   40.0 pt  'j' reaches 0.83 px left
+  read      headline      28.0 pt  'j' reaches 0.58 px left
+  read      label         10.0 pt  'j' reaches 0.21 px left
+  read      numeral       60.0 pt  'j' reaches 1.25 px left
+  read      statement     36.0 pt  'j' reaches 0.75 px left
+Georgia regular -> Gelasio (2048 upm): j -51, w -50, Y -44, V -38, v -34
+  presented body          24.0 pt  'j' reaches 0.80 px left
+  presented lede          28.0 pt  'j' reaches 0.93 px left
+  presented quote         44.0 pt  'j' reaches 1.46 px left
+  presented source        12.0 pt  'j' reaches 0.40 px left
+  read      body          13.0 pt  'j' reaches 0.43 px left
+  read      lede          16.0 pt  'j' reaches 0.53 px left
+  read      quote         24.0 pt  'j' reaches 0.80 px left
+  read      source         9.0 pt  'j' reaches 0.30 px left
+Georgia bold -> Gelasio (2048 upm): j -172, v -49, V -43, w -40, W -35
+  presented cover_title   66.0 pt  'j' reaches 7.39 px left  > 2 px
+  presented headline      48.0 pt  'j' reaches 5.38 px left  > 2 px
+  presented label         14.0 pt  'j' reaches 1.57 px left
+  presented numeral      120.0 pt  'j' reaches 13.44 px left  > 2 px
+  presented statement     60.0 pt  'j' reaches 6.72 px left  > 2 px
+  read      cover_title   40.0 pt  'j' reaches 4.48 px left  > 2 px
+  read      headline      28.0 pt  'j' reaches 3.14 px left  > 2 px
+  read      label         10.0 pt  'j' reaches 1.12 px left
+  read      numeral       60.0 pt  'j' reaches 6.72 px left  > 2 px
+  read      statement     36.0 pt  'j' reaches 4.03 px left  > 2 px
