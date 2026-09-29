@@ -496,7 +496,7 @@ as its own commit with its tests. After each one, `pytest -q` passed in full and
 |---|---|---|---|
 | FX-1 | `5ed1fb6` | 619 passed | no differences |
 | FX-2 | `9ad763d` | 624 passed | no differences |
-| FX-3 | `6efe82f` | 631 passed | no differences |
+| FX-3 | `6efe82f`, `ecc017f` (follow-up) | 631 passed; 670 after the follow-up | no differences |
 | FX-4 | `af571f3` | 636 passed | no differences |
 | FX-5 | `275082a` | 657 passed | no differences |
 | FX-6 | `3275883` | 662 passed | no differences |
@@ -573,6 +573,14 @@ exit 2
 $ pytest -q tests/acceptance/m2/test_fx3_render.py
 7 passed
 ```
+
+- **Follow-up `ecc017f`.** CI has neither LibreOffice nor OfficeCLI, so `render` stopped
+  at the engine check before reaching "deck has no slides" or the unusable `-o`.
+  Two FX-3 tests failed in CI on every push from `6efe82f` to `525ccb2`, though
+  they passed here, where both engines exist. `render` now checks the user's inputs
+  first: the deck, its slide count, and an `-o` that exists but is not a directory.
+  `test_input_errors_come_before_the_engine_check` runs both cases with an empty PATH.
+  I should have simulated CI's missing engines before pushing FX-3.
 
 ### FX-4 · The validate step's error paths (B-15) · `af571f3`
 
