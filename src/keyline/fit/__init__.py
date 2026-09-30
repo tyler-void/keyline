@@ -53,6 +53,7 @@ class Table:
     max_advance: int
     line_pitch_em: Fraction
     hhea_line_em: Fraction  # the twin's hhea line height; table cells use it above 1.2
+    descent_em: Fraction  # the deepest Latin or Vietnamese glyph descent below the baseline
     measured_on: tuple[str, ...]  # the LibreOffice versions behind line_pitch_em (Q-44b)
     missing_vietnamese: str
     source: dict = field(repr=False)
@@ -96,6 +97,7 @@ def load_table(family: str, weight: str) -> Table:
         max_advance=data["max_advance"],
         line_pitch_em=Fraction(data["line_pitch_em"]),
         hhea_line_em=Fraction(data["hhea_line_em"]),
+        descent_em=Fraction(data["descent_em"]),
         measured_on=tuple(data["measured_on"]),
         missing_vietnamese=data["missing_vietnamese"],
         source=data["source"],
@@ -112,6 +114,9 @@ def load_table(family: str, weight: str) -> Table:
 
 WRAP_MARGIN = Fraction(99, 100)  # a line fits when its width ≤ 0.99 × the available width
 LINE_ALLOWANCE_PT = Fraction(72, 2540)  # 0.01 mm per line, LibreOffice's layout unit (B-21)
+# LibreOffice sets a line's baseline 0.2 em above its bottom (B-21: the first baseline is
+# 1.00 em below the top of a 1.2 em line); a glyph descending further reaches below it
+BELOW_BASELINE_EM = Fraction(1, 5)
 # a table row: LibreOffice rounds each row up by one more unit (26.8.0.3, A2 fixes)
 ROW_ALLOWANCE_PT = LINE_ALLOWANCE_PT
 EMU_PER_PT = 12700
@@ -143,6 +148,12 @@ class Setting:
     @property
     def pitch(self) -> Fraction:
         return self.size * self.table.line_pitch_em * self.line_spacing + LINE_ALLOWANCE_PT
+
+    @property
+    def descent_room(self) -> Fraction:
+        """Room kept under a region's last line for the twin's descenders, in points: what
+        they reach below LibreOffice's line box (A2 fixes, found with FX-24)."""
+        return self.size * max(Fraction(0), self.table.descent_em - BELOW_BASELINE_EM)
 
     @property
     def cell_pitch(self) -> Fraction:
@@ -206,7 +217,7 @@ def wrap(setting: Setting, text: str, available: Fraction, what: str = "text") -
 def lines_held(setting: Setting, height: Fraction, paragraphs: int = 1) -> int:
     """How many lines of this setting a region of `height` holds."""
     spacing = (setting.space_before + setting.space_after) * paragraphs
-    return max(int((height - spacing) // setting.pitch), 0)
+    return max(int((height - spacing - setting.descent_room) // setting.pitch), 0)
 
 
 def fit(
@@ -215,14 +226,18 @@ def fit(
     box_width: Fraction,
     box_height: Fraction,
     what: str = "text",
+    descent: bool = True,
 ) -> list[list[str]]:
     """The wrapped lines of each paragraph, or DoesNotFit. A region holds n lines when
-    n × (size × line_pitch_em × line spacing + 0.01 mm) plus the paragraphs' spacing is at
-    most its height (B-21)."""
+    n × (size × line_pitch_em × line spacing + 0.01 mm) plus the paragraphs' spacing plus
+    the descent room under the last line is at most its height (B-21; A2 fixes).
+    `descent=False`: the box's bottom is not its region's (a figure's numeral, whose label
+    box follows in the same region)."""
     wrapped = [wrap(setting, p, box_width, what) for p in paragraphs]
     needed = sum(len(w) for w in wrapped)
     spacing = (setting.space_before + setting.space_after) * len(paragraphs)
-    if needed * setting.pitch + spacing > box_height:
+    room = setting.descent_room if descent else 0
+    if needed * setting.pitch + spacing + room > box_height:
         held = lines_held(setting, box_height, len(paragraphs))
         raise DoesNotFit(
             f"{what} needs {needed} lines, region holds {held}: shorten it or split the slide"

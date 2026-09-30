@@ -5,6 +5,7 @@ from fractions import Fraction as F
 import pytest
 
 from keyline.fit import (
+    BELOW_BASELINE_EM,
     LINE_ALLOWANCE_PT,
     WRAP_MARGIN,
     DoesNotFit,
@@ -55,17 +56,31 @@ def test_height_adds_the_allowance_per_line():
     assert ARIAL.pitch == pitch
     assert F(72, 2540) == LINE_ALLOWANCE_PT
     lines = ["one", "two", "three"]
-    assert fit(ARIAL, lines, F(500), 3 * pitch) == [["one"], ["two"], ["three"]]
+    held = 3 * pitch + ARIAL.descent_room  # the lines, and room for the last one's descent
+    assert fit(ARIAL, lines, F(500), held) == [["one"], ["two"], ["three"]]
     with pytest.raises(DoesNotFit, match=r"^headline needs 3 lines, region holds 2: shorten"):
-        fit(ARIAL, lines, F(500), 3 * pitch - F(1, 1000), "headline")
+        fit(ARIAL, lines, F(500), held - F(1, 1000), "headline")
+
+
+def test_room_for_the_descent_under_the_last_line():
+    """LibreOffice's baseline sits 0.2 em above a line's bottom (B-21); a twin's deepest
+    descent below that is kept free under a region's last line (A2 fixes, with FX-24)."""
+    t = load_table("Arial", "regular")
+    assert t.descent_em == F(434, 2048)  # Liberation Sans, from its glyph outlines
+    assert ARIAL.descent_room == 24 * (t.descent_em - BELOW_BASELINE_EM)
+    gelasio = Setting("Georgia", "bold", F(48))
+    assert gelasio.descent_room == 48 * (load_table("Georgia", "bold").descent_em - F(1, 5))
+    carlito = Setting("Calibri", "regular", F(24))
+    assert carlito.descent_room == 0  # Carlito descends 0.183 em: inside the line box
 
 
 def test_paragraph_spacing_counts():
     spaced = Setting("Arial", "regular", F(24), space_after=F(6))
-    pitch = spaced.pitch
-    assert fit(spaced, ["a", "b"], F(500), 2 * pitch + 12)
+    pitch, room = spaced.pitch, spaced.descent_room
+    assert fit(spaced, ["a", "b"], F(500), 2 * pitch + 12 + room)
     with pytest.raises(DoesNotFit, match="needs 2 lines, region holds 1"):
-        fit(spaced, ["a", "b"], F(500), 2 * pitch + 11)
+        fit(spaced, ["a", "b"], F(500), 2 * pitch + 11 + room)
+    assert fit(spaced, ["a", "b"], F(500), 2 * pitch + 12, descent=False)  # a numeral box
 
 
 def test_missing_characters_and_the_warning():

@@ -376,7 +376,9 @@ class SlideBuilder:
             bullet=style.bullet_marker if bullet else "",
         )
 
-    def _text(self, style, paragraphs, region_box, what, bullet=False) -> tuple[ParaSpec, ...]:
+    def _text(
+        self, style, paragraphs, region_box, what, bullet=False, descent=True
+    ) -> tuple[ParaSpec, ...]:
         """Fit-checked paragraphs for a box (DoesNotFit otherwise)."""
         setting = self._deck._setting(style, style.bullet_indent_emu if bullet else 0)
         for text in paragraphs:
@@ -387,6 +389,7 @@ class SlideBuilder:
             Fraction(region_box.w, EMU_PER_PT),
             Fraction(region_box.h, EMU_PER_PT),
             what,
+            descent,
         )
         return tuple(self._para(style, text, bullet) for text in paragraphs)
 
@@ -568,7 +571,7 @@ class SlideBuilder:
             )
         top = Box(region_box.x, region_box.y, region_box.w, numeral_h)
         rest = Box(region_box.x, region_box.y + numeral_h, region_box.w, region_box.h - numeral_h)
-        numeral_paras = self._text(num, [value], top, "numeral")
+        numeral_paras = self._text(num, [value], top, "numeral", descent=False)  # label below
         if accent:
             accent_hex = self._deck._voice.hex(pack.surfaces[self._surface].accent)
             numeral_paras = tuple(

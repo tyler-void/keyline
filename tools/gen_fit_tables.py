@@ -10,6 +10,9 @@ the metric twin's TTF (the same substitution LibreOffice makes), and the table r
 - `hhea_line_em`, the twin's hhea line height (ascender - descender + line gap, over
   units per em, as an exact decimal), which table cells use when it exceeds 1.2 (B-22
   item 5);
+- `descent_em`, the deepest a glyph reaches below the baseline, over Basic Latin, Latin-1,
+  Latin Extended-A, the Vietnamese letters, digits and punctuation (from the glyph
+  outlines), which the estimator keeps room for under a region's last line;
 - the Vietnamese letters the twin lacks (audit 04);
 - the source file's name, version, licence, copyright and SHA-256.
 
@@ -54,6 +57,25 @@ def _name(font, name_id: int) -> str:
     return " ".join((font["name"].getDebugName(name_id) or "").split())
 
 
+DESCENT_CHARS = [chr(c) for c in (*range(0x20, 0x7F), *range(0xA0, 0x180))]
+
+
+def descent_em(font) -> str:
+    """The deepest glyph descent below the baseline in em, exactly, over DESCENT_CHARS and
+    the Vietnamese letters the twin has."""
+    from fontTools.pens.boundsPen import BoundsPen
+
+    cmap, glyphs = font.getBestCmap(), font.getGlyphSet()
+    deepest = 0
+    for ch in dict.fromkeys(DESCENT_CHARS + list(VIETNAMESE)):
+        if ord(ch) in cmap:
+            pen = BoundsPen(glyphs)
+            glyphs[cmap[ord(ch)]].draw(pen)
+            if pen.bounds is not None:
+                deepest = min(deepest, pen.bounds[1])
+    return str(Decimal(-deepest) / Decimal(font["head"].unitsPerEm))
+
+
 def hhea_line_em(font) -> str:
     """The hhea line height in em, exactly: units per em is 1000 or a power of two."""
     hhea = font["hhea"]
@@ -88,6 +110,7 @@ def table(family: str, twin: str, weight: str) -> tuple[str, dict]:
         "max_advance": max(adv for adv, _lsb in hmtx.metrics.values()),
         "line_pitch_em": LINE_PITCH_EM,
         "hhea_line_em": hhea_line_em(font),
+        "descent_em": descent_em(font),
         "measured_on": list(MEASURED_ON),
         "missing_vietnamese": "".join(c for c in VIETNAMESE if ord(c) not in cmap),
         "source": source,
