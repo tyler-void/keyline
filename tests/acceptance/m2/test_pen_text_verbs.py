@@ -46,7 +46,7 @@ def test_a_pen_built_deck_lints_clean_against_its_brief(tmp_path):
         (lambda s: s.text("Words", style="lede"), "style 'lede' is not allowed for text"),
         (lambda s: s.attribution("Ada"), "does not allow attribution"),
         (lambda s: s.text("One").text("Two"), "region 'main' already holds a component"),
-        (lambda s: s.bullets(["a", "b", "c", "d", "e"]), "5 bullets; at most 4"),
+        (lambda s: s.bullets(["a", "b", "c", "d", "e"]), "5 bullets on this slide; at most 4"),
         (lambda s: s.note(), "no disclosure to write here"),
     ],
 )

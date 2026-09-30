@@ -9,6 +9,7 @@ writer-neutral plan (`_plan`), checks that every text fits its region (keyline.f
 
 from __future__ import annotations
 
+import functools
 import io
 import os
 import re
@@ -83,6 +84,28 @@ def _paragraphs(value: object, what: str) -> list[str]:
     if not paras:
         raise PenError(f"{what} must be non-empty text")
     return paras
+
+
+def _atomic(verb):
+    """A refused verb leaves the slide exactly as it was (B-23): the builder's state is
+    kept before the verb runs and put back if it raises."""
+
+    @functools.wraps(verb)
+    def run(self, *args, **kwargs):
+        saved = self._state()
+        try:
+            return verb(self, *args, **kwargs)
+        except BaseException:
+            self._restore(saved)
+            raise
+
+    return run
+
+
+def _flag(value: object, what: str) -> bool:
+    if not isinstance(value, bool):
+        raise PenError(f"{what} must be True or False, not {value!r}")
+    return value
 
 
 def _write_atomically(target: Path, data: bytes) -> None:
@@ -182,6 +205,11 @@ class Deck:
         """The builder for the brief's next slide, its role, headline and notes applied."""
         if self._brief is None:
             raise PenError("next() needs a brief: use Deck.from_brief(), or add()")
+        if any(b._brief_slide is None for b in self._slides):  # B-23
+            raise PenError(
+                "next() walks the brief, and this deck has a slide from add(): build a brief's "
+                "deck with next() only"
+            )
         index = len(self._slides)
         if index >= len(self._brief.slides):
             raise PenError(f"the brief has {len(self._brief.slides)} slides; no slide {index + 1}")
@@ -201,9 +229,14 @@ class Deck:
             _check_token(variant, "variant")
         headline = _line(headline, "headline")
         builder = SlideBuilder(self, role, layout_for(self._pack, role, variant))
-        builder._headline(headline)
-        if notes is not None:
-            builder.notes(notes)
+        missing = dict(self._missing)
+        try:
+            builder._headline(headline)
+            if notes is not None:
+                builder.notes(notes)
+        except BaseException:  # a refused slide leaves the deck as it was (B-23)
+            self._missing = missing
+            raise
         if role == "evidence":  # the keyline device, drawn by the pen (§5.2)
             color = self._voice.hex(self._pack.keyline_rule["color"])
             builder._plan.shapes.append(RectSpec("keyline", rule_box(self._pack), color))
@@ -278,6 +311,33 @@ class SlideBuilder:
         self._evidence_used: dict[str, None] = {}  # evidence ids the verbs used, in order
         self._accents = 0  # accent elements on this slide (the pen enforces accent_budget)
         self._figures = 0
+        self._bullets = 0  # bullet items on this slide (bullets_max counts per slide, B-23)
+
+    def _state(self) -> tuple:
+        return (
+            list(self._plan.shapes),
+            self._plan.notes,
+            set(self._used),
+            dict(self._lines),
+            dict(self._evidence_used),
+            self._accents,
+            self._figures,
+            self._bullets,
+            dict(self._deck._missing),
+        )
+
+    def _restore(self, state: tuple) -> None:
+        (
+            self._plan.shapes,
+            self._plan.notes,
+            self._used,
+            self._lines,
+            self._evidence_used,
+            self._accents,
+            self._figures,
+            self._bullets,
+            self._deck._missing,
+        ) = state
 
     # -- helpers the verbs share -------------------------------------------------------
 
@@ -288,6 +348,8 @@ class SlideBuilder:
             raise PenError(
                 f"layout {self._layout} has no region {region!r} (regions: {', '.join(names)})"
             )
+        if region == "footer":  # B-23
+            raise PenError("the footer region takes only source() and note()")
         if region in self._used:
             raise PenError(f"region {region!r} already holds a component")
         return region
@@ -429,6 +491,7 @@ class SlideBuilder:
 
     # -- verbs -------------------------------------------------------------------------------
 
+    @_atomic
     def text(self, content: str, style: str = "body", region: str = "main") -> SlideBuilder:
         """A block of text in one region, in a style the role allows for text."""
         style = self._allowed("text", style)
@@ -436,6 +499,7 @@ class SlideBuilder:
         self._place(region, style, _paragraphs(content, "text"), "text")
         return self
 
+    @_atomic
     def bullets(self, items: list[str], region: str = "main") -> SlideBuilder:
         """A bulleted list, at most bullets_max items (§3.2)."""
         style = self._allowed("bullets")
@@ -443,12 +507,17 @@ class SlideBuilder:
         if not isinstance(items, list) or not items:
             raise PenError("bullets need a non-empty list of items")
         limit = self._deck._cfg.as_int("bullets_max")
-        if len(items) > limit:
-            raise PenError(f"{len(items)} bullets; at most {limit} in {self._deck._mode} mode")
+        if self._bullets + len(items) > limit:
+            raise PenError(
+                f"{self._bullets + len(items)} bullets on this slide; at most {limit} in "
+                f"{self._deck._mode} mode"
+            )
         texts = [_line(item, "a bullet") for item in items]
         self._place(region, style, texts, "bullets", bullet=True)
+        self._bullets += len(items)
         return self
 
+    @_atomic
     def figure(
         self,
         evidence_id: str,
@@ -465,6 +534,7 @@ class SlideBuilder:
 
         from keyline.geom import Box
 
+        accent = _flag(accent, "accent")
         numeral_style = self._allowed("figure", "numeral")
         label_style = self._allowed("figure", "label")
         region = self._region(region)
@@ -526,6 +596,7 @@ class SlideBuilder:
         voice = self._deck._voice
         return voice.hex(role) if role in voice.palette else voice.hex(fallback)
 
+    @_atomic
     def table(
         self, rows: list[list[str]], header: bool = True, region: str = "main"
     ) -> SlideBuilder:
@@ -537,6 +608,7 @@ class SlideBuilder:
 
         from keyline.fit import width, wrap
 
+        header = _flag(header, "header")
         body_name = self._allowed("table", "body")
         label_name = self._allowed("table", "label") if header else body_name
         region = self._region(region)
@@ -605,6 +677,7 @@ class SlideBuilder:
         self._used.add(region)
         return self
 
+    @_atomic
     def chart_bar(
         self, evidence_id: str, region: str = "main", highlight: str | None = None
     ) -> SlideBuilder:
@@ -647,6 +720,7 @@ class SlideBuilder:
             self._spend_accent("chart_bar(highlight=…)")
         return self
 
+    @_atomic
     def image(self, path: str, region: str = "main", *, alt: str) -> SlideBuilder:
         """A picture fitted inside the region, without cropping or distortion, flush to its
         top left; `alt` is required and written as its description. The file is read
@@ -679,6 +753,7 @@ class SlideBuilder:
         self._used.add(region)
         return self
 
+    @_atomic
     def attribution(self, text: str) -> SlideBuilder:
         """Who said the quote: on quote slides, in the label style, in its own region."""
         style = self._allowed("attribution")
@@ -686,6 +761,7 @@ class SlideBuilder:
         self._place(region, style, [self._caption(text, "attribution")], "attribution")
         return self
 
+    @_atomic
     def source(self, text: str | None = None) -> SlideBuilder:
         """The source line. Without text: the sources of the brief slide's evidence
         (without a brief, of the evidence the slide's verbs used), first-seen order,
@@ -708,6 +784,7 @@ class SlideBuilder:
         self._footer()
         return self
 
+    @_atomic
     def note(self, text: str | None = None) -> SlideBuilder:
         """The note line. Without text on a cover or close slide: the primary evidence
         file's disclosure. A text without a note prefix gets "Note: "."""
@@ -729,6 +806,7 @@ class SlideBuilder:
         self._footer()
         return self
 
+    @_atomic
     def notes(self, text: str) -> SlideBuilder:
         """Speaker notes."""
         self._plan.notes = "\n".join(_paragraphs(text, "notes"))
