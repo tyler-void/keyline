@@ -51,6 +51,7 @@ class Table:
     units_per_em: int
     max_advance: int
     line_pitch_em: Fraction
+    hhea_line_em: Fraction  # the twin's hhea line height; table cells use it above 1.2
     measured_on: tuple[str, ...]  # the LibreOffice versions behind line_pitch_em (Q-44b)
     missing_vietnamese: str
     source: dict = field(repr=False)
@@ -89,6 +90,7 @@ def load_table(family: str, weight: str) -> Table:
         units_per_em=data["units_per_em"],
         max_advance=data["max_advance"],
         line_pitch_em=Fraction(data["line_pitch_em"]),
+        hhea_line_em=Fraction(data["hhea_line_em"]),
         measured_on=tuple(data["measured_on"]),
         missing_vietnamese=data["missing_vietnamese"],
         source=data["source"],
@@ -102,6 +104,8 @@ def load_table(family: str, weight: str) -> Table:
 
 WRAP_MARGIN = Fraction(99, 100)  # a line fits when its width ≤ 0.99 × the available width
 LINE_ALLOWANCE_PT = Fraction(72, 2540)  # 0.01 mm per line, LibreOffice's layout unit (B-21)
+# a table row: LibreOffice rounds each row up by one more unit (26.8.0.3, A2 fixes)
+ROW_ALLOWANCE_PT = LINE_ALLOWANCE_PT
 EMU_PER_PT = 12700
 
 
@@ -131,6 +135,13 @@ class Setting:
     @property
     def pitch(self) -> Fraction:
         return self.size * self.table.line_pitch_em * self.line_spacing + LINE_ALLOWANCE_PT
+
+    @property
+    def cell_pitch(self) -> Fraction:
+        """A line's pitch in a table cell (B-22 item 5): LibreOffice 24.2.7.2 sets cells at
+        the twin's hhea line height where that exceeds 1.2 em (audit 05)."""
+        em = max(self.table.line_pitch_em, self.table.hhea_line_em)
+        return self.size * em * self.line_spacing + LINE_ALLOWANCE_PT
 
 
 def as_set(setting: Setting, text: str) -> str:

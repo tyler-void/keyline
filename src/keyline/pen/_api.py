@@ -15,7 +15,7 @@ from fractions import Fraction
 from pathlib import Path
 
 from keyline import config as config_mod
-from keyline.fit import Setting, coverage_warning, fit, missing
+from keyline.fit import ROW_ALLOWANCE_PT, Setting, coverage_warning, fit, missing
 from keyline.fit.text import code_point, normalize, refused
 from keyline.fit.text import paragraphs as paragraphs_of
 from keyline.pen._errors import DoesNotFit, PenError
@@ -522,7 +522,8 @@ class SlideBuilder:
                     lines = max(
                         lines, len(wrap(settings[i], cell, widths[c] - left - right, "table cell"))
                     )
-            heights.append(max(lines, 1) * settings[i].pitch + top + bottom)
+            # B-22 item 5: cell lines at max(1.2, hhea); one more 0.01 mm per row
+            heights.append(max(lines, 1) * settings[i].cell_pitch + ROW_ALLOWANCE_PT + top + bottom)
         region_h = Fraction(region_box.h, EMU_PER_PT)
         if sum(heights) > region_h:
             raise DoesNotFit(

@@ -7,6 +7,9 @@ the metric twin's TTF (the same substitution LibreOffice makes), and the table r
 - every codepoint of the twin's cmap with its advance width, in font units per em;
 - the maximum advance (the estimate for a character the twin lacks);
 - `line_pitch_em` = 1.2, with the LibreOffice versions that measured it (B-21, Q-44b);
+- `hhea_line_em`, the twin's hhea line height (ascender - descender + line gap, over
+  units per em, as an exact decimal), which table cells use when it exceeds 1.2 (B-22
+  item 5);
 - the Vietnamese letters the twin lacks (audit 04);
 - the source file's name, version, licence, copyright and SHA-256.
 
@@ -20,6 +23,7 @@ import hashlib
 import json
 import subprocess
 import sys
+from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,6 +54,13 @@ def _name(font, name_id: int) -> str:
     return " ".join((font["name"].getDebugName(name_id) or "").split())
 
 
+def hhea_line_em(font) -> str:
+    """The hhea line height in em, exactly: units per em is 1000 or a power of two."""
+    hhea = font["hhea"]
+    units = hhea.ascent - hhea.descent + hhea.lineGap
+    return str(Decimal(units) / Decimal(font["head"].unitsPerEm))
+
+
 def table(family: str, twin: str, weight: str) -> tuple[str, dict]:
     from fontTools.ttLib import TTFont
 
@@ -76,6 +87,7 @@ def table(family: str, twin: str, weight: str) -> tuple[str, dict]:
         "units_per_em": font["head"].unitsPerEm,
         "max_advance": max(adv for adv, _lsb in hmtx.metrics.values()),
         "line_pitch_em": LINE_PITCH_EM,
+        "hhea_line_em": hhea_line_em(font),
         "measured_on": list(MEASURED_ON),
         "missing_vietnamese": "".join(c for c in VIETNAMESE if ord(c) not in cmap),
         "source": source,

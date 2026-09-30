@@ -75,3 +75,16 @@ def chars(pptx: Path, work: Path) -> list[list[tuple[str, float, float, float, f
 def region_pt(pack, layout: str, region: str) -> tuple[float, float, float, float]:
     b = pack.region_box(layout, region)
     return (b.x / EMU_PER_PT, b.y / EMU_PER_PT, (b.x + b.w) / EMU_PER_PT, (b.y + b.h) / EMU_PER_PT)
+
+
+def voice_file(directory: Path, family: str) -> str:
+    """A test-only voice: Swiss neutral's palette with `family` as its display and text
+    font (inline voices may use any portable family, audit 05)."""
+    from keyline.packs import resolve
+
+    neutral = resolve("swiss").directory / "voices" / "neutral.toml"
+    name = family.lower().replace(" ", "-")
+    text = neutral.read_text(encoding="utf-8").replace('name = "neutral"', f'name = "{name}"')
+    path = Path(directory) / f"{name}.toml"
+    path.write_text(text.replace('"Arial"', f'"{family}"'), encoding="utf-8")
+    return str(path)
