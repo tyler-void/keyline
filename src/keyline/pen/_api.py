@@ -368,6 +368,8 @@ class SlideBuilder:
 
     def _place(self, region: str, style_name: str, paragraphs, what: str, bullet=False):
         style = self._deck._pack.styles[self._deck._mode][style_name]
+        if region != "footer":  # source and note lines are not body text (§3.1)
+            self._caption_sized(style, style_name, paragraphs, what)
         region_box = box(self._deck._pack, self._layout, region)
         paras = self._text(style, paragraphs, region_box, what, bullet)
         if style.color[self._surface] in self._deck._pack.accents:
@@ -375,6 +377,24 @@ class SlideBuilder:
         idx = self._deck._pack.placeholder_idx.get(region)
         self._plan.shapes.append(TextSpec(region, region_box, paras, placeholder=idx))
         self._used.add(region)
+
+    def _caption_sized(self, style, style_name: str, paragraphs, what: str) -> None:
+        """A style below the mode's body minimum sets captions only: each paragraph at most
+        caption_exempt_words words, as lint exempts them from body-too-small (B-23)."""
+        from keyline.rules._common import words
+
+        cfg = self._deck._cfg
+        if style.size_pt >= cfg.body_min_pt:
+            return
+        limit = cfg.as_int("caption_exempt_words")
+        for text in paragraphs:
+            n = words(text)
+            if n > limit:
+                raise PenError(
+                    f"{what} in the {style_name} style has {n} words; at most {limit}: "
+                    f"{style.size_pt} pt is below the {cfg.mode} body minimum "
+                    f"({cfg.body_min_pt} pt), so the style sets captions only"
+                )
 
     def _check_accent(self, what: str) -> None:
         """One more accent element would exceed the pack's accent_budget (§6.1)."""
