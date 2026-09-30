@@ -111,9 +111,12 @@ def test_bullets_carry_the_marker_and_indent(tmp_path):
 
 
 def test_text_that_does_not_fit():
-    s = deck().add("section", "What the bench does")
-    with pytest.raises(DoesNotFit, match=r"^text needs \d+ lines, region holds 1"):
-        s.text(
-            "Part one of the talk, about benches, repairs, tags and the members who return",
-            style="label",
-        )
+    """A lede too long for the cover's text region. (This used a 14-word label on a
+    section slide; since FX-21 a label sets captions only, and that is a PenError.)"""
+    s = deck().add("cover", "Toolshed Commons")
+    lede = (
+        "A neighbourhood tool library where members borrow saws, planes and clamps, return "
+        "them mended, and log every repair on the shared bench for the next borrower"
+    )
+    with pytest.raises(DoesNotFit, match=r"^text needs 6 lines, region holds 3"):
+        s.text(f"{lede} {lede}", style="lede")
