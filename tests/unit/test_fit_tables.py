@@ -33,7 +33,8 @@ def test_every_table(family, twin, weight):
     assert (t.family, t.twin, t.weight) == (family, twin, weight)
     assert t.line_pitch_em == Fraction(6, 5)  # B-21
     assert any("26.8.0.3" in v for v in t.measured_on)  # Q-44b
-    assert t.advance("H") > 0 and t.advance("\U0010fffd") == t.max_advance
+    missing = max(Fraction(t.max_advance), load_config().missing_glyph_em * t.units_per_em)
+    assert t.advance("H") > 0 and t.advance("\U0010fffd") == missing  # B-22 item 6
     assert max(t.advances.values()) <= t.max_advance
     assert t.source["licence"] == "OFL-1.1"
     assert f"{t.source['file']}, {t.source['version']}, OFL-1.1" in NOTICE

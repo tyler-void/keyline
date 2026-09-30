@@ -1,8 +1,9 @@
-"""Fit (spec 002 §6.4, amendment B-21): width tables of the metric twins, and the
-estimator the pen uses to refuse text that does not fit (T-22).
+"""Fit (spec 002 §6.4, amendments B-21 and B-22): width tables of the metric twins, and
+the estimator the pen uses to refuse text that does not fit (T-22, audit 05).
 
 A table per portable family and weight holds the twin's advance widths (font units per
-em, per codepoint), its maximum advance (used for a character the twin lacks),
+em, per codepoint), its maximum advance (with thresholds.toml's `missing_glyph_em`, the
+estimate for a character the twin lacks), its hhea line height (for table cells),
 `line_pitch_em` with the LibreOffice versions that measured it, and the Vietnamese letters
 the twin lacks. Tables are data, written by `tools/gen_fit_tables.py`; lint never imports
 this package.
@@ -56,10 +57,13 @@ class Table:
     missing_vietnamese: str
     source: dict = field(repr=False)
     advances: dict[int, int] = field(repr=False)
+    # B-22 item 6: a character the twin lacks counts as max(max_advance, missing_glyph_em)
+    missing_advance: Fraction = Fraction(0)
 
-    def advance(self, char: str) -> int:
-        """The advance of one character in font units; the maximum for a missing one."""
-        return self.advances.get(ord(char), self.max_advance)
+    def advance(self, char: str) -> int | Fraction:
+        """The advance of one character in font units; `missing_advance` for one the twin
+        lacks (LibreOffice sets it in a fallback font)."""
+        return self.advances.get(ord(char), self.missing_advance)
 
 
 _cache: dict[tuple[str, str], Table] = {}
@@ -75,7 +79,8 @@ def load_table(family: str, weight: str) -> Table:
         return _cache[key]
     if weight not in WEIGHTS:
         raise FitError(f"unknown weight {weight!r}")
-    twins = {f.casefold(): t for f, t in load_config().portable_fonts}
+    config = load_config()
+    twins = {f.casefold(): t for f, t in config.portable_fonts}
     if family.casefold() not in twins:
         raise FitError(f"{family!r} is not a portable font")
     path = table_path(twins[family.casefold()], weight)
@@ -95,6 +100,9 @@ def load_table(family: str, weight: str) -> Table:
         missing_vietnamese=data["missing_vietnamese"],
         source=data["source"],
         advances={cp: adv for cp, adv in data["advances"]},
+        missing_advance=max(
+            Fraction(data["max_advance"]), config.missing_glyph_em * data["units_per_em"]
+        ),
     )
     return _cache[key]
 
@@ -150,8 +158,9 @@ def as_set(setting: Setting, text: str) -> str:
 
 
 def width(setting: Setting, text: str) -> Fraction:
-    """§6.4's width: the advance sum (no kerning; a missing character counts as the
-    twin's maximum advance) plus tracking × size per character."""
+    """§6.4's width: the advance sum (no kerning; a character the twin lacks counts as
+    max(its maximum advance, missing_glyph_em), B-22 item 6) plus tracking × size per
+    character."""
     shown = as_set(setting, text)
     table = setting.table
     units = sum(table.advance(ch) for ch in shown)

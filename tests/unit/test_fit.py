@@ -28,7 +28,7 @@ def test_width_is_the_advance_sum_plus_tracking():
     shown = "ACTIVE"
     expected = F(sum(tb.advance(c) for c in shown), tb.units_per_em) * 14 + F(8, 100) * 14 * 6
     assert width(caps, "active") == expected
-    assert width(ARIAL, "\U0010fffd") == F(t.max_advance, t.units_per_em) * 24
+    assert width(ARIAL, "\U0010fffd") == t.missing_advance / t.units_per_em * 24
 
 
 def test_wrap_uses_the_099_margin_exactly():
