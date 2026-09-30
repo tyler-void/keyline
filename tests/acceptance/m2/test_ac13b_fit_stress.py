@@ -47,18 +47,13 @@ def test_every_stressed_text_is_the_longest_the_pen_accepts(mode, voice, tmp_pat
                 assert why is not None and why.split(":")[0] == bound, (s.layout, region, i)
 
 
-def test_a_presented_statement_or_close_cannot_hold_a_figure(tmp_path):
-    """Report A2's finding, as the stress sees it: refused at its shortest."""
+@pytest.mark.parametrize(("mode", "voice"), COMBOS)
+def test_the_pen_refuses_no_component_at_its_shortest(mode, voice, tmp_path):
+    """Report A2 found the figure refused at its shortest on a presented statement and
+    close; since Q-48 (audit 05) the numeral box is one numeral line and both hold it."""
     evidence = fit_stress.write_evidence(tmp_path / "evidence.toml")
-    refused = {
-        (s.layout, region, kind, why)
-        for s in fit_stress.plan("presented", "neutral", evidence)
-        for region, kind, why in s.refused
-    }
-    assert refused == {
-        ("keyline:statement", "main", "figure", "fit"),
-        ("keyline:close", "main", "figure", "fit"),
-    }
+    refused = [(s.layout, *r) for s in fit_stress.plan(mode, voice, evidence) for r in s.refused]
+    assert refused == []
 
 
 REASON = fit_stress.unready()

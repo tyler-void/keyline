@@ -526,10 +526,11 @@ class SlideBuilder:
         accent: bool = False,
     ) -> SlideBuilder:
         """An evidence value as a numeral, with its label, as two shapes in one region
-        (§6.1, Q-43): the numeral's box is the region's top rows, one numeral line tall
-        (rounded up to whole grid rows); the label's box is the rest, top-anchored; both
-        span the region's width and touch without overlapping. `accent=True` sets the
-        numeral in the surface's accent and counts against accent_budget."""
+        (§6.1, Q-43): the numeral's box is the top of the region, exactly one numeral line
+        tall (Q-48, audit 05: no rounding to grid rows); the label's box is the rest,
+        top-anchored; both span the region's width and touch without overlapping.
+        `accent=True` sets the numeral in the surface's accent and counts against
+        accent_budget."""
         import math
 
         from keyline.geom import Box
@@ -556,16 +557,14 @@ class SlideBuilder:
         pack, styles = self._deck._pack, self._deck._pack.styles[self._deck._mode]
         num, lab = styles[numeral_style], styles[label_style]
         region_box = box(pack, self._layout, region)
-        row = pack.grid.row_emu
-        numeral_pitch = self._deck._setting(num).pitch  # points
-        rows = math.ceil(numeral_pitch * EMU_PER_PT / row)
-        numeral_h = rows * row
+        numeral_line = self._deck._setting(num).pitch  # points: one line (B-21, Q-48)
+        numeral_h = math.ceil(numeral_line * EMU_PER_PT)
         label_line = self._deck._setting(lab).pitch
         if numeral_h + label_line * EMU_PER_PT > region_box.h:
-            have = region_box.h // row
             raise DoesNotFit(
-                f"figure needs {rows} rows for the numeral and one label line "
-                f"({float(label_line):.1f} pt), region {region!r} has {have} rows"
+                f"figure needs {float(numeral_line):.2f} pt for the numeral and one label line "
+                f"({float(label_line):.2f} pt), region {region!r} holds "
+                f"{region_box.h / EMU_PER_PT:.2f} pt"
             )
         top = Box(region_box.x, region_box.y, region_box.w, numeral_h)
         rest = Box(region_box.x, region_box.y + numeral_h, region_box.w, region_box.h - numeral_h)

@@ -1,6 +1,8 @@
 """Spec 002 §6.1, AC-10 and Q-43 as ruled by audit 03 (task T-25): figure() writes the
 numeral and its label as two shapes with their own boxes inside the figure region."""
 
+import math
+
 import pytest
 
 pytest.importorskip("pptx")
@@ -9,7 +11,7 @@ from keyline.config import load as load_config
 from keyline.context import LintContext
 from keyline.lint import lint_path
 from keyline.ooxml.adapter import load_deck
-from keyline.packs import resolve
+from keyline.packs import Region, resolve
 from keyline.pen import Deck, DoesNotFit, EvidenceError, PenError
 from tests.conftest import FIXTURES
 
@@ -38,7 +40,8 @@ def test_two_boxes_that_touch_inside_the_region(tmp_path):
     assert (numeral.x, numeral.w, label.x, label.w) == (region.x, region.w, region.x, region.w)
     assert numeral.y == region.y and label.y == numeral.y + numeral.h  # they touch
     assert label.y + label.h == region.y + region.h
-    assert numeral.h % PACK.grid.row_emu == 0  # whole grid rows
+    one_line = d._setting(PACK.styles["presented"]["numeral"]).pitch  # Q-48: one line
+    assert numeral.h == math.ceil(one_line * 12700)
     assert numeral.text == "62%" and label.text == "returns needing a repair"
     ctx = LintContext(PACK, PACK.voice("neutral"))
     rules = {f.rule for f in lint_path(out, "presented", ctx).findings}
@@ -86,12 +89,28 @@ def test_a_second_accent_over_the_budget():
         s.figure("bench_hours", region="side", accent=True)
 
 
-def test_a_region_too_short_names_both_parts():
-    """Presented statement and close regions are 23 rows; a 120 pt numeral takes 21."""
-    s = deck().add("statement", "Repairs bring members back", notes="n")
-    with pytest.raises(DoesNotFit, match=r"needs 21 rows for the numeral and one label line"):
-        s.figure("returns_repaired")
+def test_presented_statement_and_close_hold_a_figure(tmp_path):
+    """Q-48 (audit 05): one numeral line (144.03 pt) and one label line (16.83 pt) fit the
+    23-row regions (163.0 pt); rounded up to 21 grid rows, the numeral did not."""
+    d = deck()
+    d.add("statement", "Repairs bring members back", notes="n").figure("returns_repaired")
+    d.add("close", "Bring your repairs back", notes="n").figure("returns_repaired")
     assert load_config("presented").as_int("numerals_max") == 1
+
+
+def test_a_region_too_short_names_both_parts(monkeypatch):
+    """A region shorter than one numeral line and one label line: 22 rows (155.9 pt)."""
+    d = deck()
+    monkeypatch.setitem(
+        d._pack.regions["keyline:statement"], "main", Region(col=1, span=10, row=34, rows=22)
+    )
+    s = d.add("statement", "Repairs bring members back", notes="n")
+    with pytest.raises(
+        DoesNotFit,
+        match=r"figure needs 144\.03 pt for the numeral and one label line \(16\.83 pt\), "
+        r"region 'main' holds 155\.91 pt",
+    ):
+        s.figure("returns_repaired")
 
 
 def test_read_mode_statement_holds_a_figure(tmp_path):

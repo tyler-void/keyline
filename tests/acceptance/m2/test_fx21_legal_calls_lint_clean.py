@@ -1,8 +1,8 @@
 """Audit 05 FX-21 (amendment B-23): a deck built only through legal pen calls lints with no
 error-level finding. A generated sweep: every role × layout × region × component the role
 allows × style it allows, in both modes and the three stock voices, is linted with
-`--pack swiss --voice <voice>`. A combination the pen refuses is not legal and is left
-out (the figure on a presented statement or close, until Q-48's fix). The sweep also
+`--pack swiss --voice <voice>`; since Q-48 the pen refuses none of them for size. The
+sweep also
 asserts no `body-too-small`: before the fix, text(style="label") took seven words in both
 modes, and lint reported them (attack_label.py; a warning in the registry, not an error)."""
 
@@ -112,7 +112,7 @@ def test_every_legal_call_lints_without_an_error(mode, voice, tmp_path):
             built.append((role, variant, region, component, style))
     kinds = {"text", "bullets", "table", "figure", "chart_bar", "image", "attribution"}
     assert {c for *_, c, _style in built} == kinds
-    assert all(c == "figure" for *_, c in refused), refused
+    assert refused == []  # Q-48: the figure fits every region that allows it
     assert {style for *_, style in captions} == {"label"}  # 14 pt / 10 pt, below the minimum
     d.save(str(tmp_path / "sweep.pptx"))
     proc = keyline(
