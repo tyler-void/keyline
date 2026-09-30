@@ -37,6 +37,7 @@ class TextSpec:
     paragraphs: tuple[ParaSpec, ...]
     placeholder: int | None = None  # the layout placeholder idx it fills (0 = title)
     anchor: str = "t"
+    inset_bottom: int = 0  # EMU: the descent room of a bottom-anchored region (FX-24)
 
 
 @dataclass(frozen=True)

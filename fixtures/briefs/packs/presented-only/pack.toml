@@ -206,42 +206,43 @@ components.read = { text = ["lede"], figure = ["numeral", "label"], source = ["s
 
 # ---------------------------------------------------------------------------------------
 # Regions per layout, in grid units: col 1-12, span columns, row 0-63, rows tall. A region
-# covers [row, row + rows). Every layout has a "title" region; "footer" holds the source
+# covers [row, row + rows). `anchor` is where its text sits: "t" from the top, "b" down on the
+# bottom (audit 05 FX-24: the cover, evidence and close titles sit on the lede or the rule). Every layout has a "title" region; "footer" holds the source
 # line then the note line (§6.1). Shared by both modes; sized for the larger presented
 # type (plan §2.5).
 [regions."keyline:cover"]
-title = { col = 1, span = 10, row = 14, rows = 24 }
-main = { col = 1, span = 10, row = 40, rows = 16 }
-footer = { col = 1, span = 12, row = 58, rows = 6 }
+title = { col = 1, span = 10, row = 14, rows = 24, anchor = "b" }
+main = { col = 1, span = 10, row = 40, rows = 16, anchor = "t" }
+footer = { col = 1, span = 12, row = 58, rows = 6, anchor = "t" }
 
 [regions."keyline:section"]
-title = { col = 1, span = 10, row = 22, rows = 18 }
-main = { col = 1, span = 10, row = 42, rows = 4 }
+title = { col = 1, span = 10, row = 22, rows = 18, anchor = "t" }
+main = { col = 1, span = 10, row = 42, rows = 4, anchor = "t" }
 
 [regions."keyline:statement"]
-title = { col = 1, span = 10, row = 2, rows = 31 }
-main = { col = 1, span = 10, row = 34, rows = 23 }
-footer = { col = 1, span = 12, row = 58, rows = 6 }
+title = { col = 1, span = 10, row = 2, rows = 31, anchor = "t" }
+main = { col = 1, span = 10, row = 34, rows = 23, anchor = "t" }
+footer = { col = 1, span = 12, row = 58, rows = 6, anchor = "t" }
 
 [regions."keyline:evidence"]
-title = { col = 1, span = 12, row = 0, rows = 17 }
-main = { col = 1, span = 12, row = 20, rows = 37 }
-footer = { col = 1, span = 12, row = 58, rows = 6 }
+title = { col = 1, span = 12, row = 0, rows = 17, anchor = "b" }
+main = { col = 1, span = 12, row = 20, rows = 37, anchor = "t" }
+footer = { col = 1, span = 12, row = 58, rows = 6, anchor = "t" }
 
 [regions."keyline:evidence:figure"]
-title = { col = 1, span = 12, row = 0, rows = 17 }
-main = { col = 1, span = 8, row = 20, rows = 37 }
-side = { col = 9, span = 4, row = 20, rows = 37 }
-footer = { col = 1, span = 12, row = 58, rows = 6 }
+title = { col = 1, span = 12, row = 0, rows = 17, anchor = "b" }
+main = { col = 1, span = 8, row = 20, rows = 37, anchor = "t" }
+side = { col = 9, span = 4, row = 20, rows = 37, anchor = "t" }
+footer = { col = 1, span = 12, row = 58, rows = 6, anchor = "t" }
 
 [regions."keyline:quote"]
-title = { col = 1, span = 10, row = 6, rows = 40 }
-main = { col = 1, span = 10, row = 48, rows = 3 }
+title = { col = 1, span = 10, row = 6, rows = 40, anchor = "t" }
+main = { col = 1, span = 10, row = 48, rows = 3, anchor = "t" }
 
 [regions."keyline:close"]
-title = { col = 1, span = 10, row = 8, rows = 24 }
-main = { col = 1, span = 10, row = 34, rows = 23 }
-footer = { col = 1, span = 12, row = 58, rows = 6 }
+title = { col = 1, span = 10, row = 8, rows = 24, anchor = "b" }
+main = { col = 1, span = 10, row = 34, rows = 23, anchor = "t" }
+footer = { col = 1, span = 12, row = 58, rows = 6, anchor = "t" }
 
 # ---------------------------------------------------------------------------------------
 # Template placeholders (§5.3, plan Q-21). Every region that holds text is a placeholder;

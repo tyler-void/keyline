@@ -397,7 +397,10 @@ class SlideBuilder:
         style = self._deck._pack.styles[self._deck._mode][self._role.title]
         title_box = box(self._deck._pack, self._layout, "title")
         paras = self._text(style, [headline], title_box, "headline")
-        self._plan.shapes.append(TextSpec("title", title_box, paras, placeholder=0))
+        anchor, inset = self._anchoring("title", style)
+        self._plan.shapes.append(
+            TextSpec("title", title_box, paras, placeholder=0, anchor=anchor, inset_bottom=inset)
+        )
 
     def _allowed(self, component: str, style: str | None = None, styled: bool = True) -> str:
         """The style this component uses on this role in this mode (§5.1 `roles`)."""
@@ -440,8 +443,21 @@ class SlideBuilder:
         if style.color[self._surface] in self._deck._pack.accents:
             self._spend_accent(what)  # e.g. a label in accent_on_ink on a section slide
         idx = self._deck._pack.placeholder_idx.get(region)
-        self._plan.shapes.append(TextSpec(region, region_box, paras, placeholder=idx))
+        anchor, inset = self._anchoring(region, style)
+        self._plan.shapes.append(
+            TextSpec(region, region_box, paras, placeholder=idx, anchor=anchor, inset_bottom=inset)
+        )
         self._used.add(region)
+
+    def _anchoring(self, region: str, style) -> tuple[str, int]:
+        """The region's vertical anchor (FX-24) and, when it is "b", a bottom inset of the
+        descent room, so the last line's descenders stay inside the region."""
+        import math
+
+        anchor = self._deck._pack.regions[self._layout][region].anchor
+        if anchor != "b":
+            return anchor, 0
+        return anchor, math.ceil(self._deck._setting(style).descent_room * EMU_PER_PT)
 
     def _caption_sized(self, style, style_name: str, paragraphs, what: str) -> None:
         """A style below the mode's body minimum sets captions only: each paragraph at most

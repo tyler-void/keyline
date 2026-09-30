@@ -81,20 +81,31 @@ def _levels(voice: Voice, style: Style, surface: str) -> str:
     return "".join(_ppr(voice, style, surface, n) for n in range(1, 10))
 
 
-_BODY_PR = (
-    '<a:bodyPr vert="horz" wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" rtlCol="0" '
-    'anchor="t"><a:noAutofit/></a:bodyPr>'
-)
+def _body_pr(anchor: str, inset_bottom: int = 0) -> str:
+    return (
+        '<a:bodyPr vert="horz" wrap="square" lIns="0" tIns="0" rIns="0" '
+        f'bIns="{inset_bottom}" rtlCol="0" anchor="{anchor}"><a:noAutofit/></a:bodyPr>'
+    )
 
 
-def _placeholder(sid, name, ph, box, lst_style, prompt) -> str:
+def _descent_inset(voice: Voice, style: Style) -> int:
+    """The bottom inset the pen gives a bottom-anchored region in this style (FX-24)."""
+    import math
+
+    from keyline.fit import Setting
+
+    setting = Setting(voice.font(style.font), style.weight, style.size_pt)
+    return math.ceil(setting.descent_room * 12700)
+
+
+def _placeholder(sid, name, ph, box, lst_style, prompt, anchor="t", inset_bottom=0) -> str:
     return (
         f'<p:sp><p:nvSpPr><p:cNvPr id="{sid}" name="{name}"/>'
         '<p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr>'
         f"<p:nvPr>{ph}</p:nvPr></p:nvSpPr>"
         f'<p:spPr><a:xfrm><a:off x="{box.x}" y="{box.y}"/><a:ext cx="{box.w}" cy="{box.h}"/>'
         '</a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>'
-        f"<p:txBody>{_BODY_PR}<a:lstStyle>{lst_style}</a:lstStyle>"
+        f"<p:txBody>{_body_pr(anchor, inset_bottom)}<a:lstStyle>{lst_style}</a:lstStyle>"
         f'<a:p><a:r><a:rPr lang="en-US"/><a:t>{escape(prompt)}</a:t></a:r></a:p>'
         "</p:txBody></p:sp>"
     )
@@ -126,7 +137,11 @@ def _layout(pack: Pack, voice: Voice, mode: str, layout: str) -> bytes:
             style = styles[pack.placeholder_styles[layout][region]]
             ph = f'<p:ph type="body" idx="{pack.placeholder_idx[region]}" hasCustomPrompt="1"/>'
         lst = _ppr(voice, style, role.surface, 1)
-        shapes.append(_placeholder(sid, region.capitalize(), ph, box, lst, PROMPTS[region]))
+        anchor = pack.regions[layout][region].anchor  # FX-24
+        inset = _descent_inset(voice, style) if anchor == "b" else 0
+        shapes.append(
+            _placeholder(sid, region.capitalize(), ph, box, lst, PROMPTS[region], anchor, inset)
+        )
         sid += 1
     background = _bg(voice.hex(surface.background)) if role.surface != "paper" else ""
     return _xml(

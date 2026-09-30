@@ -121,12 +121,16 @@ class Role:
     components: dict[str, dict[str, tuple[str, ...]]]  # mode -> component -> styles
 
 
+ANCHORS = ("t", "b")  # a region's vertical anchor: text from its top, or down on its bottom
+
+
 @dataclass(frozen=True)
 class Region:
     col: int
     span: int
     row: int
     rows: int
+    anchor: str = "t"  # audit 05 FX-24
 
 
 @dataclass(frozen=True)
@@ -540,7 +544,10 @@ def _role(name: str, r: dict, modes: tuple, styles: dict, surfaces: dict) -> Rol
 def _region(v: Any, where: str, grid: Grid) -> Region:
     if not isinstance(v, dict):
         raise _fail(where, "must be { col, span, row, rows }")
-    r = Region(*(_get(v, k, int, where) for k in ("col", "span", "row", "rows")))
+    anchor = v.get("anchor", "t")
+    if anchor not in ANCHORS:
+        raise _fail(f"{where}.anchor", 'must be "t" or "b"')
+    r = Region(*(_get(v, k, int, where) for k in ("col", "span", "row", "rows")), anchor)
     if r.col < 1 or r.span < 1 or r.col + r.span - 1 > grid.columns:
         raise _fail(where, "columns outside the grid")
     if r.row < 0 or r.rows < 1 or r.row + r.rows > grid.rows:

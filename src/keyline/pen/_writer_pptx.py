@@ -32,13 +32,14 @@ def _a(tag: str) -> str:
     return f"{{{A}}}{tag}"
 
 
-def _body_pr(tf, anchor: str) -> None:
+def _body_pr(tf, anchor: str, inset_bottom: int = 0) -> None:
     body = tf._txBody.find(_a("bodyPr"))
     for child in list(body):
         if child.tag in (_a("noAutofit"), _a("normAutofit"), _a("spAutoFit")):
             body.remove(child)
-    for key in ("lIns", "tIns", "rIns", "bIns"):
+    for key in ("lIns", "tIns", "rIns"):
         body.set(key, "0")
+    body.set("bIns", str(inset_bottom))
     body.set("wrap", "square")
     body.set("anchor", anchor)
     # schema order: an optional prstTxWarp, then the autofit choice, then the rest
@@ -79,7 +80,7 @@ def _paragraph(spec: ParaSpec) -> etree._Element:
 
 def _fill(shape, spec: TextSpec) -> None:
     tf = shape.text_frame
-    _body_pr(tf, spec.anchor)
+    _body_pr(tf, spec.anchor, spec.inset_bottom)
     body = tf._txBody
     for p in body.findall(_a("p")):
         body.remove(p)
