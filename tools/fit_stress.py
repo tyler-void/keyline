@@ -1,9 +1,11 @@
-"""AC-13(b), fit stress (spec 002 §6.4, B-21; task T-30):
+"""AC-13(b), fit stress (spec 002 §6.4, B-21, B-24; tasks T-30 and the A2 fixes):
 
     python tools/fit_stress.py [OUT_DIR]
 
-For each voice font (neutral: Arial; field: Georgia) in each mode, the pen builds a deck
-in which every text the estimator checks sits at the longest length the pen accepts:
+For each of the six portable families (a test-only voice: Swiss neutral's palette with the
+family as display and text font; inline voices may use any of them, audit 05) in each
+mode, the pen builds a deck in which every text the estimator checks sits at the longest
+length the pen accepts:
 one more word (or, for a numeral, one more digit) is refused. The texts are:
 - the headline on every slide;
 - `text` in every style a role allows, in every text region of every layout;
@@ -21,12 +23,14 @@ text is laid out by the chart engine, not the estimator, so charts are not stres
 Each stress slide is written once per text region, keeping only that region's shapes,
 and once with no shapes (the control). The decks are rendered with LibreOffice at
 1280 px, its version printed (B-7). A text's ink is every pixel that differs from the
-control by more than 10% (26 of 255) in any channel. The script prints each text's ink
-box against its region box and two verdicts: AC-13(b) as written (every edge), and the
-edges the estimator decides (right, top, bottom; the left edge is where a line starts,
-so ink there is a glyph reaching left of its origin, not text that did not fit). It
-exits 0 when AC-13(b) as written holds, 1 when it does not, and 2 when it cannot run (no
-LibreOffice, or a font resolves to something other than its metric twin).
+control by more than 10% (26 of 255) in any channel. The verdict is B-24's: no ink past
+the right, top or bottom edge of its region box by more than 2 px, nor past the left edge
+by more than 2 px plus the text's left allowance, the most negative left side bearing
+among its characters (upper-cased for caps styles, bullet markers included) × size, read
+from the twin with fontTools, for each style the region uses. The script prints each
+text's ink box against its region box, and exits 0 when B-24 holds, 1 when it does not,
+and 2 when it cannot run (no LibreOffice, or a family resolves to something other than
+its metric twin).
 """
 
 from __future__ import annotations
@@ -49,9 +53,9 @@ from keyline.pen import Deck, DoesNotFit, PenError
 
 PACK = "swiss"
 MODES = ("presented", "read")
-VOICES = ("neutral", "field")  # night shares neutral's fonts; only colours differ
+FAMILIES = tuple(family for family, _twin in load_config().portable_fonts)  # B-24
 TOLERANCE_PX = 2
-FIT_EDGES = ("right", "top", "bottom")  # the edges the estimator decides
+PX_PER_PT = 1280 / 960  # the render is 1280 px across a 960 pt slide
 INK = 26  # 10% of 255
 SLIDE_W, SLIDE_H = 12192000, 6858000
 NUMERAL_DIGITS = 40  # evidence entries n1 … n40: numerals of 1 … 40 digits
@@ -154,7 +158,7 @@ class Stress:
 @dataclass
 class Result:
     mode: str
-    voice: str
+    family: str
     slide: int
     layout: str
     region: str
@@ -163,6 +167,7 @@ class Result:
     bound: str
     region_px: tuple[float, float, float, float]
     ink_px: tuple[int, int, int, int] | None
+    left_allowance: float = 0.0  # px: the text's most negative left side bearing x size
 
     @property
     def edges(self) -> dict[str, float]:
@@ -182,9 +187,21 @@ class Result:
         return "" if self.ink_px is None else max(self.edges, key=self.edges.get)
 
     @property
-    def fit_overflow(self) -> float | None:
-        """How far the ink reaches past the edges the estimator decides, in px."""
-        return None if self.ink_px is None else max(self.edges[e] for e in FIT_EDGES)
+    def excess(self) -> float | None:
+        """B-24: how far the ink reaches past its edges' limits, in px, where 0 is exactly
+        2 px out (the left edge's limit is 2 px plus the left allowance); None without
+        ink."""
+        if self.ink_px is None:
+            return None
+        e = self.edges
+        return max(e["right"], e["top"], e["bottom"], e["left"] - self.left_allowance) - (
+            TOLERANCE_PX
+        )
+
+    @property
+    def excess_edge(self) -> str:
+        e = dict(self.edges, left=self.edges["left"] - self.left_allowance)
+        return max(e, key=e.get)
 
 
 # -- the fonts and the engine -------------------------------------------------------------
@@ -201,15 +218,75 @@ def unready() -> str | None:
     """Why the stress cannot run here, or None."""
     if render_mod.find_soffice() is None or render_mod.find_rasterizer() is None:
         return "LibreOffice or a PDF rasterizer is not installed"
-    pack = resolve(PACK)
-    for voice in VOICES:
-        v = pack.voice(voice)
-        for family in sorted({v.font("display"), v.font("text")}):
-            twin = load_table(family, "regular").twin
-            got = fc_family(family)
-            if got is None or got.casefold() != twin.casefold():
-                return f"{family} resolves to {got or 'nothing'}, not its twin {twin}"
+    for family in FAMILIES:
+        twin = load_table(family, "regular").twin
+        got = fc_family(family)
+        if got is None or got.casefold() != twin.casefold():
+            return f"{family} resolves to {got or 'nothing'}, not its twin {twin}"
     return None
+
+
+def voice_file(directory: Path, family: str) -> str:
+    """A test-only voice: Swiss neutral's palette, `family` as display and text font."""
+    neutral = resolve(PACK).directory / "voices" / "neutral.toml"
+    name = family.lower().replace(" ", "-")
+    text = neutral.read_text(encoding="utf-8").replace('name = "neutral"', f'name = "{name}"')
+    path = Path(directory) / f"{name}.toml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text.replace('"Arial"', f'"{family}"'), encoding="utf-8")
+    return str(path.resolve())
+
+
+_sidebearings: dict = {}
+
+
+def left_bearings(family: str, weight: str) -> tuple[dict, int]:
+    """(codepoint -> left side bearing in font units, units per em) of the twin that
+    fontconfig picks for the family and weight."""
+    from fontTools.ttLib import TTFont
+
+    if (family, weight) not in _sidebearings:
+        style = "Bold" if weight == "bold" else "Regular"
+        path = subprocess.run(
+            ["fc-match", "-f", "%{file}", f"{family}:style={style}"],
+            capture_output=True,
+            text=True,
+        ).stdout
+        font = TTFont(path)
+        hmtx = font["hmtx"]
+        bearings = {cp: hmtx[glyph][1] for cp, glyph in font.getBestCmap().items()}
+        _sidebearings[family, weight] = (bearings, font["head"].unitsPerEm)
+    return _sidebearings[family, weight]
+
+
+def styles_of(pack, mode: str, stress: Stress, fill: Fill) -> list[str]:
+    """The style names a filled region sets its text in."""
+    role = pack.roles[stress.role]
+    allowed = role.components[mode]
+    return {
+        "headline": [role.title],
+        "text": [fill.style],
+        "bullets": list(allowed.get("bullets", ())[:1]),
+        "table": ["body", "label"],
+        "figure": ["numeral", "label"],
+        "attribution": list(allowed.get("attribution", ())[:1]),
+        "footer": list(allowed.get("source", ())[:1]),
+    }[fill.kind]
+
+
+def left_allowance(pack, mode: str, voice, stress: Stress, fill: Fill) -> float:
+    """B-24's left allowance in px: the most negative left side bearing among the text's
+    characters x size, over each style the region uses (a character the twin lacks is
+    set in a fallback font and counts as 0)."""
+    worst = 0.0
+    for name in styles_of(pack, mode, stress, fill):
+        style = pack.styles[mode][name]
+        text = "".join(fill.texts) + (style.bullet_marker if fill.kind == "bullets" else "")
+        shown = text.upper() if style.caps else text
+        bearings, upm = left_bearings(voice.font(style.font), style.weight)
+        lsb = min((bearings.get(ord(ch), 0) for ch in set(shown) if not ch.isspace()), default=0)
+        worst = max(worst, -lsb / upm * float(style.size_pt) * PX_PER_PT)
+    return worst
 
 
 # -- the longest texts the pen accepts ----------------------------------------------------
@@ -386,17 +463,20 @@ def ink_box(image, control):
     return strongest.point(lambda v: 255 if v > INK else 0).getbbox()
 
 
-def measure(mode: str, voice: str, work: Path) -> tuple[str, list[Result], list[str]]:
+def measure(mode: str, family: str, work: Path) -> tuple[str, list[Result], list[str]]:
     """The render's LibreOffice version, a Result per stressed text, and a line per
-    component the pen refused even at its shortest."""
+    component the pen refused even at its shortest, for one mode and portable family."""
     from PIL import Image
 
     pack = resolve(PACK)
-    evidence = write_evidence(work / f"evidence-{mode}-{voice}.toml")
+    slug = family.lower().replace(" ", "-")
+    voice = voice_file(work / "voices", family)
+    evidence = write_evidence(work / f"evidence-{mode}-{slug}.toml")
     stresses = plan(mode, voice, evidence)
-    deck = work / f"stress-{mode}-{voice}.pptx"
+    deck = work / f"stress-{mode}-{slug}.pptx"
     order = build(stresses, mode, voice, evidence, deck)
-    rendered = render_mod.render(deck, work / f"{mode}-{voice}", engine="libreoffice")
+    rendered = render_mod.render(deck, work / f"{mode}-{slug}", engine="libreoffice")
+    voice_obj = pack.voice(voice)
     images = [Image.open(p) for p in rendered.slides]
     if len(images) != len(order):
         raise SystemExit(f"fit_stress: {len(images)} pages for {len(order)} slides")
@@ -419,7 +499,7 @@ def measure(mode: str, voice: str, work: Path) -> tuple[str, list[Result], list[
         results.append(
             Result(
                 mode,
-                voice,
+                family,
                 k + 1,
                 s.layout,
                 keep,
@@ -428,10 +508,11 @@ def measure(mode: str, voice: str, work: Path) -> tuple[str, list[Result], list[
                 bound,
                 region_px,
                 ink_box(img, controls[i]),
+                left_allowance(pack, mode, voice_obj, s, fill),
             )
         )
     refused = [
-        f"{mode} {voice}: {s.layout} {region}: {kind} refused at its shortest ({why})"
+        f"{mode} {family}: {s.layout} {region}: {kind} refused at its shortest ({why})"
         for s in stresses
         for region, kind, why in s.refused
     ]
@@ -441,54 +522,50 @@ def measure(mode: str, voice: str, work: Path) -> tuple[str, list[Result], list[
 def report(version: str, results: list[Result], refused: list[str]) -> tuple[list[str], bool]:
     lines = [f"LibreOffice: {version}", f"ink threshold: > {INK} of 255 in any channel", ""]
     lines.append(
-        "mode       voice    slide layout                    region  text                 "
-        "amount  bound    region box (px)              ink box (px)          outside  edge"
+        "mode       family           slide layout                    region  text          "
+        "        amount  bound    region box (px)              ink box (px)          "
+        "left allow  outside  edge"
     )
-    worst = None
     for r in results:
         box_s = "[{:.1f}, {:.1f}, {:.1f}, {:.1f}]".format(*r.region_px)
         ink_s = "[{}, {}, {}, {}]".format(*r.ink_px) if r.ink_px else "no ink"
         out = f"{r.overflow:+.1f}" if r.overflow is not None else "n/a"
         lines.append(
-            f"{r.mode:<10} {r.voice:<8} {r.slide:>5} {r.layout:<25} {r.region:<7} "
-            f"{r.what:<20} {r.amount:>7}  {r.bound:<7}  {box_s:<28} {ink_s:<21} {out:>7}  "
-            f"{r.edge}"
+            f"{r.mode:<10} {r.family:<16} {r.slide:>5} {r.layout:<25} {r.region:<7} "
+            f"{r.what:<20} {r.amount:>7}  {r.bound:<7}  {box_s:<28} {ink_s:<21} "
+            f"{r.left_allowance:>10.1f}  {out:>7}  {r.edge}"
         )
-        if r.overflow is not None and (worst is None or r.overflow > worst.overflow):
-            worst = r
     lines.append("")
     lines.append("refused at the shortest (not built):")
     lines += [f"  {line}" for line in refused] or ["  none"]
     blank = [r for r in results if r.ink_px is None]
-    ok = not blank and worst is not None and worst.overflow <= TOLERANCE_PX
-    fit_ok = not blank and all(r.fit_overflow <= TOLERANCE_PX for r in results)
-    over = [r for r in results if r.overflow is not None and r.overflow > TOLERANCE_PX]
-    lines.append("")
-    lines.append(
-        f"{len(results)} texts; the most outside is {worst.overflow:+.1f} px "
-        f"({worst.mode} {worst.voice}, slide {worst.slide}, {worst.layout} {worst.region}); "
-        f"{len(blank)} without ink"
-    )
     inked = [r for r in results if r.ink_px is not None]
+    over = [r for r in inked if r.excess > 0]
+    ok = not blank and not over
+    lines.append("")
+    lines.append(f"{len(results)} texts, {len(blank)} without ink; per edge, the most outside:")
     for edge in ("left", "top", "right", "bottom"):
         most = max(inked, key=lambda r: r.edges[edge])
+        extra = f", left allowance {most.left_allowance:.1f} px" if edge == "left" else ""
         lines.append(
-            f"  {edge:<6} at most {most.edges[edge]:+.1f} px "
-            f"({most.mode} {most.voice}, slide {most.slide}, {most.layout} {most.region})"
+            f"  {edge:<6} {most.edges[edge]:+.1f} px ({most.mode} {most.family}, slide "
+            f"{most.slide}, {most.layout} {most.region}{extra})"
         )
-    lines.append(f"over {TOLERANCE_PX} px: {len(over)} text(s)")
+    closest = max(inked, key=lambda r: r.excess)
+    lines.append(
+        f"closest to a limit: {closest.excess:+.1f} px from it ({closest.mode} "
+        f"{closest.family}, slide {closest.slide}, {closest.layout} {closest.region}, "
+        f"{closest.excess_edge})"
+    )
+    lines.append(f"past a limit: {len(over)} text(s)")
     lines += [
-        f"  {r.mode} {r.voice}, slide {r.slide}, {r.layout} {r.region} ({r.what}): "
-        f"{r.overflow:+.1f} px {r.edge}"
+        f"  {r.mode} {r.family}, slide {r.slide}, {r.layout} {r.region} ({r.what}): "
+        f"{r.excess:+.1f} px past the {r.excess_edge} limit"
         for r in over
     ]
     lines.append(
-        f"verdict, AC-13(b) as written (every edge): {'PASS' if ok else 'FAIL'} "
-        f"(tolerance {TOLERANCE_PX} px)"
-    )
-    lines.append(
-        f"verdict, the estimator's edges ({', '.join(FIT_EDGES)}): "
-        f"{'PASS' if fit_ok else 'FAIL'} (tolerance {TOLERANCE_PX} px)"
+        f"verdict, AC-13(b) as amended by B-24 (right, top, bottom at {TOLERANCE_PX} px; left at "
+        f"{TOLERANCE_PX} px + the left allowance): {'PASS' if ok else 'FAIL'}"
     )
     return lines, ok
 
@@ -503,8 +580,8 @@ def main(argv: list[str]) -> int:
         work.mkdir(parents=True, exist_ok=True)
         version, results, refused = "", [], []
         for mode in MODES:
-            for voice in VOICES:
-                version, got, no = measure(mode, voice, work)
+            for family in FAMILIES:
+                version, got, no = measure(mode, family, work)
                 results.extend(got)
                 refused.extend(no)
         lines, ok = report(version, results, refused)

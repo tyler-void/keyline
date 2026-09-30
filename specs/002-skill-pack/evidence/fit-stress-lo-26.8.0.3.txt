@@ -1,230 +1,658 @@
 LibreOffice: LibreOffice 26.8.0.3 680(Build:3)
 ink threshold: > 26 of 255 in any channel
 
-mode       voice    slide layout                    region  text                 amount  bound    region box (px)              ink box (px)          outside  edge
-presented  neutral      1 keyline:cover             title   headline (cover_title)      8w  fit      [56.7, 189.9, 1025.7, 416.7] [60, 214, 879, 385]      -3.3  left
-presented  neutral      2 keyline:cover             main    text (lede)              31w  fit      [56.7, 435.6, 1025.7, 586.8] [56, 450, 989, 584]      +0.7  left
-presented  neutral      3 keyline:cover             footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1195, 645]     -0.3  left
-presented  neutral      5 keyline:section           title   headline (headline)      10w  fit      [56.7, 265.5, 1025.7, 435.6] [57, 283, 969, 420]      -0.3  left
-presented  neutral      6 keyline:section           main    text (label)             15w  fit      [56.7, 454.5, 1025.7, 492.3] [57, 459, 991, 476]      -0.3  left
-presented  neutral      8 keyline:statement         title   headline (statement)     13w  fit      [56.7, 76.5, 1025.7, 369.4]  [59, 98, 1018, 350]      -2.3  left
-presented  neutral      9 keyline:statement         main    text (lede)              38w  fit      [56.7, 378.9, 1025.7, 596.2] [59, 394, 963, 577]      -2.3  left
-presented  neutral     10 keyline:statement         footer  source + note            53w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1187, 645]     -0.3  left
-presented  neutral     12 keyline:statement         title   headline (statement)     11w  fit      [56.7, 76.5, 1025.7, 369.4]  [59, 98, 973, 361]       -2.3  left
-presented  neutral     13 keyline:statement         main    text (body)              46w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 392, 1015, 548]     +0.7  left
-presented  neutral     14 keyline:statement         footer  source + note            53w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1182, 645]     -0.3  left
-presented  neutral     16 keyline:statement         title   headline (statement)     13w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 98, 994, 366]       -0.3  left
-presented  neutral     17 keyline:statement         footer  source + note            51w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1198, 645]     -0.3  left
-presented  neutral     19 keyline:evidence          title   headline (headline)      12w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 75, 1200, 212]      -2.3  left
-presented  neutral     20 keyline:evidence          main    text (body)             110w  fit      [56.7, 246.6, 1223.3, 596.2] [57, 259, 1220, 585]     -0.3  left
-presented  neutral     21 keyline:evidence          footer  source + note            52w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1206, 645]     -0.3  left
-presented  neutral     23 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 75, 1082, 212]      -1.3  left
-presented  neutral     24 keyline:evidence          main    bullets                  88w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 259, 1206, 567]     +0.7  left
-presented  neutral     25 keyline:evidence          footer  source + note            55w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1202, 645]     -0.3  left
-presented  neutral     27 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 75, 1209, 212]      +0.7  left
-presented  neutral     28 keyline:evidence          main    table                    88w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 257, 1223, 562]     +0.7  left
-presented  neutral     29 keyline:evidence          footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1193, 645]     -0.3  left
-presented  neutral     31 keyline:evidence          title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 75, 1216, 199]      -0.3  left
-presented  neutral     32 keyline:evidence          main    figure                11d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 294, 1164, 465]     +0.7  left
-presented  neutral     33 keyline:evidence          footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1197, 645]     -0.3  left
-presented  neutral     35 keyline:evidence:figure   title   headline (headline)      15w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 75, 1168, 212]      -1.3  left
-presented  neutral     36 keyline:evidence:figure   main    text (body)              73w  fit      [56.7, 246.6, 828.1, 596.2]  [57, 259, 820, 585]      -0.3  left
-presented  neutral     37 keyline:evidence:figure   side    bullets                  26w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 259, 1218, 564]    +1.0  left
-presented  neutral     38 keyline:evidence:figure   footer  source + note            52w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1158, 645]     -0.3  left
-presented  neutral     40 keyline:evidence:figure   title   headline (headline)      10w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 75, 1106, 212]      -2.3  left
-presented  neutral     41 keyline:evidence:figure   main    bullets                  61w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 259, 799, 567]      +0.7  left
-presented  neutral     42 keyline:evidence:figure   side    table                    25w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 257, 1223, 584]    +0.0  left
-presented  neutral     43 keyline:evidence:figure   footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1200, 645]     -0.3  left
-presented  neutral     45 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 75, 1151, 212]      -0.3  left
-presented  neutral     46 keyline:evidence:figure   main    table                    57w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [57, 257, 828, 562]      -0.1  right
-presented  neutral     47 keyline:evidence:figure   side    figure                 3d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 294, 1183, 486]    +1.0  left
-presented  neutral     48 keyline:evidence:figure   footer  source + note            51w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1208, 645]     -0.3  left
-presented  neutral     50 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 75, 1172, 212]      -1.3  left
-presented  neutral     51 keyline:evidence:figure   main    figure                 7d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [57, 294, 761, 465]      -0.3  left
-presented  neutral     52 keyline:evidence:figure   side    text (body)              32w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 259, 1218, 585]    +0.0  left
-presented  neutral     53 keyline:evidence:figure   footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1201, 645]     -0.3  left
-presented  neutral     55 keyline:quote             title   headline (quote)         31w  fit      [56.7, 114.3, 1025.7, 492.3] [57, 130, 988, 455]      -0.3  left
-presented  neutral     56 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 517, 469, 531]      +0.7  left
-presented  neutral     58 keyline:close             title   headline (cover_title)      9w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 157, 1014, 328]     -1.3  left
-presented  neutral     59 keyline:close             main    text (lede)              42w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 394, 1019, 577]     +0.7  left
-presented  neutral     60 keyline:close             footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1196, 645]     -0.3  left
-presented  neutral     62 keyline:close             title   headline (cover_title)      7w  fit      [56.7, 133.2, 1025.7, 360.0] [60, 157, 955, 328]      -3.3  left
-presented  neutral     63 keyline:close             footer  source + note            53w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1208, 645]     -0.3  left
-presented  field        1 keyline:cover             title   headline (cover_title)      8w  fit      [56.7, 189.9, 1025.7, 416.7] [59, 210, 916, 385]      -2.3  left
-presented  field        2 keyline:cover             main    text (lede)              32w  fit      [56.7, 435.6, 1025.7, 586.8] [55, 447, 1003, 585]     +1.7  left
-presented  field        3 keyline:cover             footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1178, 645]     -0.3  left
-presented  field        5 keyline:section           title   headline (headline)       8w  fit      [56.7, 265.5, 1025.7, 435.6] [56, 281, 880, 420]      +0.7  left
-presented  field        6 keyline:section           main    text (label)             14w  fit      [56.7, 454.5, 1025.7, 492.3] [56, 459, 988, 477]      +0.7  left
-presented  field        8 keyline:statement         title   headline (statement)     13w  fit      [56.7, 76.5, 1025.7, 369.4]  [58, 96, 992, 350]       -1.3  left
-presented  field        9 keyline:statement         main    text (lede)              38w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 392, 967, 577]      +0.7  left
-presented  field       10 keyline:statement         footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]     -0.3  left
-presented  field       12 keyline:statement         title   headline (statement)     11w  fit      [56.7, 76.5, 1025.7, 369.4]  [58, 95, 1012, 364]      -1.3  left
-presented  field       13 keyline:statement         main    text (body)              47w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 390, 1016, 549]     +0.7  left
-presented  field       14 keyline:statement         footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1206, 645]     -0.3  left
-presented  field       16 keyline:statement         title   headline (statement)     10w  fit      [56.7, 76.5, 1025.7, 369.4]  [54, 96, 971, 366]       +2.7  left
-presented  field       17 keyline:statement         footer  source + note            50w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]     -0.3  left
-presented  field       19 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 72, 1130, 200]      -1.3  left
-presented  field       20 keyline:evidence          main    text (body)             110w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 257, 1215, 586]     +0.7  left
-presented  field       21 keyline:evidence          footer  source + note            52w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1201, 645]     -0.3  left
-presented  field       23 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 72, 1150, 213]      -1.3  left
-presented  field       24 keyline:evidence          main    bullets                  91w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 257, 1207, 568]     +0.7  left
-presented  field       25 keyline:evidence          footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1207, 645]     -0.3  left
-presented  field       27 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 72, 1134, 213]      +1.7  left
-presented  field       28 keyline:evidence          main    table                    89w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 256, 1223, 584]     +0.7  left
-presented  field       29 keyline:evidence          footer  source + note            57w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1205, 645]     -0.3  left
-presented  field       31 keyline:evidence          title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 72, 1164, 200]      -1.3  left
-presented  field       32 keyline:evidence          main    figure                10d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 285, 1200, 465]     +0.7  left
-presented  field       33 keyline:evidence          footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1204, 645]     -0.3  left
-presented  field       35 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 72, 1143, 214]      -0.3  left
-presented  field       36 keyline:evidence:figure   main    text (body)              74w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 257, 819, 586]      +0.7  left
-presented  field       37 keyline:evidence:figure   side    bullets                  26w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 257, 1214, 566]    +1.0  left
-presented  field       38 keyline:evidence:figure   footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1196, 645]     -0.3  left
-presented  field       40 keyline:evidence:figure   title   headline (headline)      10w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 72, 1147, 214]      -1.3  left
-presented  field       41 keyline:evidence:figure   main    bullets                  63w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 257, 822, 568]      +0.7  left
-presented  field       42 keyline:evidence:figure   side    table                    25w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 256, 1223, 584]    +1.0  left
-presented  field       43 keyline:evidence:figure   footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1191, 645]     -0.3  left
-presented  field       45 keyline:evidence:figure   title   headline (headline)      12w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 72, 1142, 212]      +0.7  left
-presented  field       46 keyline:evidence:figure   main    table                    51w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 256, 828, 584]      +0.7  left
-presented  field       47 keyline:evidence:figure   side    figure                 3d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 312, 1212, 486]    +1.0  left
-presented  field       48 keyline:evidence:figure   footer  source + note            51w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1207, 645]     -0.3  left
-presented  field       50 keyline:evidence:figure   title   headline (headline)      12w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 73, 1138, 214]      -1.3  left
-presented  field       51 keyline:evidence:figure   main    figure                 6d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 285, 684, 465]      +0.7  left
-presented  field       52 keyline:evidence:figure   side    text (body)              27w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 257, 1220, 543]    +0.0  left
-presented  field       53 keyline:evidence:figure   footer  source + note            55w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1205, 645]     -0.3  left
-presented  field       55 keyline:quote             title   headline (quote)         31w  fit      [56.7, 114.3, 1025.7, 492.3] [56, 128, 994, 456]      +0.7  left
-presented  field       56 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 516, 513, 531]      +0.7  left
-presented  field       58 keyline:close             title   headline (cover_title)      7w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 154, 871, 328]      -1.3  left
-presented  field       59 keyline:close             main    text (lede)              43w  fit      [56.7, 378.9, 1025.7, 596.2] [55, 392, 1025, 578]     +1.7  left
-presented  field       60 keyline:close             footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1207, 645]     -0.3  left
-presented  field       62 keyline:close             title   headline (cover_title)      6w  fit      [56.7, 133.2, 1025.7, 360.0] [55, 154, 822, 329]      +1.7  left
-presented  field       63 keyline:close             footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]     -0.3  left
-read       neutral      1 keyline:cover             title   headline (cover_title)     21w  fit      [56.7, 189.9, 1025.7, 416.7] [57, 204, 981, 372]      -0.3  left
-read       neutral      2 keyline:cover             main    text (lede)              90w  fit      [56.7, 435.6, 1025.7, 586.8] [56, 443, 1010, 577]     +0.7  left
-read       neutral      3 keyline:cover             footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]     -0.3  left
-read       neutral      5 keyline:section           title   headline (headline)      28w  fit      [56.7, 265.5, 1025.7, 435.6] [58, 276, 995, 401]      -1.3  left
-read       neutral      6 keyline:section           main    text (label)             37w  fit      [56.7, 454.5, 1025.7, 492.3] [57, 458, 1012, 485]     -0.3  left
-read       neutral      8 keyline:statement         title   headline (statement)     35w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 973, 363]       -0.3  left
-read       neutral      9 keyline:statement         main    text (lede)             120w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 387, 1022, 576]     +0.7  left
-read       neutral     10 keyline:statement         footer  source + note           106w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1191, 650]     -0.3  left
-read       neutral     12 keyline:statement         title   headline (statement)     35w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1000, 365]      -0.3  left
-read       neutral     13 keyline:statement         main    text (body)             194w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 385, 1021, 586]     +0.7  left
-read       neutral     14 keyline:statement         footer  source + note           109w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1208, 650]     -0.3  left
-read       neutral     16 keyline:statement         title   headline (statement)     36w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1012, 365]      -0.3  left
-read       neutral     17 keyline:statement         main    figure                18d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 403, 966, 497]      -0.3  left
-read       neutral     18 keyline:statement         footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1206, 650]     +0.7  left
-read       neutral     20 keyline:evidence          title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1222, 193]      -0.3  left
-read       neutral     21 keyline:evidence          main    text (body)             386w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1217, 591]     +0.7  left
-read       neutral     22 keyline:evidence          footer  source + note           109w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1199, 650]     +0.7  left
-read       neutral     24 keyline:evidence          title   headline (headline)      29w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1212, 193]      -0.3  left
-read       neutral     25 keyline:evidence          main    text (lede)             252w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 254, 1218, 585]     +0.7  left
-read       neutral     26 keyline:evidence          footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1210, 650]     -0.3  left
-read       neutral     28 keyline:evidence          title   headline (headline)      35w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1194, 193]      -0.3  left
-read       neutral     29 keyline:evidence          main    bullets                 324w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1223, 572]     +0.7  left
-read       neutral     30 keyline:evidence          footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1211, 650]     -0.3  left
-read       neutral     32 keyline:evidence          title   headline (headline)      35w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 68, 1169, 193]      +0.7  left
-read       neutral     33 keyline:evidence          main    table                   299w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 255, 1223, 577]     +0.7  left
-read       neutral     34 keyline:evidence          footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1210, 650]     +0.7  left
-read       neutral     36 keyline:evidence          title   headline (headline)      34w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1206, 193]      -0.3  left
-read       neutral     37 keyline:evidence          main    figure                22d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 270, 1188, 366]     -0.3  left
-read       neutral     38 keyline:evidence          footer  source + note           108w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1206, 650]     -0.3  left
-read       neutral     40 keyline:evidence:figure   title   headline (headline)      32w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1220, 193]      -0.3  left
-read       neutral     41 keyline:evidence:figure   main    text (body)             251w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 827, 591]      +0.7  left
-read       neutral     42 keyline:evidence:figure   side    text (lede)              77w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 254, 1217, 585]    +0.0  left
-read       neutral     43 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1221, 650]     -0.3  left
-read       neutral     45 keyline:evidence:figure   title   headline (headline)      34w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1194, 193]      -0.3  left
-read       neutral     46 keyline:evidence:figure   main    text (lede)             163w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 254, 822, 585]      +0.7  left
-read       neutral     47 keyline:evidence:figure   side    bullets                  89w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 253, 1220, 571]    +1.0  left
-read       neutral     48 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1201, 650]     -0.3  left
-read       neutral     50 keyline:evidence:figure   title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1223, 193]      -0.3  left
-read       neutral     51 keyline:evidence:figure   main    bullets                 199w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 827, 572]      +0.7  left
-read       neutral     52 keyline:evidence:figure   side    table                    88w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 255, 1223, 586]    +0.0  left
-read       neutral     53 keyline:evidence:figure   footer  source + note           109w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1220, 650]     -0.3  left
-read       neutral     55 keyline:evidence:figure   title   headline (headline)      33w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1207, 193]      -0.3  left
-read       neutral     56 keyline:evidence:figure   main    table                   201w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 255, 828, 577]      +0.7  left
-read       neutral     57 keyline:evidence:figure   side    figure                 7d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 270, 1200, 365]    +1.0  left
-read       neutral     58 keyline:evidence:figure   footer  source + note           114w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1206, 650]     -0.3  left
-read       neutral     60 keyline:evidence:figure   title   headline (headline)      36w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 68, 1223, 193]      -0.3  left
-read       neutral     61 keyline:evidence:figure   main    figure                15d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 270, 811, 365]      +0.7  left
-read       neutral     62 keyline:evidence:figure   side    text (body)             117w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 253, 1220, 588]    +0.0  left
-read       neutral     63 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1210, 650]     -0.3  left
-read       neutral     65 keyline:quote             title   headline (quote)        101w  fit      [56.7, 114.3, 1025.7, 492.3] [57, 123, 1005, 461]     -0.3  left
-read       neutral     66 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 515, 247, 526]      +0.7  left
-read       neutral     68 keyline:close             title   headline (cover_title)     16w  fit      [56.7, 133.2, 1025.7, 360.0] [56, 148, 1023, 326]     +0.7  left
-read       neutral     69 keyline:close             main    text (lede)             122w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 387, 1024, 576]     +0.7  left
-read       neutral     70 keyline:close             footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1208, 650]     -0.3  left
-read       neutral     72 keyline:close             title   headline (cover_title)     18w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 148, 999, 326]      -1.3  left
-read       neutral     73 keyline:close             main    figure                18d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 403, 966, 497]      -0.3  left
-read       neutral     74 keyline:close             footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1213, 650]     -0.3  left
-read       field        1 keyline:cover             title   headline (cover_title)     20w  fit      [56.7, 189.9, 1025.7, 416.7] [57, 202, 997, 372]      -0.3  left
-read       field        2 keyline:cover             main    text (lede)              92w  fit      [56.7, 435.6, 1025.7, 586.8] [56, 442, 1010, 577]     +0.7  left
-read       field        3 keyline:cover             footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1213, 650]     -0.3  left
-read       field        5 keyline:section           title   headline (headline)      27w  fit      [56.7, 265.5, 1025.7, 435.6] [56, 275, 1026, 403]     +0.7  left
-read       field        6 keyline:section           main    text (label)             34w  fit      [56.7, 454.5, 1025.7, 492.3] [56, 458, 1008, 485]     +0.7  left
-read       field        8 keyline:statement         title   headline (statement)     30w  fit      [56.7, 76.5, 1025.7, 369.4]  [56, 89, 991, 367]       +0.7  left
-read       field        9 keyline:statement         main    text (lede)             122w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 386, 1013, 576]     +0.7  left
-read       field       10 keyline:statement         footer  source + note           108w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1219, 650]     -0.3  left
-read       field       12 keyline:statement         title   headline (statement)     30w  fit      [56.7, 76.5, 1025.7, 369.4]  [56, 87, 1019, 365]      +0.7  left
-read       field       13 keyline:statement         main    text (body)             195w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 384, 1026, 586]     +0.7  left
-read       field       14 keyline:statement         footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1210, 650]     -0.3  left
-read       field       16 keyline:statement         title   headline (statement)     33w  fit      [56.7, 76.5, 1025.7, 369.4]  [55, 89, 1019, 365]      +1.7  left
-read       field       17 keyline:statement         main    figure                16d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 398, 972, 497]      -0.3  left
-read       field       18 keyline:statement         footer  source + note           112w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 608, 1208, 650]     +0.7  left
-read       field       20 keyline:evidence          title   headline (headline)      28w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 65, 1214, 186]      +1.7  left
-read       field       21 keyline:evidence          main    text (body)             386w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 252, 1224, 591]     +0.7  left
-read       field       22 keyline:evidence          footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 608, 1219, 650]     +0.7  left
-read       field       24 keyline:evidence          title   headline (headline)      28w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 66, 1194, 193]      -0.3  left
-read       field       25 keyline:evidence          main    text (lede)             254w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1218, 585]     +0.7  left
-read       field       26 keyline:evidence          footer  source + note           114w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1207, 650]     -0.3  left
-read       field       28 keyline:evidence          title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 66, 1213, 193]      +0.7  left
-read       field       29 keyline:evidence          main    bullets                 327w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 252, 1220, 572]     +0.7  left
-read       field       30 keyline:evidence          footer  source + note           114w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1201, 650]     -0.3  left
-read       field       32 keyline:evidence          title   headline (headline)      33w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 66, 1177, 195]      +0.7  left
-read       field       33 keyline:evidence          main    table                   312w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 255, 1223, 577]     +0.7  left
-read       field       34 keyline:evidence          footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1221, 650]     -0.3  left
-read       field       36 keyline:evidence          title   headline (headline)      32w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 66, 1220, 193]      +0.7  left
-read       field       37 keyline:evidence          main    figure                20d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 266, 1205, 367]     -0.3  left
-read       field       38 keyline:evidence          footer  source + note           109w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 608, 1207, 650]     +0.7  left
-read       field       40 keyline:evidence:figure   title   headline (headline)      27w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 67, 1220, 193]      +1.7  left
-read       field       41 keyline:evidence:figure   main    text (body)             254w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 252, 826, 591]      +0.7  left
-read       field       42 keyline:evidence:figure   side    text (lede)              77w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 253, 1221, 585]    +0.0  left
-read       field       43 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1216, 650]     -0.3  left
-read       field       45 keyline:evidence:figure   title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 67, 1201, 195]      -0.3  left
-read       field       46 keyline:evidence:figure   main    text (lede)             169w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 821, 585]      +0.7  left
-read       field       47 keyline:evidence:figure   side    bullets                  89w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 252, 1222, 571]    +1.0  left
-read       field       48 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1192, 650]     -0.3  left
-read       field       50 keyline:evidence:figure   title   headline (headline)      29w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 65, 1187, 193]      +0.7  left
-read       field       51 keyline:evidence:figure   main    bullets                 199w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 252, 823, 572]      +0.7  left
-read       field       52 keyline:evidence:figure   side    table                    85w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 255, 1223, 577]    +1.0  left
-read       field       53 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1213, 650]     -0.3  left
-read       field       55 keyline:evidence:figure   title   headline (headline)      28w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 67, 1221, 193]      -0.3  left
-read       field       56 keyline:evidence:figure   main    table                   197w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 255, 828, 577]      +0.7  left
-read       field       57 keyline:evidence:figure   side    figure                 6d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 266, 1170, 365]    +1.0  left
-read       field       58 keyline:evidence:figure   footer  source + note           114w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1218, 650]     -0.3  left
-read       field       60 keyline:evidence:figure   title   headline (headline)      32w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 66, 1188, 195]      +1.7  left
-read       field       61 keyline:evidence:figure   main    figure                13d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 266, 795, 365]      +0.7  left
-read       field       62 keyline:evidence:figure   side    text (body)             117w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 252, 1217, 591]    +1.0  left
-read       field       63 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 608, 1212, 650]     +0.7  left
-read       field       65 keyline:quote             title   headline (quote)        101w  fit      [56.7, 114.3, 1025.7, 492.3] [56, 121, 1017, 461]     +0.7  left
-read       field       66 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 515, 265, 526]      +0.7  left
-read       field       68 keyline:close             title   headline (cover_title)     15w  fit      [56.7, 133.2, 1025.7, 360.0] [55, 146, 990, 327]      +1.7  left
-read       field       69 keyline:close             main    text (lede)             122w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 386, 1019, 576]     +0.7  left
-read       field       70 keyline:close             footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1206, 650]     -0.3  left
-read       field       72 keyline:close             title   headline (cover_title)     17w  fit      [56.7, 133.2, 1025.7, 360.0] [57, 145, 994, 327]      -0.3  left
-read       field       73 keyline:close             main    figure                16d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 398, 972, 497]      -0.3  left
-read       field       74 keyline:close             footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1221, 650]     -0.3  left
+mode       family           slide layout                    region  text                  amount  bound    region box (px)              ink box (px)          left allow  outside  edge
+presented  Arial                1 keyline:cover             title   headline (cover_title)      8w  fit      [56.7, 189.9, 1025.7, 416.7] [60, 227, 879, 398]          0.0     -3.3  left
+presented  Arial                2 keyline:cover             main    text (lede)              31w  fit      [56.7, 435.6, 1025.7, 586.8] [56, 450, 989, 584]          0.1     +0.7  left
+presented  Arial                3 keyline:cover             footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1195, 645]         0.0     -0.3  left
+presented  Arial                5 keyline:section           title   headline (headline)      10w  fit      [56.7, 265.5, 1025.7, 435.6] [57, 283, 969, 420]          0.0     -0.3  left
+presented  Arial                6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [57, 459, 340, 474]          0.0     -0.3  left
+presented  Arial                8 keyline:statement         title   headline (statement)     13w  fit      [56.7, 76.5, 1025.7, 369.4]  [59, 98, 1018, 350]          0.2     -2.3  left
+presented  Arial                9 keyline:statement         main    text (lede)              38w  fit      [56.7, 378.9, 1025.7, 596.2] [59, 394, 963, 577]          0.1     -2.3  left
+presented  Arial               10 keyline:statement         footer  source + note            53w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1187, 645]         0.0     -0.3  left
+presented  Arial               12 keyline:statement         title   headline (statement)     11w  fit      [56.7, 76.5, 1025.7, 369.4]  [59, 98, 973, 361]           0.2     -2.3  left
+presented  Arial               13 keyline:statement         main    text (body)              46w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 392, 1015, 548]         0.0     +0.7  left
+presented  Arial               14 keyline:statement         footer  source + note            53w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1182, 645]         0.0     -0.3  left
+presented  Arial               16 keyline:statement         title   headline (statement)     13w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 98, 994, 366]           0.0     -0.3  left
+presented  Arial               17 keyline:statement         main    figure                 9d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 427, 940, 591]          0.0     -0.3  left
+presented  Arial               18 keyline:statement         footer  source + note            51w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1198, 645]         0.0     -0.3  left
+presented  Arial               20 keyline:evidence          title   headline (headline)      12w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 80, 1200, 218]          0.2     -0.3  bottom
+presented  Arial               21 keyline:evidence          main    text (body)             110w  fit      [56.7, 246.6, 1223.3, 596.2] [57, 259, 1220, 585]         0.0     -0.3  left
+presented  Arial               22 keyline:evidence          footer  source + note            52w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1206, 645]         0.0     -0.3  left
+presented  Arial               24 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 80, 1082, 218]          0.2     -0.3  bottom
+presented  Arial               25 keyline:evidence          main    bullets                  88w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 259, 1206, 567]         0.0     +0.7  left
+presented  Arial               26 keyline:evidence          footer  source + note            55w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1202, 645]         0.0     -0.3  left
+presented  Arial               28 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 80, 1209, 218]          0.2     +0.7  left
+presented  Arial               29 keyline:evidence          main    table                    88w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 257, 1223, 562]         0.0     +0.7  left
+presented  Arial               30 keyline:evidence          footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1193, 645]         0.0     -0.3  left
+presented  Arial               32 keyline:evidence          title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 80, 1216, 205]          0.2     -0.3  left
+presented  Arial               33 keyline:evidence          main    figure                11d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 295, 1164, 458]         0.0     +0.7  left
+presented  Arial               34 keyline:evidence          footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1197, 645]         0.0     -0.3  left
+presented  Arial               36 keyline:evidence:figure   title   headline (headline)      15w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 80, 1168, 218]          0.2     -0.3  bottom
+presented  Arial               37 keyline:evidence:figure   main    text (body)              73w  fit      [56.7, 246.6, 828.1, 596.2]  [57, 259, 820, 585]          0.0     -0.3  left
+presented  Arial               38 keyline:evidence:figure   side    bullets                  26w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 259, 1218, 564]        0.0     +1.0  left
+presented  Arial               39 keyline:evidence:figure   footer  source + note            52w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1158, 645]         0.0     -0.3  left
+presented  Arial               41 keyline:evidence:figure   title   headline (headline)      10w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 80, 1106, 218]          0.2     -0.3  bottom
+presented  Arial               42 keyline:evidence:figure   main    bullets                  61w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 259, 799, 567]          0.0     +0.7  left
+presented  Arial               43 keyline:evidence:figure   side    table                    25w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 257, 1223, 584]        0.0     +0.0  left
+presented  Arial               44 keyline:evidence:figure   footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1200, 645]         0.0     -0.3  left
+presented  Arial               46 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 80, 1151, 218]          0.0     -0.3  bottom
+presented  Arial               47 keyline:evidence:figure   main    table                    57w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [57, 257, 828, 562]          0.0     -0.1  right
+presented  Arial               48 keyline:evidence:figure   side    figure                 3d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 295, 1183, 480]        0.0     +1.0  left
+presented  Arial               49 keyline:evidence:figure   footer  source + note            51w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1208, 645]         0.0     -0.3  left
+presented  Arial               51 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 80, 1172, 218]          0.0     -0.3  bottom
+presented  Arial               52 keyline:evidence:figure   main    figure                 7d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [57, 295, 761, 458]          0.0     -0.3  left
+presented  Arial               53 keyline:evidence:figure   side    text (body)              32w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 259, 1218, 585]        0.0     +0.0  left
+presented  Arial               54 keyline:evidence:figure   footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1201, 645]         0.0     -0.3  left
+presented  Arial               56 keyline:quote             title   headline (quote)         31w  fit      [56.7, 114.3, 1025.7, 492.3] [57, 130, 988, 455]          0.1     -0.3  left
+presented  Arial               57 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 517, 469, 531]          0.0     +0.7  left
+presented  Arial               59 keyline:close             title   headline (cover_title)      9w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 171, 1014, 342]         0.0     -1.3  left
+presented  Arial               60 keyline:close             main    text (lede)              42w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 394, 1019, 577]         0.1     +0.7  left
+presented  Arial               61 keyline:close             footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1196, 645]         0.0     -0.3  left
+presented  Arial               63 keyline:close             title   headline (cover_title)      7w  fit      [56.7, 133.2, 1025.7, 360.0] [60, 171, 955, 342]          0.0     -3.3  left
+presented  Arial               64 keyline:close             main    figure                 9d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 427, 940, 591]          0.0     -0.3  left
+presented  Arial               65 keyline:close             footer  source + note            53w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1208, 645]         0.0     -0.3  left
+presented  Times New Roman      1 keyline:cover             title   headline (cover_title)      9w  fit      [56.7, 189.9, 1025.7, 416.7] [59, 226, 926, 414]          0.0     -2.3  left
+presented  Times New Roman      2 keyline:cover             main    text (lede)              34w  fit      [56.7, 435.6, 1025.7, 586.8] [57, 450, 1010, 585]         0.0     -0.3  left
+presented  Times New Roman      3 keyline:cover             footer  source + note            62w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1198, 645]         0.0     -0.3  left
+presented  Times New Roman      5 keyline:section           title   headline (headline)      11w  fit      [56.7, 265.5, 1025.7, 435.6] [57, 285, 960, 421]          0.0     -0.3  left
+presented  Times New Roman      6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 460, 342, 474]          0.0     +0.7  left
+presented  Times New Roman      8 keyline:statement         title   headline (statement)     16w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 101, 1009, 350]         0.0     -0.3  left
+presented  Times New Roman      9 keyline:statement         main    text (lede)              42w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 394, 1025, 578]         0.0     +0.7  left
+presented  Times New Roman     10 keyline:statement         footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1204, 645]         0.0     -0.3  left
+presented  Times New Roman     12 keyline:statement         title   headline (statement)     13w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 100, 982, 361]          0.0     -0.3  left
+presented  Times New Roman     13 keyline:statement         main    text (body)              53w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 392, 1013, 548]         0.0     +0.7  left
+presented  Times New Roman     14 keyline:statement         footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1181, 645]         0.0     -0.3  left
+presented  Times New Roman     16 keyline:statement         title   headline (statement)     14w  fit      [56.7, 76.5, 1025.7, 369.4]  [56, 101, 968, 366]          0.0     +0.7  left
+presented  Times New Roman     17 keyline:statement         main    figure                10d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 432, 971, 591]          0.0     -0.3  left
+presented  Times New Roman     18 keyline:statement         footer  source + note            57w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1185, 645]         0.0     -0.3  left
+presented  Times New Roman     20 keyline:evidence          title   headline (headline)      14w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 80, 1205, 216]          0.0     -0.3  left
+presented  Times New Roman     21 keyline:evidence          main    text (body)             121w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 259, 1213, 585]         0.0     +0.7  left
+presented  Times New Roman     22 keyline:evidence          footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1207, 645]         0.0     -0.3  left
+presented  Times New Roman     24 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 80, 1212, 216]          0.0     -0.3  left
+presented  Times New Roman     25 keyline:evidence          main    bullets                  89w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 260, 1221, 567]         0.2     +0.7  left
+presented  Times New Roman     26 keyline:evidence          footer  source + note            62w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1208, 645]         0.0     -0.3  left
+presented  Times New Roman     28 keyline:evidence          title   headline (headline)      14w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 80, 1192, 216]          0.0     +0.7  left
+presented  Times New Roman     29 keyline:evidence          main    table                   101w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 257, 1223, 562]         0.0     +0.7  left
+presented  Times New Roman     30 keyline:evidence          footer  source + note            61w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1202, 645]         0.0     -0.3  left
+presented  Times New Roman     32 keyline:evidence          title   headline (headline)      15w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 80, 1090, 203]          0.0     -0.3  left
+presented  Times New Roman     33 keyline:evidence          main    figure                12d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 300, 1130, 458]         0.0     -0.3  left
+presented  Times New Roman     34 keyline:evidence          footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1194, 645]         0.0     -0.3  left
+presented  Times New Roman     36 keyline:evidence:figure   title   headline (headline)      17w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 80, 1197, 216]          0.0     -1.3  left
+presented  Times New Roman     37 keyline:evidence:figure   main    text (body)              80w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 260, 827, 585]          0.0     +0.7  left
+presented  Times New Roman     38 keyline:evidence:figure   side    bullets                  29w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 259, 1210, 565]        0.2     +1.0  left
+presented  Times New Roman     39 keyline:evidence:figure   footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1185, 645]         0.0     -0.3  left
+presented  Times New Roman     41 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 80, 1132, 216]          0.0     -1.3  left
+presented  Times New Roman     42 keyline:evidence:figure   main    bullets                  68w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 259, 811, 567]          0.2     +0.7  left
+presented  Times New Roman     43 keyline:evidence:figure   side    table                    33w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 257, 1223, 584]        0.0     +0.0  left
+presented  Times New Roman     44 keyline:evidence:figure   footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1203, 645]         0.0     -0.3  left
+presented  Times New Roman     46 keyline:evidence:figure   title   headline (headline)      16w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 80, 1164, 216]          0.0     -0.3  left
+presented  Times New Roman     47 keyline:evidence:figure   main    table                    51w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 257, 828, 562]          0.0     +0.7  left
+presented  Times New Roman     48 keyline:evidence:figure   side    figure                 4d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 300, 1204, 480]        0.0     +0.0  left
+presented  Times New Roman     49 keyline:evidence:figure   footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1208, 645]         0.0     -0.3  left
+presented  Times New Roman     51 keyline:evidence:figure   title   headline (headline)      14w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 80, 1204, 203]          0.0     -1.3  left
+presented  Times New Roman     52 keyline:evidence:figure   main    figure                 8d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 300, 772, 458]          0.0     +0.7  left
+presented  Times New Roman     53 keyline:evidence:figure   side    text (body)              34w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 260, 1211, 585]        0.0     +0.0  left
+presented  Times New Roman     54 keyline:evidence:figure   footer  source + note            62w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1202, 645]         0.0     -0.3  left
+presented  Times New Roman     56 keyline:quote             title   headline (quote)         37w  fit      [56.7, 114.3, 1025.7, 492.3] [56, 131, 1014, 455]         0.0     +0.7  left
+presented  Times New Roman     57 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [57, 517, 476, 531]          0.0     -0.3  left
+presented  Times New Roman     59 keyline:close             title   headline (cover_title)      9w  fit      [56.7, 133.2, 1025.7, 360.0] [57, 170, 912, 339]          0.0     -0.3  left
+presented  Times New Roman     60 keyline:close             main    text (lede)              46w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 394, 1008, 578]         0.0     +0.7  left
+presented  Times New Roman     61 keyline:close             footer  source + note            62w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1197, 645]         0.0     -0.3  left
+presented  Times New Roman     63 keyline:close             title   headline (cover_title)      7w  fit      [56.7, 133.2, 1025.7, 360.0] [59, 170, 924, 339]          0.0     -2.3  left
+presented  Times New Roman     64 keyline:close             main    figure                10d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 432, 971, 591]          0.0     -0.3  left
+presented  Times New Roman     65 keyline:close             footer  source + note            61w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1196, 645]         0.0     -0.3  left
+presented  Courier New          1 keyline:cover             title   headline (cover_title)      6w  fit      [56.7, 189.9, 1025.7, 416.7] [60, 227, 1002, 398]         0.0     -3.3  left
+presented  Courier New          2 keyline:cover             main    text (lede)              22w  fit      [56.7, 435.6, 1025.7, 586.8] [58, 450, 986, 584]          0.0     -1.3  left
+presented  Courier New          3 keyline:cover             footer  source + note            41w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1204, 645]         0.0     -0.3  left
+presented  Courier New          5 keyline:section           title   headline (headline)       8w  fit      [56.7, 265.5, 1025.7, 435.6] [60, 283, 974, 420]          0.0     -3.3  left
+presented  Courier New          6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 460, 334, 474]          0.0     +0.7  left
+presented  Courier New          8 keyline:statement         title   headline (statement)     11w  fit      [56.7, 76.5, 1025.7, 369.4]  [60, 98, 1016, 350]          0.0     -3.3  left
+presented  Courier New          9 keyline:statement         main    text (lede)              28w  fit      [56.7, 378.9, 1025.7, 596.2] [58, 394, 1015, 576]         0.0     -1.3  left
+presented  Courier New         10 keyline:statement         footer  source + note            38w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1188, 645]         0.0     -0.3  left
+presented  Courier New         12 keyline:statement         title   headline (statement)      9w  fit      [56.7, 76.5, 1025.7, 369.4]  [61, 97, 962, 350]           0.0     -4.3  left
+presented  Courier New         13 keyline:statement         main    text (body)              35w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 391, 996, 548]          0.0     +0.7  left
+presented  Courier New         14 keyline:statement         footer  source + note            38w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1178, 645]         0.0     -0.3  left
+presented  Courier New         16 keyline:statement         title   headline (statement)      9w  fit      [56.7, 76.5, 1025.7, 369.4]  [58, 98, 916, 366]           0.0     -1.3  left
+presented  Courier New         17 keyline:statement         main    figure                 7d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 431, 910, 591]          0.0     -0.3  left
+presented  Courier New         18 keyline:statement         footer  source + note            38w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1188, 645]         0.0     -0.3  left
+presented  Courier New         20 keyline:evidence          title   headline (headline)       9w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 79, 1167, 218]          0.0     -0.3  bottom
+presented  Courier New         21 keyline:evidence          main    text (body)              79w  fit      [56.7, 246.6, 1223.3, 596.2] [58, 258, 1207, 585]         0.0     -1.3  left
+presented  Courier New         22 keyline:evidence          footer  source + note            36w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1195, 645]         0.0     -0.3  left
+presented  Courier New         24 keyline:evidence          title   headline (headline)      10w  fit      [56.7, 57.6, 1223.3, 218.3]  [60, 79, 1205, 218]          0.0     -0.3  bottom
+presented  Courier New         25 keyline:evidence          main    bullets                  66w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 258, 1204, 567]         0.0     +0.7  left
+presented  Courier New         26 keyline:evidence          footer  source + note            39w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1197, 645]         0.0     -0.3  left
+presented  Courier New         28 keyline:evidence          title   headline (headline)      10w  fit      [56.7, 57.6, 1223.3, 218.3]  [60, 79, 1166, 205]          0.0     -3.3  left
+presented  Courier New         29 keyline:evidence          main    table                    67w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 257, 1223, 562]         0.0     +0.7  left
+presented  Courier New         30 keyline:evidence          footer  source + note            40w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1169, 645]         0.0     -0.3  left
+presented  Courier New         32 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [61, 79, 1167, 205]          0.0     -4.3  left
+presented  Courier New         33 keyline:evidence          main    figure                 9d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 299, 1103, 458]         0.0     -0.3  left
+presented  Courier New         34 keyline:evidence          footer  source + note            40w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1207, 645]         0.0     -0.3  left
+presented  Courier New         36 keyline:evidence:figure   title   headline (headline)      12w  fit      [56.7, 57.6, 1223.3, 218.3]  [61, 79, 1205, 218]          0.0     -0.3  bottom
+presented  Courier New         37 keyline:evidence:figure   main    text (body)              50w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 258, 823, 585]          0.0     +0.7  left
+presented  Courier New         38 keyline:evidence:figure   side    bullets                  19w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 259, 1209, 567]        0.0     +1.0  left
+presented  Courier New         39 keyline:evidence:figure   footer  source + note            38w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1197, 645]         0.0     -0.3  left
+presented  Courier New         41 keyline:evidence:figure   title   headline (headline)       8w  fit      [56.7, 57.6, 1223.3, 218.3]  [60, 79, 1051, 218]          0.0     -0.3  bottom
+presented  Courier New         42 keyline:evidence:figure   main    bullets                  45w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 258, 802, 567]          0.0     +0.7  left
+presented  Courier New         43 keyline:evidence:figure   side    table                    16w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 257, 1223, 584]        0.0     +0.0  left
+presented  Courier New         44 keyline:evidence:figure   footer  source + note            39w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1188, 645]         0.0     -0.3  left
+presented  Courier New         46 keyline:evidence:figure   title   headline (headline)      10w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 80, 1130, 218]          0.0     -0.3  bottom
+presented  Courier New         47 keyline:evidence:figure   main    table                    42w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [57, 257, 828, 562]          0.0     -0.1  right
+presented  Courier New         48 keyline:evidence:figure   side    figure                 3d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 299, 1176, 480]        0.0     +0.0  left
+presented  Courier New         49 keyline:evidence:figure   footer  source + note            36w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1187, 645]         0.0     -0.3  left
+presented  Courier New         51 keyline:evidence:figure   title   headline (headline)      10w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 80, 1052, 218]          0.0     -0.3  bottom
+presented  Courier New         52 keyline:evidence:figure   main    figure                 6d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 299, 720, 458]          0.0     +0.7  left
+presented  Courier New         53 keyline:evidence:figure   side    text (body)              22w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 259, 1209, 579]        0.0     +0.0  left
+presented  Courier New         54 keyline:evidence:figure   footer  source + note            39w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1207, 645]         0.0     -0.3  left
+presented  Courier New         56 keyline:quote             title   headline (quote)         22w  fit      [56.7, 114.3, 1025.7, 492.3] [57, 130, 1003, 455]         0.0     -0.3  left
+presented  Courier New         57 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 517, 450, 531]          0.0     +0.7  left
+presented  Courier New         59 keyline:close             title   headline (cover_title)      7w  fit      [56.7, 133.2, 1025.7, 360.0] [60, 171, 951, 342]          0.0     -3.3  left
+presented  Courier New         60 keyline:close             main    text (lede)              29w  fit      [56.7, 378.9, 1025.7, 596.2] [58, 394, 1015, 577]         0.0     -1.3  left
+presented  Courier New         61 keyline:close             footer  source + note            41w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1197, 645]         0.0     -0.3  left
+presented  Courier New         63 keyline:close             title   headline (cover_title)      6w  fit      [56.7, 133.2, 1025.7, 360.0] [61, 169, 933, 342]          0.0     -4.3  left
+presented  Courier New         64 keyline:close             main    figure                 7d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [56, 431, 910, 591]          0.0     +0.7  left
+presented  Courier New         65 keyline:close             footer  source + note            40w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 610, 1198, 645]         0.0     -0.3  left
+presented  Georgia              1 keyline:cover             title   headline (cover_title)      8w  fit      [56.7, 189.9, 1025.7, 416.7] [59, 217, 916, 392]          1.2     -2.3  left
+presented  Georgia              2 keyline:cover             main    text (lede)              20w  fit      [56.7, 435.6, 1025.7, 586.8] [55, 447, 995, 534]          0.9     +1.7  left
+presented  Georgia              3 keyline:cover             footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1178, 645]         0.4     -0.3  left
+presented  Georgia              5 keyline:section           title   headline (headline)       8w  fit      [56.7, 265.5, 1025.7, 435.6] [56, 281, 880, 420]          1.3     +0.7  left
+presented  Georgia              6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 459, 363, 474]          0.4     +0.7  left
+presented  Georgia              8 keyline:statement         title   headline (statement)      8w  fit      [56.7, 76.5, 1025.7, 369.4]  [59, 96, 906, 272]           1.6     -2.3  left
+presented  Georgia              9 keyline:statement         main    text (lede)              38w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 392, 967, 577]          0.9     +0.7  left
+presented  Georgia             10 keyline:statement         footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]         0.4     -0.3  left
+presented  Georgia             12 keyline:statement         title   headline (statement)      6w  fit      [56.7, 76.5, 1025.7, 369.4]  [58, 95, 1012, 272]          1.6     -1.3  left
+presented  Georgia             13 keyline:statement         main    text (body)              47w  fit      [56.7, 378.9, 1025.7, 596.2] [55, 390, 1016, 549]         0.8     +1.7  left
+presented  Georgia             14 keyline:statement         footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1206, 645]         0.4     -0.3  left
+presented  Georgia             16 keyline:statement         title   headline (statement)      7w  fit      [56.7, 76.5, 1025.7, 369.4]  [54, 96, 971, 272]           1.9     +2.7  left
+presented  Georgia             17 keyline:statement         main    figure                 8d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 418, 931, 591]          2.2     -0.3  left
+presented  Georgia             18 keyline:statement         footer  source + note            50w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]         0.4     -0.3  left
+presented  Georgia             20 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 73, 1130, 201]          1.2     -1.3  left
+presented  Georgia             21 keyline:evidence          main    text (body)             110w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 257, 1215, 586]         0.8     +0.7  left
+presented  Georgia             22 keyline:evidence          footer  source + note            52w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1201, 645]         0.4     -0.3  left
+presented  Georgia             24 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 73, 1150, 214]          1.2     -1.3  left
+presented  Georgia             25 keyline:evidence          main    bullets                  91w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 257, 1207, 568]         0.8     +0.7  left
+presented  Georgia             26 keyline:evidence          footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1207, 645]         0.4     -0.3  left
+presented  Georgia             28 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 73, 1134, 214]          1.2     +1.7  left
+presented  Georgia             29 keyline:evidence          main    table                    85w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 256, 1223, 578]         0.8     +0.7  left
+presented  Georgia             30 keyline:evidence          footer  source + note            57w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1205, 645]         0.4     -0.3  left
+presented  Georgia             32 keyline:evidence          title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 73, 1164, 201]          1.2     -1.3  left
+presented  Georgia             33 keyline:evidence          main    figure                10d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 285, 1200, 458]         0.1     +0.7  left
+presented  Georgia             34 keyline:evidence          footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1204, 645]         0.4     -0.3  left
+presented  Georgia             36 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 73, 1143, 215]          1.5     -0.3  left
+presented  Georgia             37 keyline:evidence:figure   main    text (body)              74w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 257, 819, 586]          0.8     +0.7  left
+presented  Georgia             38 keyline:evidence:figure   side    bullets                  26w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 257, 1214, 566]        0.8     +1.0  left
+presented  Georgia             39 keyline:evidence:figure   footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1196, 645]         0.4     -0.3  left
+presented  Georgia             41 keyline:evidence:figure   title   headline (headline)      10w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 73, 1147, 215]          1.2     -1.3  left
+presented  Georgia             42 keyline:evidence:figure   main    bullets                  63w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 257, 822, 568]          0.8     +0.7  left
+presented  Georgia             43 keyline:evidence:figure   side    table                    24w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 256, 1223, 580]        0.8     +1.0  left
+presented  Georgia             44 keyline:evidence:figure   footer  source + note            54w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1191, 645]         0.4     -0.3  left
+presented  Georgia             46 keyline:evidence:figure   title   headline (headline)      12w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 73, 1142, 213]          0.9     +0.7  left
+presented  Georgia             47 keyline:evidence:figure   main    table                    55w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 256, 828, 578]          0.8     +0.7  left
+presented  Georgia             48 keyline:evidence:figure   side    figure                 3d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 312, 1212, 480]        0.1     +1.0  left
+presented  Georgia             49 keyline:evidence:figure   footer  source + note            51w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1207, 645]         0.4     -0.3  left
+presented  Georgia             51 keyline:evidence:figure   title   headline (headline)      12w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 74, 1138, 215]          0.8     -1.3  left
+presented  Georgia             52 keyline:evidence:figure   main    figure                 6d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 285, 684, 458]          2.0     +0.7  left
+presented  Georgia             53 keyline:evidence:figure   side    text (body)              27w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 257, 1220, 543]        0.8     +0.0  left
+presented  Georgia             54 keyline:evidence:figure   footer  source + note            55w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1205, 645]         0.4     -0.3  left
+presented  Georgia             56 keyline:quote             title   headline (quote)         31w  fit      [56.7, 114.3, 1025.7, 492.3] [56, 128, 994, 456]          1.4     +0.7  left
+presented  Georgia             57 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 516, 513, 531]          0.3     +0.7  left
+presented  Georgia             59 keyline:close             title   headline (cover_title)      7w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 162, 871, 336]          1.2     -1.3  left
+presented  Georgia             60 keyline:close             main    text (lede)              43w  fit      [56.7, 378.9, 1025.7, 596.2] [55, 392, 1025, 578]         0.9     +1.7  left
+presented  Georgia             61 keyline:close             footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1207, 645]         0.4     -0.3  left
+presented  Georgia             63 keyline:close             title   headline (cover_title)      6w  fit      [56.7, 133.2, 1025.7, 360.0] [55, 161, 822, 336]          1.1     +1.7  left
+presented  Georgia             64 keyline:close             main    figure                 8d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [56, 418, 931, 591]          3.4     +0.7  left
+presented  Georgia             65 keyline:close             footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 645]         0.4     -0.3  left
+presented  Calibri              1 keyline:cover             title   headline (cover_title)      9w  fit      [56.7, 189.9, 1025.7, 416.7] [59, 231, 897, 413]          0.0     -2.3  left
+presented  Calibri              2 keyline:cover             main    text (lede)              34w  fit      [56.7, 435.6, 1025.7, 586.8] [57, 451, 1004, 583]         0.0     -0.3  left
+presented  Calibri              3 keyline:cover             footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1170, 644]         0.0     -0.3  left
+presented  Calibri              5 keyline:section           title   headline (headline)      11w  fit      [56.7, 265.5, 1025.7, 435.6] [57, 284, 942, 418]          0.0     -0.3  left
+presented  Calibri              6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 460, 290, 473]          0.1     +0.7  left
+presented  Calibri              8 keyline:statement         title   headline (statement)     16w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 100, 987, 350]          0.0     -0.3  left
+presented  Calibri              9 keyline:statement         main    text (lede)              42w  fit      [56.7, 378.9, 1025.7, 596.2] [57, 395, 1023, 576]         0.0     -0.3  left
+presented  Calibri             10 keyline:statement         footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1199, 644]         0.0     -0.3  left
+presented  Calibri             12 keyline:statement         title   headline (statement)     13w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 100, 976, 360]          0.0     -0.3  left
+presented  Calibri             13 keyline:statement         main    text (body)              51w  fit      [56.7, 378.9, 1025.7, 596.2] [57, 393, 1020, 546]         0.0     -0.3  left
+presented  Calibri             14 keyline:statement         footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1191, 644]         0.0     -0.3  left
+presented  Calibri             16 keyline:statement         title   headline (statement)     14w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 100, 1013, 350]         0.0     -0.3  left
+presented  Calibri             17 keyline:statement         main    figure                10d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 428, 987, 590]          0.1     -0.3  left
+presented  Calibri             18 keyline:statement         footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1197, 644]         0.0     -0.3  left
+presented  Calibri             20 keyline:evidence          title   headline (headline)      14w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 83, 1169, 216]          0.0     -0.3  left
+presented  Calibri             21 keyline:evidence          main    text (body)             121w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 260, 1209, 584]         0.0     +0.7  left
+presented  Calibri             22 keyline:evidence          footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1185, 644]         0.0     -0.3  left
+presented  Calibri             24 keyline:evidence          title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 83, 1198, 216]          0.0     -2.3  bottom
+presented  Calibri             25 keyline:evidence          main    bullets                 103w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 260, 1211, 566]         0.0     +0.7  left
+presented  Calibri             26 keyline:evidence          footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1203, 644]         0.0     -0.3  left
+presented  Calibri             28 keyline:evidence          title   headline (headline)      14w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 83, 1146, 216]          0.0     -0.3  left
+presented  Calibri             29 keyline:evidence          main    table                    99w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 257, 1223, 566]         0.1     +0.7  left
+presented  Calibri             30 keyline:evidence          footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1184, 644]         0.0     -0.3  left
+presented  Calibri             32 keyline:evidence          title   headline (headline)      15w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 83, 1090, 206]          0.0     -0.3  left
+presented  Calibri             33 keyline:evidence          main    figure                12d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 296, 1146, 457]         0.0     +0.7  left
+presented  Calibri             34 keyline:evidence          footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1202, 644]         0.0     -0.3  left
+presented  Calibri             36 keyline:evidence:figure   title   headline (headline)      17w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 83, 1173, 217]          0.0     -1.3  bottom
+presented  Calibri             37 keyline:evidence:figure   main    text (body)              80w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 260, 800, 583]          0.0     +0.7  left
+presented  Calibri             38 keyline:evidence:figure   side    bullets                  29w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 260, 1215, 564]        0.0     +1.0  left
+presented  Calibri             39 keyline:evidence:figure   footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1199, 644]         0.0     -0.3  left
+presented  Calibri             41 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [60, 83, 1111, 217]          0.0     -1.3  bottom
+presented  Calibri             42 keyline:evidence:figure   main    bullets                  64w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 260, 818, 566]          0.0     +0.7  left
+presented  Calibri             43 keyline:evidence:figure   side    table                    29w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 257, 1223, 589]        0.1     +0.0  left
+presented  Calibri             44 keyline:evidence:figure   footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1204, 644]         0.0     -0.3  left
+presented  Calibri             46 keyline:evidence:figure   title   headline (headline)      16w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 83, 1143, 216]          0.0     -0.3  left
+presented  Calibri             47 keyline:evidence:figure   main    table                    46w  fit      [56.7, 246.6, 828.1, 596.2]  [57, 257, 828, 566]          0.1     -0.1  right
+presented  Calibri             48 keyline:evidence:figure   side    figure                 4d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 301, 1210, 460]        0.0     +0.0  left
+presented  Calibri             49 keyline:evidence:figure   footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1194, 644]         0.0     -0.3  left
+presented  Calibri             51 keyline:evidence:figure   title   headline (headline)      15w  fit      [56.7, 57.6, 1223.3, 218.3]  [59, 83, 1197, 206]          0.0     -2.3  left
+presented  Calibri             52 keyline:evidence:figure   main    figure                 8d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 296, 782, 457]          0.0     +0.7  left
+presented  Calibri             53 keyline:evidence:figure   side    text (body)              33w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 260, 1205, 583]        0.0     +0.0  left
+presented  Calibri             54 keyline:evidence:figure   footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1203, 644]         0.0     -0.3  left
+presented  Calibri             56 keyline:quote             title   headline (quote)         35w  fit      [56.7, 114.3, 1025.7, 492.3] [57, 132, 1003, 455]         0.0     -0.3  left
+presented  Calibri             57 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 517, 403, 530]          0.1     +0.7  left
+presented  Calibri             59 keyline:close             title   headline (cover_title)      9w  fit      [56.7, 133.2, 1025.7, 360.0] [57, 175, 888, 343]          0.0     -0.3  left
+presented  Calibri             60 keyline:close             main    text (lede)              43w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 395, 962, 576]          0.0     +0.7  left
+presented  Calibri             61 keyline:close             footer  source + note            61w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1200, 644]         0.0     -0.3  left
+presented  Calibri             63 keyline:close             title   headline (cover_title)      7w  fit      [56.7, 133.2, 1025.7, 360.0] [59, 175, 906, 343]          0.0     -2.3  left
+presented  Calibri             64 keyline:close             main    figure                10d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [56, 428, 987, 590]          0.0     +0.7  left
+presented  Calibri             65 keyline:close             footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 611, 1173, 644]         0.0     -0.3  left
+presented  Cambria              1 keyline:cover             title   headline (cover_title)      9w  fit      [56.7, 189.9, 1025.7, 416.7] [59, 229, 970, 417]          1.3     +0.3  bottom
+presented  Cambria              2 keyline:cover             main    text (lede)              34w  fit      [56.7, 435.6, 1025.7, 586.8] [57, 450, 1015, 585]         1.1     -0.3  left
+presented  Cambria              3 keyline:cover             footer  source + note            61w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1202, 645]         0.5     +0.7  left
+presented  Cambria              5 keyline:section           title   headline (headline)      10w  fit      [56.7, 265.5, 1025.7, 435.6] [56, 285, 899, 421]          0.4     +0.7  left
+presented  Cambria              6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 460, 307, 473]          0.1     +0.7  left
+presented  Cambria              8 keyline:statement         title   headline (statement)     14w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 100, 984, 350]          1.2     -0.3  left
+presented  Cambria              9 keyline:statement         main    text (lede)              42w  fit      [56.7, 378.9, 1025.7, 596.2] [55, 394, 1017, 578]         1.1     +1.7  left
+presented  Cambria             10 keyline:statement         footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1199, 645]         0.5     +0.7  left
+presented  Cambria             12 keyline:statement         title   headline (statement)     12w  fit      [56.7, 76.5, 1025.7, 369.4]  [55, 99, 988, 360]           1.2     +1.7  left
+presented  Cambria             13 keyline:statement         main    text (body)              51w  fit      [56.7, 378.9, 1025.7, 596.2] [55, 392, 1016, 548]         1.0     +1.7  left
+presented  Cambria             14 keyline:statement         footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1189, 645]         0.5     +0.7  left
+presented  Cambria             16 keyline:statement         title   headline (statement)     13w  fit      [56.7, 76.5, 1025.7, 369.4]  [55, 100, 941, 367]          1.2     +1.7  left
+presented  Cambria             17 keyline:statement         main    figure                10d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 429, 997, 590]          2.4     -0.3  left
+presented  Cambria             18 keyline:statement         footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1195, 645]         0.5     +0.7  left
+presented  Cambria             20 keyline:evidence          title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 82, 1205, 218]          1.0     -0.3  bottom
+presented  Cambria             21 keyline:evidence          main    text (body)             121w  fit      [56.7, 246.6, 1223.3, 596.2] [57, 259, 1221, 586]         1.0     -0.3  left
+presented  Cambria             22 keyline:evidence          footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1180, 645]         0.5     +0.7  left
+presented  Cambria             24 keyline:evidence          title   headline (headline)      11w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 82, 1015, 219]          1.0     +0.7  bottom
+presented  Cambria             25 keyline:evidence          main    bullets                 103w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 259, 1210, 568]         1.0     +0.7  left
+presented  Cambria             26 keyline:evidence          footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1198, 645]         0.5     +0.7  left
+presented  Cambria             28 keyline:evidence          title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 82, 1159, 219]          1.0     +1.7  left
+presented  Cambria             29 keyline:evidence          main    table                   102w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 257, 1223, 584]         1.0     +0.7  left
+presented  Cambria             30 keyline:evidence          footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1183, 645]         0.5     +0.7  left
+presented  Cambria             32 keyline:evidence          title   headline (headline)      15w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 82, 1154, 205]          1.0     -0.3  left
+presented  Cambria             33 keyline:evidence          main    figure                12d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 297, 1150, 457]         0.1     +0.7  left
+presented  Cambria             34 keyline:evidence          footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1203, 645]         0.5     +0.7  left
+presented  Cambria             36 keyline:evidence:figure   title   headline (headline)      15w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 82, 1222, 219]          1.0     +0.7  bottom
+presented  Cambria             37 keyline:evidence:figure   main    text (body)              80w  fit      [56.7, 246.6, 828.1, 596.2]  [55, 259, 805, 585]          1.0     +1.7  left
+presented  Cambria             38 keyline:evidence:figure   side    bullets                  29w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 259, 1211, 564]        1.0     +1.0  left
+presented  Cambria             39 keyline:evidence:figure   footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1199, 645]         0.5     +0.7  left
+presented  Cambria             41 keyline:evidence:figure   title   headline (headline)      13w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 82, 1191, 219]          1.0     +0.7  bottom
+presented  Cambria             42 keyline:evidence:figure   main    bullets                  64w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 259, 826, 568]          1.0     +0.7  left
+presented  Cambria             43 keyline:evidence:figure   side    table                    31w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 257, 1223, 584]        1.0     +1.0  left
+presented  Cambria             44 keyline:evidence:figure   footer  source + note            58w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1203, 645]         0.5     +0.7  left
+presented  Cambria             46 keyline:evidence:figure   title   headline (headline)      15w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 82, 1151, 218]          1.0     -0.3  bottom
+presented  Cambria             47 keyline:evidence:figure   main    table                    55w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 257, 828, 562]          1.0     +0.7  left
+presented  Cambria             48 keyline:evidence:figure   side    figure                 4d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 297, 1205, 460]        0.1     +0.0  left
+presented  Cambria             49 keyline:evidence:figure   footer  source + note            56w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1197, 645]         0.5     +0.7  left
+presented  Cambria             51 keyline:evidence:figure   title   headline (headline)      14w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 82, 1189, 219]          0.0     +0.7  bottom
+presented  Cambria             52 keyline:evidence:figure   main    figure                 8d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 297, 788, 457]          0.1     +0.7  left
+presented  Cambria             53 keyline:evidence:figure   side    text (body)              33w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 259, 1221, 586]        1.0     +1.0  left
+presented  Cambria             54 keyline:evidence:figure   footer  source + note            60w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1199, 645]         0.5     +0.7  left
+presented  Cambria             56 keyline:quote             title   headline (quote)         32w  fit      [56.7, 114.3, 1025.7, 492.3] [55, 131, 1012, 455]         1.8     +1.7  left
+presented  Cambria             57 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 517, 435, 530]          0.1     +0.7  left
+presented  Cambria             59 keyline:close             title   headline (cover_title)      9w  fit      [56.7, 133.2, 1025.7, 360.0] [57, 173, 951, 342]          1.3     -0.3  left
+presented  Cambria             60 keyline:close             main    text (lede)              43w  fit      [56.7, 378.9, 1025.7, 596.2] [57, 394, 1023, 578]         1.1     -0.3  left
+presented  Cambria             61 keyline:close             footer  source + note            62w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1205, 645]         0.5     +0.7  left
+presented  Cambria             63 keyline:close             title   headline (cover_title)      7w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 172, 969, 342]          0.0     -1.3  left
+presented  Cambria             64 keyline:close             main    figure                10d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [56, 429, 997, 590]          1.0     +0.7  left
+presented  Cambria             65 keyline:close             footer  source + note            59w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 610, 1173, 645]         0.5     +0.7  left
+read       Arial                1 keyline:cover             title   headline (cover_title)     21w  fit      [56.7, 189.9, 1025.7, 416.7] [57, 238, 981, 406]          0.2     -0.3  left
+read       Arial                2 keyline:cover             main    text (lede)              90w  fit      [56.7, 435.6, 1025.7, 586.8] [56, 443, 1010, 577]         0.0     +0.7  left
+read       Arial                3 keyline:cover             footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Arial                5 keyline:section           title   headline (headline)      28w  fit      [56.7, 265.5, 1025.7, 435.6] [58, 276, 995, 401]          0.1     -1.3  left
+read       Arial                6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [57, 458, 258, 469]          0.0     -0.3  left
+read       Arial                8 keyline:statement         title   headline (statement)     35w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 973, 363]           0.1     -0.3  left
+read       Arial                9 keyline:statement         main    text (lede)             120w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 387, 1022, 576]         0.0     +0.7  left
+read       Arial               10 keyline:statement         footer  source + note           106w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1191, 650]         0.0     -0.3  left
+read       Arial               12 keyline:statement         title   headline (statement)     35w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1000, 365]          0.1     -0.3  left
+read       Arial               13 keyline:statement         main    text (body)             194w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 385, 1021, 586]         0.0     +0.7  left
+read       Arial               14 keyline:statement         footer  source + note           109w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1208, 650]         0.0     -0.3  left
+read       Arial               16 keyline:statement         title   headline (statement)     36w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1012, 365]          0.1     -0.3  left
+read       Arial               17 keyline:statement         main    figure                18d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 403, 966, 489]          0.0     -0.3  left
+read       Arial               18 keyline:statement         footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1206, 650]         0.0     +0.7  left
+read       Arial               20 keyline:evidence          title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1222, 218]          0.1     -0.3  bottom
+read       Arial               21 keyline:evidence          main    text (body)             386w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1217, 591]         0.0     +0.7  left
+read       Arial               22 keyline:evidence          footer  source + note           109w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1199, 650]         0.0     +0.7  left
+read       Arial               24 keyline:evidence          title   headline (headline)      29w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1212, 218]          0.1     -0.3  bottom
+read       Arial               25 keyline:evidence          main    text (lede)             252w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 254, 1218, 585]         0.0     +0.7  left
+read       Arial               26 keyline:evidence          footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1210, 650]         0.0     -0.3  left
+read       Arial               28 keyline:evidence          title   headline (headline)      35w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1194, 218]          0.1     -0.3  bottom
+read       Arial               29 keyline:evidence          main    bullets                 324w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1223, 572]         0.0     +0.7  left
+read       Arial               30 keyline:evidence          footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1211, 650]         0.0     -0.3  left
+read       Arial               32 keyline:evidence          title   headline (headline)      35w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1169, 218]          0.1     +0.7  left
+read       Arial               33 keyline:evidence          main    table                   299w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 255, 1223, 577]         0.0     +0.7  left
+read       Arial               34 keyline:evidence          footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1210, 650]         0.0     +0.7  left
+read       Arial               36 keyline:evidence          title   headline (headline)      34w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1206, 218]          0.1     -0.3  bottom
+read       Arial               37 keyline:evidence          main    figure                22d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 270, 1188, 358]         0.0     -0.3  left
+read       Arial               38 keyline:evidence          footer  source + note           108w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1206, 650]         0.0     -0.3  left
+read       Arial               40 keyline:evidence:figure   title   headline (headline)      32w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1220, 218]          0.1     -0.3  bottom
+read       Arial               41 keyline:evidence:figure   main    text (body)             251w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 827, 591]          0.0     +0.7  left
+read       Arial               42 keyline:evidence:figure   side    text (lede)              77w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 254, 1217, 585]        0.0     +0.0  left
+read       Arial               43 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1221, 650]         0.0     -0.3  left
+read       Arial               45 keyline:evidence:figure   title   headline (headline)      34w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1194, 218]          0.1     -0.3  bottom
+read       Arial               46 keyline:evidence:figure   main    text (lede)             163w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 254, 822, 585]          0.0     +0.7  left
+read       Arial               47 keyline:evidence:figure   side    bullets                  89w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 253, 1220, 571]        0.0     +1.0  left
+read       Arial               48 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1201, 650]         0.0     -0.3  left
+read       Arial               50 keyline:evidence:figure   title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1223, 218]          0.1     -0.3  bottom
+read       Arial               51 keyline:evidence:figure   main    bullets                 199w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 827, 572]          0.0     +0.7  left
+read       Arial               52 keyline:evidence:figure   side    table                    88w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 255, 1223, 586]        0.0     +0.0  left
+read       Arial               53 keyline:evidence:figure   footer  source + note           109w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1220, 650]         0.0     -0.3  left
+read       Arial               55 keyline:evidence:figure   title   headline (headline)      33w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1207, 218]          0.1     -0.3  bottom
+read       Arial               56 keyline:evidence:figure   main    table                   201w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 255, 828, 577]          0.0     +0.7  left
+read       Arial               57 keyline:evidence:figure   side    figure                 7d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 270, 1200, 357]        0.2     +1.0  left
+read       Arial               58 keyline:evidence:figure   footer  source + note           114w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1206, 650]         0.0     -0.3  left
+read       Arial               60 keyline:evidence:figure   title   headline (headline)      36w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1223, 218]          0.1     -0.3  bottom
+read       Arial               61 keyline:evidence:figure   main    figure                15d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 270, 811, 357]          0.0     +0.7  left
+read       Arial               62 keyline:evidence:figure   side    text (body)             117w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 253, 1220, 588]        0.0     +0.0  left
+read       Arial               63 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1210, 650]         0.0     -0.3  left
+read       Arial               65 keyline:quote             title   headline (quote)        101w  fit      [56.7, 114.3, 1025.7, 492.3] [57, 123, 1005, 461]         0.0     -0.3  left
+read       Arial               66 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 515, 247, 526]          0.0     +0.7  left
+read       Arial               68 keyline:close             title   headline (cover_title)     16w  fit      [56.7, 133.2, 1025.7, 360.0] [56, 181, 1023, 360]         0.2     +0.7  left
+read       Arial               69 keyline:close             main    text (lede)             122w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 387, 1024, 576]         0.0     +0.7  left
+read       Arial               70 keyline:close             footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1208, 650]         0.0     -0.3  left
+read       Arial               72 keyline:close             title   headline (cover_title)     18w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 181, 999, 360]          0.2     +0.0  bottom
+read       Arial               73 keyline:close             main    figure                18d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 403, 966, 489]          0.2     -0.3  left
+read       Arial               74 keyline:close             footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1213, 650]         0.0     -0.3  left
+read       Times New Roman      1 keyline:cover             title   headline (cover_title)     23w  fit      [56.7, 189.9, 1025.7, 416.7] [57, 237, 984, 412]          0.0     -0.3  left
+read       Times New Roman      2 keyline:cover             main    text (lede)              97w  fit      [56.7, 435.6, 1025.7, 586.8] [57, 444, 1015, 577]         0.0     -0.3  left
+read       Times New Roman      3 keyline:cover             footer  source + note           123w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Times New Roman      5 keyline:section           title   headline (headline)      31w  fit      [56.7, 265.5, 1025.7, 435.6] [57, 276, 966, 402]          0.0     -0.3  left
+read       Times New Roman      6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 459, 259, 469]          0.0     +0.7  left
+read       Times New Roman      8 keyline:statement         title   headline (statement)     40w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 92, 1001, 366]          0.0     -0.3  left
+read       Times New Roman      9 keyline:statement         main    text (lede)             133w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 388, 1014, 576]         0.0     +0.7  left
+read       Times New Roman     10 keyline:statement         footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1199, 650]         0.0     -0.3  left
+read       Times New Roman     12 keyline:statement         title   headline (statement)     39w  fit      [56.7, 76.5, 1025.7, 369.4]  [56, 91, 1017, 366]          0.0     +0.7  left
+read       Times New Roman     13 keyline:statement         main    text (body)             214w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 385, 1026, 586]         0.0     +0.7  left
+read       Times New Roman     14 keyline:statement         footer  source + note           122w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1202, 650]         0.0     -0.3  left
+read       Times New Roman     16 keyline:statement         title   headline (statement)     37w  fit      [56.7, 76.5, 1025.7, 369.4]  [56, 92, 920, 366]           0.0     +0.7  left
+read       Times New Roman     17 keyline:statement         main    figure                20d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 405, 974, 489]          0.0     -0.3  left
+read       Times New Roman     18 keyline:statement         footer  source + note           121w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1205, 650]         0.0     -0.3  left
+read       Times New Roman     20 keyline:evidence          title   headline (headline)      35w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1207, 218]          0.0     -0.3  bottom
+read       Times New Roman     21 keyline:evidence          main    text (body)             431w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1223, 591]         0.0     +0.7  left
+read       Times New Roman     22 keyline:evidence          footer  source + note           123w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Times New Roman     24 keyline:evidence          title   headline (headline)      33w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1199, 218]          0.0     -0.3  bottom
+read       Times New Roman     25 keyline:evidence          main    text (lede)             281w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 255, 1209, 585]         0.0     +0.7  left
+read       Times New Roman     26 keyline:evidence          footer  source + note           124w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1201, 650]         0.0     -0.3  left
+read       Times New Roman     28 keyline:evidence          title   headline (headline)      39w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1199, 214]          0.0     -0.3  left
+read       Times New Roman     29 keyline:evidence          main    bullets                 364w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1221, 572]         0.1     +0.7  left
+read       Times New Roman     30 keyline:evidence          footer  source + note           126w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1222, 650]         0.0     -0.3  left
+read       Times New Roman     32 keyline:evidence          title   headline (headline)      39w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1220, 218]          0.0     -0.3  bottom
+read       Times New Roman     33 keyline:evidence          main    table                   342w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 256, 1223, 577]         0.0     +0.7  left
+read       Times New Roman     34 keyline:evidence          footer  source + note           121w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1193, 650]         0.0     -0.3  left
+read       Times New Roman     36 keyline:evidence          title   headline (headline)      38w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1210, 218]          0.0     -0.3  bottom
+read       Times New Roman     37 keyline:evidence          main    figure                24d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 273, 1156, 358]         0.0     -0.3  left
+read       Times New Roman     38 keyline:evidence          footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1214, 650]         0.0     -0.3  left
+read       Times New Roman     40 keyline:evidence:figure   title   headline (headline)      36w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1177, 218]          0.0     -0.3  bottom
+read       Times New Roman     41 keyline:evidence:figure   main    text (body)             283w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 825, 591]          0.0     +0.7  left
+read       Times New Roman     42 keyline:evidence:figure   side    text (lede)              87w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 255, 1219, 585]        0.0     +0.0  left
+read       Times New Roman     43 keyline:evidence:figure   footer  source + note           123w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1213, 650]         0.0     -0.3  left
+read       Times New Roman     45 keyline:evidence:figure   title   headline (headline)      38w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1196, 218]          0.0     -0.3  bottom
+read       Times New Roman     46 keyline:evidence:figure   main    text (lede)             183w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 255, 821, 585]          0.0     +0.7  left
+read       Times New Roman     47 keyline:evidence:figure   side    bullets                 110w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 253, 1216, 572]        0.1     +1.0  left
+read       Times New Roman     48 keyline:evidence:figure   footer  source + note           117w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1217, 650]         0.0     -0.3  left
+read       Times New Roman     50 keyline:evidence:figure   title   headline (headline)      35w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1189, 218]          0.0     -0.3  bottom
+read       Times New Roman     51 keyline:evidence:figure   main    bullets                 239w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 817, 572]          0.1     +0.7  left
+read       Times New Roman     52 keyline:evidence:figure   side    table                   105w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 256, 1223, 593]        0.0     +0.0  left
+read       Times New Roman     53 keyline:evidence:figure   footer  source + note           122w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1219, 650]         0.0     -0.3  left
+read       Times New Roman     55 keyline:evidence:figure   title   headline (headline)      36w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1219, 218]          0.0     -0.3  bottom
+read       Times New Roman     56 keyline:evidence:figure   main    table                   227w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 256, 828, 577]          0.0     +0.7  left
+read       Times New Roman     57 keyline:evidence:figure   side    figure                 8d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 273, 1205, 357]        0.0     +0.0  left
+read       Times New Roman     58 keyline:evidence:figure   footer  source + note           127w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1207, 650]         0.0     -0.3  left
+read       Times New Roman     60 keyline:evidence:figure   title   headline (headline)      40w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 92, 1217, 218]          0.0     -0.3  bottom
+read       Times New Roman     61 keyline:evidence:figure   main    figure                16d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 273, 795, 357]          0.0     +0.7  left
+read       Times New Roman     62 keyline:evidence:figure   side    text (body)             135w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 253, 1222, 591]        0.0     +0.0  left
+read       Times New Roman     63 keyline:evidence:figure   footer  source + note           121w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1206, 650]         0.0     -0.3  left
+read       Times New Roman     65 keyline:quote             title   headline (quote)        113w  fit      [56.7, 114.3, 1025.7, 492.3] [56, 123, 1022, 461]         0.0     +0.7  left
+read       Times New Roman     66 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 516, 247, 526]          0.0     +0.7  left
+read       Times New Roman     68 keyline:close             title   headline (cover_title)     19w  fit      [56.7, 133.2, 1025.7, 360.0] [56, 181, 996, 359]          0.0     +0.7  left
+read       Times New Roman     69 keyline:close             main    text (lede)             133w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 388, 1021, 576]         0.0     +0.7  left
+read       Times New Roman     70 keyline:close             footer  source + note           123w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1221, 650]         0.0     -0.3  left
+read       Times New Roman     72 keyline:close             title   headline (cover_title)     21w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 180, 987, 358]          0.0     -1.3  left
+read       Times New Roman     73 keyline:close             main    figure                20d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 405, 974, 489]          0.0     -0.3  left
+read       Times New Roman     74 keyline:close             footer  source + note           125w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1208, 650]         0.0     -0.3  left
+read       Courier New          1 keyline:cover             title   headline (cover_title)     16w  fit      [56.7, 189.9, 1025.7, 416.7] [59, 237, 982, 406]          0.0     -2.3  left
+read       Courier New          2 keyline:cover             main    text (lede)              64w  fit      [56.7, 435.6, 1025.7, 586.8] [57, 443, 1013, 577]         0.0     -0.3  left
+read       Courier New          3 keyline:cover             footer  source + note            83w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1195, 650]         0.0     -0.3  left
+read       Courier New          5 keyline:section           title   headline (headline)      23w  fit      [56.7, 265.5, 1025.7, 435.6] [58, 276, 994, 401]          0.0     -1.3  left
+read       Courier New          6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 459, 253, 469]          0.0     +0.7  left
+read       Courier New          8 keyline:statement         title   headline (statement)     27w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1004, 365]          0.0     -0.3  left
+read       Courier New          9 keyline:statement         main    text (lede)              88w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 387, 1000, 576]         0.0     +0.7  left
+read       Courier New         10 keyline:statement         footer  source + note            80w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1202, 650]         0.0     -0.3  left
+read       Courier New         12 keyline:statement         title   headline (statement)     26w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 89, 976, 365]           0.0     -0.3  left
+read       Courier New         13 keyline:statement         main    text (body)             143w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 385, 1020, 586]         0.0     +0.7  left
+read       Courier New         14 keyline:statement         footer  source + note            78w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1202, 650]         0.0     -0.3  left
+read       Courier New         16 keyline:statement         title   headline (statement)     28w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1005, 365]          0.0     -0.3  left
+read       Courier New         17 keyline:statement         main    figure                15d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 405, 965, 489]          0.0     -0.3  left
+read       Courier New         18 keyline:statement         footer  source + note            78w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Courier New         20 keyline:evidence          title   headline (headline)      26w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 92, 1195, 218]          0.0     +0.7  left
+read       Courier New         21 keyline:evidence          main    text (body)             285w  fit      [56.7, 246.6, 1223.3, 596.2] [57, 253, 1218, 591]         0.0     -0.3  left
+read       Courier New         22 keyline:evidence          footer  source + note            80w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Courier New         24 keyline:evidence          title   headline (headline)      23w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 92, 1189, 218]          0.0     +0.7  left
+read       Courier New         25 keyline:evidence          main    text (lede)             179w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 254, 1217, 585]         0.0     +0.7  left
+read       Courier New         26 keyline:evidence          footer  source + note            80w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1216, 650]         0.0     -0.3  left
+read       Courier New         28 keyline:evidence          title   headline (headline)      26w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 92, 1172, 218]          0.0     -0.3  bottom
+read       Courier New         29 keyline:evidence          main    bullets                 240w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1221, 572]         0.0     +0.7  left
+read       Courier New         30 keyline:evidence          footer  source + note            82w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1209, 650]         0.0     +0.7  left
+read       Courier New         32 keyline:evidence          title   headline (headline)      27w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 92, 1218, 218]          0.0     -0.3  bottom
+read       Courier New         33 keyline:evidence          main    table                   223w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 256, 1223, 577]         0.0     +0.7  left
+read       Courier New         34 keyline:evidence          footer  source + note            82w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1202, 650]         0.0     -0.3  left
+read       Courier New         36 keyline:evidence          title   headline (headline)      28w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 92, 1152, 218]          0.0     +0.7  left
+read       Courier New         37 keyline:evidence          main    figure                18d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 273, 1157, 359]         0.0     -0.3  left
+read       Courier New         38 keyline:evidence          footer  source + note            81w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1224, 650]         0.0     +0.7  right
+read       Courier New         40 keyline:evidence:figure   title   headline (headline)      25w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 93, 1196, 218]          0.0     -0.3  bottom
+read       Courier New         41 keyline:evidence:figure   main    text (body)             184w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 824, 591]          0.0     +0.7  left
+read       Courier New         42 keyline:evidence:figure   side    text (lede)              58w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 254, 1203, 585]        0.0     +0.0  left
+read       Courier New         43 keyline:evidence:figure   footer  source + note            78w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1223, 650]         0.0     -0.3  left
+read       Courier New         45 keyline:evidence:figure   title   headline (headline)      24w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1217, 218]          0.0     -0.3  bottom
+read       Courier New         46 keyline:evidence:figure   main    text (lede)             120w  fit      [56.7, 246.6, 828.1, 596.2]  [57, 254, 822, 585]          0.0     -0.3  left
+read       Courier New         47 keyline:evidence:figure   side    bullets                  70w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 253, 1213, 572]        0.0     +1.0  left
+read       Courier New         48 keyline:evidence:figure   footer  source + note            79w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Courier New         50 keyline:evidence:figure   title   headline (headline)      25w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 92, 1173, 218]          0.0     -0.3  bottom
+read       Courier New         51 keyline:evidence:figure   main    bullets                 145w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 827, 572]          0.0     +0.7  left
+read       Courier New         52 keyline:evidence:figure   side    table                    71w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 256, 1223, 593]        0.0     +0.0  left
+read       Courier New         53 keyline:evidence:figure   footer  source + note            78w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Courier New         55 keyline:evidence:figure   title   headline (headline)      26w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 93, 1217, 218]          0.0     -0.3  bottom
+read       Courier New         56 keyline:evidence:figure   main    table                   128w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 256, 828, 577]          0.0     +0.7  left
+read       Courier New         57 keyline:evidence:figure   side    figure                 6d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 273, 1179, 357]        0.0     +1.0  left
+read       Courier New         58 keyline:evidence:figure   footer  source + note            83w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1209, 650]         0.0     +0.7  left
+read       Courier New         60 keyline:evidence:figure   title   headline (headline)      27w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 92, 1217, 218]          0.0     -0.3  bottom
+read       Courier New         61 keyline:evidence:figure   main    figure                12d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [57, 273, 772, 357]          0.0     -0.3  left
+read       Courier New         62 keyline:evidence:figure   side    text (body)              88w  fit      [847.0, 246.6, 1223.3, 596.2] [848, 253, 1220, 588]        0.0     -1.0  left
+read       Courier New         63 keyline:evidence:figure   footer  source + note            82w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Courier New         65 keyline:quote             title   headline (quote)         74w  fit      [56.7, 114.3, 1025.7, 492.3] [57, 122, 1015, 461]         0.0     -0.3  left
+read       Courier New         66 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [57, 516, 245, 526]          0.0     -0.3  left
+read       Courier New         68 keyline:close             title   headline (cover_title)     12w  fit      [56.7, 133.2, 1025.7, 360.0] [57, 181, 1016, 349]         0.0     -0.3  left
+read       Courier New         69 keyline:close             main    text (lede)              83w  fit      [56.7, 378.9, 1025.7, 596.2] [57, 387, 1013, 576]         0.0     -0.3  left
+read       Courier New         70 keyline:close             footer  source + note            78w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 650]         0.0     -0.3  left
+read       Courier New         72 keyline:close             title   headline (cover_title)     13w  fit      [56.7, 133.2, 1025.7, 360.0] [59, 180, 1014, 360]         0.0     +0.0  bottom
+read       Courier New         73 keyline:close             main    figure                15d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 405, 965, 489]          0.0     -0.3  left
+read       Courier New         74 keyline:close             footer  source + note            78w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1202, 650]         0.0     -0.3  left
+read       Georgia              1 keyline:cover             title   headline (cover_title)     20w  fit      [56.7, 189.9, 1025.7, 416.7] [57, 232, 997, 402]          1.0     -0.3  left
+read       Georgia              2 keyline:cover             main    text (lede)              92w  fit      [56.7, 435.6, 1025.7, 586.8] [56, 442, 1010, 577]         0.5     +0.7  left
+read       Georgia              3 keyline:cover             footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1213, 650]         0.3     -0.3  left
+read       Georgia              5 keyline:section           title   headline (headline)      27w  fit      [56.7, 265.5, 1025.7, 435.6] [56, 275, 1026, 403]         0.9     +0.7  left
+read       Georgia              6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 458, 274, 469]          0.3     +0.7  left
+read       Georgia              8 keyline:statement         title   headline (statement)     30w  fit      [56.7, 76.5, 1025.7, 369.4]  [56, 89, 991, 367]           0.9     +0.7  left
+read       Georgia              9 keyline:statement         main    text (lede)             122w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 386, 1013, 576]         0.5     +0.7  left
+read       Georgia             10 keyline:statement         footer  source + note           108w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1219, 650]         0.3     -0.3  left
+read       Georgia             12 keyline:statement         title   headline (statement)     30w  fit      [56.7, 76.5, 1025.7, 369.4]  [56, 87, 1019, 365]          1.1     +0.7  left
+read       Georgia             13 keyline:statement         main    text (body)             195w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 384, 1026, 586]         0.4     +0.7  left
+read       Georgia             14 keyline:statement         footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1210, 650]         0.3     -0.3  left
+read       Georgia             16 keyline:statement         title   headline (statement)     33w  fit      [56.7, 76.5, 1025.7, 369.4]  [55, 89, 1019, 365]          1.1     +1.7  left
+read       Georgia             17 keyline:statement         main    figure                16d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 398, 972, 489]          1.1     -0.3  left
+read       Georgia             18 keyline:statement         footer  source + note           112w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 608, 1208, 650]         0.3     +0.7  left
+read       Georgia             20 keyline:evidence          title   headline (headline)      28w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 88, 1214, 208]          0.7     +1.7  left
+read       Georgia             21 keyline:evidence          main    text (body)             359w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 252, 1224, 568]         0.4     +0.7  left
+read       Georgia             22 keyline:evidence          footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 608, 1219, 650]         0.3     +0.7  left
+read       Georgia             24 keyline:evidence          title   headline (headline)      28w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 89, 1194, 215]          0.9     -0.3  left
+read       Georgia             25 keyline:evidence          main    text (lede)             254w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1218, 585]         0.5     +0.7  left
+read       Georgia             26 keyline:evidence          footer  source + note           114w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1207, 650]         0.3     -0.3  left
+read       Georgia             28 keyline:evidence          title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 89, 1213, 215]          0.7     +0.7  left
+read       Georgia             29 keyline:evidence          main    bullets                 327w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 252, 1220, 572]         0.4     +0.7  left
+read       Georgia             30 keyline:evidence          footer  source + note           114w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1201, 650]         0.3     -0.3  left
+read       Georgia             32 keyline:evidence          title   headline (headline)      33w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 89, 1177, 217]          0.9     +0.7  left
+read       Georgia             33 keyline:evidence          main    table                   312w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 255, 1223, 593]         0.4     +0.7  left
+read       Georgia             34 keyline:evidence          footer  source + note           111w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1221, 650]         0.3     -0.3  left
+read       Georgia             36 keyline:evidence          title   headline (headline)      32w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 89, 1220, 215]          0.9     +0.7  left
+read       Georgia             37 keyline:evidence          main    figure                20d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 266, 1205, 359]         1.1     -0.3  left
+read       Georgia             38 keyline:evidence          footer  source + note           109w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 608, 1207, 650]         0.3     +0.7  left
+read       Georgia             40 keyline:evidence:figure   title   headline (headline)      27w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 90, 1220, 215]          0.9     +1.7  left
+read       Georgia             41 keyline:evidence:figure   main    text (body)             237w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 252, 826, 568]          0.4     +0.7  left
+read       Georgia             42 keyline:evidence:figure   side    text (lede)              77w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 253, 1221, 585]        0.5     +0.0  left
+read       Georgia             43 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1216, 650]         0.3     -0.3  left
+read       Georgia             45 keyline:evidence:figure   title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 90, 1201, 217]          0.9     -0.3  left
+read       Georgia             46 keyline:evidence:figure   main    text (lede)             169w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 821, 585]          0.5     +0.7  left
+read       Georgia             47 keyline:evidence:figure   side    bullets                  89w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 252, 1222, 571]        0.4     +1.0  left
+read       Georgia             48 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1192, 650]         0.3     -0.3  left
+read       Georgia             50 keyline:evidence:figure   title   headline (headline)      29w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 88, 1187, 215]          0.7     +0.7  left
+read       Georgia             51 keyline:evidence:figure   main    bullets                 199w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 252, 823, 572]          0.4     +0.7  left
+read       Georgia             52 keyline:evidence:figure   side    table                    85w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 255, 1223, 593]        0.4     +1.0  left
+read       Georgia             53 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1213, 650]         0.3     -0.3  left
+read       Georgia             55 keyline:evidence:figure   title   headline (headline)      28w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 90, 1221, 215]          0.9     -0.3  left
+read       Georgia             56 keyline:evidence:figure   main    table                   197w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 255, 828, 593]          0.4     +0.7  left
+read       Georgia             57 keyline:evidence:figure   side    figure                 6d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 266, 1170, 357]        1.6     +1.0  left
+read       Georgia             58 keyline:evidence:figure   footer  source + note           114w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1218, 650]         0.3     -0.3  left
+read       Georgia             60 keyline:evidence:figure   title   headline (headline)      32w  fit      [56.7, 57.6, 1223.3, 218.3]  [55, 89, 1188, 217]          0.9     +1.7  left
+read       Georgia             61 keyline:evidence:figure   main    figure                13d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 266, 795, 357]          0.1     +0.7  left
+read       Georgia             62 keyline:evidence:figure   side    text (body)             111w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 252, 1217, 568]        0.4     +1.0  left
+read       Georgia             63 keyline:evidence:figure   footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 608, 1212, 650]         0.3     +0.7  left
+read       Georgia             65 keyline:quote             title   headline (quote)        101w  fit      [56.7, 114.3, 1025.7, 492.3] [56, 121, 1017, 461]         0.8     +0.7  left
+read       Georgia             66 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 515, 265, 526]          0.2     +0.7  left
+read       Georgia             68 keyline:close             title   headline (cover_title)     15w  fit      [56.7, 133.2, 1025.7, 360.0] [55, 176, 990, 357]          1.0     +1.7  left
+read       Georgia             69 keyline:close             main    text (lede)             122w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 386, 1019, 576]         0.5     +0.7  left
+read       Georgia             70 keyline:close             footer  source + note           110w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1206, 650]         0.3     -0.3  left
+read       Georgia             72 keyline:close             title   headline (cover_title)     17w  fit      [56.7, 133.2, 1025.7, 360.0] [57, 175, 994, 357]          1.3     -0.3  left
+read       Georgia             73 keyline:close             main    figure                16d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 398, 972, 489]          1.9     -0.3  left
+read       Georgia             74 keyline:close             footer  source + note           113w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 608, 1221, 650]         0.3     -0.3  left
+read       Calibri              1 keyline:cover             title   headline (cover_title)     23w  fit      [56.7, 189.9, 1025.7, 416.7] [58, 240, 1023, 413]         0.0     -1.3  left
+read       Calibri              2 keyline:cover             main    text (lede)              96w  fit      [56.7, 435.6, 1025.7, 586.8] [56, 444, 1007, 576]         0.0     +0.7  left
+read       Calibri              3 keyline:cover             footer  source + note           121w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1205, 649]         0.0     -0.3  left
+read       Calibri              5 keyline:section           title   headline (headline)      31w  fit      [56.7, 265.5, 1025.7, 435.6] [57, 276, 1024, 393]         0.0     -0.3  left
+read       Calibri              6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 459, 222, 468]          0.1     +0.7  left
+read       Calibri              8 keyline:statement         title   headline (statement)     40w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1013, 363]          0.0     -0.3  left
+read       Calibri              9 keyline:statement         main    text (lede)             129w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 388, 1017, 575]         0.0     +0.7  left
+read       Calibri             10 keyline:statement         footer  source + note           117w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1215, 649]         0.0     -0.3  left
+read       Calibri             12 keyline:statement         title   headline (statement)     41w  fit      [56.7, 76.5, 1025.7, 369.4]  [56, 90, 1002, 363]          0.0     +0.7  left
+read       Calibri             13 keyline:statement         main    text (body)             212w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 386, 1020, 585]         0.0     +0.7  left
+read       Calibri             14 keyline:statement         footer  source + note           119w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1215, 649]         0.0     -0.3  left
+read       Calibri             16 keyline:statement         title   headline (statement)     38w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1006, 364]          0.0     -0.3  left
+read       Calibri             17 keyline:statement         main    figure                20d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 403, 989, 488]          0.1     -0.3  left
+read       Calibri             18 keyline:statement         footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1195, 649]         0.0     -0.3  left
+read       Calibri             20 keyline:evidence          title   headline (headline)      36w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 94, 1184, 217]          0.0     +0.7  left
+read       Calibri             21 keyline:evidence          main    text (body)             419w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 254, 1223, 590]         0.0     +0.7  left
+read       Calibri             22 keyline:evidence          footer  source + note           117w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1207, 649]         0.0     -0.3  left
+read       Calibri             24 keyline:evidence          title   headline (headline)      34w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 94, 1198, 217]          0.0     -0.3  left
+read       Calibri             25 keyline:evidence          main    text (lede)             272w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 255, 1216, 584]         0.0     +0.7  left
+read       Calibri             26 keyline:evidence          footer  source + note           122w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1203, 649]         0.0     -0.3  left
+read       Calibri             28 keyline:evidence          title   headline (headline)      39w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 94, 1160, 216]          0.0     -0.3  left
+read       Calibri             29 keyline:evidence          main    bullets                 347w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 254, 1222, 571]         0.0     +0.7  left
+read       Calibri             30 keyline:evidence          footer  source + note           123w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1212, 649]         0.0     -0.3  left
+read       Calibri             32 keyline:evidence          title   headline (headline)      42w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 94, 1198, 218]          0.0     +0.7  left
+read       Calibri             33 keyline:evidence          main    table                   319w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 256, 1223, 582]         0.1     +0.7  left
+read       Calibri             34 keyline:evidence          footer  source + note           119w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1208, 649]         0.0     -0.3  left
+read       Calibri             36 keyline:evidence          title   headline (headline)      39w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 94, 1181, 218]          0.0     -0.3  bottom
+read       Calibri             37 keyline:evidence          main    figure                24d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 271, 1172, 358]         0.1     -0.3  left
+read       Calibri             38 keyline:evidence          footer  source + note           118w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1201, 649]         0.0     -0.3  left
+read       Calibri             40 keyline:evidence:figure   title   headline (headline)      36w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 94, 1169, 218]          0.0     -0.3  bottom
+read       Calibri             41 keyline:evidence:figure   main    text (body)             277w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 254, 828, 590]          0.0     +0.7  left
+read       Calibri             42 keyline:evidence:figure   side    text (lede)              84w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 255, 1221, 584]        0.0     +0.0  left
+read       Calibri             43 keyline:evidence:figure   footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1195, 649]         0.0     -0.3  left
+read       Calibri             45 keyline:evidence:figure   title   headline (headline)      38w  fit      [56.7, 57.6, 1223.3, 218.3]  [58, 94, 1170, 218]          0.0     -0.3  bottom
+read       Calibri             46 keyline:evidence:figure   main    text (lede)             179w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 255, 826, 584]          0.0     +0.7  left
+read       Calibri             47 keyline:evidence:figure   side    bullets                 105w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 254, 1216, 571]        0.0     +1.0  left
+read       Calibri             48 keyline:evidence:figure   footer  source + note           117w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1203, 649]         0.0     -0.3  left
+read       Calibri             50 keyline:evidence:figure   title   headline (headline)      35w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 94, 1165, 218]          0.0     -0.3  bottom
+read       Calibri             51 keyline:evidence:figure   main    bullets                 222w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 254, 826, 571]          0.0     +0.7  left
+read       Calibri             52 keyline:evidence:figure   side    table                    93w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 256, 1223, 575]        0.1     +0.0  left
+read       Calibri             53 keyline:evidence:figure   footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1220, 649]         0.0     -0.3  left
+read       Calibri             55 keyline:evidence:figure   title   headline (headline)      37w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 94, 1216, 217]          0.0     +0.7  left
+read       Calibri             56 keyline:evidence:figure   main    table                   219w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 256, 828, 582]          0.1     +0.7  left
+read       Calibri             57 keyline:evidence:figure   side    figure                 8d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 271, 1210, 356]        0.1     +1.0  left
+read       Calibri             58 keyline:evidence:figure   footer  source + note           124w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1200, 649]         0.0     -0.3  left
+read       Calibri             60 keyline:evidence:figure   title   headline (headline)      42w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 94, 1200, 218]          0.0     -0.3  bottom
+read       Calibri             61 keyline:evidence:figure   main    figure                16d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 271, 806, 356]          0.0     +0.7  left
+read       Calibri             62 keyline:evidence:figure   side    text (body)             130w  fit      [847.0, 246.6, 1223.3, 596.2] [847, 254, 1218, 590]        0.0     +0.0  left
+read       Calibri             63 keyline:evidence:figure   footer  source + note           119w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1217, 649]         0.0     -0.3  left
+read       Calibri             65 keyline:quote             title   headline (quote)        111w  fit      [56.7, 114.3, 1025.7, 492.3] [56, 124, 1004, 460]         0.0     +0.7  left
+read       Calibri             66 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 516, 219, 525]          0.0     +0.7  left
+read       Calibri             68 keyline:close             title   headline (cover_title)     19w  fit      [56.7, 133.2, 1025.7, 360.0] [57, 184, 971, 359]          0.0     -0.3  left
+read       Calibri             69 keyline:close             main    text (lede)             132w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 388, 1013, 575]         0.0     +0.7  left
+read       Calibri             70 keyline:close             footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1209, 649]         0.0     -0.3  left
+read       Calibri             72 keyline:close             title   headline (cover_title)     21w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 184, 1010, 358]         0.0     -1.3  left
+read       Calibri             73 keyline:close             main    figure                20d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 403, 989, 488]          0.0     -0.3  left
+read       Calibri             74 keyline:close             footer  source + note           122w  fit      [56.7, 605.7, 1223.3, 662.4] [57, 609, 1204, 649]         0.0     -0.3  left
+read       Cambria              1 keyline:cover             title   headline (cover_title)     22w  fit      [56.7, 189.9, 1025.7, 416.7] [57, 239, 1012, 413]         0.8     -0.3  left
+read       Cambria              2 keyline:cover             main    text (lede)              96w  fit      [56.7, 435.6, 1025.7, 586.8] [56, 443, 1007, 577]         0.6     +0.7  left
+read       Cambria              3 keyline:cover             footer  source + note           121w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1201, 650]         0.4     +0.7  left
+read       Cambria              5 keyline:section           title   headline (headline)      30w  fit      [56.7, 265.5, 1025.7, 435.6] [57, 276, 1015, 402]         0.6     -0.3  left
+read       Cambria              6 keyline:section           main    text (label)              5w  cap      [56.7, 454.5, 1025.7, 492.3] [56, 458, 234, 468]          0.1     +0.7  left
+read       Cambria              8 keyline:statement         title   headline (statement)     38w  fit      [56.7, 76.5, 1025.7, 369.4]  [55, 90, 990, 366]           0.7     +1.7  left
+read       Cambria              9 keyline:statement         main    text (lede)             129w  fit      [56.7, 378.9, 1025.7, 596.2] [57, 387, 1022, 576]         0.6     -0.3  left
+read       Cambria             10 keyline:statement         footer  source + note           117w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1211, 650]         0.4     +0.7  left
+read       Cambria             12 keyline:statement         title   headline (statement)     36w  fit      [56.7, 76.5, 1025.7, 369.4]  [57, 90, 1023, 366]          0.7     -0.3  left
+read       Cambria             13 keyline:statement         main    text (body)             212w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 385, 1025, 586]         0.5     +0.7  left
+read       Cambria             14 keyline:statement         footer  source + note           119w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1215, 650]         0.4     +0.7  left
+read       Cambria             16 keyline:statement         title   headline (statement)     37w  fit      [56.7, 76.5, 1025.7, 369.4]  [55, 90, 976, 366]           0.7     +1.7  left
+read       Cambria             17 keyline:statement         main    figure                20d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 404, 999, 488]          1.2     -0.3  left
+read       Cambria             18 keyline:statement         footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1207, 650]         0.4     +0.7  left
+read       Cambria             20 keyline:evidence          title   headline (headline)      32w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1150, 219]          0.6     +0.7  bottom
+read       Cambria             21 keyline:evidence          main    text (body)             419w  fit      [56.7, 246.6, 1223.3, 596.2] [57, 253, 1223, 591]         0.5     -0.3  left
+read       Cambria             22 keyline:evidence          footer  source + note           117w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1204, 650]         0.4     +0.7  left
+read       Cambria             24 keyline:evidence          title   headline (headline)      31w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1179, 219]          0.6     +0.7  bottom
+read       Cambria             25 keyline:evidence          main    text (lede)             272w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 254, 1219, 585]         0.6     +0.7  left
+read       Cambria             26 keyline:evidence          footer  source + note           122w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1205, 650]         0.4     +0.7  left
+read       Cambria             28 keyline:evidence          title   headline (headline)      36w  fit      [56.7, 57.6, 1223.3, 218.3]  [57, 93, 1173, 210]          0.6     -0.3  left
+read       Cambria             29 keyline:evidence          main    bullets                 350w  fit      [56.7, 246.6, 1223.3, 596.2] [56, 253, 1207, 572]         0.5     +0.7  left
+read       Cambria             30 keyline:evidence          footer  source + note           123w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1209, 650]         0.4     +0.7  left
+read       Cambria             32 keyline:evidence          title   headline (headline)      39w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1197, 219]          0.6     +0.7  bottom
+read       Cambria             33 keyline:evidence          main    table                   323w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [56, 255, 1223, 577]         0.5     +0.7  left
+read       Cambria             34 keyline:evidence          footer  source + note           121w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1208, 650]         0.4     +0.7  left
+read       Cambria             36 keyline:evidence          title   headline (headline)      37w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1194, 219]          0.6     +0.7  bottom
+read       Cambria             37 keyline:evidence          main    figure                24d 5w  cap+fit  [56.7, 246.6, 1223.3, 596.2] [57, 272, 1179, 358]         1.2     -0.3  left
+read       Cambria             38 keyline:evidence          footer  source + note           118w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1198, 650]         0.4     +0.7  left
+read       Cambria             40 keyline:evidence:figure   title   headline (headline)      33w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1207, 219]          0.6     +0.7  bottom
+read       Cambria             41 keyline:evidence:figure   main    text (body)             277w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 828, 591]          0.5     +0.7  left
+read       Cambria             42 keyline:evidence:figure   side    text (lede)              85w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 254, 1216, 585]        0.6     +1.0  left
+read       Cambria             43 keyline:evidence:figure   footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1193, 650]         0.4     +0.7  left
+read       Cambria             45 keyline:evidence:figure   title   headline (headline)      34w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1218, 219]          0.6     +0.7  bottom
+read       Cambria             46 keyline:evidence:figure   main    text (lede)             179w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 254, 824, 585]          0.6     +0.7  left
+read       Cambria             47 keyline:evidence:figure   side    bullets                 103w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 253, 1218, 572]        0.5     +1.0  left
+read       Cambria             48 keyline:evidence:figure   footer  source + note           117w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1198, 650]         0.4     +0.7  left
+read       Cambria             50 keyline:evidence:figure   title   headline (headline)      33w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1194, 219]          0.6     +0.7  bottom
+read       Cambria             51 keyline:evidence:figure   main    bullets                 226w  fit      [56.7, 246.6, 828.1, 596.2]  [56, 253, 823, 571]          0.5     +0.7  left
+read       Cambria             52 keyline:evidence:figure   side    table                    95w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [847, 255, 1223, 593]        0.5     +0.0  left
+read       Cambria             53 keyline:evidence:figure   footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1223, 650]         0.4     +0.7  left
+read       Cambria             55 keyline:evidence:figure   title   headline (headline)      33w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1202, 219]          0.6     +0.7  bottom
+read       Cambria             56 keyline:evidence:figure   main    table                   219w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 255, 828, 577]          0.5     +0.7  left
+read       Cambria             57 keyline:evidence:figure   side    figure                 8d 5w  cap+fit  [847.0, 246.6, 1223.3, 596.2] [846, 272, 1213, 356]        1.2     +1.0  left
+read       Cambria             58 keyline:evidence:figure   footer  source + note           124w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1196, 650]         0.4     +0.7  left
+read       Cambria             60 keyline:evidence:figure   title   headline (headline)      37w  fit      [56.7, 57.6, 1223.3, 218.3]  [56, 93, 1206, 219]          0.6     +0.7  bottom
+read       Cambria             61 keyline:evidence:figure   main    figure                16d 5w  cap+fit  [56.7, 246.6, 828.1, 596.2]  [56, 272, 811, 356]          0.1     +0.7  left
+read       Cambria             62 keyline:evidence:figure   side    text (body)             128w  fit      [847.0, 246.6, 1223.3, 596.2] [846, 253, 1217, 591]        0.5     +1.0  left
+read       Cambria             63 keyline:evidence:figure   footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1213, 650]         0.4     +0.7  left
+read       Cambria             65 keyline:quote             title   headline (quote)        111w  fit      [56.7, 114.3, 1025.7, 492.3] [55, 123, 1008, 462]         1.0     +1.7  left
+read       Cambria             66 keyline:quote             main    attribution               5w  cap      [56.7, 511.2, 1025.7, 539.5] [56, 515, 228, 525]          0.1     +0.7  left
+read       Cambria             68 keyline:close             title   headline (cover_title)     18w  fit      [56.7, 133.2, 1025.7, 360.0] [56, 183, 984, 360]          0.8     +0.7  left
+read       Cambria             69 keyline:close             main    text (lede)             132w  fit      [56.7, 378.9, 1025.7, 596.2] [56, 387, 1011, 576]         0.6     +0.7  left
+read       Cambria             70 keyline:close             footer  source + note           120w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1203, 650]         0.4     +0.7  left
+read       Cambria             72 keyline:close             title   headline (cover_title)     20w  fit      [56.7, 133.2, 1025.7, 360.0] [58, 182, 986, 360]          0.8     +0.0  bottom
+read       Cambria             73 keyline:close             main    figure                20d 5w  cap+fit  [56.7, 378.9, 1025.7, 596.2] [57, 404, 999, 488]          1.2     -0.3  left
+read       Cambria             74 keyline:close             footer  source + note           122w  fit      [56.7, 605.7, 1223.3, 662.4] [56, 609, 1199, 650]         0.4     +0.7  left
 
 refused at the shortest (not built):
-  presented neutral: keyline:statement main: figure refused at its shortest (fit)
-  presented neutral: keyline:close main: figure refused at its shortest (fit)
-  presented field: keyline:statement main: figure refused at its shortest (fit)
-  presented field: keyline:close main: figure refused at its shortest (fit)
+  none
 
-210 texts; the most outside is +2.7 px (presented field, slide 16, keyline:statement title); 0 without ink
-  left   at most +2.7 px (presented field, slide 16, keyline:statement title)
-  top    at most -2.3 px (read field, slide 3, keyline:cover footer)
-  right  at most +0.7 px (read field, slide 21, keyline:evidence main)
-  bottom at most -1.8 px (presented field, slide 2, keyline:cover main)
-over 2 px: 1 text(s)
-  presented field, slide 16, keyline:statement title (headline (statement)): +2.7 px left
-verdict, AC-13(b) as written (every edge): FAIL (tolerance 2 px)
-verdict, the estimator's edges (right, top, bottom): PASS (tolerance 2 px)
+642 texts, 0 without ink; per edge, the most outside:
+  left   +2.7 px (presented Georgia, slide 16, keyline:statement title, left allowance 1.9 px)
+  top    -2.3 px (read Georgia, slide 3, keyline:cover footer)
+  right  +0.7 px (read Courier New, slide 38, keyline:evidence footer)
+  bottom +0.7 px (presented Cambria, slide 24, keyline:evidence title)
+closest to a limit: -1.0 px from it (presented Arial, slide 48, keyline:evidence:figure side, left)
+past a limit: 0 text(s)
+verdict, AC-13(b) as amended by B-24 (right, top, bottom at 2 px; left at 2 px + the left allowance): PASS
