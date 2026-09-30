@@ -9,8 +9,11 @@ writer-neutral plan (`_plan`), checks that every text fits its region (keyline.f
 
 from __future__ import annotations
 
+import io
+import os
 import re
 import sys
+import tempfile
 from fractions import Fraction
 from pathlib import Path
 
@@ -34,6 +37,8 @@ from keyline.pen._regions import box, layout_for, regions, rule_box
 EMU_PER_PT = 12700
 CELL_MARGINS = (0, 91440, 45720, 45720)  # EMU: flush left, a gutter on the right (§6.4)
 RULE_WIDTH = 9525  # EMU, 0.75 pt: a hairline
+IMAGE_FORMATS = ("PNG", "JPEG", "GIF", "BMP", "TIFF")  # B-23: what the writer embeds
+AUTHOR_MAX = 255  # characters in a core property (python-pptx refuses more)
 # a string that looks like a raw value where a token is expected (§6.2)
 RAW = re.compile(r"#[0-9a-f]{3,8}|[0-9a-f]{6}|-?\d+(\.\d+)?\s*(pt|cm|mm|in|px|emu)", re.IGNORECASE)
 
@@ -78,6 +83,24 @@ def _paragraphs(value: object, what: str) -> list[str]:
     if not paras:
         raise PenError(f"{what} must be non-empty text")
     return paras
+
+
+def _write_atomically(target: Path, data: bytes) -> None:
+    """`data` to a temporary file in `target`'s directory, then renamed over `target`,
+    with the mode a new file would get."""
+    tmp = None
+    try:
+        fd, tmp = tempfile.mkstemp(prefix=f".{target.name}.", suffix=".tmp", dir=target.parent)
+        with os.fdopen(fd, "wb") as out:
+            out.write(data)
+        umask = os.umask(0)
+        os.umask(umask)
+        os.chmod(tmp, 0o666 & ~umask)
+        os.replace(tmp, target)
+    except OSError as exc:
+        if tmp is not None:
+            Path(tmp).unlink(missing_ok=True)
+        raise PenError(f"cannot write {target.name}: {exc.strerror or exc}") from exc
 
 
 class Deck:
@@ -188,14 +211,25 @@ class Deck:
         return builder
 
     def save(self, path: str, author: str = "") -> None:
-        """Write the deck: python-pptx, then the zip normalised (§6.5)."""
+        """Write the deck: python-pptx, then the zip normalised (§6.5), to a temporary
+        file beside `path` that then replaces it, so a failure leaves no partial deck
+        (B-23). Every failure is a PenError."""
         from keyline.pen._determinism import normalise
         from keyline.pen._writer_pptx import write
 
-        if not isinstance(author, str):
-            raise PenError("author must be text")
-        data = write(self._template, [s._plan for s in self._slides], author)
-        Path(path).write_bytes(normalise(data))  # §6.5: byte-identical for the same input
+        author = _line(author, "author", empty=True)
+        if len(author) > AUTHOR_MAX:
+            raise PenError(f"author has {len(author)} characters; at most {AUTHOR_MAX}")
+        if not isinstance(path, str | os.PathLike) or not os.fspath(path):
+            raise PenError(f"path must be a file path, not {path!r}")
+        target = Path(path)
+        try:
+            data = normalise(write(self._template, [s._plan for s in self._slides], author))
+        except PenError:
+            raise
+        except Exception as exc:  # a writer failure the verbs did not foresee
+            raise PenError(f"cannot write the deck: {type(exc).__name__}: {exc}") from exc
+        _write_atomically(target, data)  # §6.5: byte-identical for the same input
         for family, chars in self._missing.items():  # one warning per deck (audit 04)
             sys.stderr.write(f"keyline pen: warning: {coverage_warning(family, chars)}\n")
 
@@ -595,24 +629,33 @@ class SlideBuilder:
 
     def image(self, path: str, region: str = "main", *, alt: str) -> SlideBuilder:
         """A picture fitted inside the region, without cropping or distortion, flush to its
-        top left; `alt` is required and written as its description."""
+        top left; `alt` is required and written as its description. The file is read
+        here, once (B-23): PNG, JPEG, GIF, BMP or TIFF."""
         from PIL import Image
 
         from keyline.geom import Box
 
         self._allowed("image", styled=False)
         region = self._region(region)
+        if isinstance(path, os.PathLike):
+            path = os.fspath(path)
         _check_content(path, "image path")
         alt = _line(alt, "alt")
+        name = Path(path).name
         try:
-            with Image.open(path) as im:
-                px_w, px_h = im.size
-        except OSError as exc:
-            raise PenError(f"image {Path(path).name!r} cannot be read: {exc}") from exc
+            data = Path(path).read_bytes()
+            with Image.open(io.BytesIO(data)) as im:
+                fmt, (px_w, px_h) = im.format, im.size
+        except (OSError, ValueError) as exc:  # ValueError: a NUL in the path
+            raise PenError(f"image {name!r} cannot be read: {exc}") from exc
+        if fmt not in IMAGE_FORMATS:
+            raise PenError(
+                f"image {name!r} is {fmt}; the pen takes {', '.join(IMAGE_FORMATS)} (B-23)"
+            )
         region_box = box(self._deck._pack, self._layout, region)
         scale = min(Fraction(region_box.w, px_w), Fraction(region_box.h, px_h))
         fitted = Box(region_box.x, region_box.y, int(px_w * scale), int(px_h * scale))
-        self._plan.shapes.append(PictureSpec(f"{region}-image", fitted, str(path), alt))
+        self._plan.shapes.append(PictureSpec(f"{region}-image", fitted, data, alt))
         self._used.add(region)
         return self
 

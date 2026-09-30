@@ -85,5 +85,5 @@ class ChartSpec:
 class PictureSpec:
     name: str
     box: Box
-    path: str
+    data: bytes  # the file as image() read it (B-23)
     descr: str

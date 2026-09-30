@@ -194,7 +194,7 @@ def _picture(slide, spec: PictureSpec) -> None:
     from pptx.util import Emu
 
     b = spec.box
-    pic = slide.shapes.add_picture(spec.path, Emu(b.x), Emu(b.y), Emu(b.w), Emu(b.h))
+    pic = slide.shapes.add_picture(io.BytesIO(spec.data), Emu(b.x), Emu(b.y), Emu(b.w), Emu(b.h))
     pic.name = spec.name
     pic._element.nvPicPr.cNvPr.set("descr", normalize(spec.descr))
 
