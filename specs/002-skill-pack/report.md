@@ -1468,3 +1468,303 @@ $ pytest -q tests/acceptance/m2/test_pen_coverage_warning.py
    (Q-33)?
 
 The A2 audit can run in parallel with G-1.
+
+---
+
+# A2 fixes (audit 05)
+
+- **Audit 05** ([audit-05-a2.md](audit-05-a2.md), verdict FIX): FX-16 … FX-23,
+  amendments B-22 … B-24, and rulings on Q-47 … Q-49. Tyler accepts the rulings and added
+  FX-24 (a vertical anchor per region). The repro scripts are in
+  [`evidence/audit05-repros/`](evidence/audit05-repros/).
+- **Branch:** `002-skill-pack`, from `9813345` (report A2) to `0b8802a`; this section's
+  commit follows.
+- **Status:** every fix is in, each with its tests, and each repro is a test in the repo's
+  style (the ones that need LibreOffice skip without it).
+  - AC-13(b) as amended by B-24 passes on LibreOffice 26.8.0.3 for all six portable
+    families: 642 texts, none past a limit.
+  - `tools/measure_lo.py` holds B-21's two criteria and B-22's two new ones on 26.8.0.3.
+  - The M1 baseline shows no differences after every fix.
+  - CI is green on every push except `352a750` (see *Process notes*).
+- **Stop here for the auditor,** who re-runs `fit_stress` and `measure_lo` on 24.2.7.2
+  (B-22 item 7, B-24). Phase B's tasks are written after that audit.
+
+## Reproduce (A2 fixes)
+
+```sh
+python -m pip install -e '.[dev]'
+pytest -q                          # 1111 passed here (LibreOffice, OfficeCLI, all six twins)
+python tools/m1_baseline.py        # baseline: no differences
+python tools/measure_lo.py OUT     # B-21 (a) (b) and B-22 (c) (d); needs LibreOffice
+python tools/fit_stress.py         # AC-13(b) per B-24, six families; needs LibreOffice
+```
+
+Without the engines, the suite gives 1021 passed and 90 skipped, both on a CI-like PATH
+and on an empty PATH.
+
+## FX-16 · The estimator and the writer see the same text · `792902e`
+
+- **The change:** `keyline/fit/text.py` holds one normalization (B-22 item 1): NFC, each
+  run of Zs space separators except U+00A0, U+202F and U+2007 becomes one U+0020, and
+  leading and trailing spaces are removed.
+  - `fit.wrap` measures the normalized text, split at U+0020 only, so a no-break-joined
+    run is one word.
+  - The writer passes every `<a:t>`, the notes, the alt text and the chart categories
+    through the same function.
+- **Refused at the verb** as `PenError`, naming the code point (B-22 item 3):
+  - every control, tab included;
+  - B-17's line breaks;
+  - U+FFFE, U+FFFF and lone surrogates;
+  - U+00AD, U+200B, U+2060 and U+FEFF.
+
+  `\n` separates paragraphs only in `text()` and `notes()` (item 2).
+- **Tests:** `tests/acceptance/m2/test_fx16_normalization.py`, 99 passed. They cover the
+  audit's headlines (tabs, `\n`, `\r`, U+2028, U+2029, NEL, space runs, leading spaces, an
+  NBSP-joined run), every verb against six refused characters, `text()` with `\r\n`, and
+  the written text equal to the normalized input for every verb.
+- **LibreOffice** (`attack_dblspace.py`): text with two spaces after each full stop,
+  filled to the pen's limit, 12 random decks per mode.
+  - Before the fix, 3 of 12 presented decks and 6 of 12 read decks overflowed the region.
+  - After the fix, none did. The test keeps four seeds, which include failing ones for
+    both modes.
+
+## FX-17 · No line break before closing punctuation · `fa6c30b`, `2b85812`
+
+- **The change:** `fit.text.break_units` keeps a piece that starts with
+  `) ] } , . : ; ! ? / % ‰ » ” ’` with the piece before it, even after a space (B-22
+  item 4).
+- **The audit's headlines** (`attack_uax14.py`'s search, seed 7, rerun with the wrap from
+  before the fix):
+  - All three are refused now: "headline needs 3 lines, region holds 2".
+  - With the old wrap, LibreOffice 26.8 set one of them in 3 lines, 53 pt below the title
+    region. The other two fit, because LibreOffice's own threshold is looser than the 0.99
+    margin.
+- **What LibreOffice does,** per character (`tools/measure_lo.py`, bold Arial 48 pt):
+  - With room on the line for the space after the last word, it keeps
+    `) ] } , . : ; ! ? /` with that word (UAX #14 LB13's classes) and breaks before
+    `% ‰ » ” ’`.
+  - Without that room, it breaks before all fifteen.
+
+  The estimator's rule is exact for the ten and conservative for the five: fewer break
+  points can only add lines to a greedy wrap.
+- **A correction:** `fa6c30b`'s message says LibreOffice "keeps ) : ; ! / and breaks
+  before the other ten". That is wrong. The split came from random cases that mixed the
+  two conditions above. `18f80ba` and `2b85812` correct it.
+- **Tests:** `test_fx17_line_breaks.py`, 10 passed. They check the break units; that no
+  estimated line starts with one of the fifteen; the three refused headlines; and, in
+  LibreOffice under both conditions, that it never sets more lines than the estimate and
+  keeps the ten when the space fits.
+
+## Measurements for FX-18 and FX-19 · `18f80ba`
+
+`tools/measure_lo.py` gained three probes. They write `lang="en-US"` on their runs, as the
+pen does, while B-21's probes are unchanged.
+
+```
+$ python tools/measure_lo.py specs/002-skill-pack/evidence/lo-26.8.0.3-measurements.txt
+table cells: … rows = 1 line a row, rows2 = 2, br = 4 in one cell, LibreOffice 26.8.0.3 680(Build:3)
+  Georgia          regular    24 1.10 rows   1.2695   31.6913  1.2004   33.5723    1.8810
+  Georgia          regular    24 1.10 br     1.2695   31.6630  1.1994   33.5440    1.8810
+  Arial            regular    13 1.00 rows   1.1499   15.6473  1.2036   15.6567    0.0094
+fallback advances: 10 characters at 24 pt; estimate = max(twin's maximum advance, missing_glyph_em = 1.49)
+  Arial            cjk    run     1.0479 em  …   Arial  cjk  mixed  1.4794 em
+  Courier New      emoji  run     1.2454 em  …   Courier New  thai  run  0.5700 em
+  widest fallback advance: 1.4805 em
+verdict (amendment B-21):
+  (a) no stress case wraps at 1/0.99 = 1.0101: 420 cases, 0 wrap: HOLDS
+  (b) every pitch <= size x 1.2 x line spacing + 0.01 mm (0.0283 pt): 198 probes, smallest slack 0.0000 pt: HOLDS
+verdict (amendment B-22):
+  (c) every table line <= size x max(1.2, hhea) x line spacing + 0.01 mm, every row <= its lines + 0.01 mm: 180 probes, smallest slack 0.0093 pt: HOLDS
+  (d) every fallback advance <= max(maximum advance, missing_glyph_em): 36 probes, widest 1.4805 em: HOLDS
+exit 0
+```
+
+- **Table cells on 26.8.0.3 are set at 1.2 em for every twin,** Gelasio and Carlito
+  included. The auditor's 24.2.7.2 used hhea. B-22 item 7 takes the larger, so the
+  estimator uses max(1.2, hhea).
+- **Each table row is one 0.01 mm unit taller than its lines,** including a two-line
+  row. Hence the row allowance (Deviation A).
+- **A CJK glyph between Latin letters costs 1.48 em;** in a run it costs 1.05 em.
+  LibreOffice adds space where Asian text meets Latin. So `missing_glyph_em = 1.49`, the
+  widest measurement rounded up, recorded in `thresholds.toml` with the version.
+- A second run gave the same bytes.
+
+## FX-18 · Table cells at max(1.2, hhea), and 0.01 mm more per row · `36a1bf6`
+
+- **The fit tables** store each twin's `hhea_line_em`: Gelasio 1.26953125 and Carlito
+  1.220703125; the other four are 1.15 or under.
+- **The estimate:** `Setting.cell_pitch` is size × max(1.2, hhea) × line spacing +
+  0.01 mm. A table row is its lines at that pitch, plus `ROW_ALLOWANCE_PT` (0.01 mm), plus
+  the cell margins.
+- **Tests:** `test_fx18_table_pitch.py`, 16 passed. They check the stored hhea values,
+  `cell_pitch`, the row heights the pen writes, and (in LibreOffice) that the longest table
+  the pen accepts stays in its region. That last check runs for all six families through
+  test-only voices, in both modes (`attack_table2.py`).
+- The specimens were rebuilt; only their table slide changed.
+
+## FX-19 · A missing glyph counts as missing_glyph_em at least · `cfec9e0`
+
+- **The change:** `Table.missing_advance` = max(the twin's maximum advance,
+  `missing_glyph_em` × units per em).
+- **Tests:** `test_fx19_missing_glyphs.py`, 14 passed.
+  - In LibreOffice, the longest text the pen accepts stays in its region for the audit's
+    cases: CJK and emoji in a Courier New voice; CJK, Thai and emoji headlines in Arial;
+    CJK in Calibri and Georgia. It also holds for Latin and CJK alternating.
+  - With the rule from before the fix, the Courier CJK case fails.
+
+## FX-20 · Inputs checked at the verb; images read once; save() atomic and typed · `4e879a6`
+
+- **Images:** `image()` reads the file once and keeps the bytes. It takes PNG, JPEG, GIF,
+  BMP or TIFF, and refuses any other format Pillow opens, naming it.
+- **`save()`:**
+  - it checks `author`: text, no refused character, at most 255 characters;
+  - it turns any writer failure into a `PenError`;
+  - it writes to a temporary file beside the target that then replaces it, with the mode a
+    new file gets.
+- **Tests:** `test_fx20_inputs_and_save.py`, 45 passed; 10 of them fail on the pen from
+  before this commit.
+  - They include `attack_ctrl.py`'s seven characters in a headline, notes, text and a
+    table, each refused at the verb.
+  - They include `attack_img.py`'s formats and the file swapped after `image()`.
+  - A missing directory and a failing writer both leave nothing behind.
+
+## FX-21 · A style below the body minimum sets captions only · `352a750`, `9f63c65`
+
+- **The change:** each paragraph in a style below the mode's `body_min_pt` has at most
+  `caption_exempt_words` words, as lint exempts such paragraphs. Footer source and note
+  lines stay exempt, as in lint.
+- **Tests:** `test_fx21_legal_calls_lint_clean.py`, 8 passed.
+  - A generated sweep covers every role × layout × region × allowed component × allowed
+    style, in both modes and the three stock voices, linted with
+    `--pack swiss --voice <voice>`.
+  - It asserts no error-level finding (B-23's invariant) and no `body-too-small`.
+  - It fails on the pen from before the fix.
+- **A note on severity:** `body-too-small` is a *warning* in the registry; audit 05 called
+  it error-level. B-23's invariant (no error-level finding) held even before the fix. The
+  sweep is stricter.
+
+## FX-22 and FX-23 · Refused verbs change nothing; footer, flags, next(), bullets · `e7c8f49`
+
+- **Transactions:** every verb keeps the builder's state before it runs and puts it back
+  if it raises. A refused headline in `add()` leaves the deck's coverage record as it was.
+- **The footer region** takes only `source()` and `note()`.
+- **Flags:** `accent` and `header` must be `bool`.
+- **`next()`:** on a deck made from a brief, `next()` after an `add()` is a `PenError`.
+- **Bullets:** `bullets_max` counts per slide.
+- **One commit for both fixes,** because FX-23's bullet count is part of the state FX-22
+  keeps.
+- **Tests:** `test_fx22_fx23_state.py`, 19 passed; all 19 fail before the commit. They
+  cover `attack_state.py` (b)–(e), `attack_next.py`, and ten refusals across every verb
+  with the builder's state unchanged.
+
+## Q-48 · The numeral box is one numeral line · `a7ae6c1`
+
+- **The change:** `figure()` no longer rounds the numeral's box to whole grid rows. A
+  presented statement or close now holds a figure: 144.03 + 16.83 = 160.86 pt in 163.0 pt.
+- **The refusal** is tested on a region patched to 22 rows, and names both lines in
+  points.
+- **The fit stress** refuses no component at its shortest in any mode or family; its
+  refusal test now asserts exactly that.
+- The specimens were rebuilt; only their figure slide changed.
+
+## FX-24 · A vertical anchor per region · `224ad9d` (with `4a992d9`)
+
+- **The data:** `pack.toml` gives every region an anchor, `"t"` or `"b"`. The Swiss
+  cover, evidence (both layouts) and close titles are `"b"`; everything else is `"t"`.
+- **What gets written:** the pen writes each text box with its region's anchor, and the
+  templates' placeholders carry the same.
+- **Rebuilt from the new templates:** the neutral templates; the specimens; the A1 and
+  pen-built drift decks (AC-8 unchanged: each drift gives exactly its one finding); the
+  one-mode pack fixture; and the ten rule fixtures built on the Swiss template. The rule
+  fixtures were rebuilt with `build_rules.py --only NAME` and only their layouts changed.
+  The G-1 contact sheets are regenerated.
+- **Tests:** `test_fx24_anchor.py`, 7 passed. They check the anchors, the anchor's
+  schema, what the pen and the templates write, and (in LibreOffice) that a one-line
+  evidence title sits on the bottom of its region with its descenders inside.
+- **The descent room (`4a992d9`, see Deviation B).** Bottom anchoring exposed a gap in
+  the estimator. LibreOffice sets a line's baseline 0.2 em above the line's bottom, and
+  the twins' descenders reach further: Gelasio up to 0.294 em. So the estimator now keeps
+  that much room under a region's last line. A bottom-anchored box also gets it as a
+  bottom inset, so its descenders stay inside the region.
+
+## Q-47 · AC-13(b) as amended by B-24 · `0b8802a`
+
+```
+$ python tools/fit_stress.py > specs/002-skill-pack/evidence/fit-stress-lo-26.8.0.3.txt
+refused at the shortest (not built):
+  none
+
+642 texts, 0 without ink; per edge, the most outside:
+  left   +2.7 px (presented Georgia, slide 16, keyline:statement title, left allowance 1.9 px)
+  top    -2.3 px (read Georgia, slide 3, keyline:cover footer)
+  right  +0.7 px (read Courier New, slide 38, keyline:evidence footer)
+  bottom +0.7 px (presented Cambria, slide 24, keyline:evidence title)
+closest to a limit: -1.0 px from it (presented Arial, slide 48, keyline:evidence:figure side, left)
+past a limit: 0 text(s)
+verdict, AC-13(b) as amended by B-24 (right, top, bottom at 2 px; left at 2 px + the left allowance): PASS
+exit 0
+```
+
+- **Families:** all six portable families, each through a test-only voice with Swiss
+  neutral's palette, in both modes.
+- **The left allowance** is the most negative left side bearing among the text's
+  characters × size. Caps styles are upper-cased and bullet markers included. It is read
+  from the twin with fontTools, for each style the region uses.
+- **The test:** `test_ac13b_fit_stress.py`, 38 passed. The xfail is gone; one test per
+  (mode, family) asserts B-24, and a unit test checks the allowance.
+- A second run of the tool gave the same bytes.
+
+## Q-49
+
+Kept as ruled. The advisory still reads "table text is not read in M1"; spec 004 changes
+it.
+
+## Process notes
+
+- **A red push, `352a750` (FX-21).** Its suite run had one failure: a T-24 test that used
+  a 14-word label, which FX-21 now refuses. I misread the run, because my chain was
+  `pytest | tail -1 && git commit`, and `tail` returned 0. `9f63c65` fixed the test.
+  Every chain since starts with `set -o pipefail`.
+- **Invisible characters.** The tool I write files with turns `\uXXXX` escapes into the
+  characters themselves. That had put literal U+200B, U+FEFF, U+3000, U+2060 and U+2028
+  into `test_fx14_messages.py` (round 2). `0f8cc5a` escapes them. New sources build such
+  characters with `chr()`, and are checked before each commit.
+
+## Deviations (A2 fixes)
+
+A. **A row allowance.**
+   - Spec said: B-22 item 5 gives a table cell's line pitch.
+   - Implemented: the same pitch per line, plus 0.01 mm per row.
+   - Because: on 26.8.0.3 every row is one LibreOffice unit taller than its lines
+     (`measure_lo`, criterion (c)).
+
+B. **A descent room under the last line (`4a992d9`).**
+   - Spec said: B-21's height test (lines × pitch + spacing).
+   - Implemented: the same plus size × max(0, descent_em − 0.2). The twin's deepest
+     descent (`descent_em`) is taken over Basic Latin, Latin-1, Latin Extended-A, the
+     Vietnamese letters, digits and punctuation, and stored in the fit tables. A
+     bottom-anchored box gets it as its bottom inset.
+   - Because: B-24 judges the bottom edge at 2 px, and bottom-anchored titles put
+     descenders up to +2.7 px past it (Gelasio at 48 pt).
+   - A figure's numeral box takes no room, because its label box follows in the same
+     region.
+
+C. **Refused one-line separators in `text()` and `notes()`.**
+   - Spec said: B-22 item 2 lets `\n` separate paragraphs in `text()` and `notes()`.
+   - Implemented: `\n` separates paragraphs, and U+2028 and U+2029 are refused there too,
+     as in one-line texts.
+   - Because: a second paragraph separator would need its own estimate.
+
+D. **FX-22 and FX-23 share one commit.** The reason is given in that section above.
+
+E. **`missing_glyph_em` covers CJK between Latin letters (1.48 em).** A CJK run costs
+   1.05 em, emoji 1.25 em and Thai 0.57 em, so the value is conservative for those.
+
+## Open questions (A2 fixes)
+
+- **Q-50 · `missing_glyph_em` as one value.** 1.49 em covers the widest case measured,
+  CJK between Latin letters. Emoji, Thai and CJK runs are over-counted. Should the value
+  split by script, or stay one number?
+- **Q-51 · The descent set.** `descent_em` spans Latin-1 and Latin Extended-A. Its
+  deepest glyph in Gelasio is a comma-below letter, at 0.294 em; English text descends at
+  most 0.23 em. Should the set be narrower (Basic Latin and Vietnamese), or stay as is?

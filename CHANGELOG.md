@@ -36,3 +36,16 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
   - Swiss specimens in `neutral`, `night` and `field`, the AC-8 drift decks rebuilt
     with the pen, and `tools/measure_lo.py` and `tools/fit_stress.py` for the
     LibreOffice measurements.
+- Spec 002, A2 fixes (audit 05):
+  - One text normalization for the estimator and the writer; controls, stray line
+    breaks and invisible characters refused at the verb; no line break before closing
+    punctuation.
+  - Table cells at max(1.2, the twin's hhea) plus 0.01 mm per row; a missing glyph at
+    `missing_glyph_em` (1.49) at least; room kept for the twin's descent under a
+    region's last line.
+  - The pen: images read once (PNG, JPEG, GIF, BMP, TIFF), an atomic `save()` that
+    raises only `PenError`, refused verbs that change nothing, captions-only styles
+    below the body minimum, the footer for source and note lines only.
+  - A vertical anchor per region: the cover, evidence and close titles sit on the rule
+    or the lede.
+  - AC-13(b) as amended by B-24, over all six portable families.
