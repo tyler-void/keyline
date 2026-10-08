@@ -25,6 +25,8 @@
   Q-51 are marked below.
 - **Ruling on Q-52** (Tyler, 2026-10-08, amendment B-26): the numeral set, derived from
   the pack invariant that FX-25 found the numeral style failing. It is marked below.
+- **Phase B's tasks** (T-33 … T-49, 2026-10-08) are in [tasks.md](tasks.md), written
+  after the round-2 fixes; their questions, Q-53 … Q-59, are below with proposals.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -792,6 +794,52 @@ letters, and the pen warns once per deck when text uses them (not a registry ent
     region (gutter 14.2 pt). At 60 pt (read) the top reach is 13.4 pt. *Options:* (a) a
     numeral character set, (b) a top inset on the numeral box (breaks Q-48), (c) region
     changes, (d) a smaller numeral (fits only at 31 pt or less).
+
+### Phase B questions (2026-10-08, with the Phase B tasks)
+
+Each has a proposal; the tasks follow the proposal unless Tyler rules otherwise.
+
+53. **Q-53 · U+2212 MINUS SIGN in a numeral.** B-26 refuses it, because it is outside
+    B-25's measured set (Mathematical Operators). But §4.4 accepts `−` as a sign, and its
+    own examples use it ("−0.4%"), so a negative figure has to be written with U+002D.
+    *Proposal:* add U+2212 alone to the measured set. All six twins have it; its top
+    is at most 0.39 em and nothing reaches left of its origin, so the generator keeps it
+    in the numeral set. Until then, `pen.md` and
+    `check.md` say to write the hyphen-minus.
+54. **Q-54 · Where the voice step's coverage check lives.** The pen already warns once
+    per deck when a voice's twin lacks letters the text uses (B-25 item 1). A `keyline
+    brief` finding could warn earlier, from the brief's headlines and `own_world`, but
+    it would be a 36th registry entry and change AC-1's count. *Proposal:* no new
+    entry. The voice step reads the pen's warning and changes the voice's font, and
+    `brief.md` names the twins that lack Vietnamese letters (today, Caladea).
+55. **Q-55 · AC-20 needs a package index.** A fresh venv with only `lxml`, `Pillow` and
+    `python-pptx` needs pip to fetch them. *Proposal:* `test_ac20_sandbox.py` builds the
+    venv and installs the three with pip, unpinned. When pip cannot reach an index, the
+    test skips and says why. CI runs it with network access, and the report records
+    the versions it got.
+56. **Q-56 · How AC-23's "no text copied from anthropics/skills" is shown.** A test would
+    need the text it forbids copying. *Proposal:* no automated check. The report
+    states how the skill was written: from the spec, `docs/research.md` and keyline's
+    own code, without opening that repository. The external audit samples the docs.
+57. **Q-57 · Which tables `gen_docs.py` generates.** §8.3 names the type scale per mode
+    and the budgets. *Proposal:*
+    - the type scale per mode: style, size, weight, line spacing, caps;
+    - the budgets: `accent_budget`, `numerals_max`, `bullets_max`,
+      `kpi_numeral_max_words`, `caption_exempt_words`, the title word limits and the
+      body minimum;
+    - in `check.md`, B-26's excluded numeral characters, generated from
+      `numerals.json`, so the list cannot drift from the data.
+58. **Q-58 · Who commits the demo.** The decks must come from a fresh session (§10,
+    Q-16), and commits must use D-014's identity. *Proposal:* the fresh session writes
+    the files and does not commit. After G-2a, this session commits them unchanged as
+    `docs: BonsaiHub demo (fresh session)`, and the report records the prompts and the
+    fresh session's `kl.py brief` and `kl.py check` output.
+59. **Q-59 · Which ids `check.md` covers.** "Every warning- and error-level id" could mean
+    the registry only, or the pen's messages too. *Proposal:* every registry entry
+    whose severity is warning or error, the §4.3, §4.5 and `voice-*` ids included. A
+    second section covers the pen's refusals: `DoesNotFit`, the refused characters,
+    B-26, and the coverage warning, each with what to change. The test checks the
+    registry part.
 
 47. **Q-47 · AC-13(b)'s left edge** (report A2). A line that starts with a glyph whose
     left side bearing is negative puts ink left of the region box (2.7 px measured, bold

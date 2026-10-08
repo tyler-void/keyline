@@ -105,15 +105,48 @@ FX-15, B-16 … B-20) lands first, as "A1 fixes, round 2".
 | T-31 | **A2 acceptance sweep.** AC-10 … AC-13 and AC-15; the M1 baseline unchanged; the import boundary still holds (lint never imports `keyline.pen`); README and CHANGELOG | every A2 AC test green locally; CI green |
 | T-32 | **Report A2** in `report.md`: each A2 AC with command, output and PASS/FAIL; T-20's measurements; the three contact sheets; the script-coverage limit (Caladea lacks 88 of 134 Vietnamese letters), carried to Phase B's `check.md` and voice step. Then **G-1** (Tyler: the three specimen contact sheets; both templates and the specimens opened in PowerPoint, noting any repair prompt (B-6); a new text box on the `night` specimen is readable (Q-33)), in parallel with the A2 audit. **Stop** | review by Tyler; audit by the external session |
 
-## Phase B: skill (tasks written after the A2 audit)
+## Phase B: skill
 
-Outline, from plan §4: `skill/keyline/` (SKILL.md, references, `kl.py`);
-the voice step (B-8.15); `tools/gen_docs.py`; `tools/build_skill.py`; the BonsaiHub demo
-with inline voices (B-8.14) in a fresh session with G-2a (Q-16); AC-17 … AC-23; report B;
-G-2. `references/check.md` carries the known limits: B-5, audit 02's FX-8 list, source
-lines inside table cells (B-12, continued) and audit 03's FX-15 note on invisible
-"Source: " runs, as the `numtokens` docstring lists them; and audit 04's coverage limit (prefer another family than Cambria for Vietnamese text).
-The voice step (B-8.15) carries the same limit (report A2): for a subject whose text is Vietnamese, the skill does not pick Cambria (its twin Caladea lacks 88 of the 134 Vietnamese letters), and when the pen's one-per-deck coverage warning appears, the skill changes the voice's font rather than accepting the check render.
+Written after audit 06 (2026-10-08), from plan §4, §8 … §10, B-8.14, B-8.15 and the
+fit's limits (B-25, B-26). The open questions are Q-53 … Q-59 (plan §9). Every task
+lands with its tests; the M1 baseline and the A1/A2 suites stay green.
+
+### The skill folder (§8.1, §8.2)
+
+| id | task | done when |
+|---|---|---|
+| T-33 | **`kl.py`** (§8.1). `skill/keyline/scripts/kl.py` finds its folder through `__file__`. It prepends `<skill>/lib` to `sys.path` when that folder exists (the packaged skill), else uses the installed `keyline`. `kl.py <keyline args>` dispatches to the CLI with its exit code; `kl.py run SCRIPT.py` runs a build script with the same path through `runpy` | `test_kl.py`: dispatch and exit codes; `run` with a script that imports `keyline.pen`; a `lib/` folder (a stub package) takes precedence over the installed package |
+| T-34 | **`SKILL.md`** (§8.2). Frontmatter: `name: keyline`, a description of at most 200 characters, `license: Apache-2.0`, a compatibility line of at most 500 characters. Body (at most 200 lines): the stance (at most 5 lines); setup with `kl.py doctor` and what to do on each token; the three routes; the loop's ten steps, with the **voice step** after the brief's direction (B-8.15, T-35); the priority rules; the report. No `${`, no `` !` ``, no absolute path. Written from the spec and `docs/research.md`; nothing copied from another skill | AC-17: `test_ac17_skill_md.py` |
+| T-35 | ⚑ **The voice step** (B-8.14, B-8.15), in `SKILL.md` and `references/brief.md`. The skill derives an inline voice from the brief's `own_world` (or `[product.world]`), with one `why` line per palette role; the stock voices are fallbacks, used only when the user asks for a plain look or gives no subject world. **Fit limits (B-25, B-26, audit 04):** the skill picks fonts whose twin has every letter the deck's language needs (for Vietnamese text, not Cambria: Caladea lacks 88 of the 134 Vietnamese letters); when the pen prints its one-per-deck coverage warning, it changes the voice's font (or, for characters outside the measured set, the wording) rather than accepting the check render; and it keeps a figure's value to digits, signs and unit words, leaving the rest to the label (B-26). The check itself stays the pen's warning (Q-54) | the step's text in both files; AC-18's anchors resolve |
+
+### References and generated docs (§8.3)
+
+| id | task | done when |
+|---|---|---|
+| T-36 | ⚑ **`tools/gen_docs.py`.** Writes the numeric tables between `<!-- gen:begin NAME -->` and `<!-- gen:end -->` from `thresholds.toml`, `pack.toml` and `fit/tables/numerals.json`: the type scale per mode, the budgets, and B-26's excluded numeral characters (Q-57). `--check` exits 1 naming each stale table. CI runs `--check` | `test_gen_docs.py`: a stale table fails `--check`, a regenerated one passes, output is byte-stable |
+| T-37 | **`references/craft-floor.md`.** Only items backed by a rule, the pen or the brief; each rule-backed sentence carries `<!-- rule:ID -->` (registry ids and §4.3/§4.5 ids), the voice checks included (`rule:voice-contrast`, `voice-claude-look`, `voice-why`). The type scale and budgets are generated (T-36) | AC-18 anchors resolve; `gen_docs.py --check` passes |
+| T-38 | **`references/anti-tells.md` v1.** One row per tell: `id \| tell \| enforcement \| Swiss policy`, starting from Appendix A, plus `one-look-for-everything` → `brief:voice-why` and `backlog:diversity-fingerprint` (B-8.15, §13). It cites `docs/research.md` sections and copies no text from other skills | AC-18: every seed id is present with a valid enforcement (`rule:`/`brief:` name registry ids, `backlog:` names a §13 id, `pen` takes none) |
+| T-39 | **`references/brief.md`.** Each brief and evidence field, its test, the headline test (the spine alone tells the story), what reads are, the thesis test, `own_world` as nouns from the subject; the inline voice and its `why` lines (T-35). Examples are keyline's own | AC-18 anchors; the report lists the fields covered |
+| T-40 | ⚑ **`references/pen.md`.** Every public verb of `Deck` and `SlideBuilder`, its parameters and its refusals: B-22's normalization and refused characters, B-23's transactions and atomic `save()`, `DoesNotFit` and what to change, the measured set and the one-per-deck coverage warning (B-25 item 1), and the numeral set (B-26: the refusal names the character and suggests the label; U+2212 per Q-53) | AC-18: a test lists the public methods by introspection and finds each in `pen.md` |
+| T-41 | ⚑ **`references/check.md`.** How to read findings, and one fix recipe per rule id at warning or error severity, the §4 and `voice-*` ids included (Q-59). **Known limits:** B-5; audit 02's FX-8 list; source lines inside table cells (B-12, continued); audit 03's FX-15 note on invisible "Source: " runs, as the `numtokens` docstring lists them; the coverage limit (audit 04: prefer another family than Cambria for Vietnamese); and the measured-set limits: outside B-25's measured set the pen estimates conservatively, warns once per deck and promises nothing, and the check render may set those characters in another font; a figure's numeral takes only the numeral set (B-26, its excluded characters generated by T-36) | AC-18: a recipe for every warning- and error-level id; the limits section names each item |
+| T-42 | **AC-18 docs integrity.** Every `<!-- rule:ID -->` resolves; the Appendix A checks; `pen.md` and `check.md` coverage; `gen_docs.py --check` | `test_ac18_docs.py` |
+
+### Packaging (§9)
+
+| id | task | done when |
+|---|---|---|
+| T-43 | **`tools/build_skill.py`** writes `dist/keyline.zip` through `zipnorm`: one `keyline/` folder with `SKILL.md`, `references/`, `scripts/`, `lib/keyline/` (the package with its packs and fit tables, `numerals.json` included, without `__pycache__` or tests), `LICENSE` and `NOTICE`. README install notes for claude.ai, Claude desktop and Claude Code | AC-19: `test_ac19_package.py`: two builds byte-identical, the §9 structure, under 3 MB |
+| T-44 | ⚑ **AC-20 sandbox smoke.** A fresh venv with only `lxml`, `Pillow` and `python-pptx` (keyline not installed), the zip unpacked to a temp dir: `kl.py doctor` exits 0; `kl.py run fixtures/packs/src/build_specimens.py` with the specimen briefs and evidence copied beside it; `kl.py check` on each result with its brief exits 0 (Q-55) | `test_ac20_sandbox.py` (skips with its reason when the venv cannot be built) |
+
+### The BonsaiHub demo (§10) and acceptance
+
+| id | task | done when |
+|---|---|---|
+| T-45 | **AC-21 checks, before the demo.** `test_ac21_bonsaihub.py`: `product.toml` matches its hash; and, once the decks exist: both briefs pass `kl.py brief` with exit 0 and carry an inline voice with `[voice.why]` (B-8.14); both decks pass `kl.py check DECK --brief BRIEF` with exit 0; two builds byte-identical; the disclosure present; slide counts within §10; no `ooxml-invalid` where OfficeCLI is installed. The deck-dependent tests skip until the decks are committed | the hash test passes now; the rest pass after T-46 |
+| T-46 | ⚑ **The demo** (Q-16). Tyler starts a **fresh** Claude Code session with the skill installed from `dist/keyline.zip` and sends P-1, then P-2, verbatim; he approves each spine (**G-2a**). The fresh session writes the briefs, build scripts, decks and `render/<deck>/`. This session builds none of them; it commits them after G-2a (Q-58) | G-2a recorded in `report.md`; T-45 green |
+| T-47 | **AC-22 surfaces** (manual, Tyler): claude.ai web and Claude Code with P-3, Claude desktop optional; `doctor` output, render status, `check` exit code and the deck recorded; decks under `examples/bonsaihub/surfaces/` | recorded in `report.md` |
+| T-48 | ⚑ **AC-23 hygiene and CI.** D-014 identity; `NOTICE` carries every fit table's source; CI on 3.11 and 3.13 with the font packages, `ruff`, and `gen_docs.py --check`; the no-copying statement (Q-56). README and CHANGELOG for Phase B | CI green; `test_ac12_hygiene.py` extended to `skill/` |
+| T-49 | **Report B** in `report.md`: each of AC-17 … AC-23 with its command, output and PASS/FAIL; deviations; open questions. Then **G-2** (Tyler's soul verdict on both contact sheets, the voice included). **Stop** for the Phase B audit | review by Tyler; audit by the external session |
 
 ## Acceptance map
 
@@ -136,4 +169,10 @@ The voice step (B-8.15) carries the same limit (report A2): for a subject whose 
 | AC-12 | A2 | T-26, T-28 |
 | AC-13 | A2 | T-20, T-21, T-22 (a); T-30 (b) |
 | AC-15 | A2 | T-29 |
-| AC-17 … AC-23 | B | — |
+| AC-17 | B | T-34 |
+| AC-18 | B | T-35 … T-42 |
+| AC-19 | B | T-43 |
+| AC-20 | B | T-33, T-44 |
+| AC-21 | B | T-45, T-46 |
+| AC-22 | B | T-47 |
+| AC-23 | B | T-48 |

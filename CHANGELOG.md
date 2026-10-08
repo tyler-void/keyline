@@ -49,3 +49,14 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
   - A vertical anchor per region: the cover, evidence and close titles sit on the rule
     or the lede.
   - AC-13(b) as amended by B-24, over all six portable families.
+- Spec 002, A2 fixes round 2 (audit 06):
+  - B-25's measured set: one definition for the fit's guarantees, and one warning per
+    deck for what it does not cover.
+  - The estimator counts positive kerning pairs and keeps opening punctuation with the
+    next word. It takes measured table-cell data per LibreOffice version.
+  - Complex scripts are set in the voice's family.
+  - Chart series are checked at the verb, and text with no visible character is
+    refused.
+  - AC-13(b)'s top allowance for stacked capitals, with Vietnamese in the fit stress.
+  - B-26's numeral set, derived from the twins and the pack: a figure's value refuses
+    the characters that would reach past its region.

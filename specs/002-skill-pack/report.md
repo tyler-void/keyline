@@ -1768,3 +1768,287 @@ E. **`missing_glyph_em` covers CJK between Latin letters (1.48 em).** A CJK run 
 - **Q-51 · The descent set.** `descent_em` spans Latin-1 and Latin Extended-A. Its
   deepest glyph in Gelasio is a comma-below letter, at 0.294 em; English text descends at
   most 0.23 em. Should the set be narrower (Basic Latin and Vietnamese), or stay as is?
+
+---
+
+# A2 fixes, round 2 (audit 06)
+
+- **Audit 06** ([audit-06-a2fix.md](audit-06-a2fix.md)): FX-16 … FX-24 accepted. A last,
+  bounded fit round followed: FX-25 … FX-31 and amendment B-25 (the measured set). The
+  rulings on Q-50 and Q-51 came with it. The repro scripts are in
+  [`evidence/audit06-repros/`](evidence/audit06-repros/).
+- **Ruling on Q-52** (Tyler, 2026-10-08, amendment B-26): FX-25's pack invariant failed for
+  the numeral style only. Option (a) was chosen, with the numeral set derived from the
+  invariant.
+- **Branch:** `002-skill-pack`, from `1dd6216` (A2 fixes) to `d758589`; this section's
+  commit follows.
+- **Status:**
+  - Every fix is in, each with its tests, and each repro is a test in the repo's style
+    (the ones that need LibreOffice skip without it).
+  - On LibreOffice 26.8.0.3, `fit_stress` passes (1177 texts, English and Vietnamese)
+    and `measure_lo` holds criteria (a) to (e).
+  - The M1 baseline shows no differences after every fix, and CI is green on every
+    push.
+  - Phase B's tasks are in [`tasks.md`](tasks.md) (T-33 … T-49), and its questions are in
+    plan §9 (Q-53 … Q-59).
+- **Stop here for one audit,** which covers the fixes and the Phase B tasks.
+
+## Reproduce (round 2)
+
+```sh
+python -m pip install -e '.[dev]'
+pytest -q                          # 1233 passed here (LibreOffice, OfficeCLI, all six twins)
+python tools/m1_baseline.py        # baseline: no differences
+python tools/measure_lo.py OUT     # B-21 (a) (b), B-22 and B-25 (c) (d) (e)
+python tools/fit_stress.py         # AC-13(b) per B-24 and B-25
+python tools/gen_fit_tables.py     # the fit tables and numerals.json, byte-identical
+```
+
+Without the engines, the suite gives 1119 passed and 114 skipped, both on a CI-like PATH
+and on an empty PATH. The round's own test files:
+
+```
+$ pytest -q tests/acceptance/m2/test_{b25_measured_set,fx25_overhang,b26_numeral_set,fx26_kerning,fx27_opening_punctuation,fx28_fx31_cells,fx29_complex_scripts,fx30_series_and_invisible,ac13b_fit_stress,fx17_line_breaks}.py
+170 passed in 509.92s (0:08:29)
+```
+
+## B-25 item 1 · The measured set, and one warning · `dce55ad`
+
+- **The set.** `keyline.fit.text.MEASURED` has 922 characters:
+  - the blocks are Basic Latin, Latin-1, Latin Extended-A and -B, Latin Extended
+    Additional, General Punctuation and Currency Symbols;
+  - it leaves out what B-22 refuses and unassigned code points.
+- **The fit tables take three extents over it,** from each twin's outlines, rounded
+  outward to whole font units:
+  - `descent_em` (per Q-51, the descent room now uses this set);
+  - `top_em` and `left_em`, for items 2 and 3.
+- **The warning.** The pen prints one warning per deck. It names the letters of the set
+  a twin lacks and every character outside the set, and says the pen promises nothing
+  for them.
+- **Rebuilt fixtures.** The descent room grew for some twins: Liberation Sans bold to
+  0.25 em, Carlito to 0.258 em, Gelasio to 0.306 em. Bottom-anchored titles' insets
+  moved, so these were rebuilt:
+  - the templates, the specimens and the drift decks;
+  - the ten rule fixtures on the Swiss template, by name, with layouts only changing.
+- **Tests:** `test_b25_measured_set.py`, 15.
+
+## FX-25 · Tall capitals: the top allowance, and the numeral set · `51fe28f`, `b6ef63a`
+
+- **The top allowance (B-25 item 2, `51fe28f`).** AC-13(b)'s top edge allows size × (the
+  highest glyph top among the text's characters − the first baseline), when positive.
+  - **The first baseline** is `Setting.first_baseline`: size × (1.2 × line spacing −
+    0.2 em).
+  - **It matches the measurements.** `test_the_first_baseline_is_measured` reads the
+    198 pitch probes of `measure_lo` on each version (the auditor's 24.2.7.2 file and
+    ours). Each probe lies within 0.06 pt of the model, at 1.00 em (line spacing 1.0)
+    and 1.12 em (1.1).
+- **Vietnamese in the stress.** `fit_stress` gains a title-case Vietnamese corpus with
+  stacked capitals (Ẩ, Ẳ, Ấ) opening many words.
+  - It runs in the five families whose twin has every letter of the corpus. Caladea
+    lacks 88 of them, and B-25 item 1 promises nothing there.
+  - The report lists the family it skips.
+- **The pack invariant (B-25 item 3)** failed for the numeral style only (Q-52):
+  - at the top: Gelasio's Ẩ at 120 pt, 26.8 pt above the box against 7.1 pt free;
+  - on the left: U+2044 in the side region, up to 22.1 pt against a 14.2 pt gutter.
+
+  Every other style passes.
+- **The numeral set (B-26, `b6ef63a`).**
+  - **The data.** `tools/gen_fit_tables.py` writes `fit/tables/numerals.json`:
+    - per measured character that a twin draws, its largest top and left reach over
+      the twins, from the outlines, with the twins' versions and SHA-256;
+    - per bundled pack, the excluded characters.
+  - **The rule.** `keyline.fit.numerals.derive` excludes every character whose reach,
+    at either mode's numeral size, is not smaller than the smallest free space above
+    (7.09 pt) or beside (14.17 pt) a region that allows a figure.
+  - **Swiss: 37 excluded.**
+    - 33 capitals with stacked marks, at the top: ǕǗǙǛǞǠȪȬȰḔḖḮṌṎṐṒṤṦṸṺẤẨẪẮẰẲẴẾỂỄỐỔỖ;
+    - Ɲ, Ȉ, ȉ and U+2044 FRACTION SLASH, at the left.
+  - Lowercase Vietnamese stays: "12 tỷ ₫", "3 đồng" and "năm 2026" are numerals.
+  - **The geometry.** `Pack.free_space` and `Pack.rule_box` hold the regions' gaps; the
+    pen draws the rule from the same box. So a pack directory gets its own set,
+    derived at run time from the reach data.
+  - **The refusals.** The evidence loader refuses any other character in a `value`,
+    under `keyline brief` and the pen alike, and so does `figure()` again. The message
+    names the character and suggests the label:
+
+    ```
+    evidence file numerals.toml: evidence[1].value: contains U+1EA8 (LATIN CAPITAL LETTER A WITH CIRCUMFLEX AND HOOK ABOVE), which a numeral cannot hold: it reaches above the figure's region (B-26); put it in the label
+    ```
+- **Tests:**
+  - **`test_fx25_overhang.py`, 9:**
+    - the first baseline on both versions and the overhangs;
+    - the free space;
+    - the invariant in both modes, the numeral over the numeral set (6.9 pt top
+      overhang against 7.09 pt);
+    - in LibreOffice, the audit's titles and ledes (`t_top.py`, `t_top2.py`) in the
+      five covering families, within the allowance + 1.5 pt.
+
+    Without the allowance, Georgia's "Ẩn số" sits 13.4 pt above its box and the test
+    fails.
+  - **`test_b26_numeral_set.py`, 17:**
+    - the committed list is re-derived from the reach and the pack;
+    - the rebuild is byte-identical from the installed twins (it skips, naming them,
+      where the twins differ);
+    - the reach agrees with the tables;
+    - the refusals, the Vietnamese numerals, the label and the verb's re-check;
+    - a pack directory;
+    - in LibreOffice, Ầ (the tallest kept, 6.86 pt) and ƒ (the leftmost kept, 11.1 pt)
+      stay clear. Ầ ends 0.35 pt below the statement's title box.
+  - **`test_ac13b_fit_stress.py`, 70:** both corpora, and the top allowance; the strict
+    xfail is gone.
+
+## FX-26 · Positive kerning widens the estimate · `98483bc`
+
+- **The pairs.** The fit tables store the positive kerning pairs inside the measured
+  set:
+  - per pair, the largest positive x-advance adjustment of each GPOS pair lookup
+    (formats 1 and 2, extension lookups included), summed over lookups;
+  - the legacy `kern` table's value where it is larger.
+- **Counts:** Carlito about 4,200 pairs; Caladea 139 (regular) and 660 (bold); the
+  Liberation twins 2; Gelasio none.
+- **The width.** `fit.width` adds the pairs between adjacent characters as set.
+  Negative pairs stay ignored.
+- **Tests:** `test_fx26_kerning.py`, 15.
+  - Carlito V+ĩ is +130/2048 em and Caladea f+’ is +83/1000 em.
+  - In LibreOffice, the longest "Vĩ Tĩ" texts (Calibri) and "staff’s" texts (Cambria)
+    stay inside their regions, in both modes.
+
+## FX-27 · No line break after opening punctuation · `f9c9453`
+
+- **The rule.** A piece that ends in an opening punctuation mark joins the next piece,
+  even across a space: UAX #14 class OP, which is category Ps plus ¡ and ¿.
+- **The closers.** The fullwidth closers ！？，。」） join the no-break-before list.
+- **LibreOffice 26.8.0.3, per character:**
+  - with room for the space after an opener, it keeps the opener with the next word;
+    without room, it leaves the opener at the line's end;
+  - it never sets more lines than the estimate.
+- **Tests:**
+  - `test_fx27_opening_punctuation.py`, 3;
+  - the fullwidth closers in `test_fx17_line_breaks.py`.
+
+## FX-28 and FX-31 · Measured cell data, per version · `fa0e8c0`
+
+- **`cell_line_allowance_mm` = 0.05.** It is the largest excess per table-cell line,
+  rounded up to 0.01 mm:
+  - 24.2.7.2: 0.0499 mm (the audit's file);
+  - 26.8.0.3: 0.0167 mm.
+- **`missing_line_em` = 1.52.** On 24.2.7.2, a cell line with a fallback glyph is set at
+  max(1.2, the fallback font's hhea). The fallback fonts' hhea values are:
+  - Noto Sans CJK, 1.448;
+  - Noto Sans Thai, 1.511;
+  - Noto Color Emoji, 1.172.
+
+  26.8.0.3 sets such a line at 1.2.
+- **Data.** Both values are in `thresholds.toml` with their versions.
+- **`measure_lo`** gains criterion (e) and a fallback-cell probe.
+- **Tests:** `test_fx28_fx31_cells.py`, 7.
+  - The allowance covers both versions' measurements.
+  - In LibreOffice, the longest CJK, Thai and mixed tables stay in their region.
+- **See Deviation J:** the fallback pitch applies per row.
+
+## FX-29 · Complex scripts in the voice's family · `9c31d5c`
+
+- **The fonts.** The theme's `cs` fonts are the voice's display and text families. Every
+  run and template style names `+mj-cs` / `+mn-cs`.
+- **Why runs and styles too.** The theme alone did not move LibreOffice, which set
+  Hebrew in FreeSans. Now Hebrew is set in the twin.
+- **Rebuilt:** the templates, the specimens, the drift decks and the ten rule fixtures,
+  by name.
+- **Tests:** `test_fx29_complex_scripts.py`, 6.
+
+## FX-30 · Chart series, and text with no visible character · `b74c0ae`
+
+- **Series.** A series needs at least one pair, and every value must be finite and fit
+  in a float.
+  - The evidence loader checks this, and `chart_bar()` checks again, raising
+    `PenError`.
+  - Before, `nan`, `inf` and `[]` reached `save()`, and 10**400 raised a raw
+    `OverflowError`.
+- **Invisible text.** A headline, text, source or table cell with no visible character
+  is refused. Empty cells stay allowed.
+- **Tests:** `test_fx30_series_and_invisible.py`, 18 (`t_chart.py` and the audit's
+  invisible-text cases).
+- **See Deviation F.**
+
+## Measurements on 26.8.0.3 · `d758589`
+
+```
+$ python tools/measure_lo.py specs/002-skill-pack/evidence/lo-26.8.0.3-measurements.txt
+verdict (amendment B-21):
+  (a) no stress case wraps at 1/0.99 = 1.0101: 420 cases, 0 wrap: HOLDS
+  (b) every pitch <= size x 1.2 x line spacing + 0.01 mm (0.0283 pt): 198 probes, smallest slack 0.0000 pt: HOLDS
+verdict (amendments B-22, B-25):
+  (c) every table line <= size x max(1.2, hhea) x line spacing + 0.05 mm, every row <= its lines + 0.01 mm: 180 probes, smallest slack 0.1227 pt: HOLDS
+  (d) every fallback advance <= max(maximum advance, missing_glyph_em): 36 probes, widest 1.4805 em: HOLDS
+  (e) every cell line with fallback glyphs <= size x max(1.2, hhea, missing_line_em) + cell allowance: 72 probes, widest 1.2036 em: HOLDS
+exit 0
+
+$ python tools/fit_stress.py > specs/002-skill-pack/evidence/fit-stress-lo-26.8.0.3.txt
+not stressed (the twin lacks letters of the corpus; B-25 item 1):
+  Vietnamese: Cambria
+refused at the shortest (not built):
+  none
+1177 texts, 0 without ink; per edge, the most outside:
+  left   +2.7 px (presented Georgia English, slide 16, keyline:statement title, left allowance 1.9 px)
+  top    +18.5 px (presented Georgia Vietnamese, slide 16, keyline:statement title, top allowance 17.9 px)
+  right  +1.7 px (read Courier New Vietnamese, slide 63, keyline:evidence:figure footer)
+  bottom +0.7 px (presented Cambria English, slide 24, keyline:evidence title)
+closest to a limit: -0.3 px from it (read Courier New Vietnamese, slide 63, keyline:evidence:figure footer, right)
+past a limit: 0 text(s)
+verdict, AC-13(b) as amended by B-24 and B-25 (right, bottom at 2 px; left and top at 2 px + their allowances): PASS
+exit 0
+```
+
+- **`measure_lo`'s output** is byte-identical to the file committed with `fa0e8c0`.
+- **`fit_stress`'s output** is byte-identical to a run made before B-26: its numerals
+  are digits only, so the numeral set does not change it.
+
+## Process notes (round 2)
+
+- **The pack invariant waited for Tyler.** It failed for the numeral style, so it was
+  committed as a strict xfail (`51fe28f`) and reported. B-26 replaced it with a passing
+  test (`b6ef63a`).
+- **A measuring trap (L-017).** pdfium's character box gives a composite glyph's stored
+  bounds, not its outline: Gelasio Bold's Ầ is 0.46 pt too high at 120 pt. The B-26 edge
+  test measures ink from a raster instead, comparing each slide with a control.
+
+## Deviations (round 2)
+
+F. **Default-ignorable characters count as invisible** (FX-30; accepted in advance).
+   - Spec said (audit 06): a text needs a character of category L, M, N, P or S.
+   - Implemented: the same, minus Unicode's default-ignorable letters and marks:
+     variation selectors, the grapheme joiner, the Hangul fillers.
+   - Because: VS16 is category Mn, so the stated test let through a case the finding
+     lists as invisible.
+
+G. **`fit_stress` tries every item again after any growth** (FX-25; accepted in
+   advance).
+   - Spec said: B-24's stress, each text at the longest length the pen accepts.
+   - Implemented: `longest()` re-checks every item after any item grows.
+   - Because: a grown item moves the words of the items after it. With the Vietnamese
+     corpus, an item already marked full could take one more word.
+
+H. **"Exceeds" is read as "is not smaller than"** (B-26).
+   - Spec said: exclude the characters whose reach exceeds the smallest free space.
+   - Implemented: exclude those whose reach is not smaller than it.
+   - Because: B-25 item 3 requires every overhang to be smaller than the free space.
+     No character falls exactly on the limit, so the list is the same either way.
+
+I. **Every evidence value is checked as a numeral** (B-26).
+   - Spec said: `keyline brief` refuses any other character in a figure's value.
+   - Implemented: the evidence loader checks every entry's `value`, under
+     `keyline brief` and the pen, and `figure()` checks again. `load_evidence` without
+     a pack has no figure region to measure, so it does not check.
+   - Because: a brief does not say which entries become figures, and any `value` can.
+
+J. **Missing glyphs in a cell: per row, not per line** (FX-31, B-25 item 6).
+   - Spec said: a line that contains a missing glyph uses `missing_line_em`.
+   - Implemented: when any cell of a row has a glyph its twin lacks, every line of that
+     row uses `missing_line_em`.
+   - Because: a row is as tall as its tallest cell, and the estimator does not track
+     which wrapped line holds the glyph. This is conservative: it can only refuse more.
+
+## Open questions (round 2)
+
+- **None for the fixes.** Q-53 (U+2212 in a numeral, found with B-26) and the Phase B
+  questions Q-54 … Q-59 are in plan §9, each with a proposal.
