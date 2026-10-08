@@ -23,6 +23,8 @@
   FX-16 … FX-24 accepted; a last, bounded fit round FX-25 … FX-31 (amendment B-25, the
   measured set), then Phase B's tasks, with one audit for both. Its rulings on Q-50 and
   Q-51 are marked below.
+- **Ruling on Q-52** (Tyler, 2026-10-08, amendment B-26): the numeral set, derived from
+  the pack invariant that FX-25 found the numeral style failing. It is marked below.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -769,6 +771,27 @@ letters, and the pen warns once per deck when text uses them (not a registry ent
 51. **Q-51 · The descent set.** `descent_em` spans Latin-1 and Latin Extended-A, whose
     deepest Gelasio glyph (a comma-below letter) is 0.294 em. *Question:* narrower, or as
     is?
+
+### A2 fixes, round 2 questions (2026-10-08, FX-25)
+
+**Ruling (Tyler, 2026-10-08, amendment B-26):**
+- **Q-52: option (a), with the numeral set derived from the invariant, not hand-listed.**
+  A figure's value uses only the numeral set: B-25's measured set minus every character
+  whose top or left reach, in any of the six twins (regular and bold) at either mode's
+  numeral size, exceeds the smallest free space above or beside a region that allows a
+  figure. The fit-table generator derives the excluded characters and commits them as
+  data with the twins' versions; a test re-derives them. The pen and `keyline brief`
+  refuse any other character in a figure's value, naming it and suggesting the label.
+  B-25 item 3 is checked for the numeral style over the numeral set. Options (b), (c)
+  and (d) are rejected.
+
+52. **Q-52 · The numeral fails the pack invariant** (FX-25, B-25 item 3); every other
+    style passes. At 120 pt, bold Gelasio's Ẩ rises 26.8 pt above the numeral's box,
+    where the free space above is 7.1 pt (statement), 10.8 pt (evidence, below the
+    keyline rule) or 14.2 pt (close); U+2044 reaches 16.2 to 22.1 pt left of the side
+    region (gutter 14.2 pt). At 60 pt (read) the top reach is 13.4 pt. *Options:* (a) a
+    numeral character set, (b) a top inset on the numeral box (breaks Q-48), (c) region
+    changes, (d) a smaller numeral (fits only at 31 pt or less).
 
 47. **Q-47 · AC-13(b)'s left edge** (report A2). A line that starts with a glyph whose
     left side bearing is negative puts ink left of the region box (2.7 px measured, bold

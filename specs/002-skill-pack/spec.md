@@ -1675,3 +1675,14 @@ must contain at least these rows.
      - Both are data, stored with their versions.
   7. **Complex scripts.** The templates set the theme's `cs` fonts to the voice's
      display and text families.
+- **B-26 (2026-10-08, ruling on Q-52).** The numeral set.
+  - A figure's value (the numeral) uses only the numeral set: B-25's measured set minus
+    every character whose top or left reach exceeds the smallest free space above, or
+    beside, any region that allows a figure. The reach is computed in each of the six
+    twins, regular and bold, at both modes' numeral sizes.
+  - The fit-table generator derives the excluded characters from the twins and the pack,
+    and commits them as data with the twins' versions. A test re-derives the list and
+    compares.
+  - The pen and `keyline brief` refuse any other character in a figure's value. The
+    message names the character and suggests the label.
+  - B-25 item 3 is checked for the numeral style over the numeral set.
