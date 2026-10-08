@@ -176,6 +176,25 @@ class Setting:
         return self.size * max(Fraction(0), self.table.descent_em - BELOW_BASELINE_EM)
 
     @property
+    def first_baseline(self) -> Fraction:
+        """How far below its box's top LibreOffice sets the first baseline, in points: the
+        line less the 0.2 em below its baseline (B-21). Measured per line spacing on both
+        versions: 1.00 em at 1.0 and 1.12 em at 1.1 (B-25 item 2)."""
+        return self.size * (self.table.line_pitch_em * self.line_spacing - BELOW_BASELINE_EM)
+
+    @property
+    def top_overhang(self) -> Fraction:
+        """How far the twin's highest glyph over B-25's measured set rises above the box's
+        top when it sits on the first line, in points (B-25 item 3)."""
+        return max(Fraction(0), self.size * self.table.top_em - self.first_baseline)
+
+    @property
+    def left_overhang(self) -> Fraction:
+        """How far the twin's glyphs over the measured set reach left of the box, in points
+        (B-24, B-25 item 3)."""
+        return self.size * self.table.left_em
+
+    @property
     def cell_pitch(self) -> Fraction:
         """A line's pitch in a table cell (B-22 item 5, B-25 item 6): LibreOffice 24.2.7.2
         sets cells at the twin's hhea line height where that exceeds 1.2 em (audit 05), and

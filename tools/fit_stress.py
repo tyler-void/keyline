@@ -1,4 +1,4 @@
-"""AC-13(b), fit stress (spec 002 §6.4, B-21, B-24; tasks T-30 and the A2 fixes):
+"""AC-13(b), fit stress (spec 002 §6.4, B-21, B-24, B-25; tasks T-30 and the A2 fixes):
 
     python tools/fit_stress.py [OUT_DIR]
 
@@ -15,7 +15,11 @@ one more word (or, for a numeral, one more digit) is refused. The texts are:
   here, one entry per length);
 - `attribution`;
 - the footer's source and note lines.
-Items grow in turn until none takes one more word. The refusal that stops an item is the
+The words come from an English corpus, and from a Vietnamese one in title case, so stacked
+capitals (Ẩ, Ẳ, Ấ) open many lines (B-25, audit 06 FX-25); the Vietnamese texts are set in
+the families whose twin has every one of its letters (Caladea lacks most: the pen warns and
+the fit promises nothing there, B-25 item 1). Items grow in turn until none takes one more
+word. The refusal that stops an item is the
 estimator's (DoesNotFit) or a word cap (caption_exempt_words, a PenError); both are
 printed. A component the pen refuses even at its shortest is listed, not built. Chart
 text is laid out by the chart engine, not the estimator, so charts are not stressed.
@@ -23,14 +27,17 @@ text is laid out by the chart engine, not the estimator, so charts are not stres
 Each stress slide is written once per text region, keeping only that region's shapes,
 and once with no shapes (the control). The decks are rendered with LibreOffice at
 1280 px, its version printed (B-7). A text's ink is every pixel that differs from the
-control by more than 10% (26 of 255) in any channel. The verdict is B-24's: no ink past
-the right, top or bottom edge of its region box by more than 2 px, nor past the left edge
-by more than 2 px plus the text's left allowance, the most negative left side bearing
-among its characters (upper-cased for caps styles, bullet markers included) × size, read
-from the twin with fontTools, for each style the region uses. The script prints each
-text's ink box against its region box, and exits 0 when B-24 holds, 1 when it does not,
-and 2 when it cannot run (no LibreOffice, or a family resolves to something other than
-its metric twin).
+control by more than 10% (26 of 255) in any channel. The verdict is B-24's as amended by
+B-25 item 2: no ink past the right or bottom edge of its region box by more than 2 px, nor
+past the left edge by more than 2 px plus the text's left allowance, nor past the top edge
+by more than 2 px plus its top allowance. The left allowance is the most negative left
+side bearing among the text's characters × size; the top allowance is size × (the highest
+glyph top among its characters − the first baseline, 1.2 em × line spacing − 0.2 em, B-21)
+when positive. Both are read from the twin with fontTools, over the characters as set
+(upper-cased for caps styles, bullet markers included), for each style the region uses. The
+script prints each text's ink box against its region box, and exits 0 when the verdict
+holds, 1 when it does not, and 2 when it cannot run (no LibreOffice, or a family resolves
+to something other than its metric twin).
 """
 
 from __future__ import annotations
@@ -47,7 +54,7 @@ from lxml import etree
 
 from keyline import render as render_mod
 from keyline.config import load as load_config
-from keyline.fit import load_table
+from keyline.fit import Setting, load_table
 from keyline.packs import resolve
 from keyline.pen import Deck, DoesNotFit, PenError
 
@@ -76,11 +83,23 @@ CORPUS = (
     "passes, while an elderly clockmaker repairs the brass barometer that hangs above the "
     "counter and quietly predicts rain for the whole week."
 )
-WORDS = CORPUS.split()
+# B-25 (audit 06 FX-25): Vietnamese, title case, stacked capitals at the start of words
+VIETNAMESE = (
+    "Ẩm Thực Miền Tây Ẩn Chứa Những Hương Vị Ấm Áp Của Mùa Nước Nổi. Ở Chợ Nổi Cái Răng, "
+    "Người Bán Ẵm Con Nhỏ Trên Thuyền, Ổn Định Từ Sáng Sớm Đến Trưa. Ếch Đồng Xào Lăn, Ốc "
+    "Bươu Nướng Tiêu Và Ổi Chín Được Bày Bán Ồn Ào Khắp Bến. Ẩn Mình Sau Hàng Dừa Là Những "
+    "Ấp Nhỏ, Nơi Ông Bà Kể Chuyện Ầm Ĩ Bên Ấm Trà. Ừ, Ở Đây Ai Cũng Ứng Xử Hiền Hòa, Ửng "
+    "Hồng Đôi Má Khi Được Khen. Ẩn Số Của Vùng Đất Này Là Sự Ổn Định Và Ấm Áp Trong Từng "
+    "Bữa Cơm. Ắt Hẳn Ai Đến Một Lần Cũng Muốn Trở Lại, Khi Ẳng Ẳng Tiếng Chó Sủa Đầu Làng "
+    "Và Ẩn Hiện Ánh Đèn Dầu Trên Những Chiếc Ghe Về Muộn."
+)
+CORPORA = {"English": CORPUS.split(), "Vietnamese": VIETNAMESE.split()}
+WORDS = CORPORA["English"]
 
 
-def words(n: int, start: int) -> str:
-    return " ".join(WORDS[(start + i) % len(WORDS)] for i in range(n))
+def words(n: int, start: int, corpus: str = "English") -> str:
+    found = CORPORA[corpus]
+    return " ".join(found[(start + i) % len(found)] for i in range(n))
 
 
 def numeral(digits: int) -> str:
@@ -104,10 +123,10 @@ def write_evidence(path: Path) -> Path:
     return path
 
 
-def _items(counts, start: int) -> list[str]:
+def _items(counts, start: int, corpus: str) -> list[str]:
     out, at = [], start
     for n in counts:
-        out.append(words(n, at))
+        out.append(words(n, at, corpus))
         at += n
     return out
 
@@ -122,12 +141,13 @@ class Fill:
     start: int
     style: str = ""  # text only
     bounds: tuple[str, ...] = ()  # per item, what refused one more: "fit" or "cap"
+    corpus: str = "English"
 
     @property
     def texts(self) -> list[str]:
         if self.kind == "figure":
-            return [numeral(self.counts[0]), words(self.counts[1], self.start)]
-        return _items(self.counts, self.start)
+            return [numeral(self.counts[0]), words(self.counts[1], self.start, self.corpus)]
+        return _items(self.counts, self.start, self.corpus)
 
     @property
     def amount(self) -> str:
@@ -168,6 +188,8 @@ class Result:
     region_px: tuple[float, float, float, float]
     ink_px: tuple[int, int, int, int] | None
     left_allowance: float = 0.0  # px: the text's most negative left side bearing x size
+    top_allowance: float = 0.0  # px: how far its highest glyph rises above the first line
+    corpus: str = "English"
 
     @property
     def edges(self) -> dict[str, float]:
@@ -187,21 +209,24 @@ class Result:
         return "" if self.ink_px is None else max(self.edges, key=self.edges.get)
 
     @property
+    def beyond(self) -> dict[str, float]:
+        """How far the ink reaches past each edge, less that edge's allowance, in px."""
+        e = self.edges
+        return dict(e, left=e["left"] - self.left_allowance, top=e["top"] - self.top_allowance)
+
+    @property
     def excess(self) -> float | None:
-        """B-24: how far the ink reaches past its edges' limits, in px, where 0 is exactly
-        2 px out (the left edge's limit is 2 px plus the left allowance); None without
-        ink."""
+        """B-24 and B-25 item 2: how far the ink reaches past its edges' limits, in px,
+        where 0 is exactly 2 px out (the left and top limits are 2 px plus the left and
+        top allowances); None without ink."""
         if self.ink_px is None:
             return None
-        e = self.edges
-        return max(e["right"], e["top"], e["bottom"], e["left"] - self.left_allowance) - (
-            TOLERANCE_PX
-        )
+        return max(self.beyond.values()) - TOLERANCE_PX
 
     @property
     def excess_edge(self) -> str:
-        e = dict(self.edges, left=self.edges["left"] - self.left_allowance)
-        return max(e, key=e.get)
+        beyond = self.beyond
+        return max(beyond, key=beyond.get)
 
 
 # -- the fonts and the engine -------------------------------------------------------------
@@ -212,6 +237,20 @@ def fc_family(family: str) -> str | None:
         return None
     out = subprocess.run(["fc-match", "-f", "%{family}", family], capture_output=True, text=True)
     return out.stdout.split(",")[0].strip() or None
+
+
+def covers(family: str, corpus: str) -> bool:
+    """Whether the family's twin has every letter of the corpus, in both cases and both
+    weights."""
+    letters = {ord(c) for c in VIETNAMESE if not c.isspace()} if corpus == "Vietnamese" else set()
+    letters |= {ord(c.upper()) for c in map(chr, letters)}
+    return all(letters <= set(load_table(family, w).advances) for w in ("regular", "bold"))
+
+
+def stressed() -> list[tuple[str, str, str]]:
+    """(mode, family, corpus) for every stress deck; a corpus only in the families that
+    cover it."""
+    return [(m, f, c) for m in MODES for c in CORPORA for f in FAMILIES if covers(f, c)]
 
 
 def unready() -> str | None:
@@ -237,26 +276,55 @@ def voice_file(directory: Path, family: str) -> str:
     return str(path.resolve())
 
 
+_fonts: dict = {}
 _sidebearings: dict = {}
+_tops: dict = {}
 
 
-def left_bearings(family: str, weight: str) -> tuple[dict, int]:
-    """(codepoint -> left side bearing in font units, units per em) of the twin that
-    fontconfig picks for the family and weight."""
+def _font(family: str, weight: str):
+    """The twin that fontconfig picks for the family and weight, opened with fontTools."""
     from fontTools.ttLib import TTFont
 
-    if (family, weight) not in _sidebearings:
+    if (family, weight) not in _fonts:
         style = "Bold" if weight == "bold" else "Regular"
         path = subprocess.run(
             ["fc-match", "-f", "%{file}", f"{family}:style={style}"],
             capture_output=True,
             text=True,
         ).stdout
-        font = TTFont(path)
+        _fonts[family, weight] = TTFont(path)
+    return _fonts[family, weight]
+
+
+def left_bearings(family: str, weight: str) -> tuple[dict, int]:
+    """(codepoint -> left side bearing in font units, units per em) of the twin that
+    fontconfig picks for the family and weight."""
+    if (family, weight) not in _sidebearings:
+        font = _font(family, weight)
         hmtx = font["hmtx"]
         bearings = {cp: hmtx[glyph][1] for cp, glyph in font.getBestCmap().items()}
         _sidebearings[family, weight] = (bearings, font["head"].unitsPerEm)
     return _sidebearings[family, weight]
+
+
+def glyph_top(family: str, weight: str, ch: str) -> float:
+    """How far the twin's glyph for `ch` rises above the baseline, in em (0 for a glyph
+    without outline, or one the twin lacks: a fallback font sets it)."""
+    from fontTools.pens.boundsPen import BoundsPen
+
+    key = family, weight, ch
+    if key not in _tops:
+        font = _font(family, weight)
+        glyph = font.getBestCmap().get(ord(ch))
+        top = 0.0
+        if glyph is not None:
+            glyphs = font.getGlyphSet()
+            pen = BoundsPen(glyphs)
+            glyphs[glyph].draw(pen)
+            if pen.bounds is not None:
+                top = pen.bounds[3] / font["head"].unitsPerEm
+        _tops[key] = top
+    return _tops[key]
 
 
 def styles_of(pack, mode: str, stress: Stress, fill: Fill) -> list[str]:
@@ -274,6 +342,12 @@ def styles_of(pack, mode: str, stress: Stress, fill: Fill) -> list[str]:
     }[fill.kind]
 
 
+def _shown(style, fill: Fill) -> set[str]:
+    """The characters a style sets for a fill: upper-cased for caps, bullet markers in."""
+    text = "".join(fill.texts) + (style.bullet_marker if fill.kind == "bullets" else "")
+    return {ch for ch in (text.upper() if style.caps else text) if not ch.isspace()}
+
+
 def left_allowance(pack, mode: str, voice, stress: Stress, fill: Fill) -> float:
     """B-24's left allowance in px: the most negative left side bearing among the text's
     characters x size, over each style the region uses (a character the twin lacks is
@@ -281,11 +355,23 @@ def left_allowance(pack, mode: str, voice, stress: Stress, fill: Fill) -> float:
     worst = 0.0
     for name in styles_of(pack, mode, stress, fill):
         style = pack.styles[mode][name]
-        text = "".join(fill.texts) + (style.bullet_marker if fill.kind == "bullets" else "")
-        shown = text.upper() if style.caps else text
         bearings, upm = left_bearings(voice.font(style.font), style.weight)
-        lsb = min((bearings.get(ord(ch), 0) for ch in set(shown) if not ch.isspace()), default=0)
+        lsb = min((bearings.get(ord(ch), 0) for ch in _shown(style, fill)), default=0)
         worst = max(worst, -lsb / upm * float(style.size_pt) * PX_PER_PT)
+    return worst
+
+
+def top_allowance(pack, mode: str, voice, stress: Stress, fill: Fill) -> float:
+    """B-25 item 2's top allowance in px: size x (the highest glyph top among the text's
+    characters - the first baseline) when positive, over each style the region uses."""
+    worst = 0.0
+    for name in styles_of(pack, mode, stress, fill):
+        style = pack.styles[mode][name]
+        family = voice.font(style.font)
+        top = max((glyph_top(family, style.weight, ch) for ch in _shown(style, fill)), default=0)
+        setting = Setting(family, style.weight, style.size_pt, line_spacing=style.line_spacing)
+        over = top * float(style.size_pt) - float(setting.first_baseline)
+        worst = max(worst, over * PX_PER_PT)
     return worst
 
 
@@ -328,7 +414,8 @@ def refusal(deck: Deck, stress: Stress, region: str, fill: Fill) -> str | None:
 def longest(fill: Fill, refuse) -> Fill | str:
     """The fill grown in turn, item by item, by 16, then 8, … then 1, until no item takes
     one more: the longest the pen accepts, with what refused each item's next step. The
-    refusal itself when the pen refuses even the shortest fill."""
+    refusal itself when the pen refuses even the shortest fill. An item that grows moves
+    the words of the items after it, so after any growth every item is tried again."""
     why = refuse(fill)
     if why:
         return why
@@ -346,6 +433,7 @@ def longest(fill: Fill, refuse) -> Fill | str:
             why = refuse(trial)
             if why is None:
                 fill = trial
+                full.clear()
             else:
                 full.add(j)
                 bounds[j] = why.split(":")[0]
@@ -366,8 +454,9 @@ def _shortest(kind: str, style: str, bullets_max: int) -> Fill:
     return Fill(kind, (1,) * n, 0, style)
 
 
-def plan(mode: str, voice: str, evidence: Path) -> list[Stress]:
-    """The stress slides for a mode and voice, each text at its longest."""
+def plan(mode: str, voice: str, evidence: Path, corpus: str = "English") -> list[Stress]:
+    """The stress slides for a mode and voice, each text at its longest, in words of the
+    corpus."""
     pack = resolve(PACK)
     scratch = Deck(PACK, mode, voice, evidence=str(evidence))
     bullets_max = load_config(mode).as_int("bullets_max")
@@ -397,7 +486,7 @@ def plan(mode: str, voice: str, evidence: Path) -> list[Stress]:
                 for region, fill in wanted:
                     start += 7  # each text starts at its own place in the corpus
                     got = longest(
-                        replace(fill, start=start),
+                        replace(fill, start=start, corpus=corpus),
                         lambda f, r=region, s=s: refusal(scratch, s, r, f),
                     )
                     if isinstance(got, str):
@@ -463,16 +552,19 @@ def ink_box(image, control):
     return strongest.point(lambda v: 255 if v > INK else 0).getbbox()
 
 
-def measure(mode: str, family: str, work: Path) -> tuple[str, list[Result], list[str]]:
+def measure(
+    mode: str, family: str, work: Path, corpus: str = "English"
+) -> tuple[str, list[Result], list[str]]:
     """The render's LibreOffice version, a Result per stressed text, and a line per
-    component the pen refused even at its shortest, for one mode and portable family."""
+    component the pen refused even at its shortest, for one mode, portable family and
+    corpus."""
     from PIL import Image
 
     pack = resolve(PACK)
-    slug = family.lower().replace(" ", "-")
+    slug = f"{family.lower().replace(' ', '-')}-{corpus.lower()}"
     voice = voice_file(work / "voices", family)
     evidence = write_evidence(work / f"evidence-{mode}-{slug}.toml")
-    stresses = plan(mode, voice, evidence)
+    stresses = plan(mode, voice, evidence, corpus)
     deck = work / f"stress-{mode}-{slug}.pptx"
     order = build(stresses, mode, voice, evidence, deck)
     rendered = render_mod.render(deck, work / f"{mode}-{slug}", engine="libreoffice")
@@ -509,10 +601,12 @@ def measure(mode: str, family: str, work: Path) -> tuple[str, list[Result], list
                 region_px,
                 ink_box(img, controls[i]),
                 left_allowance(pack, mode, voice_obj, s, fill),
+                top_allowance(pack, mode, voice_obj, s, fill),
+                corpus,
             )
         )
     refused = [
-        f"{mode} {family}: {s.layout} {region}: {kind} refused at its shortest ({why})"
+        f"{mode} {family} {corpus}: {s.layout} {region}: {kind} refused at its shortest ({why})"
         for s in stresses
         for region, kind, why in s.refused
     ]
@@ -522,19 +616,22 @@ def measure(mode: str, family: str, work: Path) -> tuple[str, list[Result], list
 def report(version: str, results: list[Result], refused: list[str]) -> tuple[list[str], bool]:
     lines = [f"LibreOffice: {version}", f"ink threshold: > {INK} of 255 in any channel", ""]
     lines.append(
-        "mode       family           slide layout                    region  text          "
-        "        amount  bound    region box (px)              ink box (px)          "
-        "left allow  outside  edge"
+        "mode       family           corpus     slide layout                    region  "
+        "text                  amount  bound    region box (px)              ink box (px)"
+        "          left allow  top allow  outside  edge"
     )
     for r in results:
         box_s = "[{:.1f}, {:.1f}, {:.1f}, {:.1f}]".format(*r.region_px)
         ink_s = "[{}, {}, {}, {}]".format(*r.ink_px) if r.ink_px else "no ink"
         out = f"{r.overflow:+.1f}" if r.overflow is not None else "n/a"
         lines.append(
-            f"{r.mode:<10} {r.family:<16} {r.slide:>5} {r.layout:<25} {r.region:<7} "
-            f"{r.what:<20} {r.amount:>7}  {r.bound:<7}  {box_s:<28} {ink_s:<21} "
-            f"{r.left_allowance:>10.1f}  {out:>7}  {r.edge}"
+            f"{r.mode:<10} {r.family:<16} {r.corpus:<10} {r.slide:>5} {r.layout:<25} "
+            f"{r.region:<7} {r.what:<20} {r.amount:>7}  {r.bound:<7}  {box_s:<28} "
+            f"{ink_s:<21} {r.left_allowance:>10.1f} {r.top_allowance:>10.1f}  {out:>7}  {r.edge}"
         )
+    lines.append("")
+    lines.append("not stressed (the twin lacks letters of the corpus; B-25 item 1):")
+    lines += [f"  {c}: {f}" for c in CORPORA for f in FAMILIES if not covers(f, c)] or ["  none"]
     lines.append("")
     lines.append("refused at the shortest (not built):")
     lines += [f"  {line}" for line in refused] or ["  none"]
@@ -546,26 +643,29 @@ def report(version: str, results: list[Result], refused: list[str]) -> tuple[lis
     lines.append(f"{len(results)} texts, {len(blank)} without ink; per edge, the most outside:")
     for edge in ("left", "top", "right", "bottom"):
         most = max(inked, key=lambda r: r.edges[edge])
-        extra = f", left allowance {most.left_allowance:.1f} px" if edge == "left" else ""
+        extra = {
+            "left": f", left allowance {most.left_allowance:.1f} px",
+            "top": f", top allowance {most.top_allowance:.1f} px",
+        }.get(edge, "")
         lines.append(
-            f"  {edge:<6} {most.edges[edge]:+.1f} px ({most.mode} {most.family}, slide "
-            f"{most.slide}, {most.layout} {most.region}{extra})"
+            f"  {edge:<6} {most.edges[edge]:+.1f} px ({most.mode} {most.family} {most.corpus}, "
+            f"slide {most.slide}, {most.layout} {most.region}{extra})"
         )
     closest = max(inked, key=lambda r: r.excess)
     lines.append(
         f"closest to a limit: {closest.excess:+.1f} px from it ({closest.mode} "
-        f"{closest.family}, slide {closest.slide}, {closest.layout} {closest.region}, "
-        f"{closest.excess_edge})"
+        f"{closest.family} {closest.corpus}, slide {closest.slide}, {closest.layout} "
+        f"{closest.region}, {closest.excess_edge})"
     )
     lines.append(f"past a limit: {len(over)} text(s)")
     lines += [
-        f"  {r.mode} {r.family}, slide {r.slide}, {r.layout} {r.region} ({r.what}): "
+        f"  {r.mode} {r.family} {r.corpus}, slide {r.slide}, {r.layout} {r.region} ({r.what}): "
         f"{r.excess:+.1f} px past the {r.excess_edge} limit"
         for r in over
     ]
     lines.append(
-        f"verdict, AC-13(b) as amended by B-24 (right, top, bottom at {TOLERANCE_PX} px; left at "
-        f"{TOLERANCE_PX} px + the left allowance): {'PASS' if ok else 'FAIL'}"
+        f"verdict, AC-13(b) as amended by B-24 and B-25 (right, bottom at {TOLERANCE_PX} px; "
+        f"left and top at {TOLERANCE_PX} px + their allowances): {'PASS' if ok else 'FAIL'}"
     )
     return lines, ok
 
@@ -579,11 +679,10 @@ def main(argv: list[str]) -> int:
         work = Path(argv[0]) if argv else Path(tmp)
         work.mkdir(parents=True, exist_ok=True)
         version, results, refused = "", [], []
-        for mode in MODES:
-            for family in FAMILIES:
-                version, got, no = measure(mode, family, work)
-                results.extend(got)
-                refused.extend(no)
+        for mode, family, corpus in stressed():
+            version, got, no = measure(mode, family, work, corpus)
+            results.extend(got)
+            refused.extend(no)
         lines, ok = report(version, results, refused)
     print("\n".join(lines))
     return 0 if ok else 1
