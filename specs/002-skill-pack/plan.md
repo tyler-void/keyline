@@ -19,6 +19,10 @@
 - **Audit 05** ([audit-05-a2.md](audit-05-a2.md), 2026-09-29) of phase A2: FIX (FX-16 …
   FX-23, amendments B-22 … B-24), then G-1 and the Phase B tasks after a re-audit of the
   fixes. Its rulings on Q-47 … Q-49 and Tyler's FX-24 (title anchor) are marked below.
+- **Audit 06** ([audit-06-a2fix.md](audit-06-a2fix.md), 2026-09-30) of the A2 fix round:
+  FX-16 … FX-24 accepted; a last, bounded fit round FX-25 … FX-31 (amendment B-25, the
+  measured set), then Phase B's tasks, with one audit for both. Its rulings on Q-50 and
+  Q-51 are marked below.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -747,6 +751,24 @@ letters, and the pen warns once per deck when text uses them (not a registry ent
   the title regions of cover, evidence and close, so the title sits on the rule or the
   lede; `t` everywhere else, the statement slide included. The templates and specimens
   are rebuilt and the G-1 contact sheets regenerated.
+
+### A2 fixes questions (2026-09-30, report "A2 fixes")
+
+**Rulings (audit 06, §3; Tyler accepts them):**
+- **Q-50: one value.** `missing_glyph_em` stays one conservative number (1.49 em).
+  Missing glyphs already trigger the "not faithful" warning, and over-counting only costs
+  space in decks the fit does not promise to measure (B-25). Per-script values can come in
+  spec 003, with script coverage per voice.
+- **Q-51: keep the set, and name it.** The descent set becomes B-25's measured set, so the
+  descent room, the ascent allowance (FX-25) and the kerning pairs (FX-26) all use one
+  definition. A fixed per-font room keeps bottom-anchored titles on one baseline across
+  slides.
+
+50. **Q-50 · `missing_glyph_em` as one value.** 1.49 em covers CJK between Latin letters;
+    emoji, Thai and CJK runs are over-counted. *Question:* split by script, or one value?
+51. **Q-51 · The descent set.** `descent_em` spans Latin-1 and Latin Extended-A, whose
+    deepest Gelasio glyph (a comma-below letter) is 0.294 em. *Question:* narrower, or as
+    is?
 
 47. **Q-47 · AC-13(b)'s left edge** (report A2). A line that starts with a glyph whose
     left side bearing is negative puts ink left of the region box (2.7 px measured, bold

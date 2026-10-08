@@ -1646,3 +1646,32 @@ must contain at least these rows.
   - The stress covers all six portable families.
   - It runs on every LibreOffice version available: Tyler's 26.8.0.3, and the
     auditor's 24.2.7.2 at audit time.
+- **B-25 (2026-09-30, audit 06).** The measured set, and overhang.
+  1. **The measured set.**
+     - It covers Basic Latin, Latin-1 Supplement, Latin Extended-A, Latin Extended-B,
+       Latin Extended Additional (Vietnamese included), General Punctuation, Currency
+       Symbols and ASCII digits, minus the characters B-22 refuses.
+     - §6.4's fit guarantees, AC-13(b) and B-24 apply to text inside this set.
+     - For any character outside it, the pen still estimates conservatively and prints
+       one warning per deck, which names the characters. Nothing more is promised
+       there.
+  2. **Overhang allowances.** AC-13(b)'s top edge gets an allowance like B-24's left
+     edge: size × max(0, the highest glyph top among the text's characters − the first
+     baseline), taken from the twin. The first baseline is measured per line spacing.
+     B-24's left edge is unchanged.
+  3. **Pack invariant.** For every region, every style allowed in it and every portable
+     family, the largest top and left overhang over the measured set is smaller than
+     the free space beside the region: the gap to the region or keyline rule next to
+     it, or to the slide edge.
+  4. **Kerning.** A word's width is its advances plus the sum of its positive kerning
+     pairs inside the measured set. Negative pairs are ignored.
+  5. **Break units.** B-22 item 4 extends to UAX #14 LB14. A piece that ends in an
+     opening punctuation mark joins the next piece, even across a space. The fullwidth
+     closers `！ ？ ， 。 」 ）` join the no-break-before list.
+  6. **Measured cell data.**
+     - In a table cell, a line that contains a missing glyph uses `missing_line_em`.
+     - Each cell line has an allowance equal to the largest excess measured on any
+       LibreOffice version, rounded up to 0.01 mm.
+     - Both are data, stored with their versions.
+  7. **Complex scripts.** The templates set the theme's `cs` fonts to the voice's
+     display and text families.

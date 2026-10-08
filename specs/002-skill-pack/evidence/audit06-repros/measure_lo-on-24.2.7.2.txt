@@ -1,0 +1,913 @@
+# LibreOffice measurements for spec 002 amendments B-7, B-21 and B-22 (T-20; A2 fixes)
+version: LibreOffice 24.2.7.2 420(Build:2)
+date: 2026-09-30  keyline 0.1.0  Linux-6.18.44-fc-v50-x86_64-with-glibc2.39
+note: expected LibreOffice 26.8.0.3; this run used LibreOffice 24.2.7.2 420(Build:2)
+
+fc-match (probes name the portable family; fontconfig picks the twin):
+  Arial            -> Liberation Sans    twin Liberation Sans    ok
+  Times New Roman  -> Liberation Serif   twin Liberation Serif   ok
+  Courier New      -> Liberation Mono    twin Liberation Mono    ok
+  Georgia          -> Gelasio            twin Gelasio            ok
+  Calibri          -> Carlito            twin Carlito            ok
+  Cambria          -> Caladea            twin Caladea            ok
+
+pitch: four lines; bound = size x 1.2 x line spacing + 0.01 mm, LibreOffice 24.2.7.2 420(Build:2)
+  family           weight   size   ls kind  pitch pt      em  bound pt  slack pt 1st bl em  font
+  Arial            regular    13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  LiberationSans
+  Arial            regular    13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  LiberationSans
+  Arial            regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSans
+  Arial            regular    24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSans
+  Arial            regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSans
+  Arial            regular    48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSans
+  Arial            regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSans
+  Arial            regular    60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSans
+  Arial            bold       13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  LiberationSans-Bold
+  Arial            bold       13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  LiberationSans-Bold
+  Arial            bold       24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSans-Bold
+  Arial            bold       24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSans-Bold
+  Arial            bold       48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSans-Bold
+  Arial            bold       48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSans-Bold
+  Arial            bold       60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSans-Bold
+  Arial            bold       60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSans-Bold
+  Arial            regular     9  1.0 br     10.8283  1.2031   10.8283    0.0000    1.0016  LiberationSans
+  Arial            regular    10  1.0 br     12.0190  1.2019   12.0283    0.0094    1.0006  LiberationSans
+  Arial            regular    12  1.0 br     14.4000  1.2000   14.4283    0.0283    0.9992  LiberationSans
+  Arial            regular    13  1.1 br     17.1780  1.3214   17.1883    0.0103    1.1208  LiberationSans
+  Arial            regular    14  1.0 br     16.8093  1.2007   16.8283    0.0190    1.0002  LiberationSans
+  Arial            regular    16  1.1 br     21.0897  1.3181   21.1483    0.0587    1.1179  LiberationSans
+  Arial            regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSans
+  Arial            regular    24  1.1 br     31.6630  1.3193   31.7083    0.0454    1.1197  LiberationSans
+  Arial            regular    28  1.0 br     33.6190  1.2007   33.6283    0.0093    1.0002  LiberationSans
+  Arial            regular    28  1.1 br     36.9640  1.3201   36.9883    0.0243    1.1197  LiberationSans
+  Arial            regular    36  1.0 br     43.2000  1.2000   43.2283    0.0283    1.0000  LiberationSans
+  Arial            regular    40  1.0 br     47.9907  1.1998   48.0283    0.0377    0.9999  LiberationSans
+  Arial            regular    44  1.0 br     52.7810  1.1996   52.8283    0.0473    0.9999  LiberationSans
+  Arial            regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSans
+  Arial            regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSans
+  Arial            regular    66  1.0 br     79.2000  1.2000   79.2283    0.0283    0.9999  LiberationSans
+  Arial            regular   120  1.0 br    144.0000  1.2000  144.0283    0.0283    0.9999  LiberationSans
+  Times New Roman  regular    13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  LiberationSerif
+  Times New Roman  regular    13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  LiberationSerif
+  Times New Roman  regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSerif
+  Times New Roman  regular    24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSerif
+  Times New Roman  regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSerif
+  Times New Roman  regular    48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSerif
+  Times New Roman  regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSerif
+  Times New Roman  regular    60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSerif
+  Times New Roman  bold       13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  LiberationSerif-Bold
+  Times New Roman  bold       13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  LiberationSerif-Bold
+  Times New Roman  bold       24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSerif-Bold
+  Times New Roman  bold       24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSerif-Bold
+  Times New Roman  bold       48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSerif-Bold
+  Times New Roman  bold       48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSerif-Bold
+  Times New Roman  bold       60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSerif-Bold
+  Times New Roman  bold       60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSerif-Bold
+  Times New Roman  regular     9  1.0 br     10.8283  1.2031   10.8283    0.0000    1.0016  LiberationSerif
+  Times New Roman  regular    10  1.0 br     12.0190  1.2019   12.0283    0.0094    1.0006  LiberationSerif
+  Times New Roman  regular    12  1.0 br     14.4000  1.2000   14.4283    0.0283    0.9992  LiberationSerif
+  Times New Roman  regular    13  1.1 br     17.1780  1.3214   17.1883    0.0103    1.1208  LiberationSerif
+  Times New Roman  regular    14  1.0 br     16.8093  1.2007   16.8283    0.0190    1.0002  LiberationSerif
+  Times New Roman  regular    16  1.1 br     21.0897  1.3181   21.1483    0.0587    1.1179  LiberationSerif
+  Times New Roman  regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationSerif
+  Times New Roman  regular    24  1.1 br     31.6630  1.3193   31.7083    0.0454    1.1197  LiberationSerif
+  Times New Roman  regular    28  1.0 br     33.6190  1.2007   33.6283    0.0093    1.0002  LiberationSerif
+  Times New Roman  regular    28  1.1 br     36.9640  1.3201   36.9883    0.0243    1.1197  LiberationSerif
+  Times New Roman  regular    36  1.0 br     43.2000  1.2000   43.2283    0.0283    1.0000  LiberationSerif
+  Times New Roman  regular    40  1.0 br     47.9907  1.1998   48.0283    0.0377    0.9999  LiberationSerif
+  Times New Roman  regular    44  1.0 br     52.7810  1.1996   52.8283    0.0473    0.9999  LiberationSerif
+  Times New Roman  regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationSerif
+  Times New Roman  regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationSerif
+  Times New Roman  regular    66  1.0 br     79.2000  1.2000   79.2283    0.0283    0.9999  LiberationSerif
+  Times New Roman  regular   120  1.0 br    144.0000  1.2000  144.0283    0.0283    0.9999  LiberationSerif
+  Courier New      regular    13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  LiberationMono
+  Courier New      regular    13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  LiberationMono
+  Courier New      regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationMono
+  Courier New      regular    24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  LiberationMono
+  Courier New      regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationMono
+  Courier New      regular    48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  LiberationMono
+  Courier New      regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationMono
+  Courier New      regular    60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  LiberationMono
+  Courier New      bold       13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  LiberationMono-Bold
+  Courier New      bold       13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  LiberationMono-Bold
+  Courier New      bold       24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationMono-Bold
+  Courier New      bold       24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  LiberationMono-Bold
+  Courier New      bold       48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationMono-Bold
+  Courier New      bold       48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  LiberationMono-Bold
+  Courier New      bold       60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationMono-Bold
+  Courier New      bold       60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  LiberationMono-Bold
+  Courier New      regular     9  1.0 br     10.8283  1.2031   10.8283    0.0000    1.0016  LiberationMono
+  Courier New      regular    10  1.0 br     12.0190  1.2019   12.0283    0.0094    1.0006  LiberationMono
+  Courier New      regular    12  1.0 br     14.4000  1.2000   14.4283    0.0283    0.9992  LiberationMono
+  Courier New      regular    13  1.1 br     17.1780  1.3214   17.1883    0.0103    1.1208  LiberationMono
+  Courier New      regular    14  1.0 br     16.8093  1.2007   16.8283    0.0190    1.0002  LiberationMono
+  Courier New      regular    16  1.1 br     21.0897  1.3181   21.1483    0.0587    1.1179  LiberationMono
+  Courier New      regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  LiberationMono
+  Courier New      regular    24  1.1 br     31.6630  1.3193   31.7083    0.0454    1.1197  LiberationMono
+  Courier New      regular    28  1.0 br     33.6190  1.2007   33.6283    0.0093    1.0002  LiberationMono
+  Courier New      regular    28  1.1 br     36.9640  1.3201   36.9883    0.0243    1.1197  LiberationMono
+  Courier New      regular    36  1.0 br     43.2000  1.2000   43.2283    0.0283    1.0000  LiberationMono
+  Courier New      regular    40  1.0 br     47.9907  1.1998   48.0283    0.0377    0.9999  LiberationMono
+  Courier New      regular    44  1.0 br     52.7810  1.1996   52.8283    0.0473    0.9999  LiberationMono
+  Courier New      regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  LiberationMono
+  Courier New      regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  LiberationMono
+  Courier New      regular    66  1.0 br     79.2000  1.2000   79.2283    0.0283    0.9999  LiberationMono
+  Courier New      regular   120  1.0 br    144.0000  1.2000  144.0283    0.0283    0.9999  LiberationMono
+  Georgia          regular    13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  Gelasio-Regular
+  Georgia          regular    13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  Gelasio-Regular
+  Georgia          regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Gelasio-Regular
+  Georgia          regular    24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  Gelasio-Regular
+  Georgia          regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Gelasio-Regular
+  Georgia          regular    48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  Gelasio-Regular
+  Georgia          regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Gelasio-Regular
+  Georgia          regular    60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  Gelasio-Regular
+  Georgia          bold       13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  Gelasio-Bold
+  Georgia          bold       13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  Gelasio-Bold
+  Georgia          bold       24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Gelasio-Bold
+  Georgia          bold       24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  Gelasio-Bold
+  Georgia          bold       48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Gelasio-Bold
+  Georgia          bold       48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  Gelasio-Bold
+  Georgia          bold       60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Gelasio-Bold
+  Georgia          bold       60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  Gelasio-Bold
+  Georgia          regular     9  1.0 br     10.8283  1.2031   10.8283    0.0000    1.0016  Gelasio-Regular
+  Georgia          regular    10  1.0 br     12.0190  1.2019   12.0283    0.0094    1.0006  Gelasio-Regular
+  Georgia          regular    12  1.0 br     14.4000  1.2000   14.4283    0.0283    0.9992  Gelasio-Regular
+  Georgia          regular    13  1.1 br     17.1780  1.3214   17.1883    0.0103    1.1208  Gelasio-Regular
+  Georgia          regular    14  1.0 br     16.8093  1.2007   16.8283    0.0190    1.0002  Gelasio-Regular
+  Georgia          regular    16  1.1 br     21.0897  1.3181   21.1483    0.0587    1.1179  Gelasio-Regular
+  Georgia          regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Gelasio-Regular
+  Georgia          regular    24  1.1 br     31.6630  1.3193   31.7083    0.0454    1.1197  Gelasio-Regular
+  Georgia          regular    28  1.0 br     33.6190  1.2007   33.6283    0.0093    1.0002  Gelasio-Regular
+  Georgia          regular    28  1.1 br     36.9640  1.3201   36.9883    0.0243    1.1197  Gelasio-Regular
+  Georgia          regular    36  1.0 br     43.2000  1.2000   43.2283    0.0283    1.0000  Gelasio-Regular
+  Georgia          regular    40  1.0 br     47.9907  1.1998   48.0283    0.0377    0.9999  Gelasio-Regular
+  Georgia          regular    44  1.0 br     52.7810  1.1996   52.8283    0.0473    0.9999  Gelasio-Regular
+  Georgia          regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Gelasio-Regular
+  Georgia          regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Gelasio-Regular
+  Georgia          regular    66  1.0 br     79.2000  1.2000   79.2283    0.0283    0.9999  Gelasio-Regular
+  Georgia          regular   120  1.0 br    144.0000  1.2000  144.0283    0.0283    0.9999  Gelasio-Regular
+  Calibri          regular    13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  Carlito-Regular
+  Calibri          regular    13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  Carlito-Regular
+  Calibri          regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Carlito-Regular
+  Calibri          regular    24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  Carlito-Regular
+  Calibri          regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Carlito-Regular
+  Calibri          regular    48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  Carlito-Regular
+  Calibri          regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Carlito-Regular
+  Calibri          regular    60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  Carlito-Regular
+  Calibri          bold       13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  Carlito-Bold
+  Calibri          bold       13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  Carlito-Bold
+  Calibri          bold       24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Carlito-Bold
+  Calibri          bold       24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  Carlito-Bold
+  Calibri          bold       48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Carlito-Bold
+  Calibri          bold       48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  Carlito-Bold
+  Calibri          bold       60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Carlito-Bold
+  Calibri          bold       60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  Carlito-Bold
+  Calibri          regular     9  1.0 br     10.8283  1.2031   10.8283    0.0000    1.0016  Carlito-Regular
+  Calibri          regular    10  1.0 br     12.0190  1.2019   12.0283    0.0094    1.0006  Carlito-Regular
+  Calibri          regular    12  1.0 br     14.4000  1.2000   14.4283    0.0283    0.9992  Carlito-Regular
+  Calibri          regular    13  1.1 br     17.1780  1.3214   17.1883    0.0103    1.1208  Carlito-Regular
+  Calibri          regular    14  1.0 br     16.8093  1.2007   16.8283    0.0190    1.0002  Carlito-Regular
+  Calibri          regular    16  1.1 br     21.0897  1.3181   21.1483    0.0587    1.1179  Carlito-Regular
+  Calibri          regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Carlito-Regular
+  Calibri          regular    24  1.1 br     31.6630  1.3193   31.7083    0.0454    1.1197  Carlito-Regular
+  Calibri          regular    28  1.0 br     33.6190  1.2007   33.6283    0.0093    1.0002  Carlito-Regular
+  Calibri          regular    28  1.1 br     36.9640  1.3201   36.9883    0.0243    1.1197  Carlito-Regular
+  Calibri          regular    36  1.0 br     43.2000  1.2000   43.2283    0.0283    1.0000  Carlito-Regular
+  Calibri          regular    40  1.0 br     47.9907  1.1998   48.0283    0.0377    0.9999  Carlito-Regular
+  Calibri          regular    44  1.0 br     52.7810  1.1996   52.8283    0.0473    0.9999  Carlito-Regular
+  Calibri          regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Carlito-Regular
+  Calibri          regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Carlito-Regular
+  Calibri          regular    66  1.0 br     79.2000  1.2000   79.2283    0.0283    0.9999  Carlito-Regular
+  Calibri          regular   120  1.0 br    144.0000  1.2000  144.0283    0.0283    0.9999  Carlito-Regular
+  Cambria          regular    13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  Caladea-Regular
+  Cambria          regular    13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  Caladea-Regular
+  Cambria          regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Caladea-Regular
+  Cambria          regular    24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  Caladea-Regular
+  Cambria          regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Caladea-Regular
+  Cambria          regular    48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  Caladea-Regular
+  Cambria          regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Caladea-Regular
+  Cambria          regular    60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  Caladea-Regular
+  Cambria          bold       13  1.0 br     15.6190  1.2015   15.6283    0.0093    1.0008  Caladea-Bold
+  Cambria          bold       13  1.0 p      15.6190  1.2015   15.6283    0.0093    1.0008  Caladea-Bold
+  Cambria          bold       24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Caladea-Bold
+  Cambria          bold       24  1.0 p      28.8000  1.2000   28.8283    0.0283    1.0004  Caladea-Bold
+  Cambria          bold       48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Caladea-Bold
+  Cambria          bold       48  1.0 p      57.6000  1.2000   57.6283    0.0284    0.9998  Caladea-Bold
+  Cambria          bold       60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Caladea-Bold
+  Cambria          bold       60  1.0 p      72.0000  1.2000   72.0283    0.0283    1.0002  Caladea-Bold
+  Cambria          regular     9  1.0 br     10.8283  1.2031   10.8283    0.0000    1.0016  Caladea-Regular
+  Cambria          regular    10  1.0 br     12.0190  1.2019   12.0283    0.0094    1.0006  Caladea-Regular
+  Cambria          regular    12  1.0 br     14.4000  1.2000   14.4283    0.0283    0.9992  Caladea-Regular
+  Cambria          regular    13  1.1 br     17.1780  1.3214   17.1883    0.0103    1.1208  Caladea-Regular
+  Cambria          regular    14  1.0 br     16.8093  1.2007   16.8283    0.0190    1.0002  Caladea-Regular
+  Cambria          regular    16  1.1 br     21.0897  1.3181   21.1483    0.0587    1.1179  Caladea-Regular
+  Cambria          regular    24  1.0 br     28.8000  1.2000   28.8283    0.0283    1.0004  Caladea-Regular
+  Cambria          regular    24  1.1 br     31.6630  1.3193   31.7083    0.0454    1.1197  Caladea-Regular
+  Cambria          regular    28  1.0 br     33.6190  1.2007   33.6283    0.0093    1.0002  Caladea-Regular
+  Cambria          regular    28  1.1 br     36.9640  1.3201   36.9883    0.0243    1.1197  Caladea-Regular
+  Cambria          regular    36  1.0 br     43.2000  1.2000   43.2283    0.0283    1.0000  Caladea-Regular
+  Cambria          regular    40  1.0 br     47.9907  1.1998   48.0283    0.0377    0.9999  Caladea-Regular
+  Cambria          regular    44  1.0 br     52.7810  1.1996   52.8283    0.0473    0.9999  Caladea-Regular
+  Cambria          regular    48  1.0 br     57.6000  1.2000   57.6283    0.0284    0.9998  Caladea-Regular
+  Cambria          regular    60  1.0 br     72.0000  1.2000   72.0283    0.0283    1.0002  Caladea-Regular
+  Cambria          regular    66  1.0 br     79.2000  1.2000   79.2283    0.0283    0.9999  Caladea-Regular
+  Cambria          regular   120  1.0 br    144.0000  1.2000  144.0283    0.0283    0.9999  Caladea-Regular
+
+wrap, audit 04's stress set: lines at each box / estimate factor, LibreOffice 24.2.7.2 420(Build:2)
+  family           weight  size string               0.9950 1.0000 1.0030 1.0060 1.0101  twin lacks
+  Arial            regular    9 narrow                    2      1      1      1      1  
+  Arial            regular    9 wide-caps                 1      1      1      1      1  
+  Arial            regular    9 digits                    2      1      1      1      1  
+  Arial            regular    9 vietnamese                2      1      1      1      1  
+  Arial            regular    9 sentence                  2      1      1      1      1  
+  Arial            regular    9 label-caps-tracked        1      1      1      1      1  
+  Arial            regular    9 narrow-caps-tracked       1      1      1      1      1  
+  Arial            regular   10 narrow                    2      1      1      1      1  
+  Arial            regular   10 wide-caps                 1      1      1      1      1  
+  Arial            regular   10 digits                    2      1      1      1      1  
+  Arial            regular   10 vietnamese                2      1      1      1      1  
+  Arial            regular   10 sentence                  2      1      1      1      1  
+  Arial            regular   10 label-caps-tracked        1      1      1      1      1  
+  Arial            regular   10 narrow-caps-tracked       1      1      1      1      1  
+  Arial            regular   12 narrow                    2      1      1      1      1  
+  Arial            regular   12 wide-caps                 1      1      1      1      1  
+  Arial            regular   12 digits                    2      1      1      1      1  
+  Arial            regular   12 vietnamese                2      1      1      1      1  
+  Arial            regular   12 sentence                  2      1      1      1      1  
+  Arial            regular   12 label-caps-tracked        1      1      1      1      1  
+  Arial            regular   12 narrow-caps-tracked       1      1      1      1      1  
+  Arial            regular   14 narrow                    2      2      1      1      1  
+  Arial            regular   14 wide-caps                 1      1      1      1      1  
+  Arial            regular   14 digits                    2      2      1      1      1  
+  Arial            regular   14 vietnamese                2      2      1      1      1  
+  Arial            regular   14 sentence                  2      2      1      1      1  
+  Arial            regular   14 label-caps-tracked        2      1      1      1      1  
+  Arial            regular   14 narrow-caps-tracked       1      1      1      1      1  
+  Arial            regular   24 narrow                    2      1      1      1      1  
+  Arial            regular   24 wide-caps                 1      1      1      1      1  
+  Arial            regular   24 digits                    2      1      1      1      1  
+  Arial            regular   24 vietnamese                2      1      1      1      1  
+  Arial            regular   24 sentence                  2      1      1      1      1  
+  Arial            regular   24 label-caps-tracked        1      1      1      1      1  
+  Arial            regular   24 narrow-caps-tracked       1      1      1      1      1  
+  Arial            bold       9 narrow                    2      1      1      1      1  
+  Arial            bold       9 wide-caps                 1      1      1      1      1  
+  Arial            bold       9 digits                    2      1      1      1      1  
+  Arial            bold       9 vietnamese                2      1      1      1      1  
+  Arial            bold       9 sentence                  2      1      1      1      1  
+  Arial            bold       9 label-caps-tracked        1      1      1      1      1  
+  Arial            bold       9 narrow-caps-tracked       1      1      1      1      1  
+  Arial            bold      10 narrow                    2      1      1      1      1  
+  Arial            bold      10 wide-caps                 1      1      1      1      1  
+  Arial            bold      10 digits                    2      1      1      1      1  
+  Arial            bold      10 vietnamese                2      1      1      1      1  
+  Arial            bold      10 sentence                  2      1      1      1      1  
+  Arial            bold      10 label-caps-tracked        1      1      1      1      1  
+  Arial            bold      10 narrow-caps-tracked       1      1      1      1      1  
+  Arial            bold      12 narrow                    2      1      1      1      1  
+  Arial            bold      12 wide-caps                 1      1      1      1      1  
+  Arial            bold      12 digits                    2      1      1      1      1  
+  Arial            bold      12 vietnamese                2      1      1      1      1  
+  Arial            bold      12 sentence                  2      1      1      1      1  
+  Arial            bold      12 label-caps-tracked        1      1      1      1      1  
+  Arial            bold      12 narrow-caps-tracked       1      1      1      1      1  
+  Arial            bold      14 narrow                    2      2      1      1      1  
+  Arial            bold      14 wide-caps                 1      1      1      1      1  
+  Arial            bold      14 digits                    2      2      1      1      1  
+  Arial            bold      14 vietnamese                2      2      1      1      1  
+  Arial            bold      14 sentence                  2      2      1      1      1  
+  Arial            bold      14 label-caps-tracked        2      1      1      1      1  
+  Arial            bold      14 narrow-caps-tracked       1      1      1      1      1  
+  Arial            bold      24 narrow                    2      1      1      1      1  
+  Arial            bold      24 wide-caps                 1      1      1      1      1  
+  Arial            bold      24 digits                    2      1      1      1      1  
+  Arial            bold      24 vietnamese                2      1      1      1      1  
+  Arial            bold      24 sentence                  2      1      1      1      1  
+  Arial            bold      24 label-caps-tracked        1      1      1      1      1  
+  Arial            bold      24 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  regular    9 narrow                    2      1      1      1      1  
+  Times New Roman  regular    9 wide-caps                 1      1      1      1      1  
+  Times New Roman  regular    9 digits                    2      1      1      1      1  
+  Times New Roman  regular    9 vietnamese                2      1      1      1      1  
+  Times New Roman  regular    9 sentence                  2      1      1      1      1  
+  Times New Roman  regular    9 label-caps-tracked        1      1      1      1      1  
+  Times New Roman  regular    9 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  regular   10 narrow                    1      1      1      1      1  
+  Times New Roman  regular   10 wide-caps                 1      1      1      1      1  
+  Times New Roman  regular   10 digits                    2      1      1      1      1  
+  Times New Roman  regular   10 vietnamese                2      1      1      1      1  
+  Times New Roman  regular   10 sentence                  2      1      1      1      1  
+  Times New Roman  regular   10 label-caps-tracked        1      1      1      1      1  
+  Times New Roman  regular   10 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  regular   12 narrow                    2      1      1      1      1  
+  Times New Roman  regular   12 wide-caps                 1      1      1      1      1  
+  Times New Roman  regular   12 digits                    2      1      1      1      1  
+  Times New Roman  regular   12 vietnamese                2      1      1      1      1  
+  Times New Roman  regular   12 sentence                  2      1      1      1      1  
+  Times New Roman  regular   12 label-caps-tracked        1      1      1      1      1  
+  Times New Roman  regular   12 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  regular   14 narrow                    2      2      1      1      1  
+  Times New Roman  regular   14 wide-caps                 1      1      1      1      1  
+  Times New Roman  regular   14 digits                    2      2      1      1      1  
+  Times New Roman  regular   14 vietnamese                2      2      1      1      1  
+  Times New Roman  regular   14 sentence                  2      2      1      1      1  
+  Times New Roman  regular   14 label-caps-tracked        2      1      1      1      1  
+  Times New Roman  regular   14 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  regular   24 narrow                    2      1      1      1      1  
+  Times New Roman  regular   24 wide-caps                 1      1      1      1      1  
+  Times New Roman  regular   24 digits                    2      1      1      1      1  
+  Times New Roman  regular   24 vietnamese                2      1      1      1      1  
+  Times New Roman  regular   24 sentence                  2      1      1      1      1  
+  Times New Roman  regular   24 label-caps-tracked        1      1      1      1      1  
+  Times New Roman  regular   24 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  bold       9 narrow                    2      1      1      1      1  
+  Times New Roman  bold       9 wide-caps                 1      1      1      1      1  
+  Times New Roman  bold       9 digits                    2      1      1      1      1  
+  Times New Roman  bold       9 vietnamese                2      1      1      1      1  
+  Times New Roman  bold       9 sentence                  2      1      1      1      1  
+  Times New Roman  bold       9 label-caps-tracked        1      1      1      1      1  
+  Times New Roman  bold       9 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  bold      10 narrow                    1      1      1      1      1  
+  Times New Roman  bold      10 wide-caps                 1      1      1      1      1  
+  Times New Roman  bold      10 digits                    2      1      1      1      1  
+  Times New Roman  bold      10 vietnamese                1      1      1      1      1  
+  Times New Roman  bold      10 sentence                  1      1      1      1      1  
+  Times New Roman  bold      10 label-caps-tracked        1      1      1      1      1  
+  Times New Roman  bold      10 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  bold      12 narrow                    2      1      1      1      1  
+  Times New Roman  bold      12 wide-caps                 1      1      1      1      1  
+  Times New Roman  bold      12 digits                    2      1      1      1      1  
+  Times New Roman  bold      12 vietnamese                2      1      1      1      1  
+  Times New Roman  bold      12 sentence                  2      1      1      1      1  
+  Times New Roman  bold      12 label-caps-tracked        1      1      1      1      1  
+  Times New Roman  bold      12 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  bold      14 narrow                    2      2      1      1      1  
+  Times New Roman  bold      14 wide-caps                 1      1      1      1      1  
+  Times New Roman  bold      14 digits                    2      2      1      1      1  
+  Times New Roman  bold      14 vietnamese                2      2      1      1      1  
+  Times New Roman  bold      14 sentence                  2      2      1      1      1  
+  Times New Roman  bold      14 label-caps-tracked        2      1      1      1      1  
+  Times New Roman  bold      14 narrow-caps-tracked       1      1      1      1      1  
+  Times New Roman  bold      24 narrow                    2      1      1      1      1  
+  Times New Roman  bold      24 wide-caps                 1      1      1      1      1  
+  Times New Roman  bold      24 digits                    2      1      1      1      1  
+  Times New Roman  bold      24 vietnamese                2      1      1      1      1  
+  Times New Roman  bold      24 sentence                  2      1      1      1      1  
+  Times New Roman  bold      24 label-caps-tracked        1      1      1      1      1  
+  Times New Roman  bold      24 narrow-caps-tracked       1      1      1      1      1  
+  Courier New      regular    9 narrow                    2      1      1      1      1  
+  Courier New      regular    9 wide-caps                 2      1      1      1      1  
+  Courier New      regular    9 digits                    2      1      1      1      1  
+  Courier New      regular    9 vietnamese                2      1      1      1      1  
+  Courier New      regular    9 sentence                  2      1      1      1      1  
+  Courier New      regular    9 label-caps-tracked        1      1      1      1      1  
+  Courier New      regular    9 narrow-caps-tracked       1      1      1      1      1  
+  Courier New      regular   10 narrow                    2      1      1      1      1  
+  Courier New      regular   10 wide-caps                 2      1      1      1      1  
+  Courier New      regular   10 digits                    2      1      1      1      1  
+  Courier New      regular   10 vietnamese                2      1      1      1      1  
+  Courier New      regular   10 sentence                  2      1      1      1      1  
+  Courier New      regular   10 label-caps-tracked        1      1      1      1      1  
+  Courier New      regular   10 narrow-caps-tracked       1      1      1      1      1  
+  Courier New      regular   12 narrow                    2      1      1      1      1  
+  Courier New      regular   12 wide-caps                 2      1      1      1      1  
+  Courier New      regular   12 digits                    2      1      1      1      1  
+  Courier New      regular   12 vietnamese                2      1      1      1      1  
+  Courier New      regular   12 sentence                  2      1      1      1      1  
+  Courier New      regular   12 label-caps-tracked        2      1      1      1      1  
+  Courier New      regular   12 narrow-caps-tracked       1      1      1      1      1  
+  Courier New      regular   14 narrow                    2      2      1      1      1  
+  Courier New      regular   14 wide-caps                 2      2      1      1      1  
+  Courier New      regular   14 digits                    2      2      1      1      1  
+  Courier New      regular   14 vietnamese                2      2      1      1      1  
+  Courier New      regular   14 sentence                  2      2      1      1      1  
+  Courier New      regular   14 label-caps-tracked        2      1      1      1      1  
+  Courier New      regular   14 narrow-caps-tracked       2      1      1      1      1  
+  Courier New      regular   24 narrow                    2      1      1      1      1  
+  Courier New      regular   24 wide-caps                 2      1      1      1      1  
+  Courier New      regular   24 digits                    2      1      1      1      1  
+  Courier New      regular   24 vietnamese                2      1      1      1      1  
+  Courier New      regular   24 sentence                  2      1      1      1      1  
+  Courier New      regular   24 label-caps-tracked        2      1      1      1      1  
+  Courier New      regular   24 narrow-caps-tracked       1      1      1      1      1  
+  Courier New      bold       9 narrow                    2      1      1      1      1  
+  Courier New      bold       9 wide-caps                 2      1      1      1      1  
+  Courier New      bold       9 digits                    2      1      1      1      1  
+  Courier New      bold       9 vietnamese                2      1      1      1      1  
+  Courier New      bold       9 sentence                  2      1      1      1      1  
+  Courier New      bold       9 label-caps-tracked        1      1      1      1      1  
+  Courier New      bold       9 narrow-caps-tracked       1      1      1      1      1  
+  Courier New      bold      10 narrow                    2      1      1      1      1  
+  Courier New      bold      10 wide-caps                 2      1      1      1      1  
+  Courier New      bold      10 digits                    2      1      1      1      1  
+  Courier New      bold      10 vietnamese                2      1      1      1      1  
+  Courier New      bold      10 sentence                  2      1      1      1      1  
+  Courier New      bold      10 label-caps-tracked        1      1      1      1      1  
+  Courier New      bold      10 narrow-caps-tracked       1      1      1      1      1  
+  Courier New      bold      12 narrow                    2      1      1      1      1  
+  Courier New      bold      12 wide-caps                 2      1      1      1      1  
+  Courier New      bold      12 digits                    2      1      1      1      1  
+  Courier New      bold      12 vietnamese                2      1      1      1      1  
+  Courier New      bold      12 sentence                  2      1      1      1      1  
+  Courier New      bold      12 label-caps-tracked        2      1      1      1      1  
+  Courier New      bold      12 narrow-caps-tracked       1      1      1      1      1  
+  Courier New      bold      14 narrow                    2      2      1      1      1  
+  Courier New      bold      14 wide-caps                 2      2      1      1      1  
+  Courier New      bold      14 digits                    2      2      1      1      1  
+  Courier New      bold      14 vietnamese                2      2      1      1      1  
+  Courier New      bold      14 sentence                  2      2      1      1      1  
+  Courier New      bold      14 label-caps-tracked        2      1      1      1      1  
+  Courier New      bold      14 narrow-caps-tracked       2      1      1      1      1  
+  Courier New      bold      24 narrow                    2      1      1      1      1  
+  Courier New      bold      24 wide-caps                 2      1      1      1      1  
+  Courier New      bold      24 digits                    2      1      1      1      1  
+  Courier New      bold      24 vietnamese                2      1      1      1      1  
+  Courier New      bold      24 sentence                  2      1      1      1      1  
+  Courier New      bold      24 label-caps-tracked        2      1      1      1      1  
+  Courier New      bold      24 narrow-caps-tracked       1      1      1      1      1  
+  Georgia          regular    9 narrow                    2      1      1      1      1  
+  Georgia          regular    9 wide-caps                 2      1      1      1      1  
+  Georgia          regular    9 digits                    2      1      1      1      1  
+  Georgia          regular    9 vietnamese                2      1      1      1      1  
+  Georgia          regular    9 sentence                  2      1      1      1      1  
+  Georgia          regular    9 label-caps-tracked        1      1      1      1      1  
+  Georgia          regular    9 narrow-caps-tracked       1      1      1      1      1  
+  Georgia          regular   10 narrow                    1      1      1      1      1  
+  Georgia          regular   10 wide-caps                 2      1      1      1      1  
+  Georgia          regular   10 digits                    2      1      1      1      1  
+  Georgia          regular   10 vietnamese                2      1      1      1      1  
+  Georgia          regular   10 sentence                  1      1      1      1      1  
+  Georgia          regular   10 label-caps-tracked        1      1      1      1      1  
+  Georgia          regular   10 narrow-caps-tracked       1      1      1      1      1  
+  Georgia          regular   12 narrow                    2      1      1      1      1  
+  Georgia          regular   12 wide-caps                 2      1      1      1      1  
+  Georgia          regular   12 digits                    2      1      1      1      1  
+  Georgia          regular   12 vietnamese                2      1      1      1      1  
+  Georgia          regular   12 sentence                  2      1      1      1      1  
+  Georgia          regular   12 label-caps-tracked        2      1      1      1      1  
+  Georgia          regular   12 narrow-caps-tracked       1      1      1      1      1  
+  Georgia          regular   14 narrow                    2      1      1      1      1  
+  Georgia          regular   14 wide-caps                 2      2      1      1      1  
+  Georgia          regular   14 digits                    2      2      1      1      1  
+  Georgia          regular   14 vietnamese                2      2      1      1      1  
+  Georgia          regular   14 sentence                  2      2      1      1      1  
+  Georgia          regular   14 label-caps-tracked        2      1      1      1      1  
+  Georgia          regular   14 narrow-caps-tracked       2      1      1      1      1  
+  Georgia          regular   24 narrow                    2      1      1      1      1  
+  Georgia          regular   24 wide-caps                 2      1      1      1      1  
+  Georgia          regular   24 digits                    2      1      1      1      1  
+  Georgia          regular   24 vietnamese                2      1      1      1      1  
+  Georgia          regular   24 sentence                  2      1      1      1      1  
+  Georgia          regular   24 label-caps-tracked        2      1      1      1      1  
+  Georgia          regular   24 narrow-caps-tracked       1      1      1      1      1  
+  Georgia          bold       9 narrow                    2      1      1      1      1  
+  Georgia          bold       9 wide-caps                 2      1      1      1      1  
+  Georgia          bold       9 digits                    2      1      1      1      1  
+  Georgia          bold       9 vietnamese                2      1      1      1      1  
+  Georgia          bold       9 sentence                  2      1      1      1      1  
+  Georgia          bold       9 label-caps-tracked        1      1      1      1      1  
+  Georgia          bold       9 narrow-caps-tracked       1      1      1      1      1  
+  Georgia          bold      10 narrow                    1      1      1      1      1  
+  Georgia          bold      10 wide-caps                 2      1      1      1      1  
+  Georgia          bold      10 digits                    2      1      1      1      1  
+  Georgia          bold      10 vietnamese                2      1      1      1      1  
+  Georgia          bold      10 sentence                  1      1      1      1      1  
+  Georgia          bold      10 label-caps-tracked        1      1      1      1      1  
+  Georgia          bold      10 narrow-caps-tracked       1      1      1      1      1  
+  Georgia          bold      12 narrow                    2      1      1      1      1  
+  Georgia          bold      12 wide-caps                 2      1      1      1      1  
+  Georgia          bold      12 digits                    2      1      1      1      1  
+  Georgia          bold      12 vietnamese                2      1      1      1      1  
+  Georgia          bold      12 sentence                  2      1      1      1      1  
+  Georgia          bold      12 label-caps-tracked        2      1      1      1      1  
+  Georgia          bold      12 narrow-caps-tracked       1      1      1      1      1  
+  Georgia          bold      14 narrow                    2      1      1      1      1  
+  Georgia          bold      14 wide-caps                 2      2      1      1      1  
+  Georgia          bold      14 digits                    2      2      1      1      1  
+  Georgia          bold      14 vietnamese                2      2      1      1      1  
+  Georgia          bold      14 sentence                  2      1      1      1      1  
+  Georgia          bold      14 label-caps-tracked        2      1      1      1      1  
+  Georgia          bold      14 narrow-caps-tracked       2      1      1      1      1  
+  Georgia          bold      24 narrow                    2      1      1      1      1  
+  Georgia          bold      24 wide-caps                 2      1      1      1      1  
+  Georgia          bold      24 digits                    2      1      1      1      1  
+  Georgia          bold      24 vietnamese                2      1      1      1      1  
+  Georgia          bold      24 sentence                  2      1      1      1      1  
+  Georgia          bold      24 label-caps-tracked        2      1      1      1      1  
+  Georgia          bold      24 narrow-caps-tracked       1      1      1      1      1  
+  Calibri          regular    9 narrow                    1      1      1      1      1  
+  Calibri          regular    9 wide-caps                 1      1      1      1      1  
+  Calibri          regular    9 digits                    2      1      1      1      1  
+  Calibri          regular    9 vietnamese                2      1      1      1      1  
+  Calibri          regular    9 sentence                  1      1      1      1      1  
+  Calibri          regular    9 label-caps-tracked        1      1      1      1      1  
+  Calibri          regular    9 narrow-caps-tracked       1      1      1      1      1  
+  Calibri          regular   10 narrow                    1      1      1      1      1  
+  Calibri          regular   10 wide-caps                 1      1      1      1      1  
+  Calibri          regular   10 digits                    1      1      1      1      1  
+  Calibri          regular   10 vietnamese                1      1      1      1      1  
+  Calibri          regular   10 sentence                  1      1      1      1      1  
+  Calibri          regular   10 label-caps-tracked        1      1      1      1      1  
+  Calibri          regular   10 narrow-caps-tracked       1      1      1      1      1  
+  Calibri          regular   12 narrow                    1      1      1      1      1  
+  Calibri          regular   12 wide-caps                 1      1      1      1      1  
+  Calibri          regular   12 digits                    2      1      1      1      1  
+  Calibri          regular   12 vietnamese                2      1      1      1      1  
+  Calibri          regular   12 sentence                  1      1      1      1      1  
+  Calibri          regular   12 label-caps-tracked        1      1      1      1      1  
+  Calibri          regular   12 narrow-caps-tracked       1      1      1      1      1  
+  Calibri          regular   14 narrow                    2      1      1      1      1  
+  Calibri          regular   14 wide-caps                 1      1      1      1      1  
+  Calibri          regular   14 digits                    2      1      1      1      1  
+  Calibri          regular   14 vietnamese                2      1      1      1      1  
+  Calibri          regular   14 sentence                  2      1      1      1      1  
+  Calibri          regular   14 label-caps-tracked        1      1      1      1      1  
+  Calibri          regular   14 narrow-caps-tracked       2      1      1      1      1  
+  Calibri          regular   24 narrow                    1      1      1      1      1  
+  Calibri          regular   24 wide-caps                 1      1      1      1      1  
+  Calibri          regular   24 digits                    2      1      1      1      1  
+  Calibri          regular   24 vietnamese                2      1      1      1      1  
+  Calibri          regular   24 sentence                  1      1      1      1      1  
+  Calibri          regular   24 label-caps-tracked        1      1      1      1      1  
+  Calibri          regular   24 narrow-caps-tracked       1      1      1      1      1  
+  Calibri          bold       9 narrow                    1      1      1      1      1  
+  Calibri          bold       9 wide-caps                 1      1      1      1      1  
+  Calibri          bold       9 digits                    2      1      1      1      1  
+  Calibri          bold       9 vietnamese                2      1      1      1      1  
+  Calibri          bold       9 sentence                  1      1      1      1      1  
+  Calibri          bold       9 label-caps-tracked        1      1      1      1      1  
+  Calibri          bold       9 narrow-caps-tracked       1      1      1      1      1  
+  Calibri          bold      10 narrow                    1      1      1      1      1  
+  Calibri          bold      10 wide-caps                 1      1      1      1      1  
+  Calibri          bold      10 digits                    1      1      1      1      1  
+  Calibri          bold      10 vietnamese                1      1      1      1      1  
+  Calibri          bold      10 sentence                  1      1      1      1      1  
+  Calibri          bold      10 label-caps-tracked        1      1      1      1      1  
+  Calibri          bold      10 narrow-caps-tracked       1      1      1      1      1  
+  Calibri          bold      12 narrow                    1      1      1      1      1  
+  Calibri          bold      12 wide-caps                 1      1      1      1      1  
+  Calibri          bold      12 digits                    2      1      1      1      1  
+  Calibri          bold      12 vietnamese                2      1      1      1      1  
+  Calibri          bold      12 sentence                  1      1      1      1      1  
+  Calibri          bold      12 label-caps-tracked        1      1      1      1      1  
+  Calibri          bold      12 narrow-caps-tracked       1      1      1      1      1  
+  Calibri          bold      14 narrow                    2      1      1      1      1  
+  Calibri          bold      14 wide-caps                 1      1      1      1      1  
+  Calibri          bold      14 digits                    2      1      1      1      1  
+  Calibri          bold      14 vietnamese                2      2      1      1      1  
+  Calibri          bold      14 sentence                  2      1      1      1      1  
+  Calibri          bold      14 label-caps-tracked        1      1      1      1      1  
+  Calibri          bold      14 narrow-caps-tracked       2      1      1      1      1  
+  Calibri          bold      24 narrow                    1      1      1      1      1  
+  Calibri          bold      24 wide-caps                 1      1      1      1      1  
+  Calibri          bold      24 digits                    2      1      1      1      1  
+  Calibri          bold      24 vietnamese                2      1      1      1      1  
+  Calibri          bold      24 sentence                  1      1      1      1      1  
+  Calibri          bold      24 label-caps-tracked        1      1      1      1      1  
+  Calibri          bold      24 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          regular    9 narrow                    2      1      1      1      1  
+  Cambria          regular    9 wide-caps                 1      1      1      1      1  
+  Cambria          regular    9 digits                    2      1      1      1      1  
+  Cambria          regular    9 vietnamese                1      1      1      1      1  ấờ
+  Cambria          regular    9 sentence                  1      1      1      1      1  
+  Cambria          regular    9 label-caps-tracked        1      1      1      1      1  
+  Cambria          regular    9 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          regular   10 narrow                    2      1      1      1      1  
+  Cambria          regular   10 wide-caps                 1      1      1      1      1  
+  Cambria          regular   10 digits                    1      1      1      1      1  
+  Cambria          regular   10 vietnamese                1      1      1      1      1  ấờ
+  Cambria          regular   10 sentence                  1      1      1      1      1  
+  Cambria          regular   10 label-caps-tracked        1      1      1      1      1  
+  Cambria          regular   10 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          regular   12 narrow                    2      1      1      1      1  
+  Cambria          regular   12 wide-caps                 1      1      1      1      1  
+  Cambria          regular   12 digits                    2      1      1      1      1  
+  Cambria          regular   12 vietnamese                1      1      1      1      1  ấờ
+  Cambria          regular   12 sentence                  2      1      1      1      1  
+  Cambria          regular   12 label-caps-tracked        1      1      1      1      1  
+  Cambria          regular   12 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          regular   14 narrow                    2      2      1      1      1  
+  Cambria          regular   14 wide-caps                 1      1      1      1      1  
+  Cambria          regular   14 digits                    2      1      1      1      1  
+  Cambria          regular   14 vietnamese                1      1      1      1      1  ấờ
+  Cambria          regular   14 sentence                  2      1      1      1      1  
+  Cambria          regular   14 label-caps-tracked        1      1      1      1      1  
+  Cambria          regular   14 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          regular   24 narrow                    2      1      1      1      1  
+  Cambria          regular   24 wide-caps                 1      1      1      1      1  
+  Cambria          regular   24 digits                    2      1      1      1      1  
+  Cambria          regular   24 vietnamese                1      1      1      1      1  ấờ
+  Cambria          regular   24 sentence                  2      1      1      1      1  
+  Cambria          regular   24 label-caps-tracked        1      1      1      1      1  
+  Cambria          regular   24 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          bold       9 narrow                    2      1      1      1      1  
+  Cambria          bold       9 wide-caps                 1      1      1      1      1  
+  Cambria          bold       9 digits                    2      1      1      1      1  
+  Cambria          bold       9 vietnamese                1      1      1      1      1  ấờ
+  Cambria          bold       9 sentence                  1      1      1      1      1  
+  Cambria          bold       9 label-caps-tracked        1      1      1      1      1  
+  Cambria          bold       9 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          bold      10 narrow                    2      1      1      1      1  
+  Cambria          bold      10 wide-caps                 1      1      1      1      1  
+  Cambria          bold      10 digits                    1      1      1      1      1  
+  Cambria          bold      10 vietnamese                1      1      1      1      1  ấờ
+  Cambria          bold      10 sentence                  1      1      1      1      1  
+  Cambria          bold      10 label-caps-tracked        1      1      1      1      1  
+  Cambria          bold      10 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          bold      12 narrow                    2      1      1      1      1  
+  Cambria          bold      12 wide-caps                 1      1      1      1      1  
+  Cambria          bold      12 digits                    2      1      1      1      1  
+  Cambria          bold      12 vietnamese                1      1      1      1      1  ấờ
+  Cambria          bold      12 sentence                  1      1      1      1      1  
+  Cambria          bold      12 label-caps-tracked        1      1      1      1      1  
+  Cambria          bold      12 narrow-caps-tracked       1      1      1      1      1  
+  Cambria          bold      14 narrow                    2      2      1      1      1  
+  Cambria          bold      14 wide-caps                 1      1      1      1      1  
+  Cambria          bold      14 digits                    2      2      1      1      1  
+  Cambria          bold      14 vietnamese                1      1      1      1      1  ấờ
+  Cambria          bold      14 sentence                  2      1      1      1      1  
+  Cambria          bold      14 label-caps-tracked        1      1      1      1      1  
+  Cambria          bold      14 narrow-caps-tracked       2      1      1      1      1  
+  Cambria          bold      24 narrow                    2      1      1      1      1  
+  Cambria          bold      24 wide-caps                 1      1      1      1      1  
+  Cambria          bold      24 digits                    2      1      1      1      1  
+  Cambria          bold      24 vietnamese                1      1      1      1      1  ấờ
+  Cambria          bold      24 sentence                  2      1      1      1      1  
+  Cambria          bold      24 label-caps-tracked        1      1      1      1      1  
+  Cambria          bold      24 narrow-caps-tracked       1      1      1      1      1  
+  smallest fitting factor, histogram: {'1.0000': 201, '1.0030': 37, '<=0.9950': 182}
+
+one-line threshold of bold 14 pt labels (informational), LibreOffice 24.2.7.2 420(Build:2):
+  Arial            ACTIVE KEEPERS BY MONTH      one line at >= 1.0020
+  Arial            median wait for a match      one line at >= 1.0025
+  Arial            Oldest tree on the waitlist  one line at >= 1.0025
+  Times New Roman  ACTIVE KEEPERS BY MONTH      one line at >= 1.0005
+  Times New Roman  median wait for a match      one line at >= 1.0005
+  Times New Roman  Oldest tree on the waitlist  one line at >= 1.0010
+  Courier New      ACTIVE KEEPERS BY MONTH      one line at >= 1.0025
+  Courier New      median wait for a match      one line at >= 1.0025
+  Courier New      Oldest tree on the waitlist  one line at >= 1.0025
+  Georgia          ACTIVE KEEPERS BY MONTH      one line at >= 1.0030
+  Georgia          median wait for a match      one line at >= 1.0030
+  Georgia          Oldest tree on the waitlist  one line at >= 1.0025
+  Calibri          ACTIVE KEEPERS BY MONTH      one line at >= 0.9980
+  Calibri          median wait for a match      one line at >= 0.9985
+  Calibri          Oldest tree on the waitlist  one line at >= 0.9990
+  Cambria          ACTIVE KEEPERS BY MONTH      one line at >= 0.9990
+  Cambria          median wait for a match      one line at >= 0.9995
+  Cambria          Oldest tree on the waitlist  one line at >= 1.0000
+
+table cells: line bound = size x max(1.2, hhea) x line spacing + 0.01 mm; a row of n lines = n x line bound + 0.01 mm; rows = 1 line a row, rows2 = 2, br = 4 in one cell, LibreOffice 24.2.7.2 420(Build:2)
+  family           weight   size   ls kind  hhea em  pitch pt em/line  bound pt  slack pt
+  Arial            bold       10 1.00 rows   1.1499   11.1970  1.1197   12.0567    0.8597
+  Arial            bold       10 1.00 rows2  1.1499   22.3653  1.1183   24.0850    1.7197
+  Arial            bold       10 1.00 br     1.1499   11.1687  1.1169   12.0283    0.8597
+  Arial            bold       13 1.00 rows   1.1499   14.5417  1.1186   15.6567    1.1150
+  Arial            bold       13 1.00 rows2  1.1499   29.0550  1.1175   31.2850    2.2300
+  Arial            bold       13 1.00 br     1.1499   14.5133  1.1164   15.6283    1.1150
+  Arial            regular    13 1.00 rows   1.1499   14.5417  1.1186   15.6567    1.1150
+  Arial            regular    13 1.00 rows2  1.1499   29.0550  1.1175   31.2850    2.2300
+  Arial            regular    13 1.00 br     1.1499   14.5133  1.1164   15.6283    1.1150
+  Arial            regular    13 1.10 rows   1.1499   15.9877  1.1180   17.2167    1.2290
+  Arial            regular    13 1.10 rows2  1.1499   31.9467  1.1170   34.4050    2.4584
+  Arial            regular    13 1.10 br     1.1499   15.9593  1.1160   17.1883    1.2290
+  Arial            bold       14 1.00 rows   1.1499   15.7603  1.1257   16.8567    1.0964
+  Arial            bold       14 1.00 rows2  1.1499   31.4927  1.1247   33.6850    2.1924
+  Arial            bold       14 1.00 br     1.1499   15.7320  1.1237   16.8283    1.0963
+  Arial            bold       24 1.00 rows   1.1499   26.7877  1.1162   28.8567    2.0690
+  Arial            bold       24 1.00 rows2  1.1499   53.5467  1.1156   57.6850    4.1384
+  Arial            bold       24 1.00 br     1.1499   26.7593  1.1150   28.8283    2.0690
+  Arial            regular    24 1.00 rows   1.1499   26.7877  1.1162   28.8567    2.0690
+  Arial            regular    24 1.00 rows2  1.1499   53.5467  1.1156   57.6850    4.1384
+  Arial            regular    24 1.00 br     1.1499   26.7593  1.1150   28.8283    2.0690
+  Arial            regular    24 1.10 rows   1.1499   29.4520  1.1156   31.7367    2.2847
+  Arial            regular    24 1.10 rows2  1.1499   58.8757  1.1151   63.4450    4.5694
+  Arial            regular    24 1.10 br     1.1499   29.4237  1.1145   31.7083    2.2847
+  Arial            bold       48 1.00 rows   1.1499   53.6597  1.1179   57.6567    3.9970
+  Arial            bold       48 1.00 rows2  1.1499  107.2913  1.1176  115.2850    7.9937
+  Arial            bold       48 1.00 br     1.1499   53.6313  1.1173   57.6283    3.9970
+  Arial            regular    48 1.00 rows   1.1499   53.6597  1.1179   57.6567    3.9970
+  Arial            regular    48 1.00 rows2  1.1499  107.2913  1.1176  115.2850    7.9937
+  Arial            regular    48 1.00 br     1.1499   53.6313  1.1173   57.6283    3.9970
+  Times New Roman  bold       10 1.00 rows   1.1499   11.0553  1.1055   12.0567    1.0014
+  Times New Roman  bold       10 1.00 rows2  1.1499   22.0820  1.1041   24.0850    2.0030
+  Times New Roman  bold       10 1.00 br     1.1499   11.0270  1.1027   12.0283    1.0013
+  Times New Roman  bold       13 1.00 rows   1.1499   14.3150  1.1012   15.6567    1.3417
+  Times New Roman  bold       13 1.00 rows2  1.1499   28.6013  1.1001   31.2850    2.6837
+  Times New Roman  bold       13 1.00 br     1.1499   14.2867  1.0990   15.6283    1.3417
+  Times New Roman  regular    13 1.00 rows   1.1499   14.3150  1.1012   15.6567    1.3417
+  Times New Roman  regular    13 1.00 rows2  1.1499   28.6013  1.1001   31.2850    2.6837
+  Times New Roman  regular    13 1.00 br     1.1499   14.2867  1.0990   15.6283    1.3417
+  Times New Roman  regular    13 1.10 rows   1.1499   15.7323  1.1002   17.2167    1.4844
+  Times New Roman  regular    13 1.10 rows2  1.1499   31.4363  1.0992   34.4050    2.9687
+  Times New Roman  regular    13 1.10 br     1.1499   15.7040  1.0982   17.1883    1.4843
+  Times New Roman  bold       14 1.00 rows   1.1499   15.5057  1.1075   16.8567    1.3510
+  Times New Roman  bold       14 1.00 rows2  1.1499   30.9827  1.1065   33.6850    2.7024
+  Times New Roman  bold       14 1.00 br     1.1499   15.4773  1.1055   16.8283    1.3510
+  Times New Roman  bold       24 1.00 rows   1.1499   26.5607  1.1067   28.8567    2.2960
+  Times New Roman  bold       24 1.00 rows2  1.1499   53.0930  1.1061   57.6850    4.5920
+  Times New Roman  bold       24 1.00 br     1.1499   26.5323  1.1055   28.8283    2.2960
+  Times New Roman  regular    24 1.00 rows   1.1499   26.5607  1.1067   28.8567    2.2960
+  Times New Roman  regular    24 1.00 rows2  1.1499   53.0930  1.1061   57.6850    4.5920
+  Times New Roman  regular    24 1.00 br     1.1499   26.5323  1.1055   28.8283    2.2960
+  Times New Roman  regular    24 1.10 rows   1.1499   29.1970  1.1059   31.7367    2.5397
+  Times New Roman  regular    24 1.10 rows2  1.1499   58.3657  1.1054   63.4450    5.0794
+  Times New Roman  regular    24 1.10 br     1.1499   29.1687  1.1049   31.7083    2.5397
+  Times New Roman  bold       48 1.00 rows   1.1499   53.1780  1.1079   57.6567    4.4787
+  Times New Roman  bold       48 1.00 rows2  1.1499  106.3277  1.1076  115.2850    8.9574
+  Times New Roman  bold       48 1.00 br     1.1499   53.1497  1.1073   57.6283    4.4787
+  Times New Roman  regular    48 1.00 rows   1.1499   53.1780  1.1079   57.6567    4.4787
+  Times New Roman  regular    48 1.00 rows2  1.1499  106.3277  1.1076  115.2850    8.9574
+  Times New Roman  regular    48 1.00 br     1.1499   53.1497  1.1073   57.6283    4.4787
+  Courier New      bold       10 1.00 rows   1.1328   11.3103  1.1310   12.0567    0.7464
+  Courier New      bold       10 1.00 rows2  1.1328   22.5923  1.1296   24.0850    1.4927
+  Courier New      bold       10 1.00 br     1.1328   11.2820  1.1282   12.0283    0.7464
+  Courier New      bold       13 1.00 rows   1.1328   14.6550  1.1273   15.6567    1.0017
+  Courier New      bold       13 1.00 rows2  1.1328   29.2820  1.1262   31.2850    2.0030
+  Courier New      bold       13 1.00 br     1.1328   14.6267  1.1251   15.6283    1.0017
+  Courier New      regular    13 1.00 rows   1.1328   14.6550  1.1273   15.6567    1.0017
+  Courier New      regular    13 1.00 rows2  1.1328   29.2820  1.1262   31.2850    2.0030
+  Courier New      regular    13 1.00 br     1.1328   14.6267  1.1251   15.6283    1.0017
+  Courier New      regular    13 1.10 rows   1.1328   16.1007  1.1259   17.2167    1.1160
+  Courier New      regular    13 1.10 rows2  1.1328   32.1730  1.1249   34.4050    2.2320
+  Courier New      regular    13 1.10 br     1.1328   16.0723  1.1239   17.1883    1.1160
+  Courier New      bold       14 1.00 rows   1.1328   15.8740  1.1339   16.8567    0.9827
+  Courier New      bold       14 1.00 rows2  1.1328   31.7197  1.1328   33.6850    1.9654
+  Courier New      bold       14 1.00 br     1.1328   15.8457  1.1318   16.8283    0.9827
+  Courier New      bold       24 1.00 rows   1.1328   27.2693  1.1362   28.8567    1.5874
+  Courier New      bold       24 1.00 rows2  1.1328   54.5103  1.1356   57.6850    3.1747
+  Courier New      bold       24 1.00 br     1.1328   27.2410  1.1350   28.8283    1.5873
+  Courier New      regular    24 1.00 rows   1.1328   27.2693  1.1362   28.8567    1.5874
+  Courier New      regular    24 1.00 rows2  1.1328   54.5103  1.1356   57.6850    3.1747
+  Courier New      regular    24 1.00 br     1.1328   27.2410  1.1350   28.8283    1.5873
+  Courier New      regular    24 1.10 rows   1.1328   29.9907  1.1360   31.7367    1.7460
+  Courier New      regular    24 1.10 rows2  1.1328   59.9527  1.1355   63.4450    3.4924
+  Courier New      regular    24 1.10 br     1.1328   29.9623  1.1349   31.7083    1.7460
+  Courier New      bold       48 1.00 rows   1.1328   54.3967  1.1333   57.6567    3.2600
+  Courier New      bold       48 1.00 rows2  1.1328  108.7653  1.1330  115.2850    6.5197
+  Courier New      bold       48 1.00 br     1.1328   54.3683  1.1327   57.6283    3.2600
+  Courier New      regular    48 1.00 rows   1.1328   54.3967  1.1333   57.6567    3.2600
+  Courier New      regular    48 1.00 rows2  1.1328  108.7653  1.1330  115.2850    6.5197
+  Courier New      regular    48 1.00 br     1.1328   54.3683  1.1327   57.6283    3.2600
+  Georgia          bold       10 1.00 rows   1.2695   12.6427  1.2643   12.7520    0.1093
+  Georgia          bold       10 1.00 rows2  1.2695   25.2567  1.2628   25.4757    0.2190
+  Georgia          bold       10 1.00 br     1.2695   12.6140  1.2614   12.7237    0.1097
+  Georgia          bold       13 1.00 rows   1.2695   16.4690  1.2668   16.5606    0.0916
+  Georgia          bold       13 1.00 rows2  1.2695   32.9100  1.2658   33.0929    0.1828
+  Georgia          bold       13 1.00 br     1.2695   16.4407  1.2647   16.5323    0.0916
+  Georgia          regular    13 1.00 rows   1.2695   16.4690  1.2668   16.5606    0.0916
+  Georgia          regular    13 1.00 rows2  1.2695   32.9100  1.2658   33.0929    0.1828
+  Georgia          regular    13 1.00 br     1.2695   16.4407  1.2647   16.5323    0.0916
+  Georgia          regular    13 1.10 rows   1.2695   18.1133  1.2667   18.2110    0.0977
+  Georgia          regular    13 1.10 rows2  1.2695   36.1983  1.2657   36.3936    0.1953
+  Georgia          regular    13 1.10 br     1.2695   18.0850  1.2647   18.1826    0.0976
+  Georgia          bold       14 1.00 rows   1.2695   17.9150  1.2796   17.8301   -0.0849
+  Georgia          bold       14 1.00 rows2  1.2695   35.8013  1.2786   35.6319   -0.1694
+  Georgia          bold       14 1.00 br     1.2695   17.8867  1.2776   17.8018   -0.0849
+  Georgia          bold       24 1.00 rows   1.2695   30.5007  1.2709   30.5254    0.0248
+  Georgia          bold       24 1.00 rows2  1.2695   60.9730  1.2703   61.0225    0.0495
+  Georgia          bold       24 1.00 br     1.2695   30.4723  1.2697   30.4971    0.0248
+  Georgia          regular    24 1.00 rows   1.2695   30.5007  1.2709   30.5254    0.0248
+  Georgia          regular    24 1.00 rows2  1.2695   60.9730  1.2703   61.0225    0.0495
+  Georgia          regular    24 1.00 br     1.2695   30.4723  1.2697   30.4971    0.0248
+  Georgia          regular    24 1.10 rows   1.2695   33.5337  1.2702   33.5723    0.0387
+  Georgia          regular    24 1.10 rows2  1.2695   67.0393  1.2697   67.1163    0.0770
+  Georgia          regular    24 1.10 br     1.2695   33.5053  1.2691   33.5440    0.0386
+  Georgia          bold       48 1.00 rows   1.2695   61.0017  1.2709   60.9942   -0.0075
+  Georgia          bold       48 1.00 rows2  1.2695  121.9750  1.2706  121.9600   -0.0150
+  Georgia          bold       48 1.00 br     1.2695   60.9733  1.2703   60.9658   -0.0075
+  Georgia          regular    48 1.00 rows   1.2695   61.0017  1.2709   60.9942   -0.0075
+  Georgia          regular    48 1.00 rows2  1.2695  121.9750  1.2706  121.9600   -0.0150
+  Georgia          regular    48 1.00 br     1.2695   60.9733  1.2703   60.9658   -0.0075
+  Calibri          bold       10 1.00 rows   1.2207   12.1607  1.2161   12.2637    0.1030
+  Calibri          bold       10 1.00 rows2  1.2207   24.2927  1.2146   24.4991    0.2064
+  Calibri          bold       10 1.00 br     1.2207   12.1323  1.2132   12.2354    0.1030
+  Calibri          bold       13 1.00 rows   1.2207   15.8740  1.2211   15.9258    0.0518
+  Calibri          bold       13 1.00 rows2  1.2207   31.7197  1.2200   31.8233    0.1037
+  Calibri          bold       13 1.00 br     1.2207   15.8457  1.2189   15.8975    0.0518
+  Calibri          regular    13 1.00 rows   1.2207   15.8740  1.2211   15.9258    0.0518
+  Calibri          regular    13 1.00 rows2  1.2207   31.7197  1.2200   31.8233    0.1037
+  Calibri          regular    13 1.00 br     1.2207   15.8457  1.2189   15.8975    0.0518
+  Calibri          regular    13 1.10 rows   1.2207   17.4330  1.2191   17.5127    0.0797
+  Calibri          regular    13 1.10 rows2  1.2207   34.8377  1.2181   34.9971    0.1595
+  Calibri          regular    13 1.10 br     1.2207   17.4047  1.2171   17.4844    0.0797
+  Calibri          bold       14 1.00 rows   1.2207   17.0647  1.2189   17.1465    0.0819
+  Calibri          bold       14 1.00 rows2  1.2207   34.1007  1.2179   34.2647    0.1641
+  Calibri          bold       14 1.00 br     1.2207   17.0360  1.2169   17.1182    0.0822
+  Calibri          bold       24 1.00 rows   1.2207   29.3100  1.2213   29.3536    0.0436
+  Calibri          bold       24 1.00 rows2  1.2207   58.5920  1.2207   58.6788    0.0868
+  Calibri          bold       24 1.00 br     1.2207   29.2817  1.2201   29.3252    0.0436
+  Calibri          regular    24 1.00 rows   1.2207   29.3100  1.2213   29.3536    0.0436
+  Calibri          regular    24 1.00 rows2  1.2207   58.5920  1.2207   58.6788    0.0868
+  Calibri          regular    24 1.00 br     1.2207   29.2817  1.2201   29.3252    0.0436
+  Calibri          regular    24 1.10 rows   1.2207   32.2300  1.2208   32.2833    0.0533
+  Calibri          regular    24 1.10 rows2  1.2207   64.4317  1.2203   64.5382    0.1065
+  Calibri          regular    24 1.10 br     1.2207   32.2017  1.2198   32.2549    0.0532
+  Calibri          bold       48 1.00 rows   1.2207   58.5920  1.2207   58.6504    0.0584
+  Calibri          bold       48 1.00 rows2  1.2207  117.1560  1.2204  117.2725    0.1165
+  Calibri          bold       48 1.00 br     1.2207   58.5637  1.2201   58.6221    0.0584
+  Calibri          regular    48 1.00 rows   1.2207   58.5920  1.2207   58.6504    0.0584
+  Calibri          regular    48 1.00 rows2  1.2207  117.1560  1.2204  117.2725    0.1165
+  Calibri          regular    48 1.00 br     1.2207   58.5637  1.2201   58.6221    0.0584
+  Cambria          bold       10 1.00 rows   1.1500   11.5653  1.1565   12.0567    0.4914
+  Cambria          bold       10 1.00 rows2  1.1500   23.1023  1.1551   24.0850    0.9827
+  Cambria          bold       10 1.00 br     1.1500   11.5370  1.1537   12.0283    0.4913
+  Cambria          bold       13 1.00 rows   1.1500   14.9103  1.1469   15.6567    0.7464
+  Cambria          bold       13 1.00 rows2  1.1500   29.7923  1.1459   31.2850    1.4927
+  Cambria          bold       13 1.00 br     1.1500   14.8820  1.1448   15.6283    0.7463
+  Cambria          regular    13 1.00 rows   1.1500   14.9103  1.1469   15.6567    0.7464
+  Cambria          regular    13 1.00 rows2  1.1500   29.7923  1.1459   31.2850    1.4927
+  Cambria          regular    13 1.00 br     1.1500   14.8820  1.1448   15.6283    0.7463
+  Cambria          regular    13 1.10 rows   1.1500   16.3843  1.1458   17.2167    0.8324
+  Cambria          regular    13 1.10 rows2  1.1500   32.7403  1.1448   34.4050    1.6647
+  Cambria          regular    13 1.10 br     1.1500   16.3560  1.1438   17.1883    0.8323
+  Cambria          bold       14 1.00 rows   1.1500   16.1293  1.1521   16.8567    0.7274
+  Cambria          bold       14 1.00 rows2  1.1500   32.2300  1.1511   33.6850    1.4550
+  Cambria          bold       14 1.00 br     1.1500   16.1010  1.1501   16.8283    0.7274
+  Cambria          bold       24 1.00 rows   1.1500   27.6377  1.1516   28.8567    1.2190
+  Cambria          bold       24 1.00 rows2  1.1500   55.2473  1.1510   57.6850    2.4377
+  Cambria          bold       24 1.00 br     1.1500   27.6093  1.1504   28.8283    1.2190
+  Cambria          regular    24 1.00 rows   1.1500   27.6377  1.1516   28.8567    1.2190
+  Cambria          regular    24 1.00 rows2  1.1500   55.2473  1.1510   57.6850    2.4377
+  Cambria          regular    24 1.00 br     1.1500   27.6093  1.1504   28.8283    1.2190
+  Cambria          regular    24 1.10 rows   1.1500   30.3873  1.1510   31.7367    1.3494
+  Cambria          regular    24 1.10 rows2  1.1500   60.7463  1.1505   63.4450    2.6987
+  Cambria          regular    24 1.10 br     1.1500   30.3590  1.1500   31.7083    1.3493
+  Cambria          bold       48 1.00 rows   1.1500   55.2190  1.1504   57.6567    2.4377
+  Cambria          bold       48 1.00 rows2  1.1500  110.4093  1.1501  115.2850    4.8757
+  Cambria          bold       48 1.00 br     1.1500   55.1907  1.1498   57.6283    2.4377
+  Cambria          regular    48 1.00 rows   1.1500   55.2190  1.1504   57.6567    2.4377
+  Cambria          regular    48 1.00 rows2  1.1500  110.4093  1.1501  115.2850    4.8757
+  Cambria          regular    48 1.00 br     1.1500   55.1907  1.1498   57.6283    2.4377
+
+fallback advances: 10 characters at 24 pt; estimate = max(twin's maximum advance, missing_glyph_em = 1.49), LibreOffice 24.2.7.2 420(Build:2)
+  Arial            cjk    run     1.0478 em  estimate 1.4900 em     LiberationSans, NotoSansCJKsc-Regular
+  Arial            cjk    mixed   1.4782 em  estimate 1.4900 em     LiberationSans, NotoSansCJKsc-Regular
+  Arial            emoji  run     1.2452 em  estimate 1.4900 em     LiberationSans
+  Arial            emoji  mixed   1.2444 em  estimate 1.4900 em     LiberationSans
+  Arial            thai   run     0.5248 em  estimate 1.4900 em     FreeSerif, LiberationSans
+  Arial            thai   mixed   0.5239 em  estimate 1.4900 em     FreeSerif, LiberationSans
+  Times New Roman  cjk    run     1.0478 em  estimate 1.4900 em     LiberationSerif, NotoSansCJKsc-Regular
+  Times New Roman  cjk    mixed   1.4782 em  estimate 1.4900 em     LiberationSerif, NotoSansCJKsc-Regular
+  Times New Roman  emoji  run     1.2452 em  estimate 1.4900 em     LiberationSerif
+  Times New Roman  emoji  mixed   1.2444 em  estimate 1.4900 em     LiberationSerif
+  Times New Roman  thai   run     0.5248 em  estimate 1.4900 em     FreeSerif, LiberationSerif
+  Times New Roman  thai   mixed   0.5239 em  estimate 1.4900 em     FreeSerif, LiberationSerif
+  Courier New      cjk    run     1.0480 em  estimate 1.4900 em     LiberationMono, NotoSansCJKsc-Regular
+  Courier New      cjk    mixed   1.4798 em  estimate 1.4900 em     LiberationMono, NotoSansCJKsc-Regular
+  Courier New      emoji  run     1.2454 em  estimate 1.4900 em     LiberationMono
+  Courier New      emoji  mixed   1.2447 em  estimate 1.4900 em     LiberationMono
+  Courier New      thai   run     0.5250 em  estimate 1.4900 em     FreeSerif, LiberationMono
+  Courier New      thai   mixed   0.5255 em  estimate 1.4900 em     FreeSerif, LiberationMono
+  Georgia          cjk    run     1.0475 em  estimate 1.4900 em     Gelasio-Regular, NotoSansCJKsc-Regular
+  Georgia          cjk    mixed   1.4752 em  estimate 1.4900 em     Gelasio-Regular, NotoSansCJKsc-Regular
+  Georgia          emoji  run     1.2449 em  estimate 1.4900 em     Gelasio-Regular
+  Georgia          emoji  mixed   1.2444 em  estimate 1.4900 em     Gelasio-Regular
+  Georgia          thai   run     0.5245 em  estimate 1.4900 em     FreeSerif, Gelasio-Regular
+  Georgia          thai   mixed   0.5209 em  estimate 1.4900 em     FreeSerif, Gelasio-Regular
+  Calibri          cjk    run     1.0477 em  estimate 1.4900 em     Carlito-Regular, NotoSansCJKsc-Regular
+  Calibri          cjk    mixed   1.4770 em  estimate 1.4900 em     Carlito-Regular, NotoSansCJKsc-Regular
+  Calibri          emoji  run     1.2451 em  estimate 1.4900 em     Carlito-Regular
+  Calibri          emoji  mixed   1.2449 em  estimate 1.4900 em     Carlito-Regular
+  Calibri          thai   run     0.5247 em  estimate 1.4900 em     Carlito-Regular, FreeSerif
+  Calibri          thai   mixed   0.5226 em  estimate 1.4900 em     Carlito-Regular, FreeSerif
+  Cambria          cjk    run     1.0478 em  estimate 1.4900 em     Caladea-Regular, NotoSansCJKsc-Regular
+  Cambria          cjk    mixed   1.4784 em  estimate 1.4900 em     Caladea-Regular, NotoSansCJKsc-Regular
+  Cambria          emoji  run     1.2452 em  estimate 1.4900 em     Caladea-Regular
+  Cambria          emoji  mixed   1.2443 em  estimate 1.4900 em     Caladea-Regular
+  Cambria          thai   run     0.5248 em  estimate 1.4900 em     Caladea-Regular, FreeSerif
+  Cambria          thai   mixed   0.5241 em  estimate 1.4900 em     Caladea-Regular, FreeSerif
+  widest fallback advance: 1.4798 em
+
+line breaks before closing punctuation, bold Arial 48 pt (informational), LibreOffice 24.2.7.2 420(Build:2):
+  U+0029 )  space fits: kept with the word    |  space does not fit: breaks
+  U+005D ]  space fits: kept with the word    |  space does not fit: breaks
+  U+007D }  space fits: kept with the word    |  space does not fit: breaks
+  U+002C ,  space fits: kept with the word    |  space does not fit: breaks
+  U+002E .  space fits: kept with the word    |  space does not fit: breaks
+  U+003A :  space fits: kept with the word    |  space does not fit: breaks
+  U+003B ;  space fits: kept with the word    |  space does not fit: breaks
+  U+0021 !  space fits: kept with the word    |  space does not fit: breaks
+  U+003F ?  space fits: kept with the word    |  space does not fit: breaks
+  U+002F /  space fits: kept with the word    |  space does not fit: breaks
+  U+0025 %  space fits: breaks                |  space does not fit: breaks
+  U+2030 ‰  space fits: breaks                |  space does not fit: breaks
+  U+00BB »  space fits: breaks                |  space does not fit: breaks
+  U+201D ”  space fits: breaks                |  space does not fit: breaks
+  U+2019 ’  space fits: breaks                |  space does not fit: breaks
+
+verdict (amendment B-21):
+  (a) no stress case wraps at 1/0.99 = 1.0101: 420 cases, 0 wrap: HOLDS
+  (b) every pitch <= size x 1.2 x line spacing + 0.01 mm (0.0283 pt): 198 probes, smallest slack 0.0000 pt: HOLDS
+
+verdict (amendment B-22):
+  (c) every table line <= size x max(1.2, hhea) x line spacing + 0.01 mm, every row <= its lines + 0.01 mm: 180 probes, smallest slack -0.1694 pt: FAILS
+      over: (('Georgia', 'bold', 14.0, 1.0, 'rows'), 'pitch 17.9150 > bound 17.8301')
+      over: (('Georgia', 'bold', 14.0, 1.0, 'rows2'), 'pitch 35.8013 > bound 35.6319')
+      over: (('Georgia', 'bold', 14.0, 1.0, 'br'), 'pitch 17.8867 > bound 17.8018')
+      over: (('Georgia', 'bold', 48.0, 1.0, 'rows'), 'pitch 61.0017 > bound 60.9942')
+      over: (('Georgia', 'bold', 48.0, 1.0, 'rows2'), 'pitch 121.9750 > bound 121.9600')
+      over: (('Georgia', 'bold', 48.0, 1.0, 'br'), 'pitch 60.9733 > bound 60.9658')
+      over: (('Georgia', 'regular', 48.0, 1.0, 'rows'), 'pitch 61.0017 > bound 60.9942')
+      over: (('Georgia', 'regular', 48.0, 1.0, 'rows2'), 'pitch 121.9750 > bound 121.9600')
+      over: (('Georgia', 'regular', 48.0, 1.0, 'br'), 'pitch 60.9733 > bound 60.9658')
+  (d) every fallback advance <= max(maximum advance, missing_glyph_em): 36 probes, widest 1.4798 em: HOLDS
