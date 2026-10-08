@@ -11,6 +11,7 @@ this package.
 
 from __future__ import annotations
 
+import functools
 import itertools
 import json
 import re
@@ -126,6 +127,18 @@ LINE_ALLOWANCE_PT = Fraction(72, 2540)  # 0.01 mm per line, LibreOffice's layout
 BELOW_BASELINE_EM = Fraction(1, 5)
 # a table row: LibreOffice rounds each row up by one more unit (26.8.0.3, A2 fixes)
 ROW_ALLOWANCE_PT = LINE_ALLOWANCE_PT
+
+
+@functools.cache
+def cell_data() -> tuple[Fraction, Fraction]:
+    """(each cell line's allowance in pt, missing_line_em), from thresholds.toml
+    (B-25 item 6)."""
+    from keyline.config import load as load_config
+
+    config = load_config()
+    return config.cell_line_allowance_mm * Fraction(72, 254) * 10, config.missing_line_em
+
+
 EMU_PER_PT = 12700
 
 
@@ -164,10 +177,19 @@ class Setting:
 
     @property
     def cell_pitch(self) -> Fraction:
-        """A line's pitch in a table cell (B-22 item 5): LibreOffice 24.2.7.2 sets cells at
-        the twin's hhea line height where that exceeds 1.2 em (audit 05)."""
+        """A line's pitch in a table cell (B-22 item 5, B-25 item 6): LibreOffice 24.2.7.2
+        sets cells at the twin's hhea line height where that exceeds 1.2 em (audit 05), and
+        each cell line gets `cell_line_allowance_mm`, the largest excess measured."""
+        return self.cell_line_pitch(fallback=False)
+
+    def cell_line_pitch(self, fallback: bool) -> Fraction:
+        """A table cell's line pitch; `fallback`: the cell has a glyph the twin lacks, set
+        in a fallback font, so its lines take at least `missing_line_em` (B-25 item 6)."""
+        allowance_pt, missing_line_em = cell_data()
         em = max(self.table.line_pitch_em, self.table.hhea_line_em)
-        return self.size * em * self.line_spacing + LINE_ALLOWANCE_PT
+        if fallback:
+            em = max(em, missing_line_em)
+        return self.size * em * self.line_spacing + allowance_pt
 
 
 def as_set(setting: Setting, text: str) -> str:

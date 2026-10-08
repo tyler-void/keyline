@@ -70,6 +70,15 @@ portable_fonts = [
 # glyph between Latin letters, 1.4805 em (Asian/Latin spacing on both sides); a CJK run
 # 1.0480, emoji 1.2454, Thai 0.5710. B-22 item 7: the larger over every version measured.
 missing_glyph_em = 1.49
+# spec 002 B-25 item 6, in table cells (tools/measure_lo.py, criteria (c) and (e)):
+# - each cell line's allowance over size x max(1.2, hhea) x line spacing: the largest excess
+#   measured on any version, rounded up to 0.01 mm: 0.05 mm on 24.2.7.2 (audit 06; a row of
+#   one Georgia bold 14 pt line, its row unit included), 0.02 mm on 26.8.0.3;
+# - a cell line with a fallback glyph is set at least this many em: 24.2.7.2 sets it at
+#   max(1.2, the hhea of the fallback font), here Noto Sans CJK 1.448, Noto Sans Thai 1.511
+#   and Noto Color Emoji 1.172 (audit 06 measured about 1.42 for CJK); 26.8.0.3 at 1.2.
+cell_line_allowance_mm = 0.05
+missing_line_em = 1.52
 
 [presented]
 body_min_pt = 18

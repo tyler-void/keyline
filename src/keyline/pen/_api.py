@@ -666,15 +666,18 @@ class SlideBuilder:
         widths = [n * region_w / sum(natural) for n in natural]
         heights = []
         for i, row in enumerate(rows):
-            lines = 0
+            lines, fallback = 0, False
             for c, cell in enumerate(row):
                 self._deck._note_missing(settings[i], cell)
+                fallback = fallback or bool(missing(settings[i], cell))
                 if cell.strip():
                     lines = max(
                         lines, len(wrap(settings[i], cell, widths[c] - left - right, "table cell"))
                     )
-            # B-22 item 5: cell lines at max(1.2, hhea); one more 0.01 mm per row
-            heights.append(max(lines, 1) * settings[i].cell_pitch + ROW_ALLOWANCE_PT + top + bottom)
+            # B-22 item 5, B-25 item 6: cell lines at max(1.2, hhea, and missing_line_em for a
+            # row with a fallback glyph) plus the cell allowance; one more 0.01 mm per row
+            pitch = settings[i].cell_line_pitch(fallback)
+            heights.append(max(lines, 1) * pitch + ROW_ALLOWANCE_PT + top + bottom)
         region_h = Fraction(region_box.h, EMU_PER_PT)
         if sum(heights) > region_h:
             raise DoesNotFit(

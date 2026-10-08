@@ -22,6 +22,10 @@ What it measures:
   LibreOffice grows each row to its text: four one-line rows, four two-line rows, and one
   cell of four lines (line breaks), at every (size, line spacing, weight) of the Swiss
   table styles and at 13, 24 and 48 pt with spacing 1.0;
+- cells with fallback text (FX-28): the same table probes with "H" and three CJK, emoji or
+  Thai characters per line, per family, at 13 and 24 pt; and, informational, the hhea line
+  height of the font fontconfig picks for each fallback script (24.2.7.2 sets a cell line
+  at max(1.2, that font's hhea), audit 06);
 - fallback advances (FX-19): ten CJK, emoji and Thai characters between two "H" (a run),
   and the same ten each between two "H" (mixed: LibreOffice adds space where Latin meets
   Asian text), per family, at 24 pt; a character's cost is the distance from the first
@@ -36,10 +40,13 @@ else 2:
   (a) no stress case wraps at 1/0.99, the widest box the estimator accepts;
   (b) every measured pitch ≤ size × 1.2 × line spacing + 0.01 mm (LibreOffice's unit);
   (c) in table cells, every line pitch ≤ size × max(1.2, the twin's hhea line height) ×
-      line spacing + 0.01 mm (B-22 item 5), and every row ≤ its lines at that pitch plus
-      0.01 mm (LibreOffice rounds each row up once more);
+      line spacing + `cell_line_allowance_mm` (B-25 item 6), and every row ≤ its lines at
+      that pitch plus 0.01 mm (LibreOffice rounds each row up once more); the script also
+      prints the largest per-line excess this version needs;
   (d) every fallback advance ≤ the estimate for a missing glyph, max(the twin's maximum
-      advance, `missing_glyph_em` of thresholds.toml) (B-22 item 6).
+      advance, `missing_glyph_em` of thresholds.toml) (B-22 item 6);
+  (e) in table cells, every line with a fallback glyph ≤ size × max(1.2, hhea,
+      `missing_line_em`) × line spacing + `cell_line_allowance_mm` (B-25 item 6).
 Every number printed is tagged with the `soffice --version` that produced it.
 """
 
@@ -49,6 +56,7 @@ import ctypes
 import datetime as dt
 import io
 import itertools
+import math
 import platform
 import shutil
 import subprocess
@@ -90,6 +98,8 @@ FALLBACK = {  # name: one character the twins lack (as code points: the source s
     "thai": chr(0x0E2A),
 }
 FALLBACK_SIZE, FALLBACK_COUNT = 24, 10
+CELL_FALLBACK_SIZES = (13.0, 24.0)
+MM_PT = 72 / 25.4
 LB13_FIRST = "plan build ship measure learn repeat"
 LB13_SIZE = 48
 PEN_LANG = "en-US"  # the run language the pen writes
@@ -313,6 +323,48 @@ def build_table(families):
     return _bytes(prs), probes
 
 
+def build_cell_fallback(families):
+    """Cells whose lines carry fallback glyphs (FX-28): rows of one line, and one cell of
+    four lines, per family, script and size."""
+    from pptx.util import Emu
+
+    prs, probes = _deck(), []
+    for family, _twin in families:
+        for name, ch in FALLBACK.items():
+            for size in CELL_FALLBACK_SIZES:
+                for kind in ("rows", "br"):
+                    n = 1 if kind == "br" else 4
+                    slide = prs.slides.add_slide(prs.slide_layouts[6])
+                    frame = slide.shapes.add_table(
+                        n, 1, Emu(72 * EMU_PER_PT), Emu(36 * EMU_PER_PT),
+                        Emu(800 * EMU_PER_PT), Emu(n * EMU_PER_PT),
+                    )  # fmt: skip
+                    for r in range(n):
+                        frame.table.rows[r].height = Emu(EMU_PER_PT)
+                        cell = frame.table.cell(r, 0)
+                        cell.margin_left = cell.margin_right = 0
+                        cell.margin_top = cell.margin_bottom = 0
+                        line = "H" + ch * 3
+                        cell.text_frame.text = "\v".join([line] * (4 if kind == "br" else 1))
+                        _style(cell.text_frame.paragraphs[0], family, size, False, 0, 1.0, PEN_LANG)
+                    probes.append((family, name, size, kind))
+    return _bytes(prs), probes
+
+
+def fallback_hhea() -> dict[str, tuple[str, float]]:
+    """Per fallback script, the font fontconfig picks for it and its hhea line height."""
+    from fontTools.ttLib import TTFont
+
+    out = {}
+    for name, ch in FALLBACK.items():
+        path = fc_match(f"Arial:charset={ord(ch):x}", "%{file}")
+        font = TTFont(path, fontNumber=0)
+        hhea = font["hhea"]
+        em = (hhea.ascent - hhea.descent + hhea.lineGap) / font["head"].unitsPerEm
+        out[name] = (Path(path).name, em)
+    return out
+
+
 def build_fallback(families):
     """Ten characters of each fallback script in a row, per family (FX-19)."""
     prs, probes = _deck(), []
@@ -443,6 +495,7 @@ def main(argv: list[str]) -> int:
     stress_bytes, stress_probes = build_stress(families)
     table_bytes, table_probes = build_table(families)
     fallback_bytes, fallback_probes = build_fallback(families)
+    cellfb_bytes, cellfb_probes = build_cell_fallback(families)
     lb13_bytes, lb13_probes = build_lb13()
     with tempfile.TemporaryDirectory(prefix="keyline-measure-") as tmp:
         tmp_dir = Path(tmp)
@@ -451,12 +504,14 @@ def main(argv: list[str]) -> int:
         stress_pages = convert(tmp_dir, "stress", stress_bytes, soffice)
         table_pages = convert(tmp_dir, "table", table_bytes, soffice)
         fallback_pages = convert(tmp_dir, "fallback", fallback_bytes, soffice, origins=True)
+        cellfb_pages = convert(tmp_dir, "cellfb", cellfb_bytes, soffice)
         lb13_pages = convert(tmp_dir, "lb13", lb13_bytes, soffice, origins=True)
     for probes, pages in (
         (pitch_probes, pitch_pages),
         (scan_probes, scan_pages),
         (table_probes, table_pages),
         (fallback_probes, fallback_pages),
+        (cellfb_probes, cellfb_pages),
         (lb13_probes, lb13_pages),
     ):
         if len(pages) != len(probes):
@@ -523,18 +578,21 @@ def main(argv: list[str]) -> int:
         where = f">= {min(one):.4f}" if one else f"> {float(SCAN[-1]):.4f}"
         out.append(f"  {family:<16} {label:<28} one line at {where}")
 
-    # ---- table-cell pitch (B-22 item 5) -------------------------------------------------
+    # ---- table-cell pitch (B-22 item 5, B-25 item 6) ---------------------------------------
+    config = load_config()
+    cell_mm, line_em = config.cell_line_allowance_mm, config.missing_line_em
+    cell_pt = float(cell_mm) * MM_PT
     out += [
         "",
-        "table cells: line bound = size x max(1.2, hhea) x line spacing + 0.01 mm; a row of n"
-        f" lines = n x line bound + 0.01 mm; rows = 1 line a row, rows2 = 2, br = 4 in one cell,"
-        f" {version}",
+        "table cells: line bound = size x max(1.2, hhea) x line spacing + cell_line_allowance_mm"
+        f" ({float(cell_mm):.2f} mm); a row of n lines = n x line bound + 0.01 mm; rows = 1 line"
+        f" a row, rows2 = 2, br = 4 in one cell, {version}",
     ]
     out.append(
         f"  {'family':<16} {'weight':<7} {'size':>5} {'ls':>4} {'kind':<5} {'hhea em':>7}"
         f" {'pitch pt':>9} {'em/line':>7} {'bound pt':>9} {'slack pt':>9}"
     )
-    table_bad, table_slack = [], None
+    table_bad, table_slack, excess_max = [], None, 0.0
     for probe, (ys, _fonts, _h) in zip(table_probes, table_pages, strict=True):
         family, weight, size, ls, kind = probe
         per_row = {"rows": 1, "rows2": 2, "br": 4}[kind]
@@ -542,14 +600,20 @@ def main(argv: list[str]) -> int:
             table_bad.append((probe, f"{len(ys)} lines"))
             continue
         hhea = hhea_em(family, weight)
-        line_bound = size * max(PITCH_EM, hhea) * ls + UNIT_PT
+        line_bound = size * max(PITCH_EM, hhea) * ls + cell_pt
         if kind == "br":  # line pitch inside one cell
             pitch = sum(a - b for a, b in itertools.pairwise(ys)) / 3
             bound = line_bound
+            lines_in = 1
         else:  # row pitch: the first baselines of consecutive rows
             firsts = ys[::per_row]
             pitch = sum(a - b for a, b in itertools.pairwise(firsts)) / 3
             bound = per_row * line_bound + UNIT_PT
+            lines_in = per_row
+        # B-25 item 6: the excess per line over size x em x spacing (a row's unit included)
+        excess_max = max(
+            excess_max, (pitch - lines_in * size * max(PITCH_EM, hhea) * ls) / lines_in
+        )
         slack = bound - pitch
         table_slack = slack if table_slack is None else min(table_slack, slack)
         if slack < 0:
@@ -559,6 +623,39 @@ def main(argv: list[str]) -> int:
             f" {pitch:>9.4f} {pitch / size / ls / (1 if kind == 'br' else per_row):>7.4f}"
             f" {bound:>9.4f} {slack:>9.4f}"
         )
+
+    needed = math.ceil(round(excess_max / MM_PT, 6) * 100) / 100
+    out.append(
+        f"  largest excess per cell line: {excess_max:.4f} pt = {excess_max / MM_PT:.4f} mm, "
+        f"so this version needs cell_line_allowance_mm >= {needed:.2f}"
+    )
+
+    # ---- cells with fallback glyphs (B-25 item 6) -----------------------------------------
+    hheas = fallback_hhea()
+    out += [
+        "",
+        f"cells with fallback glyphs: line bound = size x max(1.2, hhea, missing_line_em ="
+        f" {float(line_em):.2f}) + {float(cell_mm):.2f} mm; rows bound + 0.01 mm, {version}",
+        "  fallback fonts (24.2.7.2 sets a cell line at max(1.2, the hhea of its font)): "
+        + ", ".join(f"{n} {f} {em:.4f} em" for n, (f, em) in hheas.items()),
+    ]
+    cellfb_bad, cellfb_em = [], 0.0
+    for probe, (ys, _fonts, _h) in zip(cellfb_probes, cellfb_pages, strict=True):
+        family, name, size, kind = probe
+        if len(ys) != 4:
+            cellfb_bad.append((probe, f"{len(ys)} lines"))
+            continue
+        em = max(PITCH_EM, hhea_em(family, "regular"), float(line_em))
+        pitch = sum(a - b for a, b in itertools.pairwise(ys)) / 3
+        bound = size * em + cell_pt + (UNIT_PT if kind == "rows" else 0)
+        cellfb_em = max(cellfb_em, pitch / size)
+        if pitch > bound:
+            cellfb_bad.append((probe, f"pitch {pitch:.4f} > bound {bound:.4f}"))
+        out.append(
+            f"  {family:<16} {name:<6} {size:>5g} {kind:<5} {pitch:>9.4f} pt "
+            f"{pitch / size:>7.4f} em  bound {bound:>9.4f}"
+        )
+    out.append(f"  widest fallback cell line: {cellfb_em:.4f} em")
 
     # ---- fallback advances (B-22 item 6) ------------------------------------------------
     missing_em = load_config().values.get("missing_glyph_em")
@@ -606,7 +703,7 @@ def main(argv: list[str]) -> int:
 
     # ---- verdict (B-21, B-22) -----------------------------------------------------------
     a_ok, b_ok = not wrap_bad, not pitch_bad
-    c_ok, d_ok = not table_bad, not fallback_bad
+    c_ok, d_ok, e_ok = not table_bad, not fallback_bad, not cellfb_bad
     out += ["", "verdict (amendment B-21):"]
     out.append(
         f"  (a) no stress case wraps at 1/0.99 = {MARGIN:.4f}: {len(cases)} cases, "
@@ -621,10 +718,10 @@ def main(argv: list[str]) -> int:
     )
     for bad in pitch_bad:
         out.append(f"      over: {bad}")
-    out += ["", "verdict (amendment B-22):"]
+    out += ["", "verdict (amendments B-22, B-25):"]
     out.append(
-        f"  (c) every table line <= size x max(1.2, hhea) x line spacing + 0.01 mm, every row"
-        f" <= its lines + 0.01 mm: "
+        f"  (c) every table line <= size x max(1.2, hhea) x line spacing + {float(cell_mm):.2f} mm,"
+        f" every row <= its lines + 0.01 mm: "
         f"{len(table_probes)} probes, smallest slack {table_slack:.4f} pt: "
         f"{'HOLDS' if c_ok else 'FAILS'}"
     )
@@ -636,11 +733,18 @@ def main(argv: list[str]) -> int:
     )
     for bad in fallback_bad:
         out.append(f"      over: {bad}")
+    out.append(
+        f"  (e) every cell line with fallback glyphs <= size x max(1.2, hhea, missing_line_em) +"
+        f" cell allowance: {len(cellfb_probes)} probes, widest {cellfb_em:.4f} em: "
+        f"{'HOLDS' if e_ok else 'FAILS'}"
+    )
+    for bad in cellfb_bad:
+        out.append(f"      over: {bad}")
     text = "\n".join(out) + "\n"
     print(text, end="")
     if len(argv) > 1:
         Path(argv[1]).write_text(text, encoding="utf-8")
-    return 0 if a_ok and b_ok and c_ok and d_ok else 2
+    return 0 if a_ok and b_ok and c_ok and d_ok and e_ok else 2
 
 
 if __name__ == "__main__":

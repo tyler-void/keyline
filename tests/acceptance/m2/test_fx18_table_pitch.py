@@ -11,7 +11,14 @@ from fractions import Fraction
 import pytest
 
 from keyline.config import load as load_config
-from keyline.fit import LINE_ALLOWANCE_PT, ROW_ALLOWANCE_PT, WEIGHTS, Setting, load_table
+from keyline.fit import (
+    LINE_ALLOWANCE_PT,
+    ROW_ALLOWANCE_PT,
+    WEIGHTS,
+    Setting,
+    cell_data,
+    load_table,
+)
 from keyline.packs import resolve
 from tests.acceptance.m2 import _lo
 
@@ -38,10 +45,11 @@ def test_the_tables_store_the_hhea_line_height(family, weight):
 
 def test_cell_pitch():
     georgia = Setting("Georgia", "regular", Fraction(24), line_spacing=Fraction(11, 10))
-    assert georgia.cell_pitch == 24 * HHEA["Georgia"] * Fraction(11, 10) + LINE_ALLOWANCE_PT
+    allowance = cell_data()[0]  # B-25 item 6: 0.05 mm, the largest excess measured (FX-31)
+    assert georgia.cell_pitch == 24 * HHEA["Georgia"] * Fraction(11, 10) + allowance
     assert georgia.cell_pitch > georgia.pitch
     arial = Setting("Arial", "regular", Fraction(24), line_spacing=Fraction(11, 10))
-    assert arial.cell_pitch == arial.pitch  # its hhea (1.1499) is under 1.2
+    assert arial.cell_pitch == arial.pitch - LINE_ALLOWANCE_PT + allowance  # hhea 1.1499 < 1.2
     assert ROW_ALLOWANCE_PT == LINE_ALLOWANCE_PT
 
 

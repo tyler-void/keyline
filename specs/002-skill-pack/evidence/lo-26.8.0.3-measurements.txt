@@ -1,6 +1,6 @@
 # LibreOffice measurements for spec 002 amendments B-7, B-21 and B-22 (T-20; A2 fixes)
 version: LibreOffice 26.8.0.3 680(Build:3)
-date: 2026-09-29  keyline 0.1.0  Linux-7.2.4-zen2-1-zen-x86_64-with-glibc2.44
+date: 2026-10-08  keyline 0.1.0  Linux-7.2.4-zen2-1-zen-x86_64-with-glibc2.44
 
 fc-match (probes name the portable family; fontconfig picks the twin):
   Arial            -> Liberation Sans    twin Liberation Sans    ok
@@ -655,188 +655,265 @@ one-line threshold of bold 14 pt labels (informational), LibreOffice 26.8.0.3 68
   Cambria          median wait for a match      one line at >= 1.0000
   Cambria          Oldest tree on the waitlist  one line at >= 1.0000
 
-table cells: line bound = size x max(1.2, hhea) x line spacing + 0.01 mm; a row of n lines = n x line bound + 0.01 mm; rows = 1 line a row, rows2 = 2, br = 4 in one cell, LibreOffice 26.8.0.3 680(Build:3)
+table cells: line bound = size x max(1.2, hhea) x line spacing + cell_line_allowance_mm (0.05 mm); a row of n lines = n x line bound + 0.01 mm; rows = 1 line a row, rows2 = 2, br = 4 in one cell, LibreOffice 26.8.0.3 680(Build:3)
   family           weight   size   ls kind  hhea em  pitch pt em/line  bound pt  slack pt
-  Arial            bold       10 1.00 rows   1.1499   12.0473  1.2047   12.0567    0.0094
-  Arial            bold       10 1.00 rows2  1.1499   24.0663  1.2033   24.0850    0.0187
-  Arial            bold       10 1.00 br     1.1499   12.0190  1.2019   12.0283    0.0094
-  Arial            bold       13 1.00 rows   1.1499   15.6473  1.2036   15.6567    0.0094
-  Arial            bold       13 1.00 rows2  1.1499   31.2660  1.2025   31.2850    0.0190
-  Arial            bold       13 1.00 br     1.1499   15.6190  1.2015   15.6283    0.0093
-  Arial            regular    13 1.00 rows   1.1499   15.6473  1.2036   15.6567    0.0094
-  Arial            regular    13 1.00 rows2  1.1499   31.2660  1.2025   31.2850    0.0190
-  Arial            regular    13 1.00 br     1.1499   15.6190  1.2015   15.6283    0.0093
-  Arial            regular    13 1.10 rows   1.1499   17.2063  1.2032   17.2167    0.0104
-  Arial            regular    13 1.10 rows2  1.1499   34.3843  1.2022   34.4050    0.0207
-  Arial            regular    13 1.10 br     1.1499   17.1780  1.2013   17.1883    0.0103
-  Arial            bold       14 1.00 rows   1.1499   16.8380  1.2027   16.8567    0.0187
-  Arial            bold       14 1.00 rows2  1.1499   33.6473  1.2017   33.6850    0.0377
-  Arial            bold       14 1.00 br     1.1499   16.8093  1.2007   16.8283    0.0190
-  Arial            bold       24 1.00 rows   1.1499   28.8283  1.2012   28.8567    0.0284
-  Arial            bold       24 1.00 rows2  1.1499   57.6283  1.2006   57.6850    0.0567
-  Arial            bold       24 1.00 br     1.1499   28.8000  1.2000   28.8283    0.0283
-  Arial            regular    24 1.00 rows   1.1499   28.8283  1.2012   28.8567    0.0284
-  Arial            regular    24 1.00 rows2  1.1499   57.6283  1.2006   57.6850    0.0567
-  Arial            regular    24 1.00 br     1.1499   28.8000  1.2000   28.8283    0.0283
-  Arial            regular    24 1.10 rows   1.1499   31.6913  1.2004   31.7367    0.0454
-  Arial            regular    24 1.10 rows2  1.1499   63.3543  1.1999   63.4450    0.0907
-  Arial            regular    24 1.10 br     1.1499   31.6630  1.1994   31.7083    0.0454
-  Arial            bold       48 1.00 rows   1.1499   57.6283  1.2006   57.6567    0.0284
-  Arial            bold       48 1.00 rows2  1.1499  115.2283  1.2003  115.2850    0.0567
-  Arial            bold       48 1.00 br     1.1499   57.6000  1.2000   57.6283    0.0284
-  Arial            regular    48 1.00 rows   1.1499   57.6283  1.2006   57.6567    0.0284
-  Arial            regular    48 1.00 rows2  1.1499  115.2283  1.2003  115.2850    0.0567
-  Arial            regular    48 1.00 br     1.1499   57.6000  1.2000   57.6283    0.0284
-  Times New Roman  bold       10 1.00 rows   1.1499   12.0473  1.2047   12.0567    0.0094
-  Times New Roman  bold       10 1.00 rows2  1.1499   24.0663  1.2033   24.0850    0.0187
-  Times New Roman  bold       10 1.00 br     1.1499   12.0190  1.2019   12.0283    0.0094
-  Times New Roman  bold       13 1.00 rows   1.1499   15.6473  1.2036   15.6567    0.0094
-  Times New Roman  bold       13 1.00 rows2  1.1499   31.2660  1.2025   31.2850    0.0190
-  Times New Roman  bold       13 1.00 br     1.1499   15.6190  1.2015   15.6283    0.0093
-  Times New Roman  regular    13 1.00 rows   1.1499   15.6473  1.2036   15.6567    0.0094
-  Times New Roman  regular    13 1.00 rows2  1.1499   31.2660  1.2025   31.2850    0.0190
-  Times New Roman  regular    13 1.00 br     1.1499   15.6190  1.2015   15.6283    0.0093
-  Times New Roman  regular    13 1.10 rows   1.1499   17.2063  1.2032   17.2167    0.0104
-  Times New Roman  regular    13 1.10 rows2  1.1499   34.3843  1.2022   34.4050    0.0207
-  Times New Roman  regular    13 1.10 br     1.1499   17.1780  1.2013   17.1883    0.0103
-  Times New Roman  bold       14 1.00 rows   1.1499   16.8380  1.2027   16.8567    0.0187
-  Times New Roman  bold       14 1.00 rows2  1.1499   33.6473  1.2017   33.6850    0.0377
-  Times New Roman  bold       14 1.00 br     1.1499   16.8093  1.2007   16.8283    0.0190
-  Times New Roman  bold       24 1.00 rows   1.1499   28.8283  1.2012   28.8567    0.0284
-  Times New Roman  bold       24 1.00 rows2  1.1499   57.6283  1.2006   57.6850    0.0567
-  Times New Roman  bold       24 1.00 br     1.1499   28.8000  1.2000   28.8283    0.0283
-  Times New Roman  regular    24 1.00 rows   1.1499   28.8283  1.2012   28.8567    0.0284
-  Times New Roman  regular    24 1.00 rows2  1.1499   57.6283  1.2006   57.6850    0.0567
-  Times New Roman  regular    24 1.00 br     1.1499   28.8000  1.2000   28.8283    0.0283
-  Times New Roman  regular    24 1.10 rows   1.1499   31.6913  1.2004   31.7367    0.0454
-  Times New Roman  regular    24 1.10 rows2  1.1499   63.3543  1.1999   63.4450    0.0907
-  Times New Roman  regular    24 1.10 br     1.1499   31.6630  1.1994   31.7083    0.0454
-  Times New Roman  bold       48 1.00 rows   1.1499   57.6283  1.2006   57.6567    0.0284
-  Times New Roman  bold       48 1.00 rows2  1.1499  115.2283  1.2003  115.2850    0.0567
-  Times New Roman  bold       48 1.00 br     1.1499   57.6000  1.2000   57.6283    0.0284
-  Times New Roman  regular    48 1.00 rows   1.1499   57.6283  1.2006   57.6567    0.0284
-  Times New Roman  regular    48 1.00 rows2  1.1499  115.2283  1.2003  115.2850    0.0567
-  Times New Roman  regular    48 1.00 br     1.1499   57.6000  1.2000   57.6283    0.0284
-  Courier New      bold       10 1.00 rows   1.1328   12.0473  1.2047   12.0567    0.0094
-  Courier New      bold       10 1.00 rows2  1.1328   24.0663  1.2033   24.0850    0.0187
-  Courier New      bold       10 1.00 br     1.1328   12.0190  1.2019   12.0283    0.0094
-  Courier New      bold       13 1.00 rows   1.1328   15.6473  1.2036   15.6567    0.0094
-  Courier New      bold       13 1.00 rows2  1.1328   31.2660  1.2025   31.2850    0.0190
-  Courier New      bold       13 1.00 br     1.1328   15.6190  1.2015   15.6283    0.0093
-  Courier New      regular    13 1.00 rows   1.1328   15.6473  1.2036   15.6567    0.0094
-  Courier New      regular    13 1.00 rows2  1.1328   31.2660  1.2025   31.2850    0.0190
-  Courier New      regular    13 1.00 br     1.1328   15.6190  1.2015   15.6283    0.0093
-  Courier New      regular    13 1.10 rows   1.1328   17.2063  1.2032   17.2167    0.0104
-  Courier New      regular    13 1.10 rows2  1.1328   34.3843  1.2022   34.4050    0.0207
-  Courier New      regular    13 1.10 br     1.1328   17.1780  1.2013   17.1883    0.0103
-  Courier New      bold       14 1.00 rows   1.1328   16.8380  1.2027   16.8567    0.0187
-  Courier New      bold       14 1.00 rows2  1.1328   33.6473  1.2017   33.6850    0.0377
-  Courier New      bold       14 1.00 br     1.1328   16.8093  1.2007   16.8283    0.0190
-  Courier New      bold       24 1.00 rows   1.1328   28.8283  1.2012   28.8567    0.0284
-  Courier New      bold       24 1.00 rows2  1.1328   57.6283  1.2006   57.6850    0.0567
-  Courier New      bold       24 1.00 br     1.1328   28.8000  1.2000   28.8283    0.0283
-  Courier New      regular    24 1.00 rows   1.1328   28.8283  1.2012   28.8567    0.0284
-  Courier New      regular    24 1.00 rows2  1.1328   57.6283  1.2006   57.6850    0.0567
-  Courier New      regular    24 1.00 br     1.1328   28.8000  1.2000   28.8283    0.0283
-  Courier New      regular    24 1.10 rows   1.1328   31.6913  1.2004   31.7367    0.0454
-  Courier New      regular    24 1.10 rows2  1.1328   63.3543  1.1999   63.4450    0.0907
-  Courier New      regular    24 1.10 br     1.1328   31.6630  1.1994   31.7083    0.0454
-  Courier New      bold       48 1.00 rows   1.1328   57.6283  1.2006   57.6567    0.0284
-  Courier New      bold       48 1.00 rows2  1.1328  115.2283  1.2003  115.2850    0.0567
-  Courier New      bold       48 1.00 br     1.1328   57.6000  1.2000   57.6283    0.0284
-  Courier New      regular    48 1.00 rows   1.1328   57.6283  1.2006   57.6567    0.0284
-  Courier New      regular    48 1.00 rows2  1.1328  115.2283  1.2003  115.2850    0.0567
-  Courier New      regular    48 1.00 br     1.1328   57.6000  1.2000   57.6283    0.0284
-  Georgia          bold       10 1.00 rows   1.2695   12.0473  1.2047   12.7520    0.7047
-  Georgia          bold       10 1.00 rows2  1.2695   24.0663  1.2033   25.4757    1.4093
-  Georgia          bold       10 1.00 br     1.2695   12.0190  1.2019   12.7237    0.7047
-  Georgia          bold       13 1.00 rows   1.2695   15.6473  1.2036   16.5606    0.9133
-  Georgia          bold       13 1.00 rows2  1.2695   31.2660  1.2025   33.0929    1.8269
-  Georgia          bold       13 1.00 br     1.2695   15.6190  1.2015   16.5323    0.9132
-  Georgia          regular    13 1.00 rows   1.2695   15.6473  1.2036   16.5606    0.9133
-  Georgia          regular    13 1.00 rows2  1.2695   31.2660  1.2025   33.0929    1.8269
-  Georgia          regular    13 1.00 br     1.2695   15.6190  1.2015   16.5323    0.9132
-  Georgia          regular    13 1.10 rows   1.2695   17.2063  1.2032   18.2110    1.0047
-  Georgia          regular    13 1.10 rows2  1.2695   34.3843  1.2022   36.3936    2.0093
-  Georgia          regular    13 1.10 br     1.2695   17.1780  1.2013   18.1826    1.0046
-  Georgia          bold       14 1.00 rows   1.2695   16.8380  1.2027   17.8301    0.9921
-  Georgia          bold       14 1.00 rows2  1.2695   33.6473  1.2017   35.6319    1.9846
-  Georgia          bold       14 1.00 br     1.2695   16.8093  1.2007   17.8018    0.9924
-  Georgia          bold       24 1.00 rows   1.2695   28.8283  1.2012   30.5254    1.6971
-  Georgia          bold       24 1.00 rows2  1.2695   57.6283  1.2006   61.0225    3.3942
-  Georgia          bold       24 1.00 br     1.2695   28.8000  1.2000   30.4971    1.6971
-  Georgia          regular    24 1.00 rows   1.2695   28.8283  1.2012   30.5254    1.6971
-  Georgia          regular    24 1.00 rows2  1.2695   57.6283  1.2006   61.0225    3.3942
-  Georgia          regular    24 1.00 br     1.2695   28.8000  1.2000   30.4971    1.6971
-  Georgia          regular    24 1.10 rows   1.2695   31.6913  1.2004   33.5723    1.8810
-  Georgia          regular    24 1.10 rows2  1.2695   63.3543  1.1999   67.1163    3.7620
-  Georgia          regular    24 1.10 br     1.2695   31.6630  1.1994   33.5440    1.8810
-  Georgia          bold       48 1.00 rows   1.2695   57.6283  1.2006   60.9942    3.3659
-  Georgia          bold       48 1.00 rows2  1.2695  115.2283  1.2003  121.9600    6.7317
-  Georgia          bold       48 1.00 br     1.2695   57.6000  1.2000   60.9658    3.3659
-  Georgia          regular    48 1.00 rows   1.2695   57.6283  1.2006   60.9942    3.3659
-  Georgia          regular    48 1.00 rows2  1.2695  115.2283  1.2003  121.9600    6.7317
-  Georgia          regular    48 1.00 br     1.2695   57.6000  1.2000   60.9658    3.3659
-  Calibri          bold       10 1.00 rows   1.2207   12.0473  1.2047   12.2637    0.2164
-  Calibri          bold       10 1.00 rows2  1.2207   24.0663  1.2033   24.4991    0.4328
-  Calibri          bold       10 1.00 br     1.2207   12.0190  1.2019   12.2354    0.2164
-  Calibri          bold       13 1.00 rows   1.2207   15.6473  1.2036   15.9258    0.2785
-  Calibri          bold       13 1.00 rows2  1.2207   31.2660  1.2025   31.8233    0.5573
-  Calibri          bold       13 1.00 br     1.2207   15.6190  1.2015   15.8975    0.2785
-  Calibri          regular    13 1.00 rows   1.2207   15.6473  1.2036   15.9258    0.2785
-  Calibri          regular    13 1.00 rows2  1.2207   31.2660  1.2025   31.8233    0.5573
-  Calibri          regular    13 1.00 br     1.2207   15.6190  1.2015   15.8975    0.2785
-  Calibri          regular    13 1.10 rows   1.2207   17.2063  1.2032   17.5127    0.3064
-  Calibri          regular    13 1.10 rows2  1.2207   34.3843  1.2022   34.9971    0.6128
-  Calibri          regular    13 1.10 br     1.2207   17.1780  1.2013   17.4844    0.3064
-  Calibri          bold       14 1.00 rows   1.2207   16.8380  1.2027   17.1465    0.3085
-  Calibri          bold       14 1.00 rows2  1.2207   33.6473  1.2017   34.2647    0.6174
-  Calibri          bold       14 1.00 br     1.2207   16.8093  1.2007   17.1182    0.3089
-  Calibri          bold       24 1.00 rows   1.2207   28.8283  1.2012   29.3536    0.5252
-  Calibri          bold       24 1.00 rows2  1.2207   57.6283  1.2006   58.6788    1.0505
-  Calibri          bold       24 1.00 br     1.2207   28.8000  1.2000   29.3252    0.5252
-  Calibri          regular    24 1.00 rows   1.2207   28.8283  1.2012   29.3536    0.5252
-  Calibri          regular    24 1.00 rows2  1.2207   57.6283  1.2006   58.6788    1.0505
-  Calibri          regular    24 1.00 br     1.2207   28.8000  1.2000   29.3252    0.5252
-  Calibri          regular    24 1.10 rows   1.2207   31.6913  1.2004   32.2833    0.5919
-  Calibri          regular    24 1.10 rows2  1.2207   63.3543  1.1999   64.5382    1.1838
-  Calibri          regular    24 1.10 br     1.2207   31.6630  1.1994   32.2549    0.5919
-  Calibri          bold       48 1.00 rows   1.2207   57.6283  1.2006   58.6504    1.0221
-  Calibri          bold       48 1.00 rows2  1.2207  115.2283  1.2003  117.2725    2.0442
-  Calibri          bold       48 1.00 br     1.2207   57.6000  1.2000   58.6221    1.0221
-  Calibri          regular    48 1.00 rows   1.2207   57.6283  1.2006   58.6504    1.0221
-  Calibri          regular    48 1.00 rows2  1.2207  115.2283  1.2003  117.2725    2.0442
-  Calibri          regular    48 1.00 br     1.2207   57.6000  1.2000   58.6221    1.0221
-  Cambria          bold       10 1.00 rows   1.1500   12.0473  1.2047   12.0567    0.0094
-  Cambria          bold       10 1.00 rows2  1.1500   24.0663  1.2033   24.0850    0.0187
-  Cambria          bold       10 1.00 br     1.1500   12.0190  1.2019   12.0283    0.0094
-  Cambria          bold       13 1.00 rows   1.1500   15.6473  1.2036   15.6567    0.0094
-  Cambria          bold       13 1.00 rows2  1.1500   31.2660  1.2025   31.2850    0.0190
-  Cambria          bold       13 1.00 br     1.1500   15.6190  1.2015   15.6283    0.0093
-  Cambria          regular    13 1.00 rows   1.1500   15.6473  1.2036   15.6567    0.0094
-  Cambria          regular    13 1.00 rows2  1.1500   31.2660  1.2025   31.2850    0.0190
-  Cambria          regular    13 1.00 br     1.1500   15.6190  1.2015   15.6283    0.0093
-  Cambria          regular    13 1.10 rows   1.1500   17.2063  1.2032   17.2167    0.0104
-  Cambria          regular    13 1.10 rows2  1.1500   34.3843  1.2022   34.4050    0.0207
-  Cambria          regular    13 1.10 br     1.1500   17.1780  1.2013   17.1883    0.0103
-  Cambria          bold       14 1.00 rows   1.1500   16.8380  1.2027   16.8567    0.0187
-  Cambria          bold       14 1.00 rows2  1.1500   33.6473  1.2017   33.6850    0.0377
-  Cambria          bold       14 1.00 br     1.1500   16.8093  1.2007   16.8283    0.0190
-  Cambria          bold       24 1.00 rows   1.1500   28.8283  1.2012   28.8567    0.0284
-  Cambria          bold       24 1.00 rows2  1.1500   57.6283  1.2006   57.6850    0.0567
-  Cambria          bold       24 1.00 br     1.1500   28.8000  1.2000   28.8283    0.0283
-  Cambria          regular    24 1.00 rows   1.1500   28.8283  1.2012   28.8567    0.0284
-  Cambria          regular    24 1.00 rows2  1.1500   57.6283  1.2006   57.6850    0.0567
-  Cambria          regular    24 1.00 br     1.1500   28.8000  1.2000   28.8283    0.0283
-  Cambria          regular    24 1.10 rows   1.1500   31.6913  1.2004   31.7367    0.0454
-  Cambria          regular    24 1.10 rows2  1.1500   63.3543  1.1999   63.4450    0.0907
-  Cambria          regular    24 1.10 br     1.1500   31.6630  1.1994   31.7083    0.0454
-  Cambria          bold       48 1.00 rows   1.1500   57.6283  1.2006   57.6567    0.0284
-  Cambria          bold       48 1.00 rows2  1.1500  115.2283  1.2003  115.2850    0.0567
-  Cambria          bold       48 1.00 br     1.1500   57.6000  1.2000   57.6283    0.0284
-  Cambria          regular    48 1.00 rows   1.1500   57.6283  1.2006   57.6567    0.0284
-  Cambria          regular    48 1.00 rows2  1.1500  115.2283  1.2003  115.2850    0.0567
-  Cambria          regular    48 1.00 br     1.1500   57.6000  1.2000   57.6283    0.0284
+  Arial            bold       10 1.00 rows   1.1499   12.0473  1.2047   12.1701    0.1227
+  Arial            bold       10 1.00 rows2  1.1499   24.0663  1.2033   24.3118    0.2455
+  Arial            bold       10 1.00 br     1.1499   12.0190  1.2019   12.1417    0.1227
+  Arial            bold       13 1.00 rows   1.1499   15.6473  1.2036   15.7701    0.1227
+  Arial            bold       13 1.00 rows2  1.1499   31.2660  1.2025   31.5118    0.2458
+  Arial            bold       13 1.00 br     1.1499   15.6190  1.2015   15.7417    0.1227
+  Arial            regular    13 1.00 rows   1.1499   15.6473  1.2036   15.7701    0.1227
+  Arial            regular    13 1.00 rows2  1.1499   31.2660  1.2025   31.5118    0.2458
+  Arial            regular    13 1.00 br     1.1499   15.6190  1.2015   15.7417    0.1227
+  Arial            regular    13 1.10 rows   1.1499   17.2063  1.2032   17.3301    0.1237
+  Arial            regular    13 1.10 rows2  1.1499   34.3843  1.2022   34.6318    0.2475
+  Arial            regular    13 1.10 br     1.1499   17.1780  1.2013   17.3017    0.1237
+  Arial            bold       14 1.00 rows   1.1499   16.8380  1.2027   16.9701    0.1321
+  Arial            bold       14 1.00 rows2  1.1499   33.6473  1.2017   33.9118    0.2645
+  Arial            bold       14 1.00 br     1.1499   16.8093  1.2007   16.9417    0.1324
+  Arial            bold       24 1.00 rows   1.1499   28.8283  1.2012   28.9701    0.1418
+  Arial            bold       24 1.00 rows2  1.1499   57.6283  1.2006   57.9118    0.2835
+  Arial            bold       24 1.00 br     1.1499   28.8000  1.2000   28.9417    0.1417
+  Arial            regular    24 1.00 rows   1.1499   28.8283  1.2012   28.9701    0.1418
+  Arial            regular    24 1.00 rows2  1.1499   57.6283  1.2006   57.9118    0.2835
+  Arial            regular    24 1.00 br     1.1499   28.8000  1.2000   28.9417    0.1417
+  Arial            regular    24 1.10 rows   1.1499   31.6913  1.2004   31.8501    0.1587
+  Arial            regular    24 1.10 rows2  1.1499   63.3543  1.1999   63.6718    0.3175
+  Arial            regular    24 1.10 br     1.1499   31.6630  1.1994   31.8217    0.1587
+  Arial            bold       48 1.00 rows   1.1499   57.6283  1.2006   57.7701    0.1417
+  Arial            bold       48 1.00 rows2  1.1499  115.2283  1.2003  115.5118    0.2835
+  Arial            bold       48 1.00 br     1.1499   57.6000  1.2000   57.7417    0.1417
+  Arial            regular    48 1.00 rows   1.1499   57.6283  1.2006   57.7701    0.1417
+  Arial            regular    48 1.00 rows2  1.1499  115.2283  1.2003  115.5118    0.2835
+  Arial            regular    48 1.00 br     1.1499   57.6000  1.2000   57.7417    0.1417
+  Times New Roman  bold       10 1.00 rows   1.1499   12.0473  1.2047   12.1701    0.1227
+  Times New Roman  bold       10 1.00 rows2  1.1499   24.0663  1.2033   24.3118    0.2455
+  Times New Roman  bold       10 1.00 br     1.1499   12.0190  1.2019   12.1417    0.1227
+  Times New Roman  bold       13 1.00 rows   1.1499   15.6473  1.2036   15.7701    0.1227
+  Times New Roman  bold       13 1.00 rows2  1.1499   31.2660  1.2025   31.5118    0.2458
+  Times New Roman  bold       13 1.00 br     1.1499   15.6190  1.2015   15.7417    0.1227
+  Times New Roman  regular    13 1.00 rows   1.1499   15.6473  1.2036   15.7701    0.1227
+  Times New Roman  regular    13 1.00 rows2  1.1499   31.2660  1.2025   31.5118    0.2458
+  Times New Roman  regular    13 1.00 br     1.1499   15.6190  1.2015   15.7417    0.1227
+  Times New Roman  regular    13 1.10 rows   1.1499   17.2063  1.2032   17.3301    0.1237
+  Times New Roman  regular    13 1.10 rows2  1.1499   34.3843  1.2022   34.6318    0.2475
+  Times New Roman  regular    13 1.10 br     1.1499   17.1780  1.2013   17.3017    0.1237
+  Times New Roman  bold       14 1.00 rows   1.1499   16.8380  1.2027   16.9701    0.1321
+  Times New Roman  bold       14 1.00 rows2  1.1499   33.6473  1.2017   33.9118    0.2645
+  Times New Roman  bold       14 1.00 br     1.1499   16.8093  1.2007   16.9417    0.1324
+  Times New Roman  bold       24 1.00 rows   1.1499   28.8283  1.2012   28.9701    0.1418
+  Times New Roman  bold       24 1.00 rows2  1.1499   57.6283  1.2006   57.9118    0.2835
+  Times New Roman  bold       24 1.00 br     1.1499   28.8000  1.2000   28.9417    0.1417
+  Times New Roman  regular    24 1.00 rows   1.1499   28.8283  1.2012   28.9701    0.1418
+  Times New Roman  regular    24 1.00 rows2  1.1499   57.6283  1.2006   57.9118    0.2835
+  Times New Roman  regular    24 1.00 br     1.1499   28.8000  1.2000   28.9417    0.1417
+  Times New Roman  regular    24 1.10 rows   1.1499   31.6913  1.2004   31.8501    0.1587
+  Times New Roman  regular    24 1.10 rows2  1.1499   63.3543  1.1999   63.6718    0.3175
+  Times New Roman  regular    24 1.10 br     1.1499   31.6630  1.1994   31.8217    0.1587
+  Times New Roman  bold       48 1.00 rows   1.1499   57.6283  1.2006   57.7701    0.1417
+  Times New Roman  bold       48 1.00 rows2  1.1499  115.2283  1.2003  115.5118    0.2835
+  Times New Roman  bold       48 1.00 br     1.1499   57.6000  1.2000   57.7417    0.1417
+  Times New Roman  regular    48 1.00 rows   1.1499   57.6283  1.2006   57.7701    0.1417
+  Times New Roman  regular    48 1.00 rows2  1.1499  115.2283  1.2003  115.5118    0.2835
+  Times New Roman  regular    48 1.00 br     1.1499   57.6000  1.2000   57.7417    0.1417
+  Courier New      bold       10 1.00 rows   1.1328   12.0473  1.2047   12.1701    0.1227
+  Courier New      bold       10 1.00 rows2  1.1328   24.0663  1.2033   24.3118    0.2455
+  Courier New      bold       10 1.00 br     1.1328   12.0190  1.2019   12.1417    0.1227
+  Courier New      bold       13 1.00 rows   1.1328   15.6473  1.2036   15.7701    0.1227
+  Courier New      bold       13 1.00 rows2  1.1328   31.2660  1.2025   31.5118    0.2458
+  Courier New      bold       13 1.00 br     1.1328   15.6190  1.2015   15.7417    0.1227
+  Courier New      regular    13 1.00 rows   1.1328   15.6473  1.2036   15.7701    0.1227
+  Courier New      regular    13 1.00 rows2  1.1328   31.2660  1.2025   31.5118    0.2458
+  Courier New      regular    13 1.00 br     1.1328   15.6190  1.2015   15.7417    0.1227
+  Courier New      regular    13 1.10 rows   1.1328   17.2063  1.2032   17.3301    0.1237
+  Courier New      regular    13 1.10 rows2  1.1328   34.3843  1.2022   34.6318    0.2475
+  Courier New      regular    13 1.10 br     1.1328   17.1780  1.2013   17.3017    0.1237
+  Courier New      bold       14 1.00 rows   1.1328   16.8380  1.2027   16.9701    0.1321
+  Courier New      bold       14 1.00 rows2  1.1328   33.6473  1.2017   33.9118    0.2645
+  Courier New      bold       14 1.00 br     1.1328   16.8093  1.2007   16.9417    0.1324
+  Courier New      bold       24 1.00 rows   1.1328   28.8283  1.2012   28.9701    0.1418
+  Courier New      bold       24 1.00 rows2  1.1328   57.6283  1.2006   57.9118    0.2835
+  Courier New      bold       24 1.00 br     1.1328   28.8000  1.2000   28.9417    0.1417
+  Courier New      regular    24 1.00 rows   1.1328   28.8283  1.2012   28.9701    0.1418
+  Courier New      regular    24 1.00 rows2  1.1328   57.6283  1.2006   57.9118    0.2835
+  Courier New      regular    24 1.00 br     1.1328   28.8000  1.2000   28.9417    0.1417
+  Courier New      regular    24 1.10 rows   1.1328   31.6913  1.2004   31.8501    0.1587
+  Courier New      regular    24 1.10 rows2  1.1328   63.3543  1.1999   63.6718    0.3175
+  Courier New      regular    24 1.10 br     1.1328   31.6630  1.1994   31.8217    0.1587
+  Courier New      bold       48 1.00 rows   1.1328   57.6283  1.2006   57.7701    0.1417
+  Courier New      bold       48 1.00 rows2  1.1328  115.2283  1.2003  115.5118    0.2835
+  Courier New      bold       48 1.00 br     1.1328   57.6000  1.2000   57.7417    0.1417
+  Courier New      regular    48 1.00 rows   1.1328   57.6283  1.2006   57.7701    0.1417
+  Courier New      regular    48 1.00 rows2  1.1328  115.2283  1.2003  115.5118    0.2835
+  Courier New      regular    48 1.00 br     1.1328   57.6000  1.2000   57.7417    0.1417
+  Georgia          bold       10 1.00 rows   1.2695   12.0473  1.2047   12.8654    0.8181
+  Georgia          bold       10 1.00 rows2  1.2695   24.0663  1.2033   25.7024    1.6361
+  Georgia          bold       10 1.00 br     1.2695   12.0190  1.2019   12.8370    0.8181
+  Georgia          bold       13 1.00 rows   1.2695   15.6473  1.2036   16.6740    1.0266
+  Georgia          bold       13 1.00 rows2  1.2695   31.2660  1.2025   33.3196    2.0536
+  Georgia          bold       13 1.00 br     1.2695   15.6190  1.2015   16.6456    1.0266
+  Georgia          regular    13 1.00 rows   1.2695   15.6473  1.2036   16.6740    1.0266
+  Georgia          regular    13 1.00 rows2  1.2695   31.2660  1.2025   33.3196    2.0536
+  Georgia          regular    13 1.00 br     1.2695   15.6190  1.2015   16.6456    1.0266
+  Georgia          regular    13 1.10 rows   1.2695   17.2063  1.2032   18.3244    1.1180
+  Georgia          regular    13 1.10 rows2  1.2695   34.3843  1.2022   36.6204    2.2361
+  Georgia          regular    13 1.10 br     1.2695   17.1780  1.2013   18.2960    1.1180
+  Georgia          bold       14 1.00 rows   1.2695   16.8380  1.2027   17.9435    1.1055
+  Georgia          bold       14 1.00 rows2  1.2695   33.6473  1.2017   35.8587    2.2113
+  Georgia          bold       14 1.00 br     1.2695   16.8093  1.2007   17.9152    1.1058
+  Georgia          bold       24 1.00 rows   1.2695   28.8283  1.2012   30.6388    1.8105
+  Georgia          bold       24 1.00 rows2  1.2695   57.6283  1.2006   61.2493    3.6210
+  Georgia          bold       24 1.00 br     1.2695   28.8000  1.2000   30.6105    1.8105
+  Georgia          regular    24 1.00 rows   1.2695   28.8283  1.2012   30.6388    1.8105
+  Georgia          regular    24 1.00 rows2  1.2695   57.6283  1.2006   61.2493    3.6210
+  Georgia          regular    24 1.00 br     1.2695   28.8000  1.2000   30.6105    1.8105
+  Georgia          regular    24 1.10 rows   1.2695   31.6913  1.2004   33.6857    1.9944
+  Georgia          regular    24 1.10 rows2  1.2695   63.3543  1.1999   67.3431    3.9887
+  Georgia          regular    24 1.10 br     1.2695   31.6630  1.1994   33.6574    1.9944
+  Georgia          bold       48 1.00 rows   1.2695   57.6283  1.2006   61.1076    3.4792
+  Georgia          bold       48 1.00 rows2  1.2695  115.2283  1.2003  122.1868    6.9585
+  Georgia          bold       48 1.00 br     1.2695   57.6000  1.2000   61.0792    3.4792
+  Georgia          regular    48 1.00 rows   1.2695   57.6283  1.2006   61.1076    3.4792
+  Georgia          regular    48 1.00 rows2  1.2695  115.2283  1.2003  122.1868    6.9585
+  Georgia          regular    48 1.00 br     1.2695   57.6000  1.2000   61.0792    3.4792
+  Calibri          bold       10 1.00 rows   1.2207   12.0473  1.2047   12.3771    0.3298
+  Calibri          bold       10 1.00 rows2  1.2207   24.0663  1.2033   24.7259    0.6595
+  Calibri          bold       10 1.00 br     1.2207   12.0190  1.2019   12.3488    0.3298
+  Calibri          bold       13 1.00 rows   1.2207   15.6473  1.2036   16.0392    0.3919
+  Calibri          bold       13 1.00 rows2  1.2207   31.2660  1.2025   32.0501    0.7841
+  Calibri          bold       13 1.00 br     1.2207   15.6190  1.2015   16.0109    0.3919
+  Calibri          regular    13 1.00 rows   1.2207   15.6473  1.2036   16.0392    0.3919
+  Calibri          regular    13 1.00 rows2  1.2207   31.2660  1.2025   32.0501    0.7841
+  Calibri          regular    13 1.00 br     1.2207   15.6190  1.2015   16.0109    0.3919
+  Calibri          regular    13 1.10 rows   1.2207   17.2063  1.2032   17.6261    0.4198
+  Calibri          regular    13 1.10 rows2  1.2207   34.3843  1.2022   35.2239    0.8396
+  Calibri          regular    13 1.10 br     1.2207   17.1780  1.2013   17.5978    0.4198
+  Calibri          bold       14 1.00 rows   1.2207   16.8380  1.2027   17.2599    0.4219
+  Calibri          bold       14 1.00 rows2  1.2207   33.6473  1.2017   34.4915    0.8442
+  Calibri          bold       14 1.00 br     1.2207   16.8093  1.2007   17.2316    0.4222
+  Calibri          bold       24 1.00 rows   1.2207   28.8283  1.2012   29.4670    0.6386
+  Calibri          bold       24 1.00 rows2  1.2207   57.6283  1.2006   58.9056    1.2772
+  Calibri          bold       24 1.00 br     1.2207   28.8000  1.2000   29.4386    0.6386
+  Calibri          regular    24 1.00 rows   1.2207   28.8283  1.2012   29.4670    0.6386
+  Calibri          regular    24 1.00 rows2  1.2207   57.6283  1.2006   58.9056    1.2772
+  Calibri          regular    24 1.00 br     1.2207   28.8000  1.2000   29.4386    0.6386
+  Calibri          regular    24 1.10 rows   1.2207   31.6913  1.2004   32.3966    0.7053
+  Calibri          regular    24 1.10 rows2  1.2207   63.3543  1.1999   64.7649    1.4106
+  Calibri          regular    24 1.10 br     1.2207   31.6630  1.1994   32.3683    0.7053
+  Calibri          bold       48 1.00 rows   1.2207   57.6283  1.2006   58.7638    1.1355
+  Calibri          bold       48 1.00 rows2  1.2207  115.2283  1.2003  117.4993    2.2710
+  Calibri          bold       48 1.00 br     1.2207   57.6000  1.2000   58.7355    1.1355
+  Calibri          regular    48 1.00 rows   1.2207   57.6283  1.2006   58.7638    1.1355
+  Calibri          regular    48 1.00 rows2  1.2207  115.2283  1.2003  117.4993    2.2710
+  Calibri          regular    48 1.00 br     1.2207   57.6000  1.2000   58.7355    1.1355
+  Cambria          bold       10 1.00 rows   1.1500   12.0473  1.2047   12.1701    0.1227
+  Cambria          bold       10 1.00 rows2  1.1500   24.0663  1.2033   24.3118    0.2455
+  Cambria          bold       10 1.00 br     1.1500   12.0190  1.2019   12.1417    0.1227
+  Cambria          bold       13 1.00 rows   1.1500   15.6473  1.2036   15.7701    0.1227
+  Cambria          bold       13 1.00 rows2  1.1500   31.2660  1.2025   31.5118    0.2458
+  Cambria          bold       13 1.00 br     1.1500   15.6190  1.2015   15.7417    0.1227
+  Cambria          regular    13 1.00 rows   1.1500   15.6473  1.2036   15.7701    0.1227
+  Cambria          regular    13 1.00 rows2  1.1500   31.2660  1.2025   31.5118    0.2458
+  Cambria          regular    13 1.00 br     1.1500   15.6190  1.2015   15.7417    0.1227
+  Cambria          regular    13 1.10 rows   1.1500   17.2063  1.2032   17.3301    0.1237
+  Cambria          regular    13 1.10 rows2  1.1500   34.3843  1.2022   34.6318    0.2475
+  Cambria          regular    13 1.10 br     1.1500   17.1780  1.2013   17.3017    0.1237
+  Cambria          bold       14 1.00 rows   1.1500   16.8380  1.2027   16.9701    0.1321
+  Cambria          bold       14 1.00 rows2  1.1500   33.6473  1.2017   33.9118    0.2645
+  Cambria          bold       14 1.00 br     1.1500   16.8093  1.2007   16.9417    0.1324
+  Cambria          bold       24 1.00 rows   1.1500   28.8283  1.2012   28.9701    0.1418
+  Cambria          bold       24 1.00 rows2  1.1500   57.6283  1.2006   57.9118    0.2835
+  Cambria          bold       24 1.00 br     1.1500   28.8000  1.2000   28.9417    0.1417
+  Cambria          regular    24 1.00 rows   1.1500   28.8283  1.2012   28.9701    0.1418
+  Cambria          regular    24 1.00 rows2  1.1500   57.6283  1.2006   57.9118    0.2835
+  Cambria          regular    24 1.00 br     1.1500   28.8000  1.2000   28.9417    0.1417
+  Cambria          regular    24 1.10 rows   1.1500   31.6913  1.2004   31.8501    0.1587
+  Cambria          regular    24 1.10 rows2  1.1500   63.3543  1.1999   63.6718    0.3175
+  Cambria          regular    24 1.10 br     1.1500   31.6630  1.1994   31.8217    0.1587
+  Cambria          bold       48 1.00 rows   1.1500   57.6283  1.2006   57.7701    0.1417
+  Cambria          bold       48 1.00 rows2  1.1500  115.2283  1.2003  115.5118    0.2835
+  Cambria          bold       48 1.00 br     1.1500   57.6000  1.2000   57.7417    0.1417
+  Cambria          regular    48 1.00 rows   1.1500   57.6283  1.2006   57.7701    0.1417
+  Cambria          regular    48 1.00 rows2  1.1500  115.2283  1.2003  115.5118    0.2835
+  Cambria          regular    48 1.00 br     1.1500   57.6000  1.2000   57.7417    0.1417
+  largest excess per cell line: 0.0473 pt = 0.0167 mm, so this version needs cell_line_allowance_mm >= 0.02
+
+cells with fallback glyphs: line bound = size x max(1.2, hhea, missing_line_em = 1.52) + 0.05 mm; rows bound + 0.01 mm, LibreOffice 26.8.0.3 680(Build:3)
+  fallback fonts (24.2.7.2 sets a cell line at max(1.2, the hhea of its font)): cjk NotoSansCJK-Regular.ttc 1.4480 em, emoji NotoColorEmoji.ttf 1.1719 em, thai NotoSansThai-Regular.ttf 1.5110 em
+  Arial            cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Arial            cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Arial            cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Arial            cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Arial            emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Arial            emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Arial            emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Arial            emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Arial            thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Arial            thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Arial            thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Arial            thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Times New Roman  cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Times New Roman  cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Times New Roman  cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Times New Roman  cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Times New Roman  emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Times New Roman  emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Times New Roman  emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Times New Roman  emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Times New Roman  thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Times New Roman  thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Times New Roman  thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Times New Roman  thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Courier New      cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Courier New      cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Courier New      cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Courier New      cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Courier New      emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Courier New      emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Courier New      emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Courier New      emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Courier New      thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Courier New      thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Courier New      thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Courier New      thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Georgia          cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Georgia          cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Georgia          cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Georgia          cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Georgia          emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Georgia          emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Georgia          emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Georgia          emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Georgia          thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Georgia          thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Georgia          thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Georgia          thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Calibri          cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Calibri          cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Calibri          cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Calibri          cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Calibri          emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Calibri          emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Calibri          emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Calibri          emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Calibri          thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Calibri          thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Calibri          thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Calibri          thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Cambria          cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Cambria          cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Cambria          cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Cambria          cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Cambria          emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Cambria          emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Cambria          emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Cambria          emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Cambria          thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
+  Cambria          thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
+  Cambria          thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
+  Cambria          thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
+  widest fallback cell line: 1.2036 em
 
 fallback advances: 10 characters at 24 pt; estimate = max(twin's maximum advance, missing_glyph_em = 1.49), LibreOffice 26.8.0.3 680(Build:3)
   Arial            cjk    run     1.0479 em  estimate 1.4900 em     LiberationSans, NotoSansCJKsc-Regular
@@ -893,11 +970,18 @@ line breaks before closing punctuation, bold Arial 48 pt (informational), LibreO
   U+00BB »  space fits: breaks                |  space does not fit: breaks
   U+201D ”  space fits: breaks                |  space does not fit: breaks
   U+2019 ’  space fits: breaks                |  space does not fit: breaks
+  U+FF01 ！  space fits: kept with the word    |  space does not fit: breaks
+  U+FF1F ？  space fits: kept with the word    |  space does not fit: breaks
+  U+FF0C ，  space fits: kept with the word    |  space does not fit: breaks
+  U+3002 。  space fits: kept with the word    |  space does not fit: breaks
+  U+300D 」  space fits: kept with the word    |  space does not fit: breaks
+  U+FF09 ）  space fits: kept with the word    |  space does not fit: breaks
 
 verdict (amendment B-21):
   (a) no stress case wraps at 1/0.99 = 1.0101: 420 cases, 0 wrap: HOLDS
   (b) every pitch <= size x 1.2 x line spacing + 0.01 mm (0.0283 pt): 198 probes, smallest slack 0.0000 pt: HOLDS
 
-verdict (amendment B-22):
-  (c) every table line <= size x max(1.2, hhea) x line spacing + 0.01 mm, every row <= its lines + 0.01 mm: 180 probes, smallest slack 0.0093 pt: HOLDS
+verdict (amendments B-22, B-25):
+  (c) every table line <= size x max(1.2, hhea) x line spacing + 0.05 mm, every row <= its lines + 0.01 mm: 180 probes, smallest slack 0.1227 pt: HOLDS
   (d) every fallback advance <= max(maximum advance, missing_glyph_em): 36 probes, widest 1.4805 em: HOLDS
+  (e) every cell line with fallback glyphs <= size x max(1.2, hhea, missing_line_em) + cell allowance: 72 probes, widest 1.2036 em: HOLDS

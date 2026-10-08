@@ -73,6 +73,9 @@ KEYS = (
     "portable_fonts",
     # spec 002 B-22 item 6, common
     "missing_glyph_em",
+    # spec 002 B-25 item 6, common
+    "cell_line_allowance_mm",
+    "missing_line_em",
     # spec 002 B-10, common
     "acceptable_rules",
 )
