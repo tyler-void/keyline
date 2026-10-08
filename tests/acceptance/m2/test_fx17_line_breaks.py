@@ -9,7 +9,7 @@ import random
 import pytest
 
 from keyline.fit import WRAP_MARGIN, width, wrap
-from keyline.fit.text import NO_BREAK_BEFORE, break_units
+from keyline.fit.text import FULLWIDTH_CLOSERS, NO_BREAK_BEFORE, break_units
 from keyline.packs import resolve
 from tests.acceptance.m2 import _lo
 
@@ -37,7 +37,7 @@ def test_break_units_keep_closing_punctuation_with_the_word_before():
         "done",
     ]
     assert break_units(") opens") == [")", "opens"]  # nothing before it to keep it with
-    assert break_units("( opens") == ["(", "opens"]  # opening brackets may start a line
+    assert break_units("( opens") == ["( opens"]  # B-25 item 5: kept with what follows
     for ch in NO_BREAK_BEFORE:
         assert break_units(f"a {ch} b") == [f"a {ch}", "b"]
 
@@ -70,7 +70,7 @@ def test_the_audit_headlines_are_refused(text):
         deck.add("evidence", text)
 
 
-LB13 = ")]},.:;!?/"  # UAX #14 classes CL, CP, EX, IS and SY
+LB13 = ")]},.:;!?/" + FULLWIDTH_CLOSERS  # UAX #14 classes CL, CP, EX, IS and SY
 
 
 def full_line_case(setting, box_pt, ch, seed, space_fits):
