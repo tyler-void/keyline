@@ -73,7 +73,8 @@ def _ppr(voice: Voice, style: Style, surface: str, level: int) -> str:
         f'<a:spcAft><a:spcPts val="{int(style.space_after_pt * 100)}"/></a:spcAft>'
         "<a:buNone/>"
         f'<a:defRPr sz="{style.size_hundredths}" b="{bold}" i="0"{caps} spc="{spc}">'
-        f'{_solid(colour)}<a:latin typeface="{font}"/></a:defRPr></a:lvl{level}pPr>'
+        f'{_solid(colour)}<a:latin typeface="{font}"/>'
+        f'<a:cs typeface="{font.replace("-lt", "-cs")}"/></a:defRPr></a:lvl{level}pPr>'
     )
 
 
@@ -195,9 +196,10 @@ def _theme(pack: Pack, voice: Voice) -> bytes:
     )
     major, minor = voice.display, voice.text
     fonts = (
-        f'<a:majorFont><a:latin typeface="{major}"/><a:ea typeface=""/><a:cs typeface=""/>'
-        f'</a:majorFont><a:minorFont><a:latin typeface="{minor}"/><a:ea typeface=""/>'
-        '<a:cs typeface=""/></a:minorFont>'
+        # B-25 item 7: complex scripts in the voice's families too, not the application's
+        f'<a:majorFont><a:latin typeface="{major}"/><a:ea typeface=""/>'
+        f'<a:cs typeface="{major}"/></a:majorFont><a:minorFont><a:latin typeface="{minor}"/>'
+        f'<a:ea typeface=""/><a:cs typeface="{minor}"/></a:minorFont>'
     )
     fill = '<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>'
     line = f'<a:ln w="6350">{fill}</a:ln>'

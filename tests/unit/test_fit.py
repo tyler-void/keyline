@@ -94,8 +94,8 @@ def test_missing_characters_and_the_warning():
     assert unmeasured(f"Cây {cjk} già") == cjk and unmeasured("Cây già nhất") == ""
     assert coverage_warning({"Cambria": "ấờợ"}, cjk) == (
         f"the fit does not cover some characters (B-25): Caladea (for Cambria) lacks: ấờợ; "
-        f"outside the measured set: {cjk}; the pen estimated them conservatively, and "
-        "LibreOffice sets them in a fallback font, so the check render is not faithful"
+        f"outside the measured set: {cjk}; the pen estimated them conservatively but "
+        "promises nothing for them, and the check render may set them in another font"
     )
     assert coverage_warning({"Cambria": ""}, "") is None
 

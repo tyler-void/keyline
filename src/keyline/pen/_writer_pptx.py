@@ -74,6 +74,8 @@ def _paragraph(spec: ParaSpec) -> etree._Element:
         fill = etree.SubElement(rpr, _a("solidFill"))
         etree.SubElement(fill, _a("srgbClr"), val=run.color)
         etree.SubElement(rpr, _a("latin"), typeface=run.font)
+        # B-25 item 7: complex scripts in the voice's family too (+mj-cs / +mn-cs)
+        etree.SubElement(rpr, _a("cs"), typeface=run.font.replace("-lt", "-cs"))
         etree.SubElement(r, _a("t")).text = normalize(run.text)  # as estimated (B-22)
     return p
 

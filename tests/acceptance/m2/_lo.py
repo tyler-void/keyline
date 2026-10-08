@@ -88,3 +88,29 @@ def voice_file(directory: Path, family: str) -> str:
     path = Path(directory) / f"{name}.toml"
     path.write_text(text.replace('"Arial"', f'"{family}"'), encoding="utf-8")
     return str(path)
+
+
+def fonts(pptx: Path, work: Path) -> list[set[str]]:
+    """Per page, the names of the fonts its text is set in (from the PDF)."""
+    import ctypes
+
+    import pypdfium2 as pdfium
+    import pypdfium2.raw as raw
+
+    work.mkdir(parents=True, exist_ok=True)
+    pdf = render_mod.convert_to_pdf(Path(pptx), render_mod.find_soffice(), work)
+    doc = pdfium.PdfDocument(str(pdf))
+    pages = []
+    try:
+        for page in doc:
+            tp = page.get_textpage()
+            buf, flags, names = ctypes.create_string_buffer(256), ctypes.c_int(), set()
+            for i in range(tp.count_chars()):
+                if tp.get_text_range(i, 1).strip():
+                    n = raw.FPDFText_GetFontInfo(tp.raw, i, buf, 256, ctypes.byref(flags))
+                    names.add(buf.raw[: max(n - 1, 0)].decode("utf-8", "replace"))
+            tp.close()
+            pages.append(names)
+    finally:
+        doc.close()
+    return pages

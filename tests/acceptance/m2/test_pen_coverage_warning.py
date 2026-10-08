@@ -40,7 +40,7 @@ def test_one_warning_per_deck_naming_every_missing_character(tmp_path, capsys):
         "Caladea (for Cambria) lacks: "
     )
     assert line.endswith(
-        "LibreOffice sets them in a fallback font, so the check render is not faithful"
+        "promises nothing for them, and the check render may set them in another font"
     )
     lacking = line.split("lacks: ", 1)[1].split(";", 1)[0]
     for ch in "ảờữồơừợ":  # from both slides, headlines and body text alike
