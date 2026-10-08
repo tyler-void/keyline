@@ -15,6 +15,10 @@ the metric twin's TTF (the same substitution LibreOffice makes), and the table r
   estimator keeps room for under a region's last line (Q-51); `top_em`, the highest a
   glyph reaches above it; and `left_em`, the furthest a glyph reaches left of its origin
   (B-25 items 2 and 3);
+- `kern`, the positive kerning pairs inside the measured set (B-25 item 4), in font units:
+  per pair, the largest positive x-advance adjustment of each GPOS pair lookup (format 1
+  or 2, extension lookups included), summed over the lookups, and the legacy `kern` table's
+  where it is larger; negative pairs are left out;
 - the Vietnamese letters the twin lacks (audit 04);
 - the source file's name, version, licence, copyright and SHA-256.
 
@@ -38,6 +42,8 @@ sys.path.insert(0, str(ROOT / "src"))
 from keyline.config import load as load_config  # noqa: E402
 from keyline.fit import TABLES, VIETNAMESE, WEIGHTS, table_path  # noqa: E402
 from keyline.fit.text import MEASURED, inked  # noqa: E402
+
+MEASURED_SET = set(MEASURED)
 
 LINE_PITCH_EM = "1.2"  # B-21
 MEASURED_ON = (
@@ -87,6 +93,74 @@ def extents(font) -> dict[str, str]:
     }
 
 
+def _pair_lookups(font):
+    """Every GPOS pair-adjustment subtable, grouped by lookup."""
+    if "GPOS" not in font:
+        return []
+    lookups = []
+    for lookup in font["GPOS"].table.LookupList.Lookup:
+        subtables = []
+        for st in lookup.SubTable:
+            if lookup.LookupType == 9:
+                st = st.ExtSubTable
+            if getattr(st, "LookupType", 2) == 2 and hasattr(st, "Coverage"):
+                subtables.append(st)
+        if subtables:
+            lookups.append(subtables)
+    return lookups
+
+
+def _x_advance(value) -> int:
+    return getattr(value, "XAdvance", 0) or 0 if value is not None else 0
+
+
+def kern_pairs(font) -> list[list[int]]:
+    """[[codepoint, codepoint, units], …] for the positive pairs whose characters are both
+    in the measured set and in the twin, sorted."""
+    cmap = font.getBestCmap()
+    by_glyph: dict[str, list[int]] = {}
+    for cp, glyph in cmap.items():
+        if chr(cp) in MEASURED_SET:
+            by_glyph.setdefault(glyph, []).append(cp)
+    total: dict[tuple[str, str], int] = {}
+    for subtables in _pair_lookups(font):
+        best: dict[tuple[str, str], int] = {}
+        for st in subtables:
+            first = [g for g in st.Coverage.glyphs if g in by_glyph]
+            if st.Format == 1:
+                for g1 in first:
+                    pairset = st.PairSet[st.Coverage.glyphs.index(g1)]
+                    for rec in pairset.PairValueRecord:
+                        if rec.SecondGlyph in by_glyph:
+                            v = _x_advance(rec.Value1) + _x_advance(rec.Value2)
+                            if v > best.get((g1, rec.SecondGlyph), 0):
+                                best[g1, rec.SecondGlyph] = v
+            elif st.Format == 2:
+                class1, class2 = st.ClassDef1.classDefs, st.ClassDef2.classDefs
+                seconds: dict[int, list[str]] = {}
+                for g2 in by_glyph:
+                    seconds.setdefault(class2.get(g2, 0), []).append(g2)
+                for g1 in first:
+                    row = st.Class1Record[class1.get(g1, 0)].Class2Record
+                    for k2, rec in enumerate(row):
+                        v = _x_advance(rec.Value1) + _x_advance(rec.Value2)
+                        if v <= 0:
+                            continue
+                        for g2 in seconds.get(k2, ()):
+                            if v > best.get((g1, g2), 0):
+                                best[g1, g2] = v
+        for pair, v in best.items():
+            total[pair] = total.get(pair, 0) + v
+    if "kern" in font:
+        for sub in font["kern"].kernTables:
+            for (g1, g2), v in getattr(sub, "kernTable", {}).items():
+                if v > total.get((g1, g2), 0) and g1 in by_glyph and g2 in by_glyph:
+                    total[g1, g2] = v
+    return sorted(
+        [c1, c2, v] for (g1, g2), v in total.items() for c1 in by_glyph[g1] for c2 in by_glyph[g2]
+    )
+
+
 def hhea_line_em(font) -> str:
     """The hhea line height in em, exactly: units per em is 1000 or a power of two."""
     hhea = font["hhea"]
@@ -128,7 +202,8 @@ def table(family: str, twin: str, weight: str) -> tuple[str, dict]:
     }
     pairs = [[cp, hmtx[glyph][0]] for cp, glyph in sorted(cmap.items())]
     text = json.dumps(head, ensure_ascii=False, indent=1)[:-2]
-    text += ',\n "advances": ' + json.dumps(pairs, separators=(",", ":")) + "\n}\n"
+    text += ',\n "advances": ' + json.dumps(pairs, separators=(",", ":"))
+    text += ',\n "kern": ' + json.dumps(kern_pairs(font), separators=(",", ":")) + "\n}\n"
     return text, source
 
 

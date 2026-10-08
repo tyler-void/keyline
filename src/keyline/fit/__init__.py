@@ -11,6 +11,7 @@ this package.
 
 from __future__ import annotations
 
+import itertools
 import json
 import re
 import unicodedata
@@ -60,6 +61,7 @@ class Table:
     missing_vietnamese: str
     source: dict = field(repr=False)
     advances: dict[int, int] = field(repr=False)
+    kern: dict[tuple[int, int], int] = field(default_factory=dict, repr=False)  # B-25 item 4
     # B-22 item 6: a character the twin lacks counts as max(max_advance, missing_glyph_em)
     missing_advance: Fraction = Fraction(0)
 
@@ -106,6 +108,7 @@ def load_table(family: str, weight: str) -> Table:
         missing_vietnamese=data["missing_vietnamese"],
         source=data["source"],
         advances={cp: adv for cp, adv in data["advances"]},
+        kern={(a, b): v for a, b, v in data["kern"]},
         missing_advance=max(
             Fraction(data["max_advance"]), config.missing_glyph_em * data["units_per_em"]
         ),
@@ -173,12 +176,15 @@ def as_set(setting: Setting, text: str) -> str:
 
 
 def width(setting: Setting, text: str) -> Fraction:
-    """§6.4's width: the advance sum (no kerning; a character the twin lacks counts as
-    max(its maximum advance, missing_glyph_em), B-22 item 6) plus tracking × size per
+    """§6.4's width: the advance sum (a character the twin lacks counts as max(its
+    maximum advance, missing_glyph_em), B-22 item 6), plus the positive kerning pairs of
+    the measured set (B-25 item 4; negative pairs are ignored), plus tracking × size per
     character."""
     shown = as_set(setting, text)
     table = setting.table
     units = sum(table.advance(ch) for ch in shown)
+    if table.kern:  # positive pairs only (B-25 item 4): kerning that widens the text
+        units += sum(table.kern.get((ord(a), ord(b)), 0) for a, b in itertools.pairwise(shown))
     return Fraction(units, table.units_per_em) * setting.size + (
         setting.tracking * setting.size * len(shown)
     )
