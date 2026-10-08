@@ -14,6 +14,7 @@ from keyline.fit import (
     fit,
     load_table,
     missing,
+    unmeasured,
     width,
     wrap,
 )
@@ -66,12 +67,14 @@ def test_room_for_the_descent_under_the_last_line():
     """LibreOffice's baseline sits 0.2 em above a line's bottom (B-21); a twin's deepest
     descent below that is kept free under a region's last line (A2 fixes, with FX-24)."""
     t = load_table("Arial", "regular")
-    assert t.descent_em == F(434, 2048)  # Liberation Sans, from its glyph outlines
+    assert t.descent_em == F(455, 2048)  # Liberation Sans, over the measured set (Q-51)
     assert ARIAL.descent_room == 24 * (t.descent_em - BELOW_BASELINE_EM)
     gelasio = Setting("Georgia", "bold", F(48))
     assert gelasio.descent_room == 48 * (load_table("Georgia", "bold").descent_em - F(1, 5))
-    carlito = Setting("Calibri", "regular", F(24))
-    assert carlito.descent_room == 0  # Carlito descends 0.183 em: inside the line box
+    carlito = Setting("Calibri", "regular", F(24))  # 0.258 em over the measured set (Q-51)
+    assert carlito.descent_room == 24 * (load_table("Calibri", "regular").descent_em - F(1, 5))
+    lowest = Setting("Calibri", "regular", F(24), caps=True)
+    assert lowest.descent_room == carlito.descent_room  # one room per font, whatever the text
 
 
 def test_paragraph_spacing_counts():
@@ -87,10 +90,14 @@ def test_missing_characters_and_the_warning():
     cambria = Setting("Cambria", "regular", F(24))
     assert missing(cambria, "Cây già nhất chờ đợi") == "ấờợ"
     assert missing(Setting("Arial", "regular", F(24)), "Cây già nhất chờ đợi") == ""
-    assert coverage_warning("Cambria", "ấờợ") == (
-        "Caladea (for Cambria) lacks: ấờợ; LibreOffice renders them in a fallback font, "
-        "so the check render is not faithful"
+    cjk = chr(0x6F22)
+    assert unmeasured(f"Cây {cjk} già") == cjk and unmeasured("Cây già nhất") == ""
+    assert coverage_warning({"Cambria": "ấờợ"}, cjk) == (
+        f"the fit does not cover some characters (B-25): Caladea (for Cambria) lacks: ấờợ; "
+        f"outside the measured set: {cjk}; the pen estimated them conservatively, and "
+        "LibreOffice sets them in a fallback font, so the check render is not faithful"
     )
+    assert coverage_warning({"Cambria": ""}, "") is None
 
 
 def test_a_long_fit_reads_the_config_once(monkeypatch):

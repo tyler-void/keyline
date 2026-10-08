@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 from pathlib import Path
 
-from keyline.fit.text import break_units, code_point, refused
+from keyline.fit.text import break_units, code_point, measured, refused
 
 TABLES = Path(__file__).resolve().parent / "tables"
 WEIGHTS = ("regular", "bold")
@@ -53,7 +53,9 @@ class Table:
     max_advance: int
     line_pitch_em: Fraction
     hhea_line_em: Fraction  # the twin's hhea line height; table cells use it above 1.2
-    descent_em: Fraction  # the deepest Latin or Vietnamese glyph descent below the baseline
+    descent_em: Fraction  # over B-25's measured set: the deepest descent below the baseline
+    top_em: Fraction  # the highest glyph top above the baseline (B-25 item 2)
+    left_em: Fraction  # the furthest a glyph reaches left of its origin (B-24, B-25 item 3)
     measured_on: tuple[str, ...]  # the LibreOffice versions behind line_pitch_em (Q-44b)
     missing_vietnamese: str
     source: dict = field(repr=False)
@@ -98,6 +100,8 @@ def load_table(family: str, weight: str) -> Table:
         line_pitch_em=Fraction(data["line_pitch_em"]),
         hhea_line_em=Fraction(data["hhea_line_em"]),
         descent_em=Fraction(data["descent_em"]),
+        top_em=Fraction(data["top_em"]),
+        left_em=Fraction(data["left_em"]),
         measured_on=tuple(data["measured_on"]),
         missing_vietnamese=data["missing_vietnamese"],
         source=data["source"],
@@ -189,6 +193,12 @@ def missing(setting: Setting, text: str) -> str:
     )
 
 
+def unmeasured(text: str) -> str:
+    """The characters of `text` outside B-25's measured set, in first-seen order (no
+    spaces)."""
+    return "".join(dict.fromkeys(c for c in text if not c.isspace() and not measured(c)))
+
+
 def wrap(setting: Setting, text: str, available: Fraction, what: str = "text") -> list[str]:
     """Greedy wrapping of the normalized text (B-22) at its spaces, U+0020 only, and
     never before closing punctuation (item 4): a line fits when its width ≤ 0.99 × the
@@ -245,11 +255,21 @@ def fit(
     return wrapped
 
 
-def coverage_warning(family: str, chars: str) -> str:
-    """The one warning per deck when text uses characters the voice's twin lacks
-    (audit 04); the build goes ahead."""
-    twin = load_table(family, "regular").twin
+def coverage_warning(missing: dict[str, str], outside: str) -> str | None:
+    """The one warning per deck (audit 04; B-25 item 1) when text uses characters the fit
+    does not cover: letters of the measured set a voice's twin lacks (`missing`, family
+    -> characters) and characters outside the measured set. The build goes ahead."""
+    parts = [
+        f"{load_table(family, 'regular').twin} (for {family}) lacks: {chars}"
+        for family, chars in missing.items()
+        if chars
+    ]
+    if outside:
+        parts.append(f"outside the measured set: {outside}")
+    if not parts:
+        return None
     return (
-        f"{twin} (for {family}) lacks: {chars}; LibreOffice renders them in a fallback "
-        "font, so the check render is not faithful"
+        "the fit does not cover some characters (B-25): " + "; ".join(parts) + "; the pen "
+        "estimated them conservatively, and LibreOffice sets them in a fallback font, so the "
+        "check render is not faithful"
     )

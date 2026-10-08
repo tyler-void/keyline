@@ -8,6 +8,8 @@
  "line_pitch_em": "1.2",
  "hhea_line_em": "1.15",
  "descent_em": "0.22",
+ "top_em": "0.961",
+ "left_em": "0.135",
  "measured_on": [
   "LibreOffice 24.2.7.2 420(Build:2) (audit 04)",
   "LibreOffice 26.8.0.3 680(Build:3) (T-20)"

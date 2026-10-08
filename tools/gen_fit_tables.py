@@ -10,9 +10,11 @@ the metric twin's TTF (the same substitution LibreOffice makes), and the table r
 - `hhea_line_em`, the twin's hhea line height (ascender - descender + line gap, over
   units per em, as an exact decimal), which table cells use when it exceeds 1.2 (B-22
   item 5);
-- `descent_em`, the deepest a glyph reaches below the baseline, over Basic Latin, Latin-1,
-  Latin Extended-A, the Vietnamese letters, digits and punctuation (from the glyph
-  outlines), which the estimator keeps room for under a region's last line;
+- over B-25's measured set (the characters the twin has and draws), from the glyph
+  outlines: `descent_em`, the deepest a glyph reaches below the baseline, which the
+  estimator keeps room for under a region's last line (Q-51); `top_em`, the highest a
+  glyph reaches above it; and `left_em`, the furthest a glyph reaches left of its origin
+  (B-25 items 2 and 3);
 - the Vietnamese letters the twin lacks (audit 04);
 - the source file's name, version, licence, copyright and SHA-256.
 
@@ -24,6 +26,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import subprocess
 import sys
 from decimal import Decimal
@@ -34,6 +37,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from keyline.config import load as load_config  # noqa: E402
 from keyline.fit import TABLES, VIETNAMESE, WEIGHTS, table_path  # noqa: E402
+from keyline.fit.text import MEASURED, inked  # noqa: E402
 
 LINE_PITCH_EM = "1.2"  # B-21
 MEASURED_ON = (
@@ -57,23 +61,30 @@ def _name(font, name_id: int) -> str:
     return " ".join((font["name"].getDebugName(name_id) or "").split())
 
 
-DESCENT_CHARS = [chr(c) for c in (*range(0x20, 0x7F), *range(0xA0, 0x180))]
-
-
-def descent_em(font) -> str:
-    """The deepest glyph descent below the baseline in em, exactly, over DESCENT_CHARS and
-    the Vietnamese letters the twin has."""
+def extents(font) -> dict[str, str]:
+    """`descent_em`, `top_em` and `left_em` over the measured set: the deepest descent, the
+    highest top and the furthest reach left of the origin of the glyphs the twin has and
+    LibreOffice draws, in em, exactly (0 when none reaches)."""
     from fontTools.pens.boundsPen import BoundsPen
 
-    cmap, glyphs = font.getBestCmap(), font.getGlyphSet()
-    deepest = 0
-    for ch in dict.fromkeys(DESCENT_CHARS + list(VIETNAMESE)):
-        if ord(ch) in cmap:
-            pen = BoundsPen(glyphs)
-            glyphs[cmap[ord(ch)]].draw(pen)
-            if pen.bounds is not None:
-                deepest = min(deepest, pen.bounds[1])
-    return str(Decimal(-deepest) / Decimal(font["head"].unitsPerEm))
+    cmap, glyphs, hmtx = font.getBestCmap(), font.getGlyphSet(), font["hmtx"]
+    deepest = top = left = 0
+    for ch in MEASURED:
+        if ord(ch) not in cmap or not inked(ch):
+            continue
+        pen = BoundsPen(glyphs)
+        glyphs[cmap[ord(ch)]].draw(pen)
+        if pen.bounds is None:
+            continue
+        # outward to whole font units: outline extremes can fall between them
+        deepest, top = min(deepest, math.floor(pen.bounds[1])), max(top, math.ceil(pen.bounds[3]))
+        left = min(left, hmtx[cmap[ord(ch)]][1])
+    upm = Decimal(font["head"].unitsPerEm)
+    return {
+        "descent_em": str(Decimal(-deepest) / upm),
+        "top_em": str(Decimal(top) / upm),
+        "left_em": str(Decimal(-left) / upm),
+    }
 
 
 def hhea_line_em(font) -> str:
@@ -110,7 +121,7 @@ def table(family: str, twin: str, weight: str) -> tuple[str, dict]:
         "max_advance": max(adv for adv, _lsb in hmtx.metrics.values()),
         "line_pitch_em": LINE_PITCH_EM,
         "hhea_line_em": hhea_line_em(font),
-        "descent_em": descent_em(font),
+        **extents(font),
         "measured_on": list(MEASURED_ON),
         "missing_vietnamese": "".join(c for c in VIETNAMESE if ord(c) not in cmap),
         "source": source,

@@ -19,7 +19,7 @@ from fractions import Fraction
 from pathlib import Path
 
 from keyline import config as config_mod
-from keyline.fit import ROW_ALLOWANCE_PT, Setting, coverage_warning, fit, missing
+from keyline.fit import ROW_ALLOWANCE_PT, Setting, coverage_warning, fit, missing, unmeasured
 from keyline.fit.text import code_point, normalize, refused
 from keyline.fit.text import paragraphs as paragraphs_of
 from keyline.pen._errors import DoesNotFit, PenError
@@ -168,7 +168,8 @@ class Deck:
         self._template = build(self._pack, self._voice, mode)  # in memory (Q-46)
         self._slides: list[SlideBuilder] = []
         self._brief = None
-        self._missing: dict[str, str] = {}  # family -> characters its twin lacks
+        self._missing: dict[str, str] = {}  # family -> measured characters its twin lacks
+        self._outside = ""  # characters outside the measured set (B-25 item 1)
 
     @classmethod
     def from_brief(cls, path: str) -> Deck:
@@ -198,6 +199,7 @@ class Deck:
         self._slides = []
         self._brief = brief
         self._missing = {}
+        self._outside = ""
 
     # -- slides ---------------------------------------------------------------------------
 
@@ -229,13 +231,13 @@ class Deck:
             _check_token(variant, "variant")
         headline = _line(headline, "headline")
         builder = SlideBuilder(self, role, layout_for(self._pack, role, variant))
-        missing = dict(self._missing)
+        missing, outside = dict(self._missing), self._outside
         try:
             builder._headline(headline)
             if notes is not None:
                 builder.notes(notes)
         except BaseException:  # a refused slide leaves the deck as it was (B-23)
-            self._missing = missing
+            self._missing, self._outside = missing, outside
             raise
         if role == "evidence":  # the keyline device, drawn by the pen (§5.2)
             color = self._voice.hex(self._pack.keyline_rule["color"])
@@ -263,8 +265,9 @@ class Deck:
         except Exception as exc:  # a writer failure the verbs did not foresee
             raise PenError(f"cannot write the deck: {type(exc).__name__}: {exc}") from exc
         _write_atomically(target, data)  # §6.5: byte-identical for the same input
-        for family, chars in self._missing.items():  # one warning per deck (audit 04)
-            sys.stderr.write(f"keyline pen: warning: {coverage_warning(family, chars)}\n")
+        warning = coverage_warning(self._missing, self._outside)  # one per deck (B-25)
+        if warning:
+            sys.stderr.write(f"keyline pen: warning: {warning}\n")
 
     # -- resolving tokens ------------------------------------------------------------------
 
@@ -289,7 +292,9 @@ class Deck:
         )
 
     def _note_missing(self, setting: Setting, text: str) -> None:
-        chars = missing(setting, text)
+        outside = unmeasured(text)
+        self._outside += "".join(c for c in outside if c not in self._outside)
+        chars = "".join(c for c in missing(setting, text) if c not in outside)
         if chars:
             seen = self._missing.get(setting.family, "")
             self._missing[setting.family] = seen + "".join(c for c in chars if c not in seen)
@@ -324,6 +329,7 @@ class SlideBuilder:
             self._figures,
             self._bullets,
             dict(self._deck._missing),
+            self._deck._outside,
         )
 
     def _restore(self, state: tuple) -> None:
@@ -337,6 +343,7 @@ class SlideBuilder:
             self._figures,
             self._bullets,
             self._deck._missing,
+            self._deck._outside,
         ) = state
 
     # -- helpers the verbs share -------------------------------------------------------

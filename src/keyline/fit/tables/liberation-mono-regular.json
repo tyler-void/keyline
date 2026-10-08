@@ -7,7 +7,9 @@
  "max_advance": 1229,
  "line_pitch_em": "1.2",
  "hhea_line_em": "1.1328125",
- "descent_em": "0.22216796875",
+ "descent_em": "0.2265625",
+ "top_em": "0.91552734375",
+ "left_em": "0.02587890625",
  "measured_on": [
   "LibreOffice 24.2.7.2 420(Build:2) (audit 04)",
   "LibreOffice 26.8.0.3 680(Build:3) (T-20)"

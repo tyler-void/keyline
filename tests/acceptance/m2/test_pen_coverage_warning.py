@@ -35,9 +35,12 @@ def test_one_warning_per_deck_naming_every_missing_character(tmp_path, capsys):
     err = capsys.readouterr().err.splitlines()
     assert len(err) == 1, err
     line = err[0]
-    assert line.startswith("keyline pen: warning: Caladea (for Cambria) lacks: ")
+    assert line.startswith(
+        "keyline pen: warning: the fit does not cover some characters (B-25): "
+        "Caladea (for Cambria) lacks: "
+    )
     assert line.endswith(
-        "LibreOffice renders them in a fallback font, so the check render is not faithful"
+        "LibreOffice sets them in a fallback font, so the check render is not faithful"
     )
     lacking = line.split("lacks: ", 1)[1].split(";", 1)[0]
     for ch in "ảờữồơừợ":  # from both slides, headlines and body text alike

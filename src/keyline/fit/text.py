@@ -57,6 +57,38 @@ def refused(text: str, paragraphs: bool = False) -> str | None:
     return None
 
 
+# B-25 item 1: the measured set is these blocks, minus what B-22 refuses; the fit's
+# guarantees (§6.4, AC-13(b), B-24) cover text inside it
+MEASURED_BLOCKS = (
+    (0x0000, 0x007F),  # Basic Latin, ASCII digits included
+    (0x0080, 0x00FF),  # Latin-1 Supplement
+    (0x0100, 0x017F),  # Latin Extended-A
+    (0x0180, 0x024F),  # Latin Extended-B
+    (0x1E00, 0x1EFF),  # Latin Extended Additional, Vietnamese included
+    (0x2000, 0x206F),  # General Punctuation
+    (0x20A0, 0x20CF),  # Currency Symbols
+)
+
+
+def measured(ch: str) -> bool:
+    """Whether a character is in B-25's measured set (an assigned character of its blocks
+    that B-22 does not refuse)."""
+    cp = ord(ch)
+    return (
+        any(a <= cp <= b for a, b in MEASURED_BLOCKS)
+        and refused(ch) is None
+        and unicodedata.category(ch) != "Cn"
+    )
+
+
+MEASURED = "".join(chr(c) for a, b in MEASURED_BLOCKS for c in range(a, b + 1) if measured(chr(c)))
+
+
+def inked(ch: str) -> bool:
+    """A character LibreOffice draws: not a space, separator or format control."""
+    return unicodedata.category(ch) not in ("Zs", "Zl", "Zp", "Cf", "Cc")
+
+
 def normalize(text: str) -> str:
     """B-22 item 1: NFC, space runs to one U+0020, no leading or trailing space."""
     return _SPACE_RUN.sub(" ", unicodedata.normalize("NFC", text)).strip(" ")
