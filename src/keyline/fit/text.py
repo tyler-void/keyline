@@ -94,6 +94,23 @@ def inked(ch: str) -> bool:
     return unicodedata.category(ch) not in ("Zs", "Zl", "Zp", "Cf", "Cc")
 
 
+# Default_Ignorable_Code_Point (Unicode DerivedCoreProperties) letters and marks: category
+# L or M, but nothing is drawn (variation selectors, the grapheme joiner, Hangul fillers).
+IGNORABLE_LETTERS_AND_MARKS = (
+    (0x034F, 0x034F), (0x115F, 0x1160), (0x17B4, 0x17B5), (0x180B, 0x180D), (0x180F, 0x180F),
+    (0x3164, 0x3164), (0xFE00, 0xFE0F), (0xFFA0, 0xFFA0), (0xE0100, 0xE01EF),
+)  # fmt: skip
+
+
+def visible(ch: str) -> bool:
+    """Audit 06 (with FX-30): a letter, mark, number, punctuation mark or symbol that is
+    drawn; text made only of spaces, format controls and ignorable marks shows nothing."""
+    c = ord(ch)
+    return unicodedata.category(ch)[0] in "LMNPS" and not any(
+        a <= c <= b for a, b in IGNORABLE_LETTERS_AND_MARKS
+    )
+
+
 def normalize(text: str) -> str:
     """B-22 item 1: NFC, space runs to one U+0020, no leading or trailing space."""
     return _SPACE_RUN.sub(" ", unicodedata.normalize("NFC", text)).strip(" ")

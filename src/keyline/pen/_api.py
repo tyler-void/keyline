@@ -20,7 +20,7 @@ from pathlib import Path
 
 from keyline import config as config_mod
 from keyline.fit import ROW_ALLOWANCE_PT, Setting, coverage_warning, fit, missing, unmeasured
-from keyline.fit.text import code_point, normalize, refused
+from keyline.fit.text import code_point, normalize, refused, visible
 from keyline.fit.text import paragraphs as paragraphs_of
 from keyline.pen._errors import DoesNotFit, PenError
 from keyline.pen._plan import (
@@ -69,13 +69,21 @@ def _check_text(value: object, what: str, paragraphs: bool = False) -> str:
     return value
 
 
+def _visible(text: str, what: str) -> str:
+    """Audit 06 (with FX-30): text needs at least one visible character; a run of spaces,
+    format controls and variation selectors draws nothing."""
+    if not any(map(visible, text)):
+        raise PenError(f"{what} has no visible character")
+    return text
+
+
 def _line(value: object, what: str, empty: bool = False) -> str:
     """A one-line text, normalized (B-22): exactly what the estimator measures and the
     writer writes."""
     text = normalize(_check_text(value, what))
     if not text and not empty:
         raise PenError(f"{what} must be non-empty text")
-    return text
+    return _visible(text, what) if text else text
 
 
 def _paragraphs(value: object, what: str) -> list[str]:
@@ -83,7 +91,7 @@ def _paragraphs(value: object, what: str) -> list[str]:
     paras = paragraphs_of(_check_text(value, what, paragraphs=True))
     if not paras:
         raise PenError(f"{what} must be non-empty text")
-    return paras
+    return [_visible(p, what) for p in paras]
 
 
 def _atomic(verb):
@@ -725,6 +733,14 @@ class SlideBuilder:
                 raise PenError(f"highlight {highlight!r} is not a category of {evidence_id!r}")
             index = categories.index(highlight)
             self._check_accent("chart_bar(highlight=…)")
+        from keyline.brief import series_value_problem
+
+        if not entry.series:
+            raise PenError(f"{evidence_id!r} has an empty series")
+        for c, v in entry.series:  # checked at load; again here (B-23)
+            why = series_value_problem(v)
+            if why:
+                raise PenError(f"{evidence_id!r}, category {c!r}: {why}")
         values = [v for _c, v in entry.series]
         label = self._deck._pack.styles[self._deck._mode][label_name]
         voice = self._deck._voice

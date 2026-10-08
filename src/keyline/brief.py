@@ -428,7 +428,27 @@ def _series(raw: Any, where: str) -> tuple[tuple[str, int | float], ...]:
     )
     if not ok:
         raise BriefError(f"{where}: must be a list of [category, number] pairs")
+    if not raw:
+        raise BriefError(f"{where}: must have at least one [category, number] pair")
+    for i, (_c, v) in enumerate(raw):
+        why = series_value_problem(v)
+        if why:
+            raise BriefError(f"{where}[{i}]: {why}")
     return tuple((c, v) for c, v in raw)
+
+
+def series_value_problem(value: int | float) -> str | None:
+    """Why a series value cannot be charted (audit 06 FX-30), or None: it must be a finite
+    number that a float can hold."""
+    import math
+
+    try:
+        number = float(value)
+    except OverflowError:
+        return "the number is too large for a chart"
+    if not math.isfinite(number):
+        return f"{number!r} is not a finite number"
+    return None
 
 
 # ---------------------------------------------------------------------------------------
