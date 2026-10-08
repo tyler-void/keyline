@@ -20,8 +20,10 @@ from pathlib import Path
 
 from keyline import config as config_mod
 from keyline.fit import ROW_ALLOWANCE_PT, Setting, coverage_warning, fit, missing, unmeasured
+from keyline.fit.numerals import numeral_problem
 from keyline.fit.text import code_point, normalize, refused, visible
 from keyline.fit.text import paragraphs as paragraphs_of
+from keyline.packs import RULE_ROLE
 from keyline.pen._errors import DoesNotFit, PenError
 from keyline.pen._plan import (
     ChartSpec,
@@ -170,7 +172,7 @@ class Deck:
         if evidence is not None:
             paths = [evidence] if isinstance(evidence, str) else list(evidence)
             try:
-                self._evidence = load_evidence(paths, mode)
+                self._evidence = load_evidence(paths, mode, self._pack)
             except BriefError as exc:
                 raise PenError(str(exc)) from exc
         self._template = build(self._pack, self._voice, mode)  # in memory (Q-46)
@@ -247,7 +249,7 @@ class Deck:
         except BaseException:  # a refused slide leaves the deck as it was (B-23)
             self._missing, self._outside = missing, outside
             raise
-        if role == "evidence":  # the keyline device, drawn by the pen (§5.2)
+        if role == RULE_ROLE:  # the keyline device, drawn by the pen (§5.2)
             color = self._voice.hex(self._pack.keyline_rule["color"])
             builder._plan.shapes.append(RectSpec("keyline", rule_box(self._pack), color))
         self._slides.append(builder)
@@ -582,6 +584,9 @@ class SlideBuilder:
         from keyline.rules._common import words
 
         value = _line(entry.value, "numeral")
+        problem = numeral_problem(value, self._deck._pack)  # B-26, as the loader checks
+        if problem:
+            raise PenError(f"numeral {value!r} {problem}")
         if words(value) > self._deck._cfg.as_int("kpi_numeral_max_words"):
             raise PenError(f"numeral {value!r} has too many words for a figure")
         label = self._caption(entry.label if label is None else label, "label")

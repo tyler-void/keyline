@@ -22,6 +22,12 @@ the metric twin's TTF (the same substitution LibreOffice makes), and the table r
 - the Vietnamese letters the twin lacks (audit 04);
 - the source file's name, version, licence, copyright and SHA-256.
 
+It also writes `numerals.json` (amendment B-26): per character of the measured set that
+some twin draws, the highest its glyph rises above the baseline and the furthest it
+reaches left of its origin, the largest over the twins (outlines rounded outward to whole
+font units, as `top_em` and `left_em`), with the twins' versions; and, for each bundled
+pack, the characters a figure's value may not use (keyline.fit.numerals.derive).
+
 It also rewrites the generated block of NOTICE. Output is byte-stable: the same font
 files give the same bytes.
 """
@@ -34,6 +40,7 @@ import math
 import subprocess
 import sys
 from decimal import Decimal
+from fractions import Fraction
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -41,7 +48,9 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from keyline.config import load as load_config  # noqa: E402
 from keyline.fit import TABLES, VIETNAMESE, WEIGHTS, table_path  # noqa: E402
+from keyline.fit.numerals import NUMERALS, derive, limits  # noqa: E402
 from keyline.fit.text import MEASURED, inked  # noqa: E402
+from keyline.packs import bundled, resolve  # noqa: E402
 
 MEASURED_SET = set(MEASURED)
 
@@ -91,6 +100,80 @@ def extents(font) -> dict[str, str]:
         "top_em": str(Decimal(top) / upm),
         "left_em": str(Decimal(-left) / upm),
     }
+
+
+def char_reach(font) -> dict[int, tuple[Decimal, Decimal]]:
+    """Per character of the measured set the twin draws: (its glyph's top above the
+    baseline, how far it reaches left of its origin), in em, exactly (0 when it does not)."""
+    from fontTools.pens.boundsPen import BoundsPen
+
+    cmap, glyphs, hmtx = font.getBestCmap(), font.getGlyphSet(), font["hmtx"]
+    upm = Decimal(font["head"].unitsPerEm)
+    out = {}
+    for ch in MEASURED:
+        if ord(ch) not in cmap or not inked(ch):
+            continue
+        pen = BoundsPen(glyphs)
+        glyphs[cmap[ord(ch)]].draw(pen)
+        if pen.bounds is None:
+            continue
+        top = max(0, math.ceil(pen.bounds[3]))
+        left = max(0, -hmtx[cmap[ord(ch)]][1])
+        out[ord(ch)] = (Decimal(top) / upm, Decimal(left) / upm)
+    return out
+
+
+def numerals() -> str:
+    """numerals.json (B-26): the reach per character over the twins, and the characters
+    each bundled pack excludes from a figure's value."""
+    from fontTools.ttLib import TTFont
+
+    reach: dict[int, tuple[Decimal, Decimal]] = {}
+    twins = []
+    for family, twin in load_config().portable_fonts:
+        for weight in WEIGHTS:
+            path = twin_file(family, weight)
+            font = TTFont(path)
+            twins.append(
+                {
+                    "family": family,
+                    "twin": twin,
+                    "weight": weight,
+                    "file": path.name,
+                    "version": _name(font, 5),
+                    "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                }
+            )
+            for cp, (top, left) in char_reach(font).items():
+                was = reach.get(cp, (Decimal(0), Decimal(0)))
+                reach[cp] = (max(was[0], top), max(was[1], left))
+    fractions = {chr(cp): (Fraction(top), Fraction(left)) for cp, (top, left) in reach.items()}
+    packs = {}
+    for name in bundled():
+        pack = resolve(name)
+        lim = limits(pack)
+        packs[name] = {
+            "numeral": {
+                mode: {"size_pt": str(size), "line_spacing": str(ls), "caps": caps}
+                for mode, (size, ls, caps) in lim["numeral"].items()
+            },
+            "free_above_emu": lim["free_above_emu"],
+            "free_left_emu": lim["free_left_emu"],
+            "excluded": [[ord(ch), ch, edge] for ch, edge in derive(pack, fractions).items()],
+        }
+    head = {
+        "schema": 1,
+        "rule": (
+            "B-26: a figure's value uses B-25's measured set minus the characters whose top "
+            "or left reach, in any twin at either mode's numeral size, is not smaller than "
+            "the smallest free space above or beside a region that allows a figure"
+        ),
+        "twins": twins,
+        "packs": packs,
+    }
+    rows = [[cp, str(top), str(left)] for cp, (top, left) in sorted(reach.items())]
+    text = json.dumps(head, ensure_ascii=False, indent=1)[:-2]
+    return text + ',\n "reach": ' + json.dumps(rows, separators=(",", ":")) + "\n}\n"
 
 
 def _pair_lookups(font):
@@ -230,6 +313,9 @@ def build(out_dir: Path = TABLES, notice: Path | None = NOTICE) -> list[Path]:
             path.write_text(text, encoding="utf-8")
             written.append(path)
             sources.append((family, twin, source))
+    path = out_dir / NUMERALS.name
+    path.write_text(numerals(), encoding="utf-8")
+    written.append(path)
     if notice is not None:
         current = notice.read_text(encoding="utf-8")
         if BEGIN in current:

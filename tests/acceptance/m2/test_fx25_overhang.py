@@ -5,7 +5,8 @@ the first baseline) when positive, the first baseline being 1.2 em × line spaci
 (B-21, measured on both LibreOffice versions). The pack invariant: in every region, for
 every style allowed there and every portable family, the largest top and left overhang
 over the measured set is smaller than the free space beside the region. Repros:
-evidence/audit06-repros/t_top.py and t_top2.py. Characters as code points."""
+evidence/audit06-repros/t_top.py and t_top2.py. The numeral style holds the invariant
+over the numeral set (B-26, the ruling on Q-52). Characters as code points."""
 
 import re
 from fractions import Fraction as F
@@ -14,6 +15,8 @@ import pytest
 
 from keyline.config import load as load_config
 from keyline.fit import BELOW_BASELINE_EM, Setting, load_table
+from keyline.fit.numerals import excluded, reach
+from keyline.fit.text import measured
 from keyline.packs import resolve
 from tests.acceptance.m2 import _lo
 from tests.conftest import ROOT
@@ -21,7 +24,6 @@ from tests.conftest import ROOT
 pytest.importorskip("pptx")
 
 from keyline.pen import Deck, DoesNotFit
-from keyline.pen._regions import rule_box
 
 FAMILIES = [f for f, _twin in load_config().portable_fonts]
 EMU_PER_PT = 12700
@@ -87,48 +89,68 @@ def styles_in(pack, mode, role, region):
     return list(dict.fromkeys(s for k in keys for s in components.get(k, ())))
 
 
-def free_space(pack, role, layout, region):
-    """(above, left) of a region, in pt: the gap to the nearest region or keyline rule
-    above it (or to its left) that overlaps it, or to the slide's edge."""
-    boxes = [pack.region_box(layout, r) for r in pack.regions[layout] if r != region]
-    if role == "evidence":
-        boxes.append(rule_box(pack))
-    b = pack.region_box(layout, region)
-    x0, y0, x1, y1 = b.x, b.y, b.x + b.w, b.y + b.h
-    above = [o.y + o.h for o in boxes if o.x < x1 and o.x + o.w > x0 and o.y + o.h <= y0]
-    left = [o.x + o.w for o in boxes if o.y < y1 and o.y + o.h > y0 and o.x + o.w <= x0]
-    return F(y0 - max(above, default=0), EMU_PER_PT), F(x0 - max(left, default=0), EMU_PER_PT)
+def free_space(pack, layout, region):
+    """(above, left) of a region, in pt (Pack.free_space)."""
+    above, left = pack.free_space(layout, region)
+    return F(above, EMU_PER_PT), F(left, EMU_PER_PT)
+
+
+def test_the_free_space():
+    """One grid row (2.5 mm) above the statement's main region; the keyline rule's gap
+    above the evidence regions; a gutter left of the side region; the margins elsewhere."""
+    pack = resolve("swiss")
+    g = pack.grid
+    row, gutter = F(g.row_emu, EMU_PER_PT), F(g.gutter_emu, EMU_PER_PT)
+    margin_x, margin_y = F(g.margin_x_emu, EMU_PER_PT), F(g.margin_y_emu, EMU_PER_PT)
+    rule = pack.rule_box()
+    below_rule = F(pack.region_box("keyline:evidence", "main").y - rule.y - rule.h, EMU_PER_PT)
+    assert free_space(pack, "keyline:statement", "main") == (row, margin_x)
+    assert free_space(pack, "keyline:close", "main") == (2 * row, margin_x)
+    assert free_space(pack, "keyline:evidence", "main") == (below_rule, margin_x)
+    assert free_space(pack, "keyline:evidence:figure", "side") == (below_rule, gutter)
+    assert free_space(pack, "keyline:evidence", "title") == (margin_y, margin_x)
+    assert round(float(below_rule), 1) == 10.8 and round(float(gutter), 1) == 14.2
+
+
+def numeral_overhangs(style):
+    """B-26: the numeral style's top and left overhang over the numeral set, from the
+    largest reach over the twins, in pt."""
+    out = excluded(resolve("swiss"))
+    kept = [r for ch, r in reach().items() if measured(ch) and ch not in out]
+    first = style.size_pt * (F(6, 5) * style.line_spacing - BELOW_BASELINE_EM)
+    top = max(F(0), style.size_pt * max(t for t, _left in kept) - first)
+    return top, style.size_pt * max(left for _top, left in kept)
 
 
 def overhangs(mode):
     """Per region, style and family of the Swiss pack: (where, top overhang, free above,
-    left overhang, free to the left), in pt."""
+    left overhang, free to the left), in pt. The numeral style is taken over the numeral
+    set (B-26)."""
     pack = resolve("swiss")
     out = []
     for role in pack.roles:
         for layout in pack.roles[role].layouts:
             for region in pack.regions[layout]:
-                above, left = free_space(pack, role, layout, region)
+                above, left = free_space(pack, layout, region)
                 for name in styles_in(pack, mode, role, region):
                     style = pack.styles[mode][name]
                     for family in FAMILIES:
                         s = Setting(
                             family, style.weight, style.size_pt, line_spacing=style.line_spacing
                         )
+                        top, lft = s.top_overhang, s.left_overhang
+                        if name == "numeral":
+                            top, lft = numeral_overhangs(style)
                         where = f"{mode} {layout} {region} {name} {family}"
-                        out.append((where, s.top_overhang, above, s.left_overhang, left))
+                        out.append((where, top, above, lft, left))
     return out
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="FX-25: the numeral style fails the invariant (Gelasio's stacked capitals above "
-    "the main regions, U+2044 left of the side region); the remedy is Tyler's call",
-)
 @pytest.mark.parametrize("mode", ["presented", "read"])
 def test_the_pack_holds_its_overhangs(mode):
     found = overhangs(mode)
     assert len({w.split()[1] for w, *_ in found}) == 7  # every layout
+    assert any(" numeral " in w for w, *_ in found)
     bad = [
         f"{where}: top {float(top):.1f} pt / {float(above):.1f} free, "
         f"left {float(lft):.1f} pt / {float(left):.1f} free"
@@ -136,6 +158,17 @@ def test_the_pack_holds_its_overhangs(mode):
         if top >= above or lft >= left
     ]
     assert not bad, "\n".join(bad)
+
+
+def test_over_the_whole_measured_set_the_numeral_would_fail():
+    """Audit 06 FX-25, why B-26 exists: bold Gelasio's Ẩ at 120 pt rises 26.8 pt above the
+    numeral's box, where the statement leaves 7.1 pt; over the numeral set, 6.9 pt."""
+    pack = resolve("swiss")
+    numeral = pack.styles["presented"]["numeral"]
+    s = Setting("Georgia", numeral.weight, numeral.size_pt, line_spacing=numeral.line_spacing)
+    assert round(float(s.top_overhang), 1) == 26.8
+    top, _left = numeral_overhangs(numeral)
+    assert round(float(top), 1) == 6.9 and top < free_space(pack, "keyline:statement", "main")[0]
 
 
 # -- LibreOffice: the audit's titles, within the top allowance ----------------------------
@@ -211,7 +244,7 @@ def test_tall_capitals_stay_within_the_top_allowance(mode, tmp_path):
             style = pack.styles[mode][name or pack.roles[role].title]
             s = Setting(family, style.weight, style.size_pt, line_spacing=style.line_spacing)
             box = _lo.region_pt(pack, layout, region)
-            above, _left = free_space(pack, role, layout, region)
+            above, _left = free_space(pack, layout, region)
             title_bottom = _lo.region_pt(pack, layout, "title")[3]
             mine = [c for c in page if (region == "title") == (c[2] + c[4] < 2 * title_bottom)]
             top = min(c[2] for c in mine)

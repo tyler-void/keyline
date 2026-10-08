@@ -30,6 +30,4 @@ def box(pack: Pack, layout: str, region: str) -> Box:
 
 def rule_box(pack: Pack) -> Box:
     """The keyline device: full content width at the pack's rule row (§5.2)."""
-    g, rule = pack.grid, pack.keyline_rule
-    y = g.margin_y_emu + rule["row"] * g.row_emu
-    return Box(g.margin_x_emu, y, 12192000 - 2 * g.margin_x_emu, rule["thickness_emu"])
+    return pack.rule_box()

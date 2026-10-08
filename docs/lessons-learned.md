@@ -91,3 +91,10 @@ that window reads memory, not disk. A check → fix → re-check loop then valid
 rendered the old deck (audit 02, FX-1; spec 001's render had the same latent bug).
 keyline copies the deck to a private temp file with a unique name, runs
 `officecli close` on the copy in a `finally`, and deletes it (B-14).
+
+**L-017 · 2026-10-08 · A PDF character box can be a composite glyph's stored bounds, not
+its ink.** pdfium's `get_charbox` on a LibreOffice PDF gives Gelasio Bold's Ầ (a composite
+glyph) a top 0.46 pt higher at 120 pt than the outline LibreOffice draws: the glyph header
+stores yMax 2170, while the outline reaches 2162.8 of 2048 units. A raster of the slide
+less a control put the ink exactly on the outline. Character boxes are a conservative
+measure; a test at a margin finer than half a point measures ink instead (B-26).

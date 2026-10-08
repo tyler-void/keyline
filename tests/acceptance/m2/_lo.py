@@ -72,6 +72,32 @@ def chars(pptx: Path, work: Path) -> list[list[tuple[str, float, float, float, f
     return pages
 
 
+def ink_boxes(
+    pptx: Path, work: Path, scale: int = 8
+) -> list[tuple[float, float, float, float] | None]:
+    """Per pair of pages (a slide, then its control), the box of every pixel that differs
+    from the control by more than 10% (26 of 255), as (left, top, right, bottom) in pt from
+    the page's top left, rendered at `scale` px per pt. A glyph's real ink, where pdfium's
+    character box may be a composite glyph's stored bounds instead of its outline."""
+    import pypdfium2 as pdfium
+    from PIL import ImageChops
+
+    work.mkdir(parents=True, exist_ok=True)
+    pdf = render_mod.convert_to_pdf(Path(pptx), render_mod.find_soffice(), work)
+    doc = pdfium.PdfDocument(str(pdf))
+    try:
+        images = [page.render(scale=scale).to_pil().convert("RGB") for page in doc]
+    finally:
+        doc.close()
+    out = []
+    for image, control in zip(images[::2], images[1::2], strict=True):
+        r, g, b = ImageChops.difference(image, control).split()
+        strongest = ImageChops.lighter(ImageChops.lighter(r, g), b)
+        box = strongest.point(lambda v: 255 if v > 26 else 0).getbbox()
+        out.append(None if box is None else tuple(v / scale for v in box))
+    return out
+
+
 def region_pt(pack, layout: str, region: str) -> tuple[float, float, float, float]:
     b = pack.region_box(layout, region)
     return (b.x / EMU_PER_PT, b.y / EMU_PER_PT, (b.x + b.w) / EMU_PER_PT, (b.y + b.h) / EMU_PER_PT)

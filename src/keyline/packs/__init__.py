@@ -50,6 +50,7 @@ THEME_SLOTS = (
     "folHlink",
 )
 SLIDE_W, SLIDE_H = 12192000, 6858000  # 16:9 (§5.3)
+RULE_ROLE = "evidence"  # the role whose slides carry the keyline rule (§5.2)
 NAME_RE = re.compile(r"[a-z0-9-]+")  # pack names; matched with fullmatch (B-12 item 1)
 
 
@@ -188,6 +189,25 @@ class Pack:
 
     def region_box(self, layout: str, region: str) -> Box:
         return self.grid.box(self.regions[layout][region])
+
+    def rule_box(self) -> Box:
+        """The keyline device: full content width at the pack's rule row (§5.2)."""
+        g, rule = self.grid, self.keyline_rule
+        y = g.margin_y_emu + rule["row"] * g.row_emu
+        return Box(g.margin_x_emu, y, SLIDE_W - 2 * g.margin_x_emu, rule["thickness_emu"])
+
+    def free_space(self, layout: str, region: str) -> tuple[int, int]:
+        """(above, left) of a region, in EMU: the gap to the nearest region or keyline
+        rule above it (or to its left) that overlaps it, or to the slide's edge (B-25
+        item 3)."""
+        boxes = [self.region_box(layout, r) for r in self.regions[layout] if r != region]
+        if parse_layout(layout)[0] == RULE_ROLE:
+            boxes.append(self.rule_box())
+        b = self.region_box(layout, region)
+        x0, y0, x1, y1 = b.x, b.y, b.x + b.w, b.y + b.h
+        above = [o.y + o.h for o in boxes if o.x < x1 and o.x + o.w > x0 and o.y + o.h <= y0]
+        left = [o.x + o.w for o in boxes if o.y < y1 and o.y + o.h > y0 and o.x + o.w <= x0]
+        return y0 - max(above, default=0), x0 - max(left, default=0)
 
     def layout_role(self, layout: str) -> Role:
         return self.roles[parse_layout(layout)[0]]

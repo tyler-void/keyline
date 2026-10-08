@@ -20,6 +20,8 @@ from typing import Any
 from keyline import config as config_mod
 from keyline.escape import esc, schema_is
 from keyline.findings import Finding, sort_findings
+from keyline.fit.numerals import numeral_problem
+from keyline.fit.text import normalize
 from keyline.packs import Pack, PackError, resolve
 from keyline.packs.voices import (
     Voice,
@@ -290,7 +292,7 @@ def load(path: str | Path) -> Brief:
         raw_ev = [raw_ev]
     if not isinstance(raw_ev, list) or not raw_ev or not all(isinstance(e, str) for e in raw_ev):
         raise BriefError("evidence: must be a path or a non-empty list of paths")
-    evidence = _evidence([path.parent / e for e in raw_ev], cfg)
+    evidence = _evidence([path.parent / e for e in raw_ev], cfg, pack)
 
     d = data.get("direction")
     if not isinstance(d, dict):
@@ -358,13 +360,16 @@ def _slide(index: int, s: Any, evidence: EvidenceSet) -> BriefSlide:
     return BriefSlide(index, role, headline, reads, ids, notes)
 
 
-def load_evidence(paths: list[str | Path], mode: str = "presented") -> EvidenceSet:
+def load_evidence(
+    paths: list[str | Path], mode: str = "presented", pack: Pack | None = None
+) -> EvidenceSet:
     """Evidence files without a brief (the pen's brief-less form, §6.1); the first is the
-    primary file. Raises BriefError on a schema error."""
-    return _evidence([Path(p) for p in paths], config_mod.load(mode))
+    primary file. Raises BriefError on a schema error. With a pack, each value is checked
+    against the pack's numeral set (B-26)."""
+    return _evidence([Path(p) for p in paths], config_mod.load(mode), pack)
 
 
-def _evidence(paths: list[Path], cfg) -> EvidenceSet:
+def _evidence(paths: list[Path], cfg, pack: Pack | None) -> EvidenceSet:
     entries: dict[str, Entry] = {}
     product = None
     for n, path in enumerate(paths):
@@ -378,7 +383,7 @@ def _evidence(paths: list[Path], cfg) -> EvidenceSet:
         if not isinstance(raw, list):
             raise BriefError(f"evidence file {name}: [[evidence]] must be an array of tables")
         for i, e in enumerate(raw):
-            entry = _entry_of(e, f"evidence file {name}: evidence[{i + 1}].", cfg)
+            entry = _entry_of(e, f"evidence file {name}: evidence[{i + 1}].", cfg, pack)
             if entry.id in entries:
                 raise BriefError(f"evidence file {name}: duplicate evidence id {entry.id!r}")
             entries[entry.id] = entry
@@ -396,7 +401,7 @@ def _product(p: Any, name: str) -> Product:
     return Product(_str(p, "name", where), fictional, disclosure)
 
 
-def _entry_of(e: Any, where: str, cfg) -> Entry:
+def _entry_of(e: Any, where: str, cfg, pack: Pack | None) -> Entry:
     if not isinstance(e, dict):
         raise BriefError(f"{where.rstrip('.')}: must be a table")
     eid = _str(e, "id", where)
@@ -412,6 +417,10 @@ def _entry_of(e: Any, where: str, cfg) -> Entry:
     if has_value == has_series:
         raise BriefError(f"{where[:-1]}: needs exactly one of value or series")
     value = _str(e, "value", where) if has_value else None
+    if value is not None and pack is not None:  # a value is what a figure shows (B-26)
+        problem = numeral_problem(normalize(value), pack)
+        if problem:
+            raise BriefError(f"{where}value: {problem}")
     series = _series(e["series"], f"{where}series") if has_series else None
     aliases = _strings(e, "aliases", where, required=False)
     return Entry(eid, label, source, value, series, aliases)
