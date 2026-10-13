@@ -1,9 +1,10 @@
-"""Audit 05 FX-17 (amendment B-22 item 4): no line break before ) ] } , . : ; ! ? / %
-U+2030 U+00BB U+201D U+2019, even after a space (UAX #14, LB13); the estimator keeps them
-with the word before. Since B-27 item 3 the set is measured (tables/breaks.json), which
-adds the backslash and U+2044. LibreOffice is checked with each character: a headline
-whose first line is full, followed by " <char> end", never takes more lines than the
-estimate. Repro: evidence/audit05-repros/attack_uax14.py."""
+"""Audit 05 FX-17 (amendment B-22 item 4): no line break before ) ] } , . : ; ! ? /, even
+after a space (UAX #14, LB13); the estimator keeps them with the word before. Since B-27
+item 3 the set is measured (tables/breaks.json): it adds U+2044 and the backslash, and
+it no longer holds % U+2030 U+00BB U+201D U+2019, which no version keeps. LibreOffice is
+checked with each character: a headline whose first line is full, followed by
+" <char> end", never takes more lines than the estimate. Repro:
+evidence/audit05-repros/attack_uax14.py."""
 
 import random
 
@@ -41,7 +42,9 @@ def test_break_units_keep_closing_punctuation_with_the_word_before():
     assert break_units("( opens") == ["( opens"]  # B-25 item 5: kept with what follows
     for ch in NO_BREAK_BEFORE:
         assert break_units(f"a {ch} b") == [f"a {ch}", "b"]
-    assert set(NO_BREAK_BEFORE) == set(LB13 + NEVER_KEPT + BY_VERSION)
+    assert set(NO_BREAK_BEFORE) == set(LB13 + BY_VERSION)
+    for ch in NEVER_KEPT:  # LibreOffice breaks before these, and so does the estimator
+        assert break_units(f"a {ch} b") == ["a", ch, "b"]
 
 
 def test_no_line_starts_with_closing_punctuation():
@@ -72,9 +75,10 @@ def test_the_audit_headlines_are_refused(text):
         deck.add("evidence", text)
 
 
-LB13 = ")]},.:;!?/" + FULLWIDTH_CLOSERS  # UAX #14 classes CL, CP, EX, IS and SY
-NEVER_KEPT = "%" + "".join(map(chr, (0x2030, 0xBB, 0x201D, 0x2019)))  # listed, not measured
-BY_VERSION = "\\" + chr(0x2044)  # kept on some versions only (audit 07 FX-33)
+# UAX #14 classes CL, CP, EX, IS and SY: kept with the word before when the space fits
+LB13 = ")]},.:;!?/" + chr(0x2044) + FULLWIDTH_CLOSERS
+NEVER_KEPT = "%" + "".join(map(chr, (0x2030, 0xBB, 0x201D, 0x2019)))  # no version keeps them
+BY_VERSION = "\\"  # 24.2.7.2 keeps it, 26.8.1.1 does not (audit 07 FX-33)
 
 
 def full_line_case(setting, box_pt, ch, seed, space_fits):
@@ -107,11 +111,10 @@ def test_libreoffice_never_sets_more_lines_than_the_estimator(space_fits, tmp_pa
     """For each character, a headline whose first line is full, then " <char> end". The
     estimator carries the last word down with the character: 2 lines. LibreOffice sets
     no more, whatever it does. With room for the space after the last word it keeps the
-    ten UAX #14 LB13 characters with that word, as the estimator does (the audit's "/",
-    attack_uax14.py), and breaks before % U+2030 U+00BB U+201D U+2019; without that room
-    it breaks before all fifteen (tools/measure_lo.py prints the same table). The
-    backslash and U+2044 are kept on some versions only (24.2.7.2 keeps the backslash,
-    26.8.1.1 does not), so for them only the line count is checked."""
+    LB13 characters with that word, as the estimator does (the audit's "/",
+    attack_uax14.py); without that room it breaks before them (tools/measure_lo.py prints
+    the same table). The backslash is kept on 24.2.7.2 and not on 26.8.1.1, so for it
+    only the line count is checked."""
     pack = resolve("swiss")
     deck = Deck(pack="swiss", mode="presented", voice="neutral")
     setting = headline_setting(deck)

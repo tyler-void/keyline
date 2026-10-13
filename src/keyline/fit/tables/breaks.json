@@ -3,41 +3,8 @@
  "rule": "B-27 item 3: after a space, no line breaks before the characters of no_break_before; before a space, none breaks after those of no_break_after. Each is the union over the LibreOffice versions measured",
  "versions": [
   {
-   "version": "LibreOffice 26.8.0.3 680(Build:3)",
-   "source": "specs/002-skill-pack/evidence/lo-26.8.0.3-measurements.txt",
-   "probe": "listed: this output predates the full probe, so these are B-22 item 4's and B-25 item 5's lists",
-   "no_break_before": [
-    33,
-    37,
-    41,
-    44,
-    46,
-    47,
-    58,
-    59,
-    63,
-    93,
-    125,
-    187,
-    8217,
-    8221,
-    8240
-   ],
-   "no_break_after": [
-    40,
-    91,
-    123,
-    161,
-    191,
-    8218,
-    8222,
-    8261
-   ]
-  },
-  {
    "version": "LibreOffice 26.8.1.1 680(Build:1)",
    "source": "specs/002-skill-pack/evidence/lo-26.8.1.1-measurements.txt",
-   "probe": "full",
    "no_break_before": [
     33,
     41,
@@ -63,11 +30,9 @@
   },
   {
    "version": "LibreOffice 24.2.7.2 420(Build:2)",
-   "source": "specs/002-skill-pack/evidence/audit07-repros/measure_lo-on-24.2.7.2.txt",
-   "probe": "listed: this output predates the full probe, so these are B-22 item 4's and B-25 item 5's lists; audit 07 FX-33 found no break before U+005C and U+2044 there",
+   "source": "specs/002-skill-pack/evidence/lo-24.2.7.2-measurements.txt",
    "no_break_before": [
     33,
-    37,
     41,
     44,
     46,
@@ -78,10 +43,6 @@
     92,
     93,
     125,
-    187,
-    8217,
-    8221,
-    8240,
     8260
    ],
    "no_break_after": [
@@ -91,14 +52,12 @@
     161,
     191,
     8218,
-    8222,
-    8261
+    8222
    ]
   }
  ],
  "no_break_before": [
   33,
-  37,
   41,
   44,
   46,
@@ -109,10 +68,6 @@
   92,
   93,
   125,
-  187,
-  8217,
-  8221,
-  8240,
   8260
  ],
  "no_break_after": [
@@ -122,7 +77,6 @@
   161,
   191,
   8218,
-  8222,
-  8261
+  8222
  ]
 }

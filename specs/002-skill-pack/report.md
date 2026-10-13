@@ -2209,8 +2209,8 @@ exit 0
 - **Repair prompts:** none, in the two templates and the three specimens.
 - **Verdict on Swiss:** readable, not yet "wow".
 - **Fix items:** none.
-- **Not stated in the ruling:** whether text typed into a new text box in `night` is
-  readable (Q-33). It is listed under *Open questions* below.
+- **The text box in `night`** (Q-33; Q-61, closed): "Tyler, 2026-10-13: text typed into
+  a new text box is readable on night, and on the section slide."
 - **B-28** follows from it, and is in `spec.md`, `plan.md` and `tasks.md` (`9856b27`):
   - the BonsaiHub demo stays in Phase B on the Swiss pack, as the end-to-end proof of
     the skill;
@@ -2504,5 +2504,65 @@ S. **`tools/demo.py`** is not in the tasks. It sets up the folder for the fresh 
 - **Q-62 · `brief` cannot tell that a headline will not fit.** It counts words; only the
   pen measures. Today the skill runs a build skeleton to find out. *Proposal:* in spec
   003, `keyline brief` runs the fit on each headline and reports a finding, which adds
-  a registry entry.
-- **Q-60 and Q-61** (from the prelude) are still open.
+  a registry entry. **Ruled at the checkpoint below: accepted, deferred to spec 003.**
+- **Q-60 and Q-61** (from the prelude) are ruled at the checkpoint below.
+
+## Checkpoint (the auditor, at `3566cb4`) · accepted
+
+The auditor re-ran the Phase B work on LibreOffice 24.2.7.2 and accepted it. T-46 and
+T-47 go ahead from the head that holds this section.
+
+- **The auditor's results:**
+  - ruff clean;
+  - the Phase B acceptance subset: 74 passed, 11 skipped;
+  - `gen_docs.py --check` passes, and the M1 baseline is unchanged;
+  - `measure_lo.py` holds criteria (a) to (f);
+  - `ngram_overlap.py` against a fresh clone of anthropics/skills finds 0 shared
+    sequences (its positive control finds 441);
+  - a dry run of `demo.py setup` works, and the packaged `kl.py doctor` exits 0;
+  - P-1 and P-2 as written above match spec §10.
+- **Q-60, accepted.** The auditor's 24.2.7.2 output with the full probe is committed as
+  [`evidence/lo-24.2.7.2-measurements.txt`](evidence/lo-24.2.7.2-measurements.txt).
+  `breaks.json` is regenerated from it:
+
+  ```
+  $ python tools/gen_measured.py      # rewrites breaks.json and environments.json
+  $ grep "^  no break" specs/002-skill-pack/evidence/lo-26.8.1.1-measurements.txt
+    no break before (11): U+0021 U+0029 U+002C U+002E U+002F U+003A U+003B U+003F U+005D U+007D U+2044
+    no break after (7): U+0028 U+005B U+007B U+00A1 U+00BF U+201A U+201E
+  $ grep "^  no break" specs/002-skill-pack/evidence/lo-24.2.7.2-measurements.txt
+    no break before (12): U+0021 U+0029 U+002C U+002E U+002F U+003A U+003B U+003F U+005C U+005D U+007D U+2044
+    no break after (7): U+0028 U+005B U+007B U+00A1 U+00BF U+201A U+201E
+  ```
+
+  `breaks.json` holds each pair and their union: 12 characters before, 7 after.
+  `test_fx33_measured_breaks.py` re-derives it.
+
+  - The 24.2.7.2 entry is now measured. It differs from 26.8.1.1 by one character: it
+    keeps the backslash with the word before.
+  - The 26.8.0.3 entry is dropped; its output predates the full probe.
+  - The union loses U+0025, U+00BB, U+2019, U+201D and U+2030 (before) and U+2045
+    (after). Both full probes break there, so the estimator does too.
+  - Deviation L no longer applies: no version keeps a listed set.
+  - `environments.json` takes the auditor's environment from the same new output. The
+    three thresholds are unchanged (1.49, 1.59, 0.05).
+- **Checked on 26.8.1.1 after the change:**
+
+  ```
+  $ pytest -q tests/acceptance/m2/test_fx33_measured_breaks.py tests/acceptance/m2/test_fx17_line_breaks.py tests/acceptance/m2/test_fx27_opening_punctuation.py tests/acceptance/m2/test_fx35_environments.py
+  28 passed
+  $ python tools/measure_lo.py OUT; echo $?      # byte-identical to lo-26.8.1.1-measurements.txt
+  0
+  $ python tools/fit_stress.py > OUT; echo $?    # byte-identical to fit-stress-lo-26.8.1.1.txt
+  0
+  ```
+
+  The gate with this change: 1348 passed and 11 skipped on the full suite; 1227 passed
+  and 132 skipped on an empty PATH; 1263 passed and 96 skipped on a CI-like PATH. The M1
+  baseline shows no differences, and `gen_docs.py --check` passes.
+- **Q-61, closed.** Tyler's line is recorded under *G-1* above.
+- **Q-62, accepted and deferred to spec 003:** `keyline brief` will run the fit on each
+  headline, with a new registry entry. Until then, the skill's step 5 runs the headline
+  dry-run.
+- **`dist/keyline.zip` changes,** because `breaks.json` ships in it. T-46 builds the zip
+  from this head.

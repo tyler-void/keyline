@@ -5,7 +5,8 @@ with and without room for the space; tools/gen_measured.py stores the union over
 versions measured (fit/tables/breaks.json), and this test re-derives it. LibreOffice
 24.2.7.2 will not break before a backslash after a space: LaTeX-style text estimated at 4
 lines was set in 5, +25.8 px below its region. Repro: evidence/audit07-repros/
-f2_backslash.py and probe_b.py. Characters as code points."""
+f2_backslash.py and probe_b.py. Since the auditor's Phase B checkpoint (plan Q-60) both
+entries come from the full probe: 26.8.1.1 and 24.2.7.2. Characters as code points."""
 
 import importlib.util
 import json
@@ -36,8 +37,9 @@ from keyline.pen import Deck, DoesNotFit
 FAMILIES = [f for f, _twin in load_config().portable_fonts]
 BREAKS = ROOT / "src/keyline/fit/tables/breaks.json"
 DATA = json.loads(BREAKS.read_text(encoding="utf-8"))
-FULL = ROOT / "specs/002-skill-pack/evidence/lo-26.8.1.1-measurements.txt"
 BACKSLASH, FRACTION_SLASH = chr(0x5C), chr(0x2044)
+KEPT_BEFORE = ")]},.:;!?/" + FRACTION_SLASH  # kept with the word before, on both versions
+KEPT_AFTER = "([{" + "".join(map(chr, (0xA1, 0xBF, 0x201A, 0x201E)))  # with the word after
 
 
 def tool(name):
@@ -54,33 +56,45 @@ def test_the_data_is_rederived():
 
 
 def test_the_sets_are_the_union_over_the_versions():
-    versions = {v["version"]: v for v in DATA["versions"]}
-    assert len(versions) == 3 and any("24.2.7.2" in v for v in versions)
+    """Two versions have run the full probe: Tyler's 26.8.1.1 and the auditor's 24.2.7.2.
+    26.8.0.3 has no entry: its output predates the probe (plan Q-60)."""
+    versions = {v["version"].split()[1]: v for v in DATA["versions"]}
+    assert sorted(versions) == ["24.2.7.2", "26.8.1.1"]
     for key in ("no_break_before", "no_break_after"):
         assert DATA[key] == sorted({cp for v in versions.values() for cp in v[key]})
     assert set(NO_BREAK_BEFORE) == {*map(chr, DATA["no_break_before"]), *FULLWIDTH_CLOSERS}
     assert set(NO_BREAK_AFTER) == set(map(chr, DATA["no_break_after"]))
     assert set(NO_BREAK_BEFORE) - set(FULLWIDTH_CLOSERS) <= set(MEASURED)
     assert set(NO_BREAK_AFTER) <= set(MEASURED)
+    assert set(NO_BREAK_BEFORE) - set(FULLWIDTH_CLOSERS) == {*KEPT_BEFORE, BACKSLASH}
+    assert set(NO_BREAK_AFTER) == set(KEPT_AFTER)
 
 
-def test_the_full_probe_gives_its_version_as_measured():
-    """26.8.1.1: eleven characters are kept with the word before, U+2044 among them, and
-    seven with the word after. It breaks before a backslash; 24.2.7.2 does not."""
-    text = FULL.read_text(encoding="utf-8")
-    (full,) = [v for v in DATA["versions"] if v["probe"] == "full"]
-    assert full["version"] in text
-    for side in ("before", "after"):
-        (line,) = re.findall(rf"^  no break {side} \(\d+\):(.*)$", text, re.MULTILINE)
-        assert full[f"no_break_{side}"] == sorted(int(cp[2:], 16) for cp in line.split())
-    assert {chr(c) for c in full["no_break_before"]} == {*")]},.:;!?/", FRACTION_SLASH}
-    assert {chr(c) for c in full["no_break_after"]} == {
-        *"([{",
-        *map(chr, (0xA1, 0xBF, 0x201A, 0x201E)),
-    }
-    old = next(v for v in DATA["versions"] if "24.2.7.2" in v["version"])
-    assert old["probe"].startswith("listed") and ord(BACKSLASH) in old["no_break_before"]
-    assert ord(BACKSLASH) not in full["no_break_before"]
+def test_each_entry_is_what_its_output_measured():
+    """Both versions keep eleven characters with the word before, U+2044 among them, and
+    seven with the word after. 24.2.7.2 also keeps the backslash; 26.8.1.1 breaks before
+    it."""
+    for version in DATA["versions"]:
+        text = (ROOT / version["source"]).read_text(encoding="utf-8")
+        assert f"version: {version['version']}\n" in text
+        for side in ("before", "after"):
+            (line,) = re.findall(rf"^  no break {side} \(\d+\):(.*)$", text, re.MULTILINE)
+            assert version[f"no_break_{side}"] == sorted(int(cp[2:], 16) for cp in line.split())
+        assert {chr(c) for c in version["no_break_after"]} == set(KEPT_AFTER)
+        before = {chr(c) for c in version["no_break_before"]}
+        extra = {BACKSLASH} if "24.2.7.2" in version["version"] else set()
+        assert before == set(KEPT_BEFORE) | extra, version["version"]
+
+
+def test_neither_version_keeps_the_characters_that_were_only_listed():
+    """B-22 item 4 listed % and U+2030, U+00BB, U+201D, U+2019, and B-25 item 5 covered
+    U+2045 as an opener. No probe on either version kept any of them, so the estimator
+    breaks there too."""
+    for ch in "%" + "".join(map(chr, (0x2030, 0xBB, 0x201D, 0x2019))):
+        assert ch not in NO_BREAK_BEFORE
+        assert break_units(f"a {ch} b") == ["a", ch, "b"]
+    quill = chr(0x2045)  # in the measured set, in no twin: the probe has no result for it
+    assert not opens(quill) and break_units(f"a {quill} b") == ["a", quill, "b"]
 
 
 def test_the_probe_covers_every_non_letter_of_the_measured_set():
@@ -88,16 +102,17 @@ def test_the_probe_covers_every_non_letter_of_the_measured_set():
     chars = measure_lo.break_chars()
     assert chars == [c for c in MEASURED if unicodedata.category(c)[0] != "L" and c not in SPACES]
     assert len(chars) == 202
-    text = FULL.read_text(encoding="utf-8")
-    start = text.index("line breaks at a space (B-27 item 3)")
-    section = text[start : text.index("\n\n", start)]
-    rows = {
-        int(cp, 16) for cp in re.findall(r"^  U\+([0-9A-F]{4,5}) .*[Kb-]/[Kb-]$", section, re.M)
-    }
-    (unprobed,) = re.findall(r"in no twin, not probed \(\d+\):(.*)$", section, re.MULTILINE)
-    missing = {int(cp[2:], 16) for cp in unprobed.split()}
-    assert rows | missing == set(map(ord, chars)) and not rows & missing
-    assert len(rows) == 150
+    for version in DATA["versions"]:
+        text = (ROOT / version["source"]).read_text(encoding="utf-8")
+        start = text.index("line breaks at a space (B-27 item 3)")
+        section = text[start : text.index("\n\n", start)]
+        rows = {
+            int(cp, 16) for cp in re.findall(r"^  U\+([0-9A-F]{4,5}) .*[Kb-]/[Kb-]$", section, re.M)
+        }
+        (unprobed,) = re.findall(r"in no twin, not probed \(\d+\):(.*)$", section, re.MULTILINE)
+        missing = {int(cp[2:], 16) for cp in unprobed.split()}
+        assert rows | missing == set(map(ord, chars)) and not rows & missing
+        assert len(rows) == 150, version["version"]
 
 
 def test_the_outcome_of_a_probe():

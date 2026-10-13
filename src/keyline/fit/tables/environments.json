@@ -52,10 +52,10 @@
   },
   {
    "who": "the auditor",
-   "source": "specs/002-skill-pack/evidence/audit07-repros/measure_lo-on-24.2.7.2.txt",
+   "source": "specs/002-skill-pack/evidence/lo-24.2.7.2-measurements.txt",
    "version": "LibreOffice 24.2.7.2 420(Build:2)",
-   "date": "2026-10-08",
-   "platform": "Linux-6.18.44-fc-v80-x86_64-with-glibc2.39",
+   "date": "2026-10-13",
+   "platform": "Linux-6.18.44-fc-v114-x86_64-with-glibc2.39",
    "fallback_fonts": {
     "cjk": {
      "file": "wqy-zenhei.ttc",

@@ -47,6 +47,9 @@
 - **Phase B, T-33 … T-45, T-48 and T-50 are in** (2026-10-13, report B, in progress). T-46
   (the demo, in a fresh session) and T-47 (the surfaces) are Tyler's. One new question,
   Q-62, is below.
+- **The auditor's Phase B checkpoint** (at `3566cb4`, 2026-10-13): accepted, re-run on
+  LibreOffice 24.2.7.2. It rules Q-60, Q-61 and Q-62, marked below. T-46 and T-47 go
+  ahead once the Q-60 change has landed.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -898,6 +901,15 @@ Each has a proposal; the tasks follow the proposal unless Tyler rules otherwise.
 
 Each has a proposal. Neither blocks Phase B.
 
+**Rulings (the auditor's Phase B checkpoint, 2026-10-13):**
+- **Q-60: accepted.** The auditor's 24.2.7.2 output with the full probe is committed as
+  `evidence/lo-24.2.7.2-measurements.txt`, and `breaks.json` is regenerated: the
+  24.2.7.2 entry is the full probe, and the 26.8.0.3 entry is dropped. The union loses
+  U+0025, U+00BB, U+2019, U+201D and U+2030 (no break before) and U+2045 (no break
+  after), since both full probes break there.
+- **Q-61: closed.** "Tyler, 2026-10-13: text typed into a new text box is readable on
+  night, and on the section slide." It is recorded under G-1 in `report.md`.
+
 60. **Q-60 · The 26.8.0.3 entry of the break sets.** LibreOffice on Tyler's machine is
     now 26.8.1.1, so 26.8.0.3 can no longer run the full probe of B-27 item 3, and its
     listed sets would stay in `breaks.json` for good. *Proposal:* once the auditor's
@@ -908,6 +920,11 @@ Each has a proposal. Neither blocks Phase B.
     Tyler confirms it in one line, and the report records it.
 
 ### Report B question (2026-10-13, report B)
+
+**Ruling (the auditor's Phase B checkpoint, 2026-10-13):**
+- **Q-62: accepted, deferred to spec 003.** There, `keyline brief` runs the fit on each
+  headline and reports a finding, under a new registry entry. In spec 002 the interim
+  is the headline dry-run of `SKILL.md`'s step 5.
 
 62. **Q-62 · `brief` cannot tell that a headline will not fit.** `keyline brief` counts a
     headline's words; only the pen measures it against its title. In the rehearsal, two

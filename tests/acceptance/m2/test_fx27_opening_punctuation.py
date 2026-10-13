@@ -26,9 +26,10 @@ WORDS = [
 
 
 def test_openers_join_the_next_piece():
-    for ch in OPENERS + chr(0x2045) + chr(0xFF08):
+    for ch in OPENERS + chr(0xFF08):  # the measured seven, and an opener outside the set
         assert opens(ch), hex(ord(ch))
         assert break_units(f"see {ch} the note") == ["see", f"{ch} the", "note"]
+    assert not opens(chr(0x2045))  # in the measured set, but no probe kept it (B-27 item 3)
     for ch in ")" + chr(0xAB) + chr(0x201C) + "a":  # closers and quotation marks do not open
         assert not opens(ch)
     assert set(FULLWIDTH_CLOSERS) <= set(NO_BREAK_BEFORE)
