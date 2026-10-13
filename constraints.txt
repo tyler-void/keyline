@@ -1,0 +1,6 @@
+# The version of python-pptx that keyline's pen is proven on (spec 002 AC-20; plan Q-55).
+# Byte-identical output and the chart axis-id fix were tested with it. lxml and Pillow
+# are not pinned; the AC-20 test prints the versions it got.
+#
+#   pip install -c constraints.txt lxml Pillow python-pptx
+python-pptx==1.0.2
