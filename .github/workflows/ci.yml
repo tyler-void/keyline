@@ -30,5 +30,8 @@ jobs:
         run: |
           ruff check .
           ruff format --check .
+      - name: Docs
+        # spec 002 AC-18: the skill's generated tables match thresholds.toml, pack.toml and the fit tables
+        run: python tools/gen_docs.py --check
       - name: Pytest
         run: pytest -q -rP  # -rP: print the timing lines of AC-9 and AC-20
