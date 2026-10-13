@@ -60,3 +60,11 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
   - AC-13(b)'s top allowance for stacked capitals, with Vietnamese in the fit stress.
   - B-26's numeral set, derived from the twins and the pack: a figure's value refuses
     the characters that would reach past its region.
+- Spec 002, Phase B prelude (audit 07, B-27):
+  - U+2212 MINUS SIGN joins the measured set, so a negative figure is a numeral.
+  - A line's estimate includes how far its last glyph draws past its advance, and
+    kerning pairs are found across invisible joiners.
+  - The no-break-before and no-break-after sets are measured by `tools/measure_lo.py`
+    and stored per LibreOffice version (`tools/gen_measured.py`).
+  - `missing_glyph_em` and `missing_line_em` take the largest value over every
+    environment measured; each environment is recorded.

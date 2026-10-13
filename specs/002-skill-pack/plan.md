@@ -41,6 +41,9 @@
   - the soul verdict moves to spec 003, which rebuilds the same briefs and evidence
     with an expressive Pitch system and motion, and compares the two;
   - the Swiss demo decks are kept unchanged as spec 003's baseline.
+- **The B-27 prelude is in** (2026-10-13, report "Phase B prelude: B-27"). LibreOffice on
+  Tyler's machine is now 26.8.1.1; the measurements name it. Two new questions, Q-60 and
+  Q-61, are below.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -887,6 +890,19 @@ Each has a proposal; the tasks follow the proposal unless Tyler rules otherwise.
     second section covers the pen's refusals: `DoesNotFit`, the refused characters,
     B-26, and the coverage warning, each with what to change. The test checks the
     registry part.
+
+### Phase B prelude questions (2026-10-13, report "Phase B prelude: B-27")
+
+Each has a proposal. Neither blocks Phase B.
+
+60. **Q-60 · The 26.8.0.3 entry of the break sets.** LibreOffice on Tyler's machine is
+    now 26.8.1.1, so 26.8.0.3 can no longer run the full probe of B-27 item 3, and its
+    listed sets would stay in `breaks.json` for good. *Proposal:* once the auditor's
+    24.2.7.2 output with the full probe is in, drop the 26.8.0.3 entry: 26.8.1.1
+    supersedes it on that machine.
+61. **Q-61 · G-1's text box in `night`.** B-28 records that G-1 passed, without the
+    result of typing into a new text box on the `night` specimen (Q-33). *Proposal:*
+    Tyler confirms it in one line, and the report records it.
 
 47. **Q-47 · AC-13(b)'s left edge** (report A2). A line that starts with a glyph whose
     left side bearing is negative puts ink left of the region box (2.7 px measured, bold

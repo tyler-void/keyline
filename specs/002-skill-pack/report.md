@@ -2052,3 +2052,208 @@ J. **Missing glyphs in a cell: per row, not per line** (FX-31, B-25 item 6).
 
 - **None for the fixes.** Q-53 (U+2212 in a numeral, found with B-26) and the Phase B
   questions Q-54 … Q-59 are in plan §9, each with a proposal.
+
+---
+
+# Phase B prelude: B-27 (audit 07)
+
+- **Audit 07** ([audit-07-b-plan.md](audit-07-b-plan.md)): fix round 2 accepted, with
+  deviations F … J. Phase B is GO, with task changes. Four estimator fixes come first:
+  FX-32 … FX-35, under amendment B-27. The repro scripts are in
+  [`evidence/audit07-repros/`](evidence/audit07-repros/).
+- **G-1 passed, and B-28** (Tyler, 2026-10-13): see *G-1* below.
+- **Branch:** `002-skill-pack`, from `6ba6487` (round 2) to `53a579d`; this
+  section's commit follows.
+- **Status:**
+  - The five B-27 items are in, each as its own commit with its tests. Each repro is a
+    test (the ones that need LibreOffice skip without it).
+  - **This machine's LibreOffice is now 26.8.1.1,** not 26.8.0.3 (Deviation K). On
+    26.8.1.1, `measure_lo` holds criteria (a) to (f) and `fit_stress` passes (1177
+    texts).
+  - The M1 baseline shows no differences after every fix.
+- **No stop here.** Phase B continues from T-33; the Phase B audit re-checks these fixes.
+- **One request to the auditor:** run the new `tools/measure_lo.py` on 24.2.7.2 and send
+  its output. It replaces the listed break sets for that version (see FX-33).
+
+## Reproduce (prelude)
+
+```sh
+python -m pip install -e '.[dev]'
+pytest -q                          # 1275 passed here (LibreOffice 26.8.1.1, OfficeCLI, all six twins)
+python tools/m1_baseline.py        # baseline: no differences
+python tools/measure_lo.py OUT     # criteria (a) to (f); needs LibreOffice
+python tools/fit_stress.py         # AC-13(b) per B-24 and B-25; needs LibreOffice
+python tools/gen_fit_tables.py     # the fit tables and numerals.json, byte-identical
+python tools/gen_measured.py       # breaks.json and environments.json, from committed outputs
+```
+
+Without the engines, the suite gives 1154 passed and 121 skipped on an empty PATH, and
+1190 passed and 85 skipped on a CI-like PATH (LibreOffice, OfficeCLI, pdftoppm and node
+removed; `fc-match` kept).
+
+## B-27 item 1 · U+2212 joins the measured set · `e6d3a77`
+
+- **The set** has 923 characters. MINUS SIGN is the only Mathematical Operator in it; the
+  pen still refuses the others in a numeral.
+- **Regenerated:** the twin tables are byte-identical, because no extent and no positive
+  kerning pair depends on it. `numerals.json` gains its reach.
+- **The numeral set keeps it,** so "−0.4%" is a figure. The 37 excluded characters are
+  unchanged.
+- **Tests:** `test_b25_measured_set.py` (15) and `test_b26_numeral_set.py` (18).
+
+## FX-32 · The last glyph's right reach · `2e4d38d`
+
+- **The data.** Each fit table gains `right`: per glyph that draws past its advance, how
+  far, from the outline, rounded outward. Caladea Bold "f" is 78/1000 em and Carlito Bold
+  "ế" is 0.096 em, as the audit measured.
+- **The width.** `fit.width` adds the reach of a line's last drawn glyph. A trailing
+  joiner or variation selector draws nothing, so the glyph before it counts.
+- **Before the fix,** Cambria "7,1 kf" at 120 pt ended 6.6 pt past the side region here
+  (the audit: +7.7 px over the 2 px limit on 24.2). The pen now refuses that value.
+- **Tests:** `test_fx32_right_reach.py`, 21. In LibreOffice (`f1_right.py`), the audit's
+  six numerals, and the longest numeral the pen accepts before each one's tail, end
+  within 2 px of the side region's right edge. With the reach removed, the test fails.
+
+## FX-34 · Kerning across default-ignorable code points · `4cc267c`
+
+- **The change.** `fit.width` looks its positive pairs up between the characters a
+  shaper sees. A joiner between two characters no longer splits their pair.
+- **LRM.** LibreOffice does split the pair at U+200E. Counting it there only adds width.
+- **Tests:** `test_fx34_kerning_across_ignorables.py`, 6. In LibreOffice
+  (`f3_ignorable.py`), the longest joined bodies and ledes in a Calibri voice stay in
+  their region in both modes. Without the fix, the presented ZWNJ body leaves it.
+
+## FX-33 · Measured break sets · `172903e`
+
+- **The probe.** `tools/measure_lo.py` probes every non-letter character of the measured
+  set that normalization keeps: 202 characters.
+  - For each, it tests the space before it and the space after it.
+  - The character stands alone (when it is drawn) and attached to a word.
+  - Each is set with and without room for the space at the break.
+  - It runs in every family whose twin has the character: 5,936 probes here, 150
+    characters. The other 52 are in no twin.
+- **26.8.1.1, measured:**
+  - no break before, after a space (11): `) ] } , . : ; ! ? /` and U+2044;
+  - no break after, before a space (7): `( [ {` and U+00A1, U+00BF, U+201A, U+201E;
+  - it **does** break before a backslash, alone and attached. So the audit's finding is
+    specific to 24.2.7.2.
+- **The data.** `tools/gen_measured.py` reads the committed outputs and writes
+  `fit/tables/breaks.json`: the sets per version, and their union, which `break_units`
+  uses. It needs neither LibreOffice nor fonts.
+- **Versions without the full probe** (26.8.0.3 and 24.2.7.2, whose outputs predate it)
+  keep the lists of B-22 item 4 and B-25 item 5, plus what audit 07 found on 24.2.7.2:
+  the backslash and U+2044. See Deviation L.
+- **The union** is the old lists plus the backslash and U+2044.
+- **A new criterion, (f),** in `measure_lo`: every character a version keeps must be in
+  the committed sets. If it fails, the output names the missing characters and says to
+  regenerate.
+- **Tests:** `test_fx33_measured_breaks.py`, 8.
+  - `breaks.json` is re-derived from the outputs.
+  - The full probe's entry matches its output and covers every character.
+  - The probe's outcome logic is tested on synthetic glyph positions.
+  - In LibreOffice (`f2_backslash.py`), LaTeX-style text at the pen's limit stays in its
+    region in Arial, Courier New and Calibri, in both modes. On 26.8.1.1 this passes with
+    or without the fix; 24.2.7.2 is the version that needs it.
+  - `test_fx17_line_breaks.py` (12) now checks only the line count for the backslash
+    and U+2044, because their handling differs by version.
+
+## FX-35 · `missing_*` over every environment · `73e577e`
+
+- **`missing_line_em` = 1.59** (was 1.52). In the auditor's environment the Thai
+  fallback font is Loma, at 1.5894 em; on Tyler's machine it is Noto Sans Thai, at
+  1.511 em.
+- **The data.** `gen_measured.py` writes `fit/tables/environments.json` from the same
+  outputs. Per environment it records who ran it, the LibreOffice version, the platform,
+  the fallback fonts and what was measured.
+- **Three thresholds are derived,** each the largest over the environments, rounded up
+  to 0.01: `missing_glyph_em` 1.49, `missing_line_em` 1.59, `cell_line_allowance_mm`
+  0.05. `thresholds.toml` holds the same values and a test compares them.
+- **Tests:** `test_fx35_environments.py`, 4. The fallback-font test in
+  `test_fx28_fx31_cells.py` now says what to do on a machine with a taller fallback
+  font.
+
+## Measurements on 26.8.1.1 · `53a579d`
+
+```
+$ python tools/measure_lo.py specs/002-skill-pack/evidence/lo-26.8.1.1-measurements.txt
+verdict (amendment B-21):
+  (a) no stress case wraps at 1/0.99 = 1.0101: 420 cases, 0 wrap: HOLDS
+  (b) every pitch <= size x 1.2 x line spacing + 0.01 mm (0.0283 pt): 198 probes, smallest slack 0.0000 pt: HOLDS
+verdict (amendments B-22, B-25):
+  (c) every table line <= size x max(1.2, hhea) x line spacing + 0.05 mm, every row <= its lines + 0.01 mm: 180 probes, smallest slack 0.1227 pt: HOLDS
+  (d) every fallback advance <= max(maximum advance, missing_glyph_em): 36 probes, widest 1.4805 em: HOLDS
+  (e) every cell line with fallback glyphs <= size x max(1.2, hhea, missing_line_em) + cell allowance: 72 probes, widest 1.2036 em: HOLDS
+verdict (amendment B-27):
+  (f) every character this version will not break before or after is in the estimator's sets: 11 before, 7 after: HOLDS
+exit 0
+
+$ python tools/fit_stress.py > specs/002-skill-pack/evidence/fit-stress-lo-26.8.1.1.txt
+1177 texts, 0 without ink; per edge, the most outside:
+  left   +2.7 px (presented Georgia English, slide 16, keyline:statement title, left allowance 1.9 px)
+  top    +18.5 px (presented Georgia Vietnamese, slide 16, keyline:statement title, top allowance 17.9 px)
+  right  +1.7 px (read Courier New Vietnamese, slide 63, keyline:evidence:figure footer)
+  bottom +0.7 px (presented Cambria English, slide 24, keyline:evidence title)
+closest to a limit: -0.3 px from it (read Courier New Vietnamese, slide 63, keyline:evidence:figure footer, right)
+past a limit: 0 text(s)
+verdict, AC-13(b) as amended by B-24 and B-25 (right, bottom at 2 px; left and top at 2 px + their allowances): PASS
+exit 0
+```
+
+- The numbers equal 26.8.0.3's on every criterion and every edge.
+- The 26.8.0.3 outputs stay committed, unchanged.
+- The fit tables' `measured_on` gains 26.8.1.1.
+
+## G-1 (Tyler, 2026-10-13) · passed
+
+- **Where:** PowerPoint for the web.
+- **Repair prompts:** none, in the two templates and the three specimens.
+- **Verdict on Swiss:** readable, not yet "wow".
+- **Fix items:** none.
+- **Not stated in the ruling:** whether text typed into a new text box in `night` is
+  readable (Q-33). It is listed under *Open questions* below.
+- **B-28** follows from it, and is in `spec.md`, `plan.md` and `tasks.md` (`9856b27`):
+  - the BonsaiHub demo stays in Phase B on the Swiss pack, as the end-to-end proof of
+    the skill;
+  - G-2 judges whether both decks are correct and tailored to their briefs;
+  - the soul verdict moves to spec 003, and the Swiss demo decks are its baseline.
+
+## Deviations (prelude)
+
+K. **LibreOffice 26.8.1.1, not 26.8.0.3.**
+   - Handoff said: re-run `measure_lo.py` and `fit_stress.py` on 26.8.0.3.
+   - Implemented: both ran on 26.8.1.1, into new files; the 26.8.0.3 files are
+     unchanged.
+   - Because: the system updated LibreOffice on 2026-10-09 (`libreoffice-fresh`
+     26.8.0-2 to 26.8.1-1), so 26.8.0.3 is no longer installed here. Every LibreOffice
+     test in the suite now runs on 26.8.1.1.
+
+L. **Versions without the full probe keep the listed break sets.**
+   - Spec said (B-27 item 3): the sets are measured, as the union over the versions.
+   - Implemented: 26.8.1.1's sets are measured. For 26.8.0.3 and 24.2.7.2, the data
+     holds the earlier lists, plus the backslash and U+2044 for 24.2.7.2.
+   - Because: their outputs predate the full probe, and 24.2.7.2 already differs from
+     26.8.1.1 on the backslash. Dropping `% ‰ » ” ’` (never kept in any probe so far)
+     before 24.2.7.2 has run the full probe could make the estimate too short there.
+   - Effect: the estimator refuses a few breaks LibreOffice allows. That can only
+     refuse more text.
+
+M. **The probe's scope.**
+   - Spec said: every non-letter character of the measured set, in both line
+     conditions.
+   - Implemented: that, at regular 48 pt between words of letters, alone and attached.
+     52 characters are in no twin and are not probed.
+   - Because: a probe needs the twin's advance to size its box.
+
+N. **`right` covers every glyph of the twin,** not only the measured set. A line can end
+   in any character, and the data costs little.
+
+O. **Criterion (f) was not asked for.** It makes `measure_lo` fail when a version keeps
+   a character the committed sets lack.
+
+## Open questions (prelude)
+
+- **Q-60 · The 26.8.0.3 entry.** That version can no longer be measured here, so its
+  listed sets would stay for good. *Proposal:* once the auditor's 24.2.7.2 output is
+  in, drop the 26.8.0.3 entry from `breaks.json`: 26.8.1.1 supersedes it on this machine.
+- **Q-61 · G-1's text box in `night`.** B-28 says G-1 passed but does not state this
+  check (Q-33). *Proposal:* Tyler confirms it in one line, and it is recorded here.
