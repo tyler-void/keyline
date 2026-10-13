@@ -141,3 +141,30 @@ def test_brief_md_has_the_voice_step():
     assert f"`{WARNING_PREFIX}`" in voice and "backstop" in voice
     skill = docs()["SKILL.md"]
     assert "4. **Voice.**" in skill and "coverage table in `references/brief.md`" in skill
+
+
+# -- craft-floor.md (T-37) --------------------------------------------------------------
+
+
+def test_craft_floor_items_are_backed():
+    """Only items backed by a rule, the pen or the brief: every item names its rule, or
+    the pen. The type scale, the budgets and the roles are generated."""
+    text = read("craft-floor.md")
+    items = re.findall(r"^- .*(?:\n  .*)*", text, re.MULTILINE)
+    assert len(items) >= 18
+    for item in items:
+        assert ANCHOR.search(item) or "pen" in item or "DoesNotFit" in item, item
+    for table in ("type-scale", "budgets", "roles"):
+        assert f"<!-- gen:begin {table} -->" in text, table
+    for rule in ("voice-contrast", "voice-claude-look", "voice-why"):  # B-8.15
+        assert f"<!-- rule:{rule} -->" in text, rule
+    anchored = set(ANCHOR.findall(text))
+    assert len(anchored) >= 25 and anchored <= set(RULES)
+    assert "Read this right before every build" in text
+
+
+def test_craft_floor_leaves_out_only_what_a_build_cannot_cause():
+    """Of the rules at warning or error level, craft-floor.md leaves out only the one a
+    build's content cannot cause: a schema error in the file, which `check.md` covers."""
+    anchored = set(ANCHOR.findall(read("craft-floor.md")))
+    assert set(GATED) - anchored == {"ooxml-invalid"}
