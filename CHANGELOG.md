@@ -68,3 +68,12 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
     and stored per LibreOffice version (`tools/gen_measured.py`).
   - `missing_glyph_em` and `missing_line_em` take the largest value over every
     environment measured; each environment is recorded.
+- Spec 002, phase B (M2), the skill:
+  - `skill/keyline/`: `SKILL.md`, five references (`brief`, `craft-floor`, `anti-tells`,
+    `pen`, `check`) and `scripts/kl.py`, which runs the keyline CLI or a build script
+    from the packaged skill or from a development checkout.
+  - The voice step: the skill derives an inline voice from the subject's world, and
+    picks its fonts from a generated coverage table.
+  - `tools/gen_docs.py` generates the docs' tables from the thresholds, the pack and the
+    fit tables; `--check` runs in CI.
+  - `tools/ngram_overlap.py` counts the word sequences two folders share.

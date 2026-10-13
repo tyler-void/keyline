@@ -5,6 +5,10 @@ Allowlist (D-013, D-014):
   trailers          Co-Authored-By: Claude ... <noreply@anthropic.com>
 The "no file copied from anthropics/skills" half of AC-12 is a manual audit step (the
 lint core makes no network calls); see specs/001-lint-core/report.md.
+
+Spec 002 AC-23 (task T-48; audit 07 §4.8) extends the metadata check from fixtures/ to
+every deck under examples/, skill/ and the bundled packs, with an allow-list for the
+core properties, and checks the text of skill/ and examples/ for other identities.
 """
 
 import io
@@ -26,6 +30,12 @@ IDENTITY_TRAILER = re.compile(
 )
 # OfficeCLI and PptxGenJS are tool names, not people (R-5; d20's embedded chart workbook)
 FIXTURE_PEOPLE = {"", "Tyler", "tyler-void", "@tyler-void", "OfficeCLI", "PptxGenJS"}
+# AC-23: what a deck keyline ships or shows may carry as creator or lastModifiedBy
+SHIPPED_PEOPLE = {"", "Tyler", "tyler-void", "@tyler-void"}
+SHIPPED = (ROOT / "examples", ROOT / "skill", ROOT / "src" / "keyline" / "packs")
+EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
+HANDLE = re.compile(r"(?<![\w.`/])@([A-Za-z][\w-]*)")
+AUTHOR = re.compile(r"""author\s*=\s*["']([^"']*)["']""")
 SEP = "\x1e"
 
 
@@ -95,3 +105,34 @@ def test_fixture_metadata_identities():
 
 def test_notice():
     assert "Copyright 2026 Tyler (@tyler-void)" in (ROOT / "NOTICE").read_text()
+
+
+def test_shipped_deck_metadata_identities():
+    """AC-23: every deck under examples/, skill/ and the bundled packs, by allow-list."""
+    decks = sorted(p for folder in SHIPPED if folder.is_dir() for p in folder.rglob("*.pptx"))
+    assert len(decks) >= 2  # the two neutral templates, then the demo and surface decks
+    for deck in decks:
+        for where, creator, modified in _core_props(deck.read_bytes(), deck.name):
+            assert creator in SHIPPED_PEOPLE, f"{where}: creator {creator!r}"
+            assert modified in SHIPPED_PEOPLE, f"{where}: lastModifiedBy {modified!r}"
+
+
+def test_skill_and_examples_name_no_one_else():
+    """AC-23: in the text of skill/ and examples/, an e-mail address or an @handle is an
+    approved one, and a build script's author is Tyler."""
+    checked = 0
+    for folder in (ROOT / "skill", ROOT / "examples"):
+        for path in sorted(folder.rglob("*")):
+            if not path.is_file() or path.suffix not in (".md", ".toml", ".py", ".txt", ".json"):
+                continue
+            text = path.read_text(encoding="utf-8")
+            where = path.relative_to(ROOT).as_posix()
+            checked += 1
+            for address in EMAIL.findall(text):
+                assert address in {e for _n, e in PEOPLE}, f"{where}: {address}"
+            if path.suffix != ".py":  # a decorator is not a handle
+                for handle in HANDLE.findall(text):
+                    assert handle == "tyler-void", f"{where}: @{handle}"
+            for author in AUTHOR.findall(text) if path.suffix == ".py" else ():
+                assert author in ("", "Tyler"), f"{where}: author={author!r}"
+    assert checked >= 8  # SKILL.md, five references, kl.py and product.toml
