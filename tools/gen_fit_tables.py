@@ -19,6 +19,8 @@ the metric twin's TTF (the same substitution LibreOffice makes), and the table r
   per pair, the largest positive x-advance adjustment of each GPOS pair lookup (format 1
   or 2, extension lookups included), summed over the lookups, and the legacy `kern` table's
   where it is larger; negative pairs are left out;
+- `right`, per codepoint whose glyph draws past its advance (B-27 item 2): how far, in font
+  units, from the outline, rounded outward; the estimator adds it for a line's last glyph;
 - the Vietnamese letters the twin lacks (audit 04);
 - the source file's name, version, licence, copyright and SHA-256.
 
@@ -176,6 +178,23 @@ def numerals() -> str:
     return text + ',\n "reach": ' + json.dumps(rows, separators=(",", ":")) + "\n}\n"
 
 
+def right_reach(font) -> list[list[int]]:
+    """[codepoint, units] for every glyph of the cmap whose ink reaches right of its
+    advance (B-27 item 2), from the outline, rounded outward to whole font units."""
+    from fontTools.pens.boundsPen import BoundsPen
+
+    cmap, glyphs, hmtx = font.getBestCmap(), font.getGlyphSet(), font["hmtx"]
+    out = []
+    for cp, name in sorted(cmap.items()):
+        pen = BoundsPen(glyphs)
+        glyphs[name].draw(pen)
+        if pen.bounds is not None:
+            reach = math.ceil(pen.bounds[2]) - hmtx[name][0]
+            if reach > 0:
+                out.append([cp, reach])
+    return out
+
+
 def _pair_lookups(font):
     """Every GPOS pair-adjustment subtable, grouped by lookup."""
     if "GPOS" not in font:
@@ -286,7 +305,8 @@ def table(family: str, twin: str, weight: str) -> tuple[str, dict]:
     pairs = [[cp, hmtx[glyph][0]] for cp, glyph in sorted(cmap.items())]
     text = json.dumps(head, ensure_ascii=False, indent=1)[:-2]
     text += ',\n "advances": ' + json.dumps(pairs, separators=(",", ":"))
-    text += ',\n "kern": ' + json.dumps(kern_pairs(font), separators=(",", ":")) + "\n}\n"
+    text += ',\n "kern": ' + json.dumps(kern_pairs(font), separators=(",", ":"))
+    text += ',\n "right": ' + json.dumps(right_reach(font), separators=(",", ":")) + "\n}\n"
     return text, source
 
 

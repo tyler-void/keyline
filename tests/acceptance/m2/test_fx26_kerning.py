@@ -39,11 +39,9 @@ def test_the_audit_pairs_and_the_width():
     assert load_table("Cambria", "regular").kern[ord("f"), 0x2019] == 83
     s = Setting("Calibri", "regular", F(24))
     plain = F(carlito.advances[ord("V")] + carlito.advances[0x129], 2048) * 24
-    assert width(s, f"V{I_TILDE}") == plain + F(130, 2048) * 24
-    assert (
-        width(s, f"{I_TILDE}V")
-        == F(carlito.advances[0x129] + carlito.advances[ord("V")], 2048) * 24
-    )
+    reach = {c: F(carlito.right.get(ord(c), 0), 2048) * 24 for c in f"V{I_TILDE}"}  # B-27 item 2
+    assert width(s, f"V{I_TILDE}") == plain + F(130, 2048) * 24 + reach[I_TILDE]
+    assert width(s, f"{I_TILDE}V") == plain + reach["V"]  # no pair in this order
 
 
 def longest(accepts, unit, limit=600):

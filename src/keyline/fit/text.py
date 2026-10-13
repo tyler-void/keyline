@@ -96,21 +96,32 @@ def inked(ch: str) -> bool:
     return unicodedata.category(ch) not in ("Zs", "Zl", "Zp", "Cf", "Cc")
 
 
-# Default_Ignorable_Code_Point (Unicode DerivedCoreProperties) letters and marks: category
-# L or M, but nothing is drawn (variation selectors, the grapheme joiner, Hangul fillers).
-IGNORABLE_LETTERS_AND_MARKS = (
-    (0x034F, 0x034F), (0x115F, 0x1160), (0x17B4, 0x17B5), (0x180B, 0x180D), (0x180F, 0x180F),
-    (0x3164, 0x3164), (0xFE00, 0xFE0F), (0xFFA0, 0xFFA0), (0xE0100, 0xE01EF),
+# Default_Ignorable_Code_Point (Unicode DerivedCoreProperties): nothing is drawn for
+# these, and a shaper looks past them (format controls, variation selectors, the grapheme
+# joiner, Hangul fillers). Some are category L or M.
+DEFAULT_IGNORABLE = (
+    (0x00AD, 0x00AD), (0x034F, 0x034F), (0x061C, 0x061C), (0x115F, 0x1160), (0x17B4, 0x17B5),
+    (0x180B, 0x180F), (0x200B, 0x200F), (0x202A, 0x202E), (0x2060, 0x206F), (0x3164, 0x3164),
+    (0xFE00, 0xFE0F), (0xFEFF, 0xFEFF), (0xFFA0, 0xFFA0), (0xFFF0, 0xFFF8), (0x1BCA0, 0x1BCA3),
+    (0x1D173, 0x1D17A), (0xE0000, 0xE0FFF),
 )  # fmt: skip
+
+
+def ignorable(ch: str) -> bool:
+    """Whether a character is a default-ignorable code point."""
+    c = ord(ch)
+    return any(a <= c <= b for a, b in DEFAULT_IGNORABLE)
 
 
 def visible(ch: str) -> bool:
     """Audit 06 (with FX-30): a letter, mark, number, punctuation mark or symbol that is
     drawn; text made only of spaces, format controls and ignorable marks shows nothing."""
-    c = ord(ch)
-    return unicodedata.category(ch)[0] in "LMNPS" and not any(
-        a <= c <= b for a, b in IGNORABLE_LETTERS_AND_MARKS
-    )
+    return unicodedata.category(ch)[0] in "LMNPS" and not ignorable(ch)
+
+
+def drawn(ch: str) -> bool:
+    """A character that puts ink on the line: `inked`, and not default-ignorable."""
+    return inked(ch) and not ignorable(ch)
 
 
 def normalize(text: str) -> str:

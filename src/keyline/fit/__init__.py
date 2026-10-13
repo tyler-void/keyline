@@ -4,9 +4,10 @@ the estimator the pen uses to refuse text that does not fit (T-22, audit 05).
 A table per portable family and weight holds the twin's advance widths (font units per
 em, per codepoint), its maximum advance (with thresholds.toml's `missing_glyph_em`, the
 estimate for a character the twin lacks), its hhea line height (for table cells),
-`line_pitch_em` with the LibreOffice versions that measured it, and the Vietnamese letters
-the twin lacks. Tables are data, written by `tools/gen_fit_tables.py`; lint never imports
-this package.
+`line_pitch_em` with the LibreOffice versions that measured it, its extents over the
+measured set, its positive kerning pairs, each glyph's reach right of its advance, and
+the Vietnamese letters the twin lacks. Tables are data, written by
+`tools/gen_fit_tables.py`; lint never imports this package.
 """
 
 from __future__ import annotations
@@ -20,7 +21,7 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 from pathlib import Path
 
-from keyline.fit.text import break_units, code_point, measured, refused
+from keyline.fit.text import break_units, code_point, drawn, measured, refused
 
 TABLES = Path(__file__).resolve().parent / "tables"
 WEIGHTS = ("regular", "bold")
@@ -63,6 +64,8 @@ class Table:
     source: dict = field(repr=False)
     advances: dict[int, int] = field(repr=False)
     kern: dict[tuple[int, int], int] = field(default_factory=dict, repr=False)  # B-25 item 4
+    # B-27 item 2: how far a glyph's ink reaches right of its advance, where it does
+    right: dict[int, int] = field(default_factory=dict, repr=False)
     # B-22 item 6: a character the twin lacks counts as max(max_advance, missing_glyph_em)
     missing_advance: Fraction = Fraction(0)
 
@@ -110,6 +113,7 @@ def load_table(family: str, weight: str) -> Table:
         source=data["source"],
         advances={cp: adv for cp, adv in data["advances"]},
         kern={(a, b): v for a, b, v in data["kern"]},
+        right={cp: reach for cp, reach in data["right"]},
         missing_advance=max(
             Fraction(data["max_advance"]), config.missing_glyph_em * data["units_per_em"]
         ),
@@ -219,13 +223,17 @@ def as_set(setting: Setting, text: str) -> str:
 def width(setting: Setting, text: str) -> Fraction:
     """§6.4's width: the advance sum (a character the twin lacks counts as max(its
     maximum advance, missing_glyph_em), B-22 item 6), plus the positive kerning pairs of
-    the measured set (B-25 item 4; negative pairs are ignored), plus tracking × size per
+    the measured set (B-25 item 4; negative pairs are ignored), plus how far the last
+    glyph's ink reaches right of its advance (B-27 item 2), plus tracking × size per
     character."""
     shown = as_set(setting, text)
     table = setting.table
     units = sum(table.advance(ch) for ch in shown)
     if table.kern:  # positive pairs only (B-25 item 4): kerning that widens the text
         units += sum(table.kern.get((ord(a), ord(b)), 0) for a, b in itertools.pairwise(shown))
+    last = next((ch for ch in reversed(shown) if drawn(ch)), None)
+    if last is not None:
+        units += table.right.get(ord(last), 0)
     return Fraction(units, table.units_per_em) * setting.size + (
         setting.tracking * setting.size * len(shown)
     )
