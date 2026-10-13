@@ -232,3 +232,55 @@ def test_the_one_look_row_and_the_sources():
     assert len(cited) == 3
     for heading in cited:
         assert heading.replace("'", '"') in research, heading
+
+
+# -- brief.md (T-39) --------------------------------------------------------------------
+
+
+def test_brief_md_covers_every_field():
+    text = read("brief.md")
+    fields = (
+        "schema", "mode", "pack", "evidence", "audience", "decision", "thesis", "own_world",
+        "motif", "role", "headline", "reads", "notes", "name", "fictional", "disclosure", "id",
+        "label", "source", "value", "series", "aliases", "display", "text", "paper", "ink",
+        "muted", "hairline", "accent", "accent_on_ink",
+    )  # fmt: skip
+    for field in fields:
+        assert re.search(rf"(^|`|# ){field}(`| =)", text, re.MULTILINE), field
+    roles = section(text, "The slides")
+    for role in ("cover", "section", "statement", "evidence", "quote", "close"):
+        assert f"| `{role}` |" in roles, role
+
+
+def test_brief_md_gives_each_field_its_test():
+    text = read("brief.md")
+    direction = section(text, "The direction, field by field")
+    for field in ("audience", "decision", "thesis", "own_world", "motif"):
+        (row,) = [line for line in direction.splitlines() if line.startswith(f"| `{field}` |")]
+        assert len(row.split("|")) == 5 and row.split("|")[3].strip(), field
+    assert "If it reads like a mood or a topic, it is not a thesis yet." in direction
+    assert "No adjectives about the deck" in direction  # own_world: nouns from the subject
+    slides = section(text, "The slides")
+    assert "The headline test" in slides and "has to tell the whole story" in slides
+    for rule in ("brief-headline-long", "brief-reads", "unsourced-number", "brief-notes"):
+        assert f"<!-- rule:{rule} -->" in slides, rule
+    assert "Unknown keys are ignored" in text and "`[product.world]`" in text
+
+
+def test_brief_md_examples_pass_keyline_brief(tmp_path):
+    """The examples are keyline's own, and they are a valid brief with its evidence."""
+    import tomllib
+
+    from keyline.brief import findings, load
+
+    blocks = re.findall(r"```toml\n(.*?)```", read("brief.md"), re.DOTALL)
+    assert len(blocks) == 2
+    evidence, brief = (tomllib.loads(block) for block in blocks)
+    assert evidence["product"]["name"] == "Toolshed Commons" and len(evidence["evidence"]) == 2
+    assert brief["evidence"] == ["product.toml", "deck.evidence.toml"]
+    (tmp_path / "product.toml").write_text(blocks[0], encoding="utf-8")
+    (tmp_path / "deck.evidence.toml").write_text("schema = 1\n", encoding="utf-8")
+    (tmp_path / "deck.brief.toml").write_text(blocks[1], encoding="utf-8")
+    loaded = load(tmp_path / "deck.brief.toml")
+    assert [s.role for s in loaded.slides] == ["cover", "evidence"]
+    assert loaded.voice.font("display") == "Georgia" and findings(loaded) == []
