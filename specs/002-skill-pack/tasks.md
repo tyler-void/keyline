@@ -121,7 +121,8 @@ stay green.
 4. T-43 … T-47;
 5. T-49.
 
-G-1 can run from audit 07's head on.
+G-1 passed on 2026-10-13 (B-28), with no fix items, so T-50 is closed and nothing
+blocks T-43.
 
 ### Prelude: B-27 (audit 07 §2), before T-33
 
@@ -167,7 +168,7 @@ its own checks (audit 07 §4.3).
 | id | task | done when |
 |---|---|---|
 | T-48 | ⚑ **AC-23 hygiene and CI**, moved before T-43. `test_ac12_hygiene.py` extends from `fixtures/` to `examples/**` and `skill/**`, with an allow-list for the core properties (creator, lastModifiedBy). D-014 identity; `NOTICE` carries every fit table's source; CI on 3.11 and 3.13 with the font packages, `ruff` and `gen_docs.py --check`. `tools/ngram_overlap.py A B` counts the 8-word sequences two folders share and holds no third-party text; the auditor runs it against anthropics/skills, and the report keeps its process statement (Q-56). README and CHANGELOG for Phase B | CI green; the extended hygiene test; `test_ngram_overlap.py` |
-| T-50 | **G-1 closes** (spec §11). Tyler's verdict on the three specimen contact sheets, the repair prompts and the typed text box in `night` is recorded in `report.md`. Its fix items, at most 8, land as amendments with their tests, and the specimens and contact sheets are rebuilt when a fix changes them | G-1 recorded; every fix item closed; then T-43 |
+| T-50 | **G-1 closes** (spec §11). Tyler's verdict on the three specimen contact sheets, the repair prompts and the typed text box in `night` is recorded in `report.md`. Its fix items, at most 8, land as amendments with their tests, and the specimens and contact sheets are rebuilt when a fix changes them. **G-1 passed on 2026-10-13 (B-28):** no repair prompt in the two templates or the three specimens; verdict on Swiss "readable, not yet wow"; no fix items | G-1 recorded in `report.md`; then T-43 |
 
 ### Packaging (§9)
 
@@ -181,9 +182,9 @@ its own checks (audit 07 §4.3).
 | id | task | done when |
 |---|---|---|
 | T-45 | **AC-21 checks, before the demo** (audit 07 §4.6). `test_ac21_bonsaihub.py`: `product.toml` matches its hash. The deck tests skip only while no demo file exists; once one exists, they fail when they cannot run. They check: both briefs pass `kl.py brief` with exit 0 and carry an inline voice with `[voice.why]` (B-8.14); both decks pass `kl.py check DECK --brief BRIEF` with exit 0; two builds are byte-identical to each other **and to the committed deck**; the disclosure is present; slide counts are within §10; no `ooxml-invalid` where OfficeCLI is installed | the hash test passes now; the rest pass after T-46 |
-| T-46 | ⚑ **The demo** (Q-16; Q-58 as ruled; audit 07 §4.7). Tyler starts a **fresh** Claude Code session in an empty directory **outside the keyline checkout**, with the skill installed from `dist/keyline.zip`, and sends P-1, then P-2, verbatim; he approves each spine (**G-2a**). Recorded: the working directory, the skill path, the zip's SHA-256, where `keyline` imports from, and the SHA-256 of every file the fresh session wrote. This session builds none of them; it copies the outputs into `examples/bonsaihub/` and commits them after G-2a. If the pen changes later, this session may re-run the build scripts **unchanged**; any script edit needs a fresh-session re-run. A T-45 failure means a skill fix and a fresh re-run, never a hand edit | G-2a and the hashes recorded in `report.md`; T-45 green |
+| T-46 | ⚑ **The demo** (Q-16; Q-58 as ruled; audit 07 §4.7). Tyler starts a **fresh** Claude Code session in an empty directory **outside the keyline checkout**, with the skill installed from `dist/keyline.zip`, and sends P-1, then P-2, verbatim; he approves each spine (**G-2a**). Recorded: the working directory, the skill path, the zip's SHA-256, where `keyline` imports from, and the SHA-256 of every file the fresh session wrote. This session builds none of them; it copies the outputs into `examples/bonsaihub/` and commits them after G-2a. If the pen changes later, this session may re-run the build scripts **unchanged**; any script edit needs a fresh-session re-run. A T-45 failure means a skill fix and a fresh re-run, never a hand edit. **B-28:** the demo is built with the Swiss pack, as the end-to-end proof of the skill: a fresh session, the voice step, the spine gate (G-2a) and `check` exit 0. The Swiss demo decks are then kept unchanged, as spec 003's baseline | G-2a and the hashes recorded in `report.md`; T-45 green |
 | T-47 | **AC-22 surfaces** (manual, Tyler): claude.ai web and Claude Code with P-3, Claude desktop optional; `doctor` output, render status, `check` exit code and the deck recorded; decks under `examples/bonsaihub/surfaces/`. Tyler reads the slide text of the surface decks, because the agent on claude.ai knows the account holder's name (audit 07 §4.8) | recorded in `report.md`; the hygiene test passes on the surface decks |
-| T-49 | **Report B** in `report.md`: each of AC-17 … AC-23 with its command, output and PASS/FAIL; deviations; open questions. Then **G-2** (Tyler's soul verdict on both contact sheets, the voice included). **Stop** for the Phase B audit | review by Tyler; audit by the external session |
+| T-49 | **Report B** in `report.md`: each of AC-17 … AC-23 with its command, output and PASS/FAIL; deviations; open questions. Then **G-2** (Tyler), as B-28 scopes it: whether both decks are correct and tailored to their briefs: the spine, the voice drawn from `[product.world]`, the disclosure. The soul verdict is not part of spec 002's G-2; it moves to spec 003, which rebuilds the same briefs and evidence with an expressive Pitch system and motion, and compares the two. **Stop** for the Phase B audit | review by Tyler; audit by the external session |
 
 ## Acceptance map
 

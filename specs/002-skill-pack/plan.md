@@ -31,6 +31,16 @@
   the Phase B tasks: round 2 accepted, deviations F … J included; Phase B is GO, with
   task changes (audit §4). FX-32 … FX-35 (amendment B-27) land first, before T-33,
   without a separate stop. Its rulings on Q-53 … Q-59 are marked below.
+- **G-1 passed, and B-28** (Tyler, 2026-10-13). In PowerPoint for the web, neither the
+  two templates nor the three specimens gave a repair prompt. Tyler's verdict on Swiss:
+  readable, not yet "wow". There are no G-1 fix items. B-28 follows from it:
+  - the BonsaiHub demo stays in Phase B, built with the Swiss pack, as the end-to-end
+    proof of the skill (a fresh session, the voice step, G-2a, `check` exit 0);
+  - G-2 in spec 002 judges whether both decks are correct and tailored to their briefs
+    (the spine, the voice drawn from `[product.world]`, the disclosure);
+  - the soul verdict moves to spec 003, which rebuilds the same briefs and evidence
+    with an expressive Pitch system and motion, and compares the two;
+  - the Swiss demo decks are kept unchanged as spec 003's baseline.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".

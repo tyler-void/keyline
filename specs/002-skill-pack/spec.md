@@ -1700,3 +1700,14 @@ must contain at least these rows.
   5. `missing_glyph_em` and `missing_line_em` take the largest value measured in any
      environment Tyler or the auditor has run, and each environment is recorded with
      the data.
+- **B-28 (2026-10-13, Tyler after G-1).** G-1 passed in PowerPoint for the web: no
+  repair prompt in the two templates or the three specimens. Tyler's verdict on Swiss:
+  readable, not yet "wow".
+  - The BonsaiHub demo (§10, AC-21, AC-22) stays in Phase B, built with the Swiss pack,
+    as the end-to-end proof of the skill: a fresh session, the voice step, the spine
+    gate (G-2a), and `check` exit 0.
+  - G-2 in spec 002 judges whether both decks are correct and tailored to their briefs:
+    the spine, the voice drawn from `[product.world]`, the disclosure. The soul verdict
+    moves to spec 003, which rebuilds the same briefs and evidence with an expressive
+    Pitch system and motion, and compares the two.
+  - The Swiss demo decks are kept unchanged as spec 003's baseline.
