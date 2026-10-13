@@ -284,3 +284,108 @@ def test_brief_md_examples_pass_keyline_brief(tmp_path):
     loaded = load(tmp_path / "deck.brief.toml")
     assert [s.role for s in loaded.slides] == ["cover", "evidence"]
     assert loaded.voice.font("display") == "Georgia" and findings(loaded) == []
+
+
+# -- pen.md (T-40) ----------------------------------------------------------------------
+
+
+def public_verbs() -> dict[str, object]:
+    """heading prefix -> the callable, for every public verb of Deck and SlideBuilder."""
+    import inspect
+
+    from keyline.pen import Deck, SlideBuilder
+
+    found = {"Deck(": Deck.__init__}
+    for cls in (Deck, SlideBuilder):
+        for name, member in inspect.getmembers(cls):
+            if not name.startswith("_") and callable(member):
+                found[f"Deck.{name}(" if name == "from_brief" else f"{name}("] = member
+    return found
+
+
+def test_pen_md_documents_every_public_verb_and_its_parameters():
+    import inspect
+
+    import pytest
+
+    pytest.importorskip("pptx")
+    text = read("pen.md")
+    headings = re.findall(r"^### `(.+)`$", text, re.MULTILINE)
+    verbs = public_verbs()
+    assert len(verbs) == 15
+    for prefix, member in verbs.items():
+        (heading,) = [h for h in headings if h.startswith(prefix)]
+        for parameter in inspect.signature(member).parameters:
+            if parameter != "self":
+                assert parameter in heading, f"{prefix}: {parameter}"
+    for heading in headings:
+        if "(" in heading:
+            assert any(heading.startswith(v) for v in verbs), f"pen.md documents {heading}"
+
+
+def test_pen_md_covers_refusals_the_numeral_set_and_the_warning():
+    text = read("pen.md")
+    refusals = section(text, "When the pen refuses")
+    refused = ("controls", "line breaks", "U+00AD", "U+200B", "U+2060", "U+FEFF", "noncharacters")
+    for word in ("`DoesNotFit`", "`PenError`", *refused, "surrogates", "no visible character"):
+        assert word in refusals, word
+    assert "leaves the slide exactly as it was" in refusals  # B-23
+    numerals = section(refusals + "\n### ", "The numeral set", "###")
+    assert "<!-- gen:begin numeral-excluded -->" in numerals and "in the label" in numerals
+    assert chr(0x2212) + "0.4%" in numerals  # B-27 item 1: the minus sign is a numeral character
+    warning = section(refusals + "\n### ", "The coverage warning", "###")
+    assert f"`{WARNING_PREFIX}`" in warning and "measured set" in warning
+    assert "promises nothing" in warning
+    assert "<!-- gen:begin layouts -->" in text and "python-pptx 1.0.2" in text
+
+
+def test_pen_md_example_builds_and_passes_check(tmp_path, monkeypatch):
+    """The build script in pen.md, run on a brief made of brief.md's examples."""
+    import pytest
+
+    pytest.importorskip("pptx")
+    from tests.acceptance._cli import keyline
+
+    evidence, brief = re.findall(r"```toml\n(.*?)```", read("brief.md"), re.DOTALL)
+    (script,) = re.findall(r"```python\n(.*?)```", read("pen.md"), re.DOTALL)
+    slides = """
+[[slides]]
+role = "cover"
+headline = "Toolshed Commons"
+reads = ["what the library is"]
+
+[[slides]]
+role = "statement"
+headline = "Repairs bring members back"
+reads = ["the claim"]
+notes = "Say the claim, then pause."
+
+[[slides]]
+role = "evidence"
+headline = "Most returned tools need a repair before the next loan"
+reads = ["the share of returns that need a repair"]
+evidence = ["returns_repaired"]
+notes = "Point at the number."
+
+[[slides]]
+role = "evidence"
+headline = "The bench repairs more every month"
+reads = ["the trend"]
+evidence = ["repairs_by_month"]
+notes = "June is the point."
+
+[[slides]]
+role = "close"
+headline = "Fund the second bench"
+reads = ["the ask"]
+notes = "Ask for the vote."
+"""
+    (tmp_path / "product.toml").write_text(evidence, encoding="utf-8")
+    (tmp_path / "deck.evidence.toml").write_text("schema = 1\n", encoding="utf-8")
+    head = brief[: brief.index("[[slides]]")]
+    (tmp_path / "deck.brief.toml").write_text(head + slides, encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    exec(compile(script, "pen.md", "exec"), {"__name__": "__main__"})
+    proc = keyline("check", "deck.pptx", "--brief", "deck.brief.toml", "--no-validate",
+                   "-o", tmp_path / "render")  # fmt: skip
+    assert proc.returncode == 0, proc.stderr.decode()
