@@ -18,6 +18,7 @@ from tests.conftest import ROOT
 
 SKILL = ROOT / "skill" / "keyline"
 REFERENCES = SKILL / "references"
+SPEC = (ROOT / "specs" / "002-skill-pack" / "spec.md").read_text(encoding="utf-8")
 # audit 07 §4.9: craft-floor.md is read before every build, so it has the tightest cap
 # of the three working references
 LINE_CAPS = {
@@ -168,3 +169,66 @@ def test_craft_floor_leaves_out_only_what_a_build_cannot_cause():
     build's content cannot cause: a schema error in the file, which `check.md` covers."""
     anchored = set(ANCHOR.findall(read("craft-floor.md")))
     assert set(GATED) - anchored == {"ooxml-invalid"}
+
+
+# -- anti-tells.md (T-38) ---------------------------------------------------------------
+
+
+def backlog_ids() -> set[str]:
+    """The ids that spec §13 and B-8.16 list as backlog."""
+    start = SPEC.index("\n## 13. Backlog created by this spec\n")
+    listed = SPEC[start : SPEC.index("\n## Appendix A", start)]
+    b816 = SPEC[SPEC.index("  16. **Backlog** (for spec 003") :][:600]
+    return set(re.findall(r"`([a-z]+(?:-[a-z]+)+)`", listed + b816))
+
+
+def anti_tell_rows() -> dict[str, list[str]]:
+    """id -> [tell, enforcement, Swiss policy]."""
+    rows = {}
+    for line in read("anti-tells.md").splitlines():
+        cells = [c.strip() for c in line.split("|")]
+        if len(cells) == 6 and cells[1] != "id" and re.fullmatch(r"[a-z]+(?:-[a-z]+)*", cells[1]):
+            assert cells[1] not in rows, f"{cells[1]} is listed twice"
+            rows[cells[1]] = cells[2:5]
+    return rows
+
+
+def test_anti_tells_holds_every_seed_row():
+    """Rows may be added, never dropped: every id of Appendix A is there."""
+    appendix = SPEC[SPEC.index("\n## Appendix A") : SPEC.index("\n## Lessons to append")]
+    seed = re.findall(r"^\| ([a-z]+(?:-[a-z]+)*) \|", appendix, re.MULTILINE)
+    seed.remove("id")  # the table's header
+    assert len(seed) == 27 and "equal-cards" in seed and "mood-direction" in seed
+    rows = anti_tell_rows()
+    assert set(seed) <= set(rows), sorted(set(seed) - set(rows))
+    assert all(what and policy for what, _enforcement, policy in rows.values())
+
+
+def test_every_enforcement_is_valid():
+    """`rule:<id>` and `brief:<id>` name registry ids, `backlog:<id>` names an id of §13,
+    and `pen` needs none."""
+    backlog = backlog_ids()
+    assert {"eyebrow-caps", "centered-body", "language-tells", "diversity-fingerprint"} <= backlog
+    for tell, (_what, enforcement, _policy) in anti_tell_rows().items():
+        kinds = re.findall(r"`(rule|brief|backlog):([a-z0-9-]+)`", enforcement)
+        assert kinds or "`pen`" in enforcement, f"{tell}: no enforcement"
+        leftover = re.sub(r"`(?:rule|brief|backlog):[a-z0-9-]+`|`pen`|[;\s]", "", enforcement)
+        assert leftover == "", f"{tell}: {enforcement}"
+        for kind, rule in kinds:
+            if kind == "backlog":
+                assert rule in backlog, f"{tell}: backlog:{rule} is not in §13"
+            else:
+                assert rule in RULES, f"{tell}: {kind}:{rule} is not a registry id"
+                from_brief = RULES[rule].requires == "brief"
+                assert from_brief == (kind == "brief"), f"{tell}: {kind}:{rule}"
+
+
+def test_the_one_look_row_and_the_sources():
+    look = anti_tell_rows()["one-look-for-everything"][1]  # B-8.15
+    assert "`brief:voice-why`" in look and "`backlog:diversity-fingerprint`" in look
+    text = read("anti-tells.md")
+    research = (ROOT / "docs" / "research.md").read_text(encoding="utf-8").replace("'", '"')
+    cited = re.findall(r'"([^"]{30,})"', text.split("| id |")[0].replace("\n", " "))
+    assert len(cited) == 3
+    for heading in cited:
+        assert heading.replace("'", '"') in research, heading
