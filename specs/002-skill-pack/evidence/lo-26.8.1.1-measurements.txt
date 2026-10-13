@@ -1,4 +1,4 @@
-# LibreOffice measurements for spec 002 amendments B-7, B-21 and B-22 (T-20; A2 fixes)
+# LibreOffice measurements for spec 002 amendments B-7, B-21, B-22, B-25 and B-27
 version: LibreOffice 26.8.1.1 680(Build:1)
 date: 2026-10-13  keyline 0.1.0  Linux-7.2.9-zen1-1-zen-x86_64-with-glibc2.44
 note: expected LibreOffice 26.8.0.3; this run used LibreOffice 26.8.1.1 680(Build:1)
@@ -840,80 +840,80 @@ table cells: line bound = size x max(1.2, hhea) x line spacing + cell_line_allow
   Cambria          regular    48 1.00 br     1.1500   57.6000  1.2000   57.7417    0.1417
   largest excess per cell line: 0.0473 pt = 0.0167 mm, so this version needs cell_line_allowance_mm >= 0.02
 
-cells with fallback glyphs: line bound = size x max(1.2, hhea, missing_line_em = 1.52) + 0.05 mm; rows bound + 0.01 mm, LibreOffice 26.8.1.1 680(Build:1)
+cells with fallback glyphs: line bound = size x max(1.2, hhea, missing_line_em = 1.59) + 0.05 mm; rows bound + 0.01 mm, LibreOffice 26.8.1.1 680(Build:1)
   fallback fonts (24.2.7.2 sets a cell line at max(1.2, the hhea of its font)): cjk NotoSansCJK-Regular.ttc 1.4480 em, emoji NotoColorEmoji.ttf 1.1719 em, thai NotoSansThai-Regular.ttf 1.5110 em
-  Arial            cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Arial            cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Arial            cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Arial            cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Arial            emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Arial            emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Arial            emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Arial            emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Arial            thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Arial            thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Arial            thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Arial            thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Times New Roman  cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Times New Roman  cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Times New Roman  cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Times New Roman  cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Times New Roman  emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Times New Roman  emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Times New Roman  emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Times New Roman  emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Times New Roman  thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Times New Roman  thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Times New Roman  thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Times New Roman  thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Courier New      cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Courier New      cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Courier New      cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Courier New      cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Courier New      emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Courier New      emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Courier New      emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Courier New      emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Courier New      thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Courier New      thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Courier New      thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Courier New      thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Georgia          cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Georgia          cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Georgia          cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Georgia          cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Georgia          emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Georgia          emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Georgia          emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Georgia          emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Georgia          thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Georgia          thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Georgia          thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Georgia          thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Calibri          cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Calibri          cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Calibri          cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Calibri          cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Calibri          emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Calibri          emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Calibri          emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Calibri          emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Calibri          thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Calibri          thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Calibri          thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Calibri          thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Cambria          cjk       13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Cambria          cjk       13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Cambria          cjk       24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Cambria          cjk       24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Cambria          emoji     13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Cambria          emoji     13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Cambria          emoji     24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Cambria          emoji     24 br      28.8000 pt  1.2000 em  bound   36.6217
-  Cambria          thai      13 rows    15.6473 pt  1.2036 em  bound   19.9301
-  Cambria          thai      13 br      15.6190 pt  1.2015 em  bound   19.9017
-  Cambria          thai      24 rows    28.8283 pt  1.2012 em  bound   36.6501
-  Cambria          thai      24 br      28.8000 pt  1.2000 em  bound   36.6217
+  Arial            cjk       13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Arial            cjk       13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Arial            cjk       24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Arial            cjk       24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Arial            emoji     13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Arial            emoji     13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Arial            emoji     24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Arial            emoji     24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Arial            thai      13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Arial            thai      13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Arial            thai      24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Arial            thai      24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Times New Roman  cjk       13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Times New Roman  cjk       13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Times New Roman  cjk       24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Times New Roman  cjk       24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Times New Roman  emoji     13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Times New Roman  emoji     13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Times New Roman  emoji     24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Times New Roman  emoji     24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Times New Roman  thai      13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Times New Roman  thai      13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Times New Roman  thai      24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Times New Roman  thai      24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Courier New      cjk       13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Courier New      cjk       13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Courier New      cjk       24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Courier New      cjk       24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Courier New      emoji     13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Courier New      emoji     13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Courier New      emoji     24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Courier New      emoji     24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Courier New      thai      13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Courier New      thai      13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Courier New      thai      24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Courier New      thai      24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Georgia          cjk       13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Georgia          cjk       13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Georgia          cjk       24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Georgia          cjk       24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Georgia          emoji     13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Georgia          emoji     13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Georgia          emoji     24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Georgia          emoji     24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Georgia          thai      13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Georgia          thai      13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Georgia          thai      24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Georgia          thai      24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Calibri          cjk       13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Calibri          cjk       13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Calibri          cjk       24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Calibri          cjk       24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Calibri          emoji     13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Calibri          emoji     13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Calibri          emoji     24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Calibri          emoji     24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Calibri          thai      13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Calibri          thai      13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Calibri          thai      24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Calibri          thai      24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Cambria          cjk       13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Cambria          cjk       13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Cambria          cjk       24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Cambria          cjk       24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Cambria          emoji     13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Cambria          emoji     13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Cambria          emoji     24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Cambria          emoji     24 br      28.8000 pt  1.2000 em  bound   38.3017
+  Cambria          thai      13 rows    15.6473 pt  1.2036 em  bound   20.8401
+  Cambria          thai      13 br      15.6190 pt  1.2015 em  bound   20.8117
+  Cambria          thai      24 rows    28.8283 pt  1.2012 em  bound   38.3301
+  Cambria          thai      24 br      28.8000 pt  1.2000 em  bound   38.3017
   widest fallback cell line: 1.2036 em
 
 fallback advances: 10 characters at 24 pt; estimate = max(twin's maximum advance, missing_glyph_em = 1.49), LibreOffice 26.8.1.1 680(Build:1)
@@ -1132,3 +1132,6 @@ verdict (amendments B-22, B-25):
   (c) every table line <= size x max(1.2, hhea) x line spacing + 0.05 mm, every row <= its lines + 0.01 mm: 180 probes, smallest slack 0.1227 pt: HOLDS
   (d) every fallback advance <= max(maximum advance, missing_glyph_em): 36 probes, widest 1.4805 em: HOLDS
   (e) every cell line with fallback glyphs <= size x max(1.2, hhea, missing_line_em) + cell allowance: 72 probes, widest 1.2036 em: HOLDS
+
+verdict (amendment B-27):
+  (f) every character this version will not break before or after is in the estimator's sets: 11 before, 7 after: HOLDS

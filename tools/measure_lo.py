@@ -1,5 +1,6 @@
 """Measure LibreOffice's line pitch and wrap behaviour against spec 002's fit constants
-(amendments B-7, B-21 and B-22; T-20, its addendum, and the A2 fixes of audit 05).
+(amendments B-7, B-21, B-22, B-25 and B-27; T-20, its addendum, and the A2 fixes of audits
+05, 06 and 07).
 
     python tools/measure_lo.py [OUT_FILE]
 
@@ -45,8 +46,8 @@ What it measures:
   with " <char> end" (bold Arial 48 pt), once with room on the line for the space after
   that word and once without.
 
-The verdict is B-21's two criteria and B-22's two; the script exits 0 when all hold,
-else 2:
+The verdict is B-21's two criteria, B-22's and B-25's three, and B-27's one; the script
+exits 0 when all hold, else 2:
   (a) no stress case wraps at 1/0.99, the widest box the estimator accepts;
   (b) every measured pitch ≤ size × 1.2 × line spacing + 0.01 mm (LibreOffice's unit);
   (c) in table cells, every line pitch ≤ size × max(1.2, the twin's hhea line height) ×
@@ -56,7 +57,10 @@ else 2:
   (d) every fallback advance ≤ the estimate for a missing glyph, max(the twin's maximum
       advance, `missing_glyph_em` of thresholds.toml) (B-22 item 6);
   (e) in table cells, every line with a fallback glyph ≤ size × max(1.2, hhea,
-      `missing_line_em`) × line spacing + `cell_line_allowance_mm` (B-25 item 6).
+      `missing_line_em`) × line spacing + `cell_line_allowance_mm` (B-25 item 6);
+  (f) every character this version will not break before or after, at a space, is in the
+      estimator's sets (fit/tables/breaks.json, B-27 item 3). When it fails, add the
+      output to tools/gen_measured.py and regenerate.
 Every number printed is tagged with the `soffice --version` that produced it.
 """
 
@@ -546,9 +550,9 @@ def read_pages(pdf: Path):
     return pages
 
 
-def break_report(decks: dict, pages: dict, version: str) -> list[str]:
+def break_report(decks: dict, pages: dict, version: str) -> tuple[list[str], dict[str, list]]:
     """The line-break section (B-27 item 3): a row per character, the probes on which the
-    families disagree, and the two sets."""
+    families disagree, and the two sets; and those sets, per side."""
     results: dict[str, dict[tuple[str, str, str], dict[str, str]]] = {}
     count = 0
     for family, (_deck_bytes, probes) in decks.items():
@@ -592,8 +596,9 @@ def break_report(decks: dict, pages: dict, version: str) -> list[str]:
                 differ.append(f"  U+{ord(ch):04X} {side} {form}, {room}: kept only in {kept}")
     out.append("  the families disagree on:")
     out += differ or ["  nothing"]
+    sets = {}
     for side in BREAK_SIDES:
-        kept = [
+        sets[side] = kept = [
             ch
             for ch in break_chars()
             if any(
@@ -608,7 +613,7 @@ def break_report(decks: dict, pages: dict, version: str) -> list[str]:
         f"  probed: {len(results)} characters in {count} probes; in no twin, not probed "
         f"({len(missing)}): " + " ".join(f"U+{ord(c):04X}" for c in missing)
     )
-    return out
+    return out, sets
 
 
 def convert(tmp: Path, name: str, deck_bytes: bytes, soffice: str, origins: bool = False):
@@ -627,7 +632,7 @@ def main(argv: list[str]) -> int:
         sys.exit("stop: soffice is not installed")
     version = libreoffice_version(soffice)
     out = [
-        "# LibreOffice measurements for spec 002 amendments B-7, B-21 and B-22 (T-20; A2 fixes)",
+        "# LibreOffice measurements for spec 002 amendments B-7, B-21, B-22, B-25 and B-27",
         f"version: {version}",
         f"date: {dt.date.today().isoformat()}  keyline {__version__}  {platform.platform()}",
     ]
@@ -841,7 +846,8 @@ def main(argv: list[str]) -> int:
     out.append(f"  widest fallback advance: {widest:.4f} em")
 
     # ---- line breaks at a space, per character (B-27 item 3) ---------------------------
-    out += break_report(break_decks, break_pages, version)
+    break_lines, break_sets = break_report(break_decks, break_pages, version)
+    out += break_lines
 
     # ---- informational: the fullwidth closers of B-25 item 5 ----------------------------
     out += [
@@ -860,6 +866,15 @@ def main(argv: list[str]) -> int:
     # ---- verdict (B-21, B-22) -----------------------------------------------------------
     a_ok, b_ok = not wrap_bad, not pitch_bad
     c_ok, d_ok, e_ok = not table_bad, not fallback_bad, not cellfb_bad
+    from keyline.fit.text import NO_BREAK_AFTER, NO_BREAK_BEFORE
+
+    break_bad = [  # kept here, but not in the estimator's sets (fit/tables/breaks.json)
+        f"U+{ord(ch):04X} ({side})"
+        for side, known in (("before", NO_BREAK_BEFORE), ("after", NO_BREAK_AFTER))
+        for ch in break_sets[side]
+        if ch not in known
+    ]
+    f_ok = not break_bad
     out += ["", "verdict (amendment B-21):"]
     out.append(
         f"  (a) no stress case wraps at 1/0.99 = {MARGIN:.4f}: {len(cases)} cases, "
@@ -896,11 +911,20 @@ def main(argv: list[str]) -> int:
     )
     for bad in cellfb_bad:
         out.append(f"      over: {bad}")
+    out += ["", "verdict (amendment B-27):"]
+    out.append(
+        "  (f) every character this version will not break before or after is in the "
+        f"estimator's sets: {len(break_sets['before'])} before, {len(break_sets['after'])} "
+        f"after: {'HOLDS' if f_ok else 'FAILS'}"
+    )
+    if break_bad:
+        out.append(f"      not in fit/tables/breaks.json: {', '.join(break_bad)}")
+        out.append("      add this output to tools/gen_measured.py SOURCES and regenerate")
     text = "\n".join(out) + "\n"
     print(text, end="")
     if len(argv) > 1:
         Path(argv[1]).write_text(text, encoding="utf-8")
-    return 0 if a_ok and b_ok and c_ok and d_ok and e_ok else 2
+    return 0 if a_ok and b_ok and c_ok and d_ok and e_ok and f_ok else 2
 
 
 if __name__ == "__main__":
