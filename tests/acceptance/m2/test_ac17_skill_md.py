@@ -104,6 +104,10 @@ def test_the_loop_has_the_voice_step_as_its_own_step():
     assert "fallbacks" in voice and all(v in voice for v in ("neutral", "night", "field"))
     for command in ("kl.py brief", "kl.py run", "kl.py check"):
         assert command in loop, command
+    # headlines are checked against their titles before the user sees the spine
+    spine = loop[loop.index("5. **Spine.**") : loop.index("6. **Approval.**")]
+    assert "every headline fits its title" in spine and "bare `deck.next()`" in spine
+    assert "kl.py run" in spine and "names\n   the slide" in spine
 
 
 def test_priority_and_report():

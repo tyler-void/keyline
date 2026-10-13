@@ -10,6 +10,8 @@ what the tool does:
 - `budgets`: the per-mode limits the pen and the rules apply (thresholds.toml, pack.toml);
 - `roles`: what each role may hold, per mode (pack.toml);
 - `layouts`: each role's layouts and their regions (pack.toml);
+- `titles`: how many lines and about how many characters a role's title holds, per mode,
+  over the six portable families (pack.toml and the fit tables);
 - `numeral-excluded`: the characters a figure's value may not use (B-26, numerals.json);
 - `coverage`: per portable family, its metric twin and the letters of the measured set
   the twin lacks (the fit tables; B-25 item 1).
@@ -22,19 +24,30 @@ from __future__ import annotations
 import re
 import sys
 import unicodedata
+from fractions import Fraction
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from keyline.config import load as load_config  # noqa: E402
-from keyline.fit import VIETNAMESE, WEIGHTS, load_table  # noqa: E402
+from keyline.fit import (  # noqa: E402
+    VIETNAMESE,
+    WEIGHTS,
+    WRAP_MARGIN,
+    Setting,
+    lines_held,
+    load_table,
+    width,
+)
 from keyline.fit.numerals import excluded  # noqa: E402
 from keyline.fit.text import MEASURED, drawn  # noqa: E402
 from keyline.packs import resolve  # noqa: E402
 
 SKILL = ROOT / "skill" / "keyline"
 PACK = "swiss"
+# ordinary English, to turn a title's width into a character count
+SAMPLE = "the quick brown fox jumps over the lazy dog and keeps running"
 BLOCK = re.compile(r"(<!-- gen:begin ([a-z0-9-]+) -->\n)(.*?)(<!-- gen:end -->)", re.DOTALL)
 
 
@@ -115,6 +128,40 @@ def layouts() -> str:
     return _table(["Role", "Layout", "Regions"], rows)
 
 
+def _span(values) -> str:
+    low, high = min(values), max(values)
+    return str(low) if low == high else f"{low} to {high}"
+
+
+def titles() -> str:
+    """Per role and mode: the lines its title holds, and about how many characters fit
+    on a line, each as the range over the portable families."""
+    pack = resolve(PACK)
+    families = [family for family, _twin in load_config().portable_fonts]
+    rows = []
+    for role in pack.roles.values():
+        row = [f"`{role.name}`", f"`{role.title}`"]
+        box = pack.region_box(role.layouts[0], "title")
+        box_w, box_h = Fraction(box.w, 12700), Fraction(box.h, 12700)
+        for mode in ("presented", "read"):
+            style = pack.styles[mode][role.title]
+            lines, chars = [], []
+            for family in families:
+                setting = Setting(
+                    family,
+                    style.weight,
+                    style.size_pt,
+                    caps=style.caps,
+                    tracking=style.tracking,
+                    line_spacing=style.line_spacing,
+                )
+                lines.append(lines_held(setting, box_h))
+                chars.append(int(box_w * WRAP_MARGIN * len(SAMPLE) / width(setting, SAMPLE)))
+            row.append(f"{_span(lines)} lines of {_span(chars)} characters")
+        rows.append(row)
+    return _table(["Role", "Title style", "presented", "read"], rows)
+
+
 def numeral_excluded() -> str:
     out = excluded(resolve(PACK))
     words = {"top": "It would rise above the region", "left": "It would reach left of the region"}
@@ -164,6 +211,7 @@ TABLES = {
     "budgets": budgets,
     "roles": roles,
     "layouts": layouts,
+    "titles": titles,
     "numeral-excluded": numeral_excluded,
     "coverage": coverage,
 }

@@ -121,6 +121,22 @@ Each `[[slides]]` entry has a role, a headline and its reads.
 - **The headline test.** Read only the spine that `kl.py brief` prints, top to bottom. It
   has to tell the whole story. If a headline names a topic ("Market overview"), rewrite
   it as the claim that slide proves, within the word limit. <!-- rule:brief-headline-long -->
+- **A headline must also fit its title**, at the title's size. The word limit is the
+  outer bound; this table is the real one. The ranges are over the six families: Courier
+  New is the widest, Calibri the narrowest. The pen refuses a headline that needs more
+  lines, and names the slide.
+
+<!-- gen:begin titles -->
+| Role | Title style | presented | read |
+|---|---|---|---|
+| `cover` | `cover_title` | 2 lines of 18 to 25 characters | 3 lines of 29 to 41 characters |
+| `section` | `headline` | 2 lines of 24 to 34 characters | 3 lines of 42 to 59 characters |
+| `statement` | `statement` | 2 to 3 lines of 19 to 27 characters | 4 to 5 lines of 33 to 46 characters |
+| `evidence` | `headline` | 2 lines of 30 to 41 characters | 3 lines of 51 to 71 characters |
+| `quote` | `quote` | 5 lines of 27 to 39 characters | 9 lines of 49 to 71 characters |
+| `close` | `cover_title` | 2 lines of 18 to 25 characters | 3 lines of 29 to 41 characters |
+<!-- gen:end -->
+
 - **`reads`** are what the audience must take in from the slide, in order. They are your
   plan for the slide, not text on it. Few reads means one idea. <!-- rule:brief-reads -->
 - **`evidence`** lists the ids the slide shows. A number on the slide that is not in its

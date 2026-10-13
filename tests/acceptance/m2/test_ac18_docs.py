@@ -262,6 +262,7 @@ def test_brief_md_gives_each_field_its_test():
     assert "No adjectives about the deck" in direction  # own_world: nouns from the subject
     slides = section(text, "The slides")
     assert "The headline test" in slides and "has to tell the whole story" in slides
+    assert "<!-- gen:begin titles -->" in slides and "names the slide" in slides
     for rule in ("brief-headline-long", "brief-reads", "unsourced-number", "brief-notes"):
         assert f"<!-- rule:{rule} -->" in slides, rule
     assert "Unknown keys are ignored" in text and "`[product.world]`" in text

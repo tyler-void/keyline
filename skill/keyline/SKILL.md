@@ -83,12 +83,15 @@ token.
      has every letter the deck's language needs.
    - The stock voices (`neutral`, `night`, `field`) are fallbacks. Use one only when the
      user asks for a plain look, or when there is no subject world to draw from.
-5. **Spine.** Run `kl.py brief <deck>.brief.toml`. Fix what it reports, then show the
-   user the spine it prints.
+5. **Spine.** Run `kl.py brief <deck>.brief.toml` and fix what it reports. Then check
+   that every headline fits its title: start `build_<deck>.py` with `Deck.from_brief`
+   and one bare `deck.next()` per slide, and run it with `kl.py run`. A refusal names
+   the slide; shorten that headline in the brief (the table in `references/brief.md`
+   says how much a title holds). When both pass, show the user the spine.
 6. **Approval.** If the user is present, wait until they approve the spine. If they are
    not, go on and say that you did.
-7. **Build.** Read `references/craft-floor.md`, then `references/pen.md`. Write
-   `build_<deck>.py` with `Deck.from_brief`, one `deck.next()` per slide, and run it:
+7. **Build.** Read `references/craft-floor.md`, then `references/pen.md`. Give each
+   `deck.next()` its verbs, end with `deck.save`, and run the script again:
    `kl.py run build_<deck>.py`.
 8. **Check.** Run `kl.py check <deck>.pptx --brief <deck>.brief.toml`. Exit 0 is clean,
    2 means findings, 1 means it could not read the deck. `-o DIR` chooses the folder
@@ -105,7 +108,8 @@ token.
 - If the user asks for something the method forbids, do it, and name the rule it breaks:
   `check` will flag it.
 - When the pen refuses with `DoesNotFit`, change the content: shorten it, or split the
-  slide. Never change a token to make text fit.
+  slide. Never change a token to make text fit. If that changes a headline the user
+  approved, tell them which one and why.
 - When the pen prints `keyline pen: warning:`, the fit does not cover some characters.
   Change the voice's font, or the wording, before you trust the preview.
 - Never write deck content with raw python-pptx or OfficeCLI.

@@ -25,7 +25,7 @@ def gen_docs():
 
 def test_the_tables(gen_docs):
     assert sorted(gen_docs.TABLES) == [
-        "budgets", "coverage", "layouts", "numeral-excluded", "roles", "type-scale",
+        "budgets", "coverage", "layouts", "numeral-excluded", "roles", "titles", "type-scale",
     ]  # fmt: skip
     for name, table in gen_docs.TABLES.items():
         text = table()
@@ -61,6 +61,28 @@ def test_the_roles_and_layouts_come_from_the_pack(gen_docs):
             assert f"`{verb}`" in roles
     assert '| `evidence` | `variant="figure"` | `title`, `main`, `side`, `footer` |' in layouts
     assert layouts.count("\n") == 2 + sum(len(r.layouts) for r in pack.roles.values())
+
+
+def test_the_title_table_comes_from_the_pack_and_the_fit(gen_docs):
+    """Per role and mode: the lines the title region holds and about how many characters
+    fit on a line, as the range over the six portable families."""
+    from fractions import Fraction as F
+
+    from keyline.fit import WRAP_MARGIN, Setting, lines_held, width
+
+    pack = resolve("swiss")
+    titles = gen_docs.titles()
+    assert titles.count("\n") == 2 + len(pack.roles)
+    assert "| `cover` | `cover_title` | 2 lines of 18 to 25 characters |" in titles
+    assert "| `statement` | `statement` | 2 to 3 lines of" in titles  # Georgia holds one less
+    style = pack.styles["presented"]["cover_title"]
+    box = pack.region_box("keyline:cover", "title")
+    arial = Setting("Arial", style.weight, style.size_pt, line_spacing=style.line_spacing)
+    assert lines_held(arial, F(box.h, 12700)) == 2
+    per_line = int(
+        F(box.w, 12700) * WRAP_MARGIN * len(gen_docs.SAMPLE) / width(arial, gen_docs.SAMPLE)
+    )
+    assert 18 <= per_line <= 25
 
 
 def test_the_numeral_and_coverage_tables_come_from_the_fit_data(gen_docs):
