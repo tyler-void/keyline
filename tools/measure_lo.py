@@ -30,10 +30,20 @@ What it measures:
   and the same ten each between two "H" (mixed: LibreOffice adds space where Latin meets
   Asian text), per family, at 24 pt; a character's cost is the distance from the first
   to the last H origin, less the H advances, over ten; with the fonts LibreOffice used;
+- line breaks at a space (B-27 item 3): for every non-letter character of the measured set
+  that normalization keeps, whether LibreOffice breaks at the space before it and at the
+  space after it. The text is "nnn nnn nnn <token> mmm", regular 48 pt, in each family
+  whose twin has the character. The token is the character alone (when it is drawn) and
+  the character attached to "uuu" (before it for the space before, after it for the space
+  after). Each is set in two boxes: one where the space at the break still fits on the
+  line, and one where it does not. "kept" means LibreOffice refused the break and carried
+  the word before the space down; the no-break-before and no-break-after sets are the
+  characters kept in any probe;
 - informational: the one-line threshold of three bold 14 pt labels, scanned 0.980× …
-  1.010× in 0.0005 steps (T-20's first run); and, per character of B-22 item 4, whether
-  LibreOffice carries a full line's last word down with " <char> end" (bold Arial 48 pt),
-  once with room on the line for the space after that word and once without.
+  1.010× in 0.0005 steps (T-20's first run); and, per fullwidth closer of B-25 item 5
+  (outside the measured set), whether LibreOffice carries a full line's last word down
+  with " <char> end" (bold Arial 48 pt), once with room on the line for the space after
+  that word and once without.
 
 The verdict is B-21's two criteria and B-22's two; the script exits 0 when all hold,
 else 2:
@@ -102,6 +112,11 @@ CELL_FALLBACK_SIZES = (13.0, 24.0)
 MM_PT = 72 / 25.4
 LB13_FIRST = "plan build ship measure learn repeat"
 LB13_SIZE = 48
+BREAK_SIZE = 48
+BREAK_FIRST, BREAK_PAD, BREAK_NEXT = "nnn nnn nnn", "uuu", "mmm"
+BREAK_SIDES, BREAK_FORMS = ("before", "after"), ("alone", "attached")
+BREAK_ROOMS = ("space fits", "no room")
+LO_NARROW, LO_WIDE = 0.998, 1.003  # LibreOffice's one-line thresholds over the estimate (B-21)
 PEN_LANG = "en-US"  # the run language the pen writes
 SLIDE_W_IN, SLIDE_H_IN = 13.333, 7.5
 EMU_PER_PT = 12700
@@ -379,17 +394,83 @@ def build_fallback(families):
     return _bytes(prs), probes
 
 
+def break_chars() -> list[str]:
+    """B-27 item 3: every non-letter character of the measured set that normalization
+    keeps (it turns the other space separators into U+0020)."""
+    from keyline.fit.text import MEASURED, SPACES
+
+    return [c for c in MEASURED if unicodedata.category(c)[0] != "L" and c not in SPACES]
+
+
+def build_breaks(family: str):
+    """One deck of line-break probes for a family (B-27 item 3). Per probe: (character,
+    side, form, room). A probe is left out when the twin lacks the character, when the
+    character draws nothing and would stand alone, or when its box cannot be told from
+    its neighbour's (a token narrower than LibreOffice's threshold band)."""
+    from keyline.fit.text import drawn
+
+    prs, probes = _deck(), []
+    cmap = _font(family, "regular")[0]
+
+    def w(text: str) -> float:
+        return estimate(family, "regular", text, BREAK_SIZE)[0]
+
+    first, space = w(BREAK_FIRST), w(" ")
+    for ch in break_chars():
+        if ord(ch) not in cmap:
+            continue
+        tokens = {("before", "attached"): ch + BREAK_PAD, ("after", "attached"): BREAK_PAD + ch}
+        if drawn(ch):
+            tokens["before", "alone"] = tokens["after", "alone"] = ch
+        for (side, form), token in tokens.items():
+            # what stays on the first line, and what must not fit after the space
+            held = first if side == "before" else first + space + w(token)
+            beyond = w(token) if side == "before" else w(BREAK_NEXT)
+            boxes = {
+                "space fits": ((held + space) / LO_NARROW, (held + space + beyond) / LO_WIDE),
+                "no room": (held / LO_NARROW, (held + space) / LO_WIDE),
+            }
+            for room, (low, high) in boxes.items():
+                if high - low < 1.0:
+                    continue
+                tf = _box(prs.slides.add_slide(prs.slide_layouts[6]), 36, 36, (low + high) / 2, 300)
+                tf.paragraphs[0].text = f"{BREAK_FIRST} {token} {BREAK_NEXT}"
+                _style(tf.paragraphs[0], family, BREAK_SIZE, False, lang=PEN_LANG)
+                probes.append((ch, side, form, room))
+    return _bytes(prs), probes
+
+
+def break_outcome(side: str, glyphs) -> str:
+    """What LibreOffice did at the probed space, from the glyph origins in reading order:
+    "breaks" (the line breaks there), "kept" (it refused, and broke earlier) or "fits"
+    (nothing moved: the probe did not test the space)."""
+    held = len(BREAK_FIRST.replace(" ", ""))
+    if len(glyphs) < held + 1 + len(BREAK_NEXT):
+        return "no glyph"
+
+    def same(a, b) -> bool:
+        return abs(a[2] - b[2]) < BREAK_SIZE / 2
+
+    if side == "before":  # the space after the first words
+        left, right = glyphs[held - 1], glyphs[held]
+    else:  # the space before the last word
+        left, right = glyphs[-len(BREAK_NEXT) - 1], glyphs[-len(BREAK_NEXT)]
+    if not same(left, right):
+        return "breaks"
+    return "fits" if same(right, glyphs[0]) else "kept"
+
+
 def build_lb13():
-    """Per character of B-22 item 4: a first line that fits the box at the estimator's
-    0.99 margin, then " <char> end", which cannot fit on that line even at LibreOffice's
-    widest threshold (1.003x, B-21)."""
+    """Per fullwidth closer of B-25 item 5 (listed, outside the measured set): a first
+    line that fits the box at the estimator's 0.99 margin, then " <char> end", which
+    cannot fit on that line even at LibreOffice's widest threshold (1.003x, B-21)."""
     sys.path.insert(0, str(ROOT / "src"))
-    from keyline.fit.text import NO_BREAK_BEFORE
+    from keyline.fit.text import FULLWIDTH_CLOSERS
 
     prs, probes = _deck(), []
     first_w, _shown, _missing = estimate("Arial", "bold", LB13_FIRST, LB13_SIZE)
     space_w, _shown, _missing = estimate("Arial", "bold", LB13_FIRST + " ", LB13_SIZE)
-    for ch in NO_BREAK_BEFORE:
+    for ch in FULLWIDTH_CLOSERS:
         with_ch, _s, _m = estimate("Arial", "bold", f"{LB13_FIRST} {ch}", LB13_SIZE)
         for room, box_w in (
             ("space fits", (space_w + with_ch) / 2 / 1.003),
@@ -465,6 +546,71 @@ def read_pages(pdf: Path):
     return pages
 
 
+def break_report(decks: dict, pages: dict, version: str) -> list[str]:
+    """The line-break section (B-27 item 3): a row per character, the probes on which the
+    families disagree, and the two sets."""
+    results: dict[str, dict[tuple[str, str, str], dict[str, str]]] = {}
+    count = 0
+    for family, (_deck_bytes, probes) in decks.items():
+        for (ch, side, form, room), (glyphs, _fonts) in zip(probes, pages[family], strict=True):
+            results.setdefault(ch, {}).setdefault((side, form, room), {})[family] = break_outcome(
+                side, glyphs
+            )
+            count += 1
+    out = [
+        "",
+        f'line breaks at a space (B-27 item 3): "{BREAK_FIRST} <token> {BREAK_NEXT}", regular '
+        f"{BREAK_SIZE} pt, {version}",
+        "  per character: the space before it, then the space after it; each with the character",
+        '  alone and attached to "uuu", as <space fits>/<no room>. K: kept in at least one',
+        "  family (LibreOffice refused the break); b: breaks; -: not probed, or the probe fit",
+        f"  {'':<10} {'before: alone':>14} {'attached':>9}   {'after: alone':>13} {'attached':>9}",
+    ]
+    marks = {"kept": "K", "breaks": "b"}
+    differ = []
+
+    def cell(ch, side, form) -> str:
+        found = []
+        for room in BREAK_ROOMS:
+            seen = set(results[ch].get((side, form, room), {}).values())
+            found.append("K" if "kept" in seen else "b" if "breaks" in seen else "-")
+        return "/".join(found)
+
+    for ch in break_chars():
+        if ch not in results:
+            continue
+        shown = ch if unicodedata.category(ch)[0] not in "CZ" else " "
+        out.append(
+            f"  U+{ord(ch):04X} {shown}   {cell(ch, 'before', 'alone'):>14} "
+            f"{cell(ch, 'before', 'attached'):>9}   {cell(ch, 'after', 'alone'):>13} "
+            f"{cell(ch, 'after', 'attached'):>9}"
+        )
+        for (side, form, room), by_family in results[ch].items():
+            seen = {o for o in by_family.values() if o in marks}
+            if len(seen) > 1:
+                kept = ", ".join(f for f, o in by_family.items() if o == "kept")
+                differ.append(f"  U+{ord(ch):04X} {side} {form}, {room}: kept only in {kept}")
+    out.append("  the families disagree on:")
+    out += differ or ["  nothing"]
+    for side in BREAK_SIDES:
+        kept = [
+            ch
+            for ch in break_chars()
+            if any(
+                "kept" in by_family.values()
+                for (s, _form, _room), by_family in results.get(ch, {}).items()
+                if s == side
+            )
+        ]
+        out.append(f"  no break {side} ({len(kept)}): " + " ".join(f"U+{ord(c):04X}" for c in kept))
+    missing = [c for c in break_chars() if c not in results]
+    out.append(
+        f"  probed: {len(results)} characters in {count} probes; in no twin, not probed "
+        f"({len(missing)}): " + " ".join(f"U+{ord(c):04X}" for c in missing)
+    )
+    return out
+
+
 def convert(tmp: Path, name: str, deck_bytes: bytes, soffice: str, origins: bool = False):
     deck = tmp / f"{name}.pptx"
     deck.write_bytes(deck_bytes)
@@ -497,8 +643,15 @@ def main(argv: list[str]) -> int:
     fallback_bytes, fallback_probes = build_fallback(families)
     cellfb_bytes, cellfb_probes = build_cell_fallback(families)
     lb13_bytes, lb13_probes = build_lb13()
+    break_decks = {family: build_breaks(family) for family, _twin in families}
+    break_pages = {}
     with tempfile.TemporaryDirectory(prefix="keyline-measure-") as tmp:
         tmp_dir = Path(tmp)
+        for i, (family, (deck_bytes, probes)) in enumerate(break_decks.items()):
+            pages = convert(tmp_dir, f"breaks{i}", deck_bytes, soffice, origins=True)
+            if len(pages) != len(probes):
+                sys.exit(f"stop: {len(pages)} PDF pages for {len(probes)} break probes")
+            break_pages[family] = pages
         pitch_pages = convert(tmp_dir, "pitch", pitch_bytes, soffice)
         scan_pages = convert(tmp_dir, "scan", scan_bytes, soffice)
         stress_pages = convert(tmp_dir, "stress", stress_bytes, soffice)
@@ -687,10 +840,13 @@ def main(argv: list[str]) -> int:
         )
     out.append(f"  widest fallback advance: {widest:.4f} em")
 
-    # ---- informational: line breaks before closing punctuation (B-22 item 4) -----------
+    # ---- line breaks at a space, per character (B-27 item 3) ---------------------------
+    out += break_report(break_decks, break_pages, version)
+
+    # ---- informational: the fullwidth closers of B-25 item 5 ----------------------------
     out += [
         "",
-        f"line breaks before closing punctuation, bold Arial {LB13_SIZE} pt (informational),"
+        f"line breaks before the fullwidth closers, bold Arial {LB13_SIZE} pt (informational),"
         f" {version}:",
     ]
     rows: dict[str, list[str]] = {}

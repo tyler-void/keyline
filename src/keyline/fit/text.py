@@ -18,8 +18,10 @@ The word joiners stay: the estimator treats a joined run as one word.
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
+from pathlib import Path
 
 JOINERS = "\xa0\u202f\u2007"  # no-break space, narrow no-break space, figure space
 # Zs without the joiners: U+0020, U+1680, U+2000–U+200A (but U+2007), U+205F, U+3000
@@ -27,13 +29,18 @@ SPACES = "\u0020\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2008\u2009\u20
 LINE_BREAKS = "\n\r\v\f\x1c\x1d\x1e\x85\u2028\u2029"  # B-17: what str.splitlines() breaks on
 INVISIBLE = "\xad\u200b\u2060\ufeff"  # soft hyphen, zero-width space, word joiner, BOM
 NONCHARACTERS = "\ufffe\uffff"
-# B-22 item 4 (UAX #14, LB13), with B-25 item 5's fullwidth closers: no line break before
-# these, even after a space
-NO_BREAK_BEFORE = ")]},.:;!?/%\u2030\u00bb\u201d\u2019"  # ‰ » ” ’
+# B-27 item 3: the characters LibreOffice will not break before, after a space, and the
+# ones it will not break after, before a space, are measured (tools/measure_lo.py, every
+# non-letter character of the measured set) and stored as the union over the versions
+# measured (tables/breaks.json, written by tools/gen_measured.py). They replace the lists
+# of B-22 item 4 and B-25 item 5.
+_BREAKS = json.loads(
+    (Path(__file__).resolve().parent / "tables" / "breaks.json").read_text(encoding="utf-8")
+)
+# B-25 item 5's fullwidth closers are outside the measured set, and stay listed
 FULLWIDTH_CLOSERS = "\uff01\uff1f\uff0c\u3002\u300d\uff09"  # ！ ？ ， 。 」 ）
-NO_BREAK_BEFORE += FULLWIDTH_CLOSERS
-
-INVERTED = "\xa1\xbf"  # inverted exclamation and question marks: class OP, category Po
+NO_BREAK_BEFORE = "".join(map(chr, _BREAKS["no_break_before"])) + FULLWIDTH_CLOSERS
+NO_BREAK_AFTER = "".join(map(chr, _BREAKS["no_break_after"]))
 
 _SPACE_RUN = re.compile(f"[{SPACES}]+")
 
@@ -130,16 +137,19 @@ def normalize(text: str) -> str:
 
 
 def opens(ch: str) -> bool:
-    """B-25 item 5 (UAX #14, LB14): an opening punctuation mark (class OP: category Ps,
-    and the inverted ! and ?), after which no line breaks, even across a space."""
-    return unicodedata.category(ch) == "Ps" or ch in INVERTED
+    """Whether no line breaks after this character, even across a space: a measured
+    character of NO_BREAK_AFTER (B-27 item 3), or, outside the measured set, an opening
+    punctuation mark (category Ps; B-25 item 5, UAX #14 LB14)."""
+    if ch == "":
+        return False
+    return ch in NO_BREAK_AFTER or (not measured(ch) and unicodedata.category(ch) == "Ps")
 
 
 def break_units(text: str) -> list[str]:
     """The normalized text as the pieces a line may break between: split at U+0020, with
-    a piece that starts with a NO_BREAK_BEFORE character kept with the one before it
-    (B-22 item 4), and a piece that ends in an opening punctuation mark kept with the one
-    after it (B-25 item 5)."""
+    a piece that starts with a NO_BREAK_BEFORE character kept with the one before it, and
+    a piece that ends in a character that `opens` kept with the one after it (B-22 item 4
+    and B-25 item 5, as measured per B-27 item 3)."""
     units: list[str] = []
     for word in normalize(text).split(" "):
         if units and (word[:1] in NO_BREAK_BEFORE or opens(units[-1][-1:])):
