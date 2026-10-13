@@ -69,7 +69,7 @@ def test_the_cell_data():
     georgia = Setting("Georgia", "bold", F(14))
     hhea = F(1900 + 700, 2048)
     assert georgia.cell_pitch == 14 * hhea + allowance
-    assert georgia.cell_line_pitch(True) == 14 * line_em + allowance  # 1.52 > 1.2695
+    assert georgia.cell_line_pitch(True) == 14 * line_em + allowance  # 1.59 > 1.2695
 
 
 def test_missing_line_em_covers_the_installed_fallback_fonts():
@@ -90,7 +90,10 @@ def test_missing_line_em_covers_the_installed_fallback_fonts():
         h = font["hhea"]
         assert (h.ascent - h.descent + h.lineGap) / font["head"].unitsPerEm <= float(
             load_config().missing_line_em
-        ), path
+        ), (
+            f"{path}: a taller fallback font than any recorded. Run tools/measure_lo.py "
+            "here, add its output to tools/gen_measured.py and regenerate (B-27 item 5)"
+        )
 
 
 def test_a_row_with_a_fallback_glyph_takes_missing_line_em(tmp_path):

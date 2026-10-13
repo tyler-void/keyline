@@ -66,19 +66,22 @@ portable_fonts = [
   { family = "Cambria",         metric_twin = "Caladea" },
 ]
 # spec 002 B-22 item 6: the fit estimate of a character the voice's twin lacks is at least
-# this many em. The widest cost measured on LibreOffice 26.8.0.3 (tools/measure_lo.py): a CJK
-# glyph between Latin letters, 1.4805 em (Asian/Latin spacing on both sides); a CJK run
-# 1.0480, emoji 1.2454, Thai 0.5710. B-22 item 7: the larger over every version measured.
+# this many em: the widest fallback advance measured (a CJK glyph between Latin letters,
+# with Asian/Latin spacing on both sides).
+# B-27 item 5: this value and the two below are the largest measured in any environment
+# Tyler or the auditor has run, rounded up to 0.01. Each environment is recorded in
+# fit/tables/environments.json (tools/gen_measured.py, from tools/measure_lo.py outputs),
+# and a test compares these three values with it.
 missing_glyph_em = 1.49
 # spec 002 B-25 item 6, in table cells (tools/measure_lo.py, criteria (c) and (e)):
 # - each cell line's allowance over size x max(1.2, hhea) x line spacing: the largest excess
-#   measured on any version, rounded up to 0.01 mm: 0.05 mm on 24.2.7.2 (audit 06; a row of
-#   one Georgia bold 14 pt line, its row unit included), 0.02 mm on 26.8.0.3;
-# - a cell line with a fallback glyph is set at least this many em: 24.2.7.2 sets it at
-#   max(1.2, the hhea of the fallback font), here Noto Sans CJK 1.448, Noto Sans Thai 1.511
-#   and Noto Color Emoji 1.172 (audit 06 measured about 1.42 for CJK); 26.8.0.3 at 1.2.
+#   measured (0.0499 mm on 24.2.7.2, a row of one Georgia bold 14 pt line, its row unit
+#   included);
+# - a cell line with a fallback glyph is set at least this many em. 24.2.7.2 sets it at
+#   max(1.2, the hhea of the fallback font), and the tallest fallback font recorded is Loma
+#   (Thai, the auditor's environment), at 1.5894 em.
 cell_line_allowance_mm = 0.05
-missing_line_em = 1.52
+missing_line_em = 1.59
 
 [presented]
 body_min_pt = 18

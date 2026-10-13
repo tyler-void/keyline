@@ -1,0 +1,81 @@
+{
+ "schema": 1,
+ "rule": "B-27 item 5: missing_glyph_em and missing_line_em take the largest value measured in any environment Tyler or the auditor has run; cell_line_allowance_mm likewise (B-25 item 6)",
+ "environments": [
+  {
+   "who": "Tyler",
+   "source": "specs/002-skill-pack/evidence/lo-26.8.0.3-measurements.txt",
+   "version": "LibreOffice 26.8.0.3 680(Build:3)",
+   "date": "2026-10-08",
+   "platform": "Linux-7.2.4-zen2-1-zen-x86_64-with-glibc2.44",
+   "fallback_fonts": {
+    "cjk": {
+     "file": "NotoSansCJK-Regular.ttc",
+     "hhea_line_em": "1.4480"
+    },
+    "emoji": {
+     "file": "NotoColorEmoji.ttf",
+     "hhea_line_em": "1.1719"
+    },
+    "thai": {
+     "file": "NotoSansThai-Regular.ttf",
+     "hhea_line_em": "1.5110"
+    }
+   },
+   "widest_fallback_advance_em": "1.4805",
+   "widest_fallback_cell_line_em": "1.2036",
+   "cell_line_excess_mm": "0.0167"
+  },
+  {
+   "who": "Tyler",
+   "source": "specs/002-skill-pack/evidence/lo-26.8.1.1-measurements.txt",
+   "version": "LibreOffice 26.8.1.1 680(Build:1)",
+   "date": "2026-10-13",
+   "platform": "Linux-7.2.9-zen1-1-zen-x86_64-with-glibc2.44",
+   "fallback_fonts": {
+    "cjk": {
+     "file": "NotoSansCJK-Regular.ttc",
+     "hhea_line_em": "1.4480"
+    },
+    "emoji": {
+     "file": "NotoColorEmoji.ttf",
+     "hhea_line_em": "1.1719"
+    },
+    "thai": {
+     "file": "NotoSansThai-Regular.ttf",
+     "hhea_line_em": "1.5110"
+    }
+   },
+   "widest_fallback_advance_em": "1.4805",
+   "widest_fallback_cell_line_em": "1.2036",
+   "cell_line_excess_mm": "0.0167"
+  },
+  {
+   "who": "the auditor",
+   "source": "specs/002-skill-pack/evidence/audit07-repros/measure_lo-on-24.2.7.2.txt",
+   "version": "LibreOffice 24.2.7.2 420(Build:2)",
+   "date": "2026-10-08",
+   "platform": "Linux-6.18.44-fc-v80-x86_64-with-glibc2.39",
+   "fallback_fonts": {
+    "cjk": {
+     "file": "wqy-zenhei.ttc",
+     "hhea_line_em": "1.3496"
+    },
+    "emoji": {
+     "file": "DejaVuSans.ttf",
+     "hhea_line_em": "1.1641"
+    },
+    "thai": {
+     "file": "Loma.otf",
+     "hhea_line_em": "1.5894"
+    }
+   },
+   "widest_fallback_advance_em": "1.4798",
+   "widest_fallback_cell_line_em": "1.5012",
+   "cell_line_excess_mm": "0.0499"
+  }
+ ],
+ "missing_glyph_em": "1.49",
+ "missing_line_em": "1.59",
+ "cell_line_allowance_mm": "0.05"
+}
