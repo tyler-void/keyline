@@ -42,6 +42,8 @@ CELL_MARGINS = (0, 91440, 45720, 45720)  # EMU: flush left, a gutter on the righ
 RULE_WIDTH = 9525  # EMU, 0.75 pt: a hairline
 IMAGE_FORMATS = ("PNG", "JPEG", "GIF", "BMP", "TIFF")  # B-23: what the writer embeds
 AUTHOR_MAX = 255  # characters in a core property (python-pptx refuses more)
+# what the skill reacts to (plan Q-54 as ruled): the one coverage warning per deck (B-25)
+WARNING_PREFIX = "keyline pen: warning: "
 # a string that looks like a raw value where a token is expected (§6.2)
 RAW = re.compile(r"#[0-9a-f]{3,8}|[0-9a-f]{6}|-?\d+(\.\d+)?\s*(pt|cm|mm|in|px|emu)", re.IGNORECASE)
 
@@ -277,7 +279,7 @@ class Deck:
         _write_atomically(target, data)  # §6.5: byte-identical for the same input
         warning = coverage_warning(self._missing, self._outside)  # one per deck (B-25)
         if warning:
-            sys.stderr.write(f"keyline pen: warning: {warning}\n")
+            sys.stderr.write(f"{WARNING_PREFIX}{warning}\n")
 
     # -- resolving tokens ------------------------------------------------------------------
 

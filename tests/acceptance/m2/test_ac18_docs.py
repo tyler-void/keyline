@@ -31,6 +31,7 @@ load_all()
 RULES = {r.id: r for r in all_rules()}
 GATED = sorted(i for i, r in RULES.items() if r.severity in ("warning", "error"))
 ANCHOR = re.compile(r"<!-- rule:([a-z0-9-]+) -->")
+WARNING_PREFIX = "keyline pen: warning:"
 PATH = re.compile(r"(/[A-Za-z0-9_.-]|~/|[A-Za-z]:[\\/])")
 
 
@@ -98,3 +99,45 @@ def test_no_substitution_or_absolute_path_in_any_doc():
         assert "${" not in text and "!`" not in text, name
         for token in re.split(r"[\s`\"'()|,;]+", text):
             assert not PATH.match(token), f"{name}: an absolute path: {token}"
+
+
+# -- the voice step, in brief.md and SKILL.md (T-35) ------------------------------------
+
+
+def test_the_docs_use_the_pens_warning_prefix(tmp_path, capsys):
+    """Plan Q-54 as ruled: the prefix the skill reacts to is the one the pen writes."""
+    import pytest
+
+    pytest.importorskip("pptx")
+    from keyline.pen import Deck, _api
+
+    assert _api.WARNING_PREFIX.rstrip(" ") == WARNING_PREFIX
+    assert _api.WARNING_PREFIX.endswith(": ")
+    deck = Deck(pack="swiss", mode="presented", voice="neutral")
+    deck.add("statement", "Caf" + chr(0xE9) + " " + chr(0x6F22))  # a character outside the set
+    deck.save(str(tmp_path / "deck.pptx"))
+    (line,) = capsys.readouterr().err.splitlines()
+    assert line.startswith(f"{WARNING_PREFIX} the fit does not cover some characters")
+    found = docs()
+    for name in ("SKILL.md", "brief.md", "pen.md", "check.md"):
+        if name in found:
+            assert f"`{WARNING_PREFIX}`" in found[name], name
+
+
+def test_brief_md_has_the_voice_step():
+    """B-8.14, B-8.15 and plan Q-54 as ruled: the voice comes from own_world with a why
+    line per role; the family comes from the generated coverage table, before building;
+    the stock voices are fallbacks; and the pen's warning is the backstop."""
+    voice = section(read("brief.md") + "\n## ", "The voice")
+    assert "own_world" in voice and "[product.world]" in voice and "`why`" in voice
+    for role in ("paper", "ink", "muted", "hairline", "accent", "accent_on_ink"):
+        assert f"| `{role}` |" in voice, role
+    for rule in ("voice-why", "voice-contrast", "voice-claude-look"):
+        assert f"<!-- rule:{rule} -->" in voice, rule
+    assert "Pick before you build" in voice
+    coverage = voice[voice.index("<!-- gen:begin coverage -->") : voice.index("<!-- gen:end -->")]
+    assert "| Cambria | Caladea |" in coverage and "Every Vietnamese letter:" in coverage
+    assert "fallbacks" in voice and all(f'"{v}"' in voice for v in ("neutral", "night", "field"))
+    assert f"`{WARNING_PREFIX}`" in voice and "backstop" in voice
+    skill = docs()["SKILL.md"]
+    assert "4. **Voice.**" in skill and "coverage table in `references/brief.md`" in skill
