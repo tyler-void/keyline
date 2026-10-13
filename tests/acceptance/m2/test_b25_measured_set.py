@@ -1,6 +1,7 @@
 """Amendment B-25 item 1 (audit 06) and Q-51: the measured set is Basic Latin, Latin-1
 Supplement, Latin Extended-A and -B, Latin Extended Additional, General Punctuation and
-Currency Symbols, minus what B-22 refuses. The fit tables take the descent room, the top
+Currency Symbols, minus what B-22 refuses; B-27 item 1 (audit 07, Q-53) adds U+2212 MINUS
+SIGN alone. The fit tables take the descent room, the top
 reach and the left reach over it; outside it, and for its letters a twin lacks, the pen
 prints one warning per deck. Characters are written as code points."""
 
@@ -34,14 +35,17 @@ def test_the_measured_set():
     assert set(MEASURED) == expected and len(MEASURED) == len(expected)
     assert [(a, b) for a, b in MEASURED_BLOCKS] == [
         (0x0000, 0x007F), (0x0080, 0x00FF), (0x0100, 0x017F), (0x0180, 0x024F),
-        (0x1E00, 0x1EFF), (0x2000, 0x206F), (0x20A0, 0x20CF),
+        (0x1E00, 0x1EFF), (0x2000, 0x206F), (0x20A0, 0x20CF), (0x2212, 0x2212),
     ]  # fmt: skip
+    assert len(MEASURED) == 923 and MEASURED[-1] == chr(0x2212)  # B-27 item 1
+    for cp in (0x2211, 0x2213, 0x2248, 0x2264):  # the other Mathematical Operators stay out
+        assert not measured(chr(cp)), hex(cp)
     for ch in "Az09.,%" + chr(0xE9) + chr(0x1A1) + STACKED + chr(0x20AB) + chr(0x2014):
         assert measured(ch), ch
     for ch in (*CJK, *HEBREW, chr(0x1F600), "\t", chr(0x200B), chr(0x0E2A)):
         assert not measured(ch), hex(ord(ch))
     assert measured(chr(0x200D)) and not inked(chr(0x200D))  # a format control draws nothing
-    assert sys.maxunicode > 0x20CF
+    assert sys.maxunicode > 0x2212
 
 
 @pytest.mark.parametrize("family", FAMILIES)

@@ -37,7 +37,8 @@ A_HOOK = chr(0x1EA8)  # Ẩ: excluded, top
 A_GRAVE = chr(0x1EA6)  # Ầ: the tallest character kept (Gelasio, 1.057 em)
 F_HOOK = chr(0x192)  # ƒ: the character kept that reaches furthest left (0.093 em)
 FRACTION_SLASH = chr(0x2044)  # excluded, left
-MINUS = chr(0x2212)  # outside the measured set
+MINUS = chr(0x2212)  # a numeral character since B-27 item 1 (Q-53)
+ALMOST_EQUAL = chr(0x2248)  # another Mathematical Operator: outside the measured set
 TY = "t" + chr(0x1EF7)  # tỷ
 DONG = chr(0x111) + chr(0x1ED3) + "ng"  # đồng
 NAM = "n" + chr(0x103) + "m"  # năm
@@ -149,7 +150,7 @@ REFUSED = {
     "stacked capital": (f"{A_HOOK}n 12", "U+1EA8", "reaches above"),
     "decomposed": (unicodedata.normalize("NFD", f"{A_HOOK}n 12"), "U+1EA8", "reaches above"),
     "fraction slash": (f"1{FRACTION_SLASH}2", "U+2044", "reaches left of"),
-    "minus sign": (f"{MINUS}0.4%", "U+2212", "outside the measured set"),
+    "almost equal": (f"{ALMOST_EQUAL}0.4%", "U+2248", "outside the measured set"),
 }
 
 
@@ -173,9 +174,21 @@ def test_vietnamese_numerals_stay(value, tmp_path):
     d.add("evidence", "A figure").figure("n")
 
 
+def test_the_minus_sign_is_a_numeral_character(tmp_path):
+    """B-27 item 1 (Q-53): §4.4 accepts U+2212 as a sign, so "−0.4%" is a figure. Every
+    twin has it, and the generator keeps it in the numeral set."""
+    value = f"{MINUS}0.4%"
+    swiss = resolve("swiss")
+    assert MINUS in reach() and MINUS not in excluded(swiss)
+    assert numeral_problem(value, swiss) is None
+    assert all(ord(MINUS) in load_table(f, w).advances for f in FAMILIES for w in WEIGHTS)
+    d = Deck(pack="swiss", mode="presented", voice="field", evidence=str(evidence(tmp_path, value)))
+    d.add("evidence", "A figure").figure("n")
+
+
 def test_the_label_takes_what_the_numeral_cannot(tmp_path):
     d = Deck(pack="swiss", mode="presented", voice="field", evidence=str(evidence(tmp_path, "12")))
-    d.add("evidence", "A figure").figure("n", label=f"{A_HOOK}n {FRACTION_SLASH} {MINUS}")
+    d.add("evidence", "A figure").figure("n", label=f"{A_HOOK}n {FRACTION_SLASH} {ALMOST_EQUAL}")
 
 
 def test_figure_checks_again(tmp_path):
