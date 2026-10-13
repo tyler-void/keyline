@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from fractions import Fraction
 from pathlib import Path
 
-from keyline.fit.text import break_units, code_point, drawn, measured, refused
+from keyline.fit.text import break_units, code_point, drawn, ignorable, measured, refused
 
 TABLES = Path(__file__).resolve().parent / "tables"
 WEIGHTS = ("regular", "bold")
@@ -223,14 +223,17 @@ def as_set(setting: Setting, text: str) -> str:
 def width(setting: Setting, text: str) -> Fraction:
     """§6.4's width: the advance sum (a character the twin lacks counts as max(its
     maximum advance, missing_glyph_em), B-22 item 6), plus the positive kerning pairs of
-    the measured set (B-25 item 4; negative pairs are ignored), plus how far the last
+    the measured set (B-25 item 4; negative pairs are ignored; default-ignorable code
+    points between two characters do not split a pair, B-27 item 4), plus how far the last
     glyph's ink reaches right of its advance (B-27 item 2), plus tracking × size per
     character."""
     shown = as_set(setting, text)
     table = setting.table
     units = sum(table.advance(ch) for ch in shown)
     if table.kern:  # positive pairs only (B-25 item 4): kerning that widens the text
-        units += sum(table.kern.get((ord(a), ord(b)), 0) for a, b in itertools.pairwise(shown))
+        # looked up across default-ignorable code points, as a shaper does (B-27 item 4)
+        shaped = [ch for ch in shown if not ignorable(ch)]
+        units += sum(table.kern.get((ord(a), ord(b)), 0) for a, b in itertools.pairwise(shaped))
     last = next((ch for ch in reversed(shown) if drawn(ch)), None)
     if last is not None:
         units += table.right.get(ord(last), 0)
