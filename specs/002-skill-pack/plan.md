@@ -27,6 +27,10 @@
   the pack invariant that FX-25 found the numeral style failing. It is marked below.
 - **Phase B's tasks** (T-33 … T-49, 2026-10-08) are in [tasks.md](tasks.md), written
   after the round-2 fixes; their questions, Q-53 … Q-59, are below with proposals.
+- **Audit 07** ([audit-07-b-plan.md](audit-07-b-plan.md), 2026-10-09) of fix round 2 and
+  the Phase B tasks: round 2 accepted, deviations F … J included; Phase B is GO, with
+  task changes (audit §4). FX-32 … FX-35 (amendment B-27) land first, before T-33,
+  without a separate stop. Its rulings on Q-53 … Q-59 are marked below.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -798,6 +802,39 @@ letters, and the pen warns once per deck when text uses them (not a registry ent
 ### Phase B questions (2026-10-08, with the Phase B tasks)
 
 Each has a proposal; the tasks follow the proposal unless Tyler rules otherwise.
+
+**Rulings (audit 07, §3; Tyler accepts them):**
+- **Q-53: accepted.** U+2212 MINUS SIGN joins the measured set (B-27 item 1). The tables,
+  the numeral set and the measurements are regenerated. The pen still refuses the other
+  Mathematical Operators.
+- **Q-54: accepted, with three changes.** No new registry entry; the pen's warning stays
+  the check.
+  - A test pins the warning's prefix, `keyline pen: warning:`.
+  - `gen_docs.py` generates the per-twin coverage table (which twin lacks which
+    letters). `brief.md` and `check.md` use it, not a hand-typed count.
+  - The voice step picks the family from that table before building, so the warning is
+    a backstop.
+- **Q-55: accepted, with changes.**
+  - python-pptx is pinned to 1.0.2 through a constraints file, because determinism and
+    the axis-id fix were proven on it. lxml and Pillow stay unpinned, and their
+    versions are recorded.
+  - The test skips without network locally, but **fails** in CI.
+  - `kl.py doctor` prints the python-pptx version, and `check.md` says that
+    byte-determinism holds on 1.0.2.
+- **Q-56: accepted, with one change.** A generic dev tool, `tools/ngram_overlap.py A B`,
+  counts the 8-word sequences two folders share. It holds no third-party text. The
+  auditor runs it against a clone of anthropics/skills at the Phase B audit. The
+  report's process statement stays.
+- **Q-57: accepted,** plus the per-twin coverage table from Q-54.
+- **Q-58: accepted, with three changes.**
+  - Before committing, record the SHA-256 of `dist/keyline.zip` and of every file the
+    fresh session wrote.
+  - If the pen changes later (audit fixes), this session may re-run the fresh session's
+    build scripts **unchanged** to regenerate the decks. Any script edit needs a
+    fresh-session re-run.
+  - A T-45 failure means a skill fix and a fresh re-run, never a hand edit.
+- **Q-59: accepted,** and the test covers the pen section too: `DoesNotFit`, B-22's
+  refused classes, B-26 and the warning prefix.
 
 53. **Q-53 · U+2212 MINUS SIGN in a numeral.** B-26 refuses it, because it is outside
     B-25's measured set (Mathematical Operators). But §4.4 accepts `−` as a sign, and its

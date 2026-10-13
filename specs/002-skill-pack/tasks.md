@@ -108,44 +108,81 @@ FX-15, B-16 … B-20) lands first, as "A1 fixes, round 2".
 ## Phase B: skill
 
 Written after audit 06 (2026-10-08), from plan §4, §8 … §10, B-8.14, B-8.15 and the
-fit's limits (B-25, B-26). The open questions are Q-53 … Q-59 (plan §9). Every task
-lands with its tests; the M1 baseline and the A1/A2 suites stay green.
+fit's limits (B-25, B-26). **Revised after audit 07** (2026-10-13,
+[audit-07-b-plan.md](audit-07-b-plan.md) §4, items 1 … 9) with its rulings on Q-53 …
+Q-59 (plan §9). Every task lands with its tests; the M1 baseline and the A1/A2 suites
+stay green.
+
+**Order (audit 07):**
+
+1. the B-27 prelude, FX-32 … FX-35;
+2. T-33 … T-42;
+3. T-48 and T-50, both before T-43;
+4. T-43 … T-47;
+5. T-49.
+
+G-1 can run from audit 07's head on.
+
+### Prelude: B-27 (audit 07 §2), before T-33
+
+Each fix is its own commit with its tests, and each repro in
+`evidence/audit07-repros/` becomes a test. The Phase B audit re-checks them; there is
+no separate stop.
+
+| id | task | done when |
+|---|---|---|
+| FX-32 | **Ink right of the last glyph's advance** (B-27 item 2). The fit tables store each glyph's right reach. A line's width is its advances, plus its positive kerning, plus max(0, the last glyph's ink right − its advance) | a test from `f1_right.py`; the numerals at the pen's limit stay inside the side region in LibreOffice |
+| FX-33 | **Measured break sets** (B-27 item 3). `measure_lo.py` probes every non-letter character of the measured set, before and after a space, in both line conditions. The no-break-before and no-break-after sets become data: the union over every measured version, with the versions. A test re-derives them | a test from `f2_backslash.py`; the re-derivation test |
+| FX-34 | **Kerning across default-ignorable code points** (B-27 item 4) | a test from `f3_ignorable.py` |
+| FX-35 | **`missing_*` over every environment** (B-27 item 5). `missing_glyph_em` and `missing_line_em` take the largest value measured in any environment Tyler or the auditor has run; each environment is recorded with the data (the auditor's 24.2.7.2: Loma, hhea 1.589 em) | the fallback-font test passes against the recorded environments |
+| B-27 item 1 | **U+2212 joins the measured set** (Q-53). The tables and the numeral set are regenerated | the measured-set and numeral-set tests |
+| — | **Measurements.** `measure_lo.py` and `fit_stress.py` re-run on 26.8.0.3, outputs committed; reported under "Phase B prelude: B-27" in `report.md` | both exit 0 |
 
 ### The skill folder (§8.1, §8.2)
 
 | id | task | done when |
 |---|---|---|
-| T-33 | **`kl.py`** (§8.1). `skill/keyline/scripts/kl.py` finds its folder through `__file__`. It prepends `<skill>/lib` to `sys.path` when that folder exists (the packaged skill), else uses the installed `keyline`. `kl.py <keyline args>` dispatches to the CLI with its exit code; `kl.py run SCRIPT.py` runs a build script with the same path through `runpy` | `test_kl.py`: dispatch and exit codes; `run` with a script that imports `keyline.pen`; a `lib/` folder (a stub package) takes precedence over the installed package |
-| T-34 | **`SKILL.md`** (§8.2). Frontmatter: `name: keyline`, a description of at most 200 characters, `license: Apache-2.0`, a compatibility line of at most 500 characters. Body (at most 200 lines): the stance (at most 5 lines); setup with `kl.py doctor` and what to do on each token; the three routes; the loop's ten steps, with the **voice step** after the brief's direction (B-8.15, T-35); the priority rules; the report. No `${`, no `` !` ``, no absolute path. Written from the spec and `docs/research.md`; nothing copied from another skill | AC-17: `test_ac17_skill_md.py` |
-| T-35 | ⚑ **The voice step** (B-8.14, B-8.15), in `SKILL.md` and `references/brief.md`. The skill derives an inline voice from the brief's `own_world` (or `[product.world]`), with one `why` line per palette role; the stock voices are fallbacks, used only when the user asks for a plain look or gives no subject world. **Fit limits (B-25, B-26, audit 04):** the skill picks fonts whose twin has every letter the deck's language needs (for Vietnamese text, not Cambria: Caladea lacks 88 of the 134 Vietnamese letters); when the pen prints its one-per-deck coverage warning, it changes the voice's font (or, for characters outside the measured set, the wording) rather than accepting the check render; and it keeps a figure's value to digits, signs and unit words, leaving the rest to the label (B-26). The check itself stays the pen's warning (Q-54) | the step's text in both files; AC-18's anchors resolve |
+| T-33 | **`kl.py`** (§8.1). `skill/keyline/scripts/kl.py` finds its folder through `__file__`. It prepends `<skill>/lib` to `sys.path` when that folder exists (the packaged skill), else uses the installed `keyline`. `kl.py <keyline args>` dispatches to the CLI with its exit code. `kl.py run SCRIPT.py [ARGS]` runs a build script with the same path through `runpy`, with `sys.argv` set to the script and its arguments and `run_name="__main__"` (audit 07 §4.5) | `test_kl.py`: dispatch and exit codes; `run` with a script that imports `keyline.pen`, reads `sys.argv` and guards on `__name__`; a `lib/` folder (a stub package) takes precedence over the installed package |
+| T-34 | **`SKILL.md`** (§8.2). Frontmatter: `name: keyline`, a description of at most 200 characters, `license: Apache-2.0`, a compatibility line of at most 500 characters. Body (at most 200 lines): the stance (at most 5 lines); setup with `kl.py doctor`; the three routes; the loop; the priority rules; the report. No `${`, no `` !` ``, no absolute path. Written from the spec and `docs/research.md`; nothing copied from another skill. **Audit 07 §4.4:** it says how the agent finds the skill's own folder on each surface, since no absolute path is allowed; the **voice step** is a step of its own in the loop (B-8.15, T-35); every token `doctor.py` can print has an action; when python-pptx cannot be installed (no network), it routes to "check a deck" and says why | AC-17: `test_ac17_skill_md.py`, which also checks that the voice step is there and that every doctor token has an action |
+| T-35 | ⚑ **The voice step** (B-8.14, B-8.15), in `SKILL.md` and `references/brief.md`. The skill derives an inline voice from the brief's `own_world` (or `[product.world]`), with one `why` line per palette role; the stock voices are fallbacks, used only when the user asks for a plain look or gives no subject world. **Fit limits (B-25, B-26, audit 04; Q-54 as ruled):** the skill picks the family from the generated per-twin coverage table (T-36) before building, so a twin has every letter the deck's language needs; the pen's one-per-deck coverage warning is the backstop, and on it the skill changes the voice's font (or, for characters outside the measured set, the wording) rather than accepting the check render; it keeps a figure's value to digits, signs and unit words, leaving the rest to the label (B-26) | the step's text in both files; its AC-18 checks land with it (anchors, the coverage table in use); a test pins the warning's prefix, `keyline pen: warning:` |
 
 ### References and generated docs (§8.3)
 
+Each reference has a line cap in its test, and each rule id has its own heading (audit
+07 §4.9). The skeleton of `test_ac18_docs.py` lands with T-36, and each doc task adds
+its own checks (audit 07 §4.3).
+
 | id | task | done when |
 |---|---|---|
-| T-36 | ⚑ **`tools/gen_docs.py`.** Writes the numeric tables between `<!-- gen:begin NAME -->` and `<!-- gen:end -->` from `thresholds.toml`, `pack.toml` and `fit/tables/numerals.json`: the type scale per mode, the budgets, and B-26's excluded numeral characters (Q-57). `--check` exits 1 naming each stale table. CI runs `--check` | `test_gen_docs.py`: a stale table fails `--check`, a regenerated one passes, output is byte-stable |
-| T-37 | **`references/craft-floor.md`.** Only items backed by a rule, the pen or the brief; each rule-backed sentence carries `<!-- rule:ID -->` (registry ids and §4.3/§4.5 ids), the voice checks included (`rule:voice-contrast`, `voice-claude-look`, `voice-why`). The type scale and budgets are generated (T-36) | AC-18 anchors resolve; `gen_docs.py --check` passes |
-| T-38 | **`references/anti-tells.md` v1.** One row per tell: `id \| tell \| enforcement \| Swiss policy`, starting from Appendix A, plus `one-look-for-everything` → `brief:voice-why` and `backlog:diversity-fingerprint` (B-8.15, §13). It cites `docs/research.md` sections and copies no text from other skills | AC-18: every seed id is present with a valid enforcement (`rule:`/`brief:` name registry ids, `backlog:` names a §13 id, `pen` takes none) |
-| T-39 | **`references/brief.md`.** Each brief and evidence field, its test, the headline test (the spine alone tells the story), what reads are, the thesis test, `own_world` as nouns from the subject; the inline voice and its `why` lines (T-35). Examples are keyline's own | AC-18 anchors; the report lists the fields covered |
-| T-40 | ⚑ **`references/pen.md`.** Every public verb of `Deck` and `SlideBuilder`, its parameters and its refusals: B-22's normalization and refused characters, B-23's transactions and atomic `save()`, `DoesNotFit` and what to change, the measured set and the one-per-deck coverage warning (B-25 item 1), and the numeral set (B-26: the refusal names the character and suggests the label; U+2212 per Q-53) | AC-18: a test lists the public methods by introspection and finds each in `pen.md` |
-| T-41 | ⚑ **`references/check.md`.** How to read findings, and one fix recipe per rule id at warning or error severity, the §4 and `voice-*` ids included (Q-59). **Known limits:** B-5; audit 02's FX-8 list; source lines inside table cells (B-12, continued); audit 03's FX-15 note on invisible "Source: " runs, as the `numtokens` docstring lists them; the coverage limit (audit 04: prefer another family than Cambria for Vietnamese); and the measured-set limits: outside B-25's measured set the pen estimates conservatively, warns once per deck and promises nothing, and the check render may set those characters in another font; a figure's numeral takes only the numeral set (B-26, its excluded characters generated by T-36) | AC-18: a recipe for every warning- and error-level id; the limits section names each item |
-| T-42 | **AC-18 docs integrity.** Every `<!-- rule:ID -->` resolves; the Appendix A checks; `pen.md` and `check.md` coverage; `gen_docs.py --check` | `test_ac18_docs.py` |
+| T-36 | ⚑ **`tools/gen_docs.py`**, and the docs test's skeleton. It writes the tables between `<!-- gen:begin NAME -->` and `<!-- gen:end -->` from `thresholds.toml`, `pack.toml` and the fit tables: the type scale per mode, the budgets, B-26's excluded numeral characters, and the per-twin coverage table: which twin lacks which letters (Q-54, Q-57). `--check` exits 1 naming each stale table. CI runs `--check`. `test_ac18_docs.py` starts here: the anchor resolver, the line caps, the heading-per-rule-id check and `gen_docs.py --check`, applied to whichever references exist | `test_gen_docs.py`: a stale table fails `--check`, a regenerated one passes, output is byte-stable; `test_ac18_docs.py` runs |
+| T-37 | **`references/craft-floor.md`.** Only items backed by a rule, the pen or the brief; each rule-backed sentence carries `<!-- rule:ID -->` (registry ids and §4.3/§4.5 ids), the voice checks included (`rule:voice-contrast`, `voice-claude-look`, `voice-why`). The type scale and budgets are generated (T-36). It is read before every build, so it is the shortest reference | its AC-18 checks: anchors resolve, the line cap, `gen_docs.py --check` |
+| T-38 | **`references/anti-tells.md` v1.** One row per tell: `id \| tell \| enforcement \| Swiss policy`, starting from Appendix A, plus `one-look-for-everything` → `brief:voice-why` and `backlog:diversity-fingerprint` (B-8.15, §13). It cites `docs/research.md` sections and copies no text from other skills | its AC-18 checks: every seed id is present with a valid enforcement (`rule:`/`brief:` name registry ids, `backlog:` names a §13 id, `pen` takes none) |
+| T-39 | **`references/brief.md`.** Each brief and evidence field, its test, the headline test (the spine alone tells the story), what reads are, the thesis test, `own_world` as nouns from the subject; the inline voice and its `why` lines (T-35); the generated coverage table. Examples are keyline's own | its AC-18 checks; the report lists the fields covered |
+| T-40 | ⚑ **`references/pen.md`.** Every public verb of `Deck` and `SlideBuilder`, its parameters and its refusals: B-22's normalization and refused characters, B-23's transactions and atomic `save()`, `DoesNotFit` and what to change, the measured set and the one-per-deck coverage warning (B-25 item 1), and the numeral set (B-26: the refusal names the character and suggests the label; U+2212 is a numeral character since B-27) | its AC-18 check: a test lists the public methods by introspection and finds each in `pen.md` |
+| T-41 | ⚑ **`references/check.md`.** How to read findings, and one fix recipe per rule id at warning or error severity, the §4 and `voice-*` ids included, each under its own heading. A second section covers the pen: `DoesNotFit`, B-22's refused classes, B-26 and the coverage warning (Q-59 as ruled). **Known limits:** B-5; audit 02's FX-8 list; source lines inside table cells (B-12, continued); audit 03's FX-15 note on invisible "Source: " runs, as the `numtokens` docstring lists them; the coverage limit, from the generated table; the measured-set limits: outside B-25's measured set the pen estimates conservatively, warns once per deck and promises nothing, and the check render may set those characters in another font; a figure's numeral takes only the numeral set (B-26, its excluded characters generated by T-36); and byte-determinism holds on python-pptx 1.0.2 (Q-55) | its AC-18 checks: a recipe for every warning- and error-level id; the pen section names `DoesNotFit`, each refused class, B-26 and the warning prefix; the limits section names each item |
+| T-42 | **AC-18 sweep.** The whole of `test_ac18_docs.py` passes over all five references and `SKILL.md`: anchors, Appendix A, `pen.md` and `check.md` coverage, line caps, `gen_docs.py --check` | `test_ac18_docs.py`, complete |
+
+### Before packaging: hygiene and G-1 (audit 07 §4.2, §4.8)
+
+| id | task | done when |
+|---|---|---|
+| T-48 | ⚑ **AC-23 hygiene and CI**, moved before T-43. `test_ac12_hygiene.py` extends from `fixtures/` to `examples/**` and `skill/**`, with an allow-list for the core properties (creator, lastModifiedBy). D-014 identity; `NOTICE` carries every fit table's source; CI on 3.11 and 3.13 with the font packages, `ruff` and `gen_docs.py --check`. `tools/ngram_overlap.py A B` counts the 8-word sequences two folders share and holds no third-party text; the auditor runs it against anthropics/skills, and the report keeps its process statement (Q-56). README and CHANGELOG for Phase B | CI green; the extended hygiene test; `test_ngram_overlap.py` |
+| T-50 | **G-1 closes** (spec §11). Tyler's verdict on the three specimen contact sheets, the repair prompts and the typed text box in `night` is recorded in `report.md`. Its fix items, at most 8, land as amendments with their tests, and the specimens and contact sheets are rebuilt when a fix changes them | G-1 recorded; every fix item closed; then T-43 |
 
 ### Packaging (§9)
 
 | id | task | done when |
 |---|---|---|
 | T-43 | **`tools/build_skill.py`** writes `dist/keyline.zip` through `zipnorm`: one `keyline/` folder with `SKILL.md`, `references/`, `scripts/`, `lib/keyline/` (the package with its packs and fit tables, `numerals.json` included, without `__pycache__` or tests), `LICENSE` and `NOTICE`. README install notes for claude.ai, Claude desktop and Claude Code | AC-19: `test_ac19_package.py`: two builds byte-identical, the §9 structure, under 3 MB |
-| T-44 | ⚑ **AC-20 sandbox smoke.** A fresh venv with only `lxml`, `Pillow` and `python-pptx` (keyline not installed), the zip unpacked to a temp dir: `kl.py doctor` exits 0; `kl.py run fixtures/packs/src/build_specimens.py` with the specimen briefs and evidence copied beside it; `kl.py check` on each result with its brief exits 0 (Q-55) | `test_ac20_sandbox.py` (skips with its reason when the venv cannot be built) |
+| T-44 | ⚑ **AC-20 sandbox smoke** (Q-55 as ruled; audit 07 §4.5). A fresh venv with only `lxml`, `Pillow` and `python-pptx` (keyline not installed), python-pptx pinned to 1.0.2 through a constraints file, lxml and Pillow unpinned and their versions recorded. The zip is unpacked to a temp dir, and the `fixtures/packs/` layout is copied (`build_specimens.py` reads its briefs from `parents[1]`). The test scrubs `PYTHONPATH`, runs from a working directory outside the repo, and asserts that `keyline.__file__` is under `lib/`. `kl.py doctor` exits 0 and prints the python-pptx version; `kl.py run` builds the specimens; `kl.py check` on each with its brief exits 0 | `test_ac20_sandbox.py`: skips without network locally, **fails** in CI when it cannot run |
 
 ### The BonsaiHub demo (§10) and acceptance
 
 | id | task | done when |
 |---|---|---|
-| T-45 | **AC-21 checks, before the demo.** `test_ac21_bonsaihub.py`: `product.toml` matches its hash; and, once the decks exist: both briefs pass `kl.py brief` with exit 0 and carry an inline voice with `[voice.why]` (B-8.14); both decks pass `kl.py check DECK --brief BRIEF` with exit 0; two builds byte-identical; the disclosure present; slide counts within §10; no `ooxml-invalid` where OfficeCLI is installed. The deck-dependent tests skip until the decks are committed | the hash test passes now; the rest pass after T-46 |
-| T-46 | ⚑ **The demo** (Q-16). Tyler starts a **fresh** Claude Code session with the skill installed from `dist/keyline.zip` and sends P-1, then P-2, verbatim; he approves each spine (**G-2a**). The fresh session writes the briefs, build scripts, decks and `render/<deck>/`. This session builds none of them; it commits them after G-2a (Q-58) | G-2a recorded in `report.md`; T-45 green |
-| T-47 | **AC-22 surfaces** (manual, Tyler): claude.ai web and Claude Code with P-3, Claude desktop optional; `doctor` output, render status, `check` exit code and the deck recorded; decks under `examples/bonsaihub/surfaces/` | recorded in `report.md` |
-| T-48 | ⚑ **AC-23 hygiene and CI.** D-014 identity; `NOTICE` carries every fit table's source; CI on 3.11 and 3.13 with the font packages, `ruff`, and `gen_docs.py --check`; the no-copying statement (Q-56). README and CHANGELOG for Phase B | CI green; `test_ac12_hygiene.py` extended to `skill/` |
+| T-45 | **AC-21 checks, before the demo** (audit 07 §4.6). `test_ac21_bonsaihub.py`: `product.toml` matches its hash. The deck tests skip only while no demo file exists; once one exists, they fail when they cannot run. They check: both briefs pass `kl.py brief` with exit 0 and carry an inline voice with `[voice.why]` (B-8.14); both decks pass `kl.py check DECK --brief BRIEF` with exit 0; two builds are byte-identical to each other **and to the committed deck**; the disclosure is present; slide counts are within §10; no `ooxml-invalid` where OfficeCLI is installed | the hash test passes now; the rest pass after T-46 |
+| T-46 | ⚑ **The demo** (Q-16; Q-58 as ruled; audit 07 §4.7). Tyler starts a **fresh** Claude Code session in an empty directory **outside the keyline checkout**, with the skill installed from `dist/keyline.zip`, and sends P-1, then P-2, verbatim; he approves each spine (**G-2a**). Recorded: the working directory, the skill path, the zip's SHA-256, where `keyline` imports from, and the SHA-256 of every file the fresh session wrote. This session builds none of them; it copies the outputs into `examples/bonsaihub/` and commits them after G-2a. If the pen changes later, this session may re-run the build scripts **unchanged**; any script edit needs a fresh-session re-run. A T-45 failure means a skill fix and a fresh re-run, never a hand edit | G-2a and the hashes recorded in `report.md`; T-45 green |
+| T-47 | **AC-22 surfaces** (manual, Tyler): claude.ai web and Claude Code with P-3, Claude desktop optional; `doctor` output, render status, `check` exit code and the deck recorded; decks under `examples/bonsaihub/surfaces/`. Tyler reads the slide text of the surface decks, because the agent on claude.ai knows the account holder's name (audit 07 §4.8) | recorded in `report.md`; the hygiene test passes on the surface decks |
 | T-49 | **Report B** in `report.md`: each of AC-17 … AC-23 with its command, output and PASS/FAIL; deviations; open questions. Then **G-2** (Tyler's soul verdict on both contact sheets, the voice included). **Stop** for the Phase B audit | review by Tyler; audit by the external session |
 
 ## Acceptance map
@@ -169,10 +206,12 @@ lands with its tests; the M1 baseline and the A1/A2 suites stay green.
 | AC-12 | A2 | T-26, T-28 |
 | AC-13 | A2 | T-20, T-21, T-22 (a); T-30 (b) |
 | AC-15 | A2 | T-29 |
+| AC-13 (B-27) | B prelude | FX-32 … FX-35 |
 | AC-17 | B | T-34 |
-| AC-18 | B | T-35 … T-42 |
+| AC-18 | B | T-35 … T-42 (the test starts at T-36) |
 | AC-19 | B | T-43 |
 | AC-20 | B | T-33, T-44 |
 | AC-21 | B | T-45, T-46 |
 | AC-22 | B | T-47 |
-| AC-23 | B | T-48 |
+| AC-23 | B | T-48 (before T-43) |
+| G-1 | B | T-50 (before T-43) |

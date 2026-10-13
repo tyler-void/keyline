@@ -1686,3 +1686,17 @@ must contain at least these rows.
   - The pen and `keyline brief` refuse any other character in a figure's value. The
     message names the character and suggests the label.
   - B-25 item 3 is checked for the numeral style over the numeral set.
+- **B-27 (2026-10-09, audit 07).**
+  1. U+2212 MINUS SIGN joins B-25's measured set. The tables, the numeral set and the
+     measurements are regenerated (Q-53).
+  2. A line's estimated width also includes max(0, the last glyph's ink right − its
+     advance), taken from the twin. The fit tables store each glyph's right reach.
+  3. The no-break-before and no-break-after sets of B-22 item 4 and B-25 item 5 are
+     **measured**, not listed.
+     - `measure_lo.py` probes every non-letter character of the measured set, in both
+       line conditions, on each LibreOffice version measured.
+     - The union over the versions is committed as data, and a test re-derives it.
+  4. Kerning pairs are looked up across default-ignorable code points.
+  5. `missing_glyph_em` and `missing_line_em` take the largest value measured in any
+     environment Tyler or the auditor has run, and each environment is recorded with
+     the data.

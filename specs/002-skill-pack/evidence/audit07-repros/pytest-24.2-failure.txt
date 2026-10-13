@@ -1,0 +1,23 @@
+        for ch in (CJK[0], chr(0x1F600), THAI[0]):
+            path = subprocess.run(
+                ["fc-match", "-f", "%{file}", f"Arial:charset={ord(ch):x}"],
+                capture_output=True,
+                text=True,
+            ).stdout
+            font = fonttools.TTFont(path, fontNumber=0)
+            h = font["hhea"]
+>           assert (h.ascent - h.descent + h.lineGap) / font["head"].unitsPerEm <= float(
+                load_config().missing_line_em
+            ), path
+E           AssertionError: /usr/share/fonts/opentype/tlwg/Loma.otf
+E           assert (((2353 - -902) + 0) / 2048) <= 1.52
+E            +  where 2353 = <'hhea' table at 7fd012a36f10>.ascent
+E            +  and   -902 = <'hhea' table at 7fd012a36f10>.descent
+E            +  and   0 = <'hhea' table at 7fd012a36f10>.lineGap
+E            +  and   2048 = <'head' table at 7fd012ce2410>.unitsPerEm
+E            +  and   1.52 = float(Fraction(38, 25))
+E            +    where Fraction(38, 25) = Config(mode='presented', calibrated=False, values={'caption_exempt_words': Fraction(5, 1), 'edge_margin_cm': Fraction(..._min_pt': Fraction(12, 1), 'reads_max': Fraction(3, 1), 'bullets_max': Fraction(4, 1), 'numerals_max': Fraction(1, 1)}).missing_line_em
+E            +      where Config(mode='presented', calibrated=False, values={'caption_exempt_words': Fraction(5, 1), 'edge_margin_cm': Fraction(..._min_pt': Fraction(12, 1), 'reads_max': Fraction(3, 1), 'bullets_max': Fraction(4, 1), 'numerals_max': Fraction(1, 1)}) = load_config()
+
+tests/acceptance/m2/test_fx28_fx31_cells.py:91: AssertionError
+=========================== short test summary info ============================
