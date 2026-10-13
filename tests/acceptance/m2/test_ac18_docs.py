@@ -389,3 +389,54 @@ notes = "Ask for the vote."
     proc = keyline("check", "deck.pptx", "--brief", "deck.brief.toml", "--no-validate",
                    "-o", tmp_path / "render")  # fmt: skip
     assert proc.returncode == 0, proc.stderr.decode()
+
+
+# -- check.md (T-41) --------------------------------------------------------------------
+
+
+def test_check_md_has_a_recipe_under_its_own_heading_for_every_gated_rule():
+    """One per rule id at warning or error level, the §4 and voice ids included, and no
+    heading for anything else (audit 07 §4.9)."""
+    recipes = section(read("check.md"), "Recipes")
+    headings = re.findall(r"^### (.+)$", recipes, re.MULTILINE)
+    assert headings == GATED, sorted(set(headings) ^ set(GATED))
+    for rule in GATED:
+        body = section(recipes + "\n### ", rule, "###").strip()
+        assert len(body.split()) >= 12, f"{rule}: no recipe"
+
+
+def test_check_md_says_how_to_read_a_finding():
+    head = read("check.md").split("\n## Recipes\n")[0]
+    severities = ("`error`", "`warning`", "`advisory`")
+    for word in ("Exit code", "0 is clean", "`--json`", *severities, "One round", "do not loop"):
+        assert word in head, word
+    assert "never\n  the `.pptx`" in head  # fix the source, not the file
+    advisories = section(read("check.md"), "Advisories")
+    for rule in sorted(set(RULES) - set(GATED)):
+        assert f"`{rule}`" in advisories, rule
+
+
+def test_check_md_covers_what_the_pen_reports():
+    """Plan Q-59 as ruled: DoesNotFit, B-22's refused classes, B-26 and the warning
+    prefix."""
+    pen = section(read("check.md"), "What the pen reports")
+    refused = ("controls", "line breaks", "U+00AD", "U+200B", "U+2060", "U+FEFF", "noncharacters")
+    for word in ("`DoesNotFit`", "B-22", *refused, "surrogates", "B-26", f"`{WARNING_PREFIX}`"):
+        assert word in pen, word
+
+
+def test_check_md_states_the_known_limits():
+    limits = section(read("check.md"), "Known limits")
+    for item in (
+        "Units are not compared",  # §4.4.5
+        "thousands separator", '"24/7"', '"27 September 2026"', '"v2.0.1"', '"$-5"',  # B-5
+        '"B2B"', '"4K"', '"COVID-19"', '"iPhone 15"', "no-break space",  # audit 02, FX-8
+        "inside a table cell",  # B-12, continued
+        "invisible",  # audit 03, FX-15
+        "<!-- gen:begin coverage -->",  # audit 04, from the generated table
+        "measured set", "promises\n  nothing",  # B-25
+        "<!-- gen:begin numeral-excluded -->",  # B-26
+        "python-pptx 1.0.2",  # Q-55
+        "not embedded",
+    ):  # fmt: skip
+        assert item in limits, item
