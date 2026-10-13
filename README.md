@@ -74,6 +74,32 @@ The same script and inputs give byte-identical files. The Swiss specimens in
 [`fixtures/packs`](fixtures/packs), in three voices, are built this way by
 `fixtures/packs/src/build_specimens.py`.
 
+## The skill
+
+[`skill/keyline`](skill/keyline) is an Agent Skill for Claude Code, claude.ai and Claude
+desktop. It takes an agent from a request to a checked deck: a brief with a thesis, a
+voice drawn from the subject, a build script for the pen, and `check`. `SKILL.md` is the
+entry file, and `references/` holds what it reads on the way.
+
+Build the package:
+
+```sh
+python tools/build_skill.py        # writes dist/keyline.zip, the same bytes every time
+```
+
+Install it:
+
+- **claude.ai and Claude desktop:** Customize → Skills → upload `dist/keyline.zip`. Code
+  execution must be on. The zip carries the keyline library, so nothing else is
+  installed; the pen needs `python-pptx` 1.0.2 in the sandbox.
+- **Claude Code:** unzip `dist/keyline.zip` into your skills folder, or let claude.ai
+  sync it.
+- **Development:** symlink `skill/keyline` into your skills folder. There is no `lib/`
+  there, so `scripts/kl.py` uses the keyline you installed with pip.
+
+Inside the skill, every command is `python <skill folder>/scripts/kl.py …`, for example
+`kl.py doctor`, or `kl.py run build_deck.py` for a build script.
+
 ## Why
 
 AI agents can already produce `.pptx` files, and many skills tell them in prose which
