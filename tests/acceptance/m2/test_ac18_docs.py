@@ -440,3 +440,31 @@ def test_check_md_states_the_known_limits():
         "not embedded",
     ):  # fmt: skip
         assert item in limits, item
+
+
+# -- the sweep (T-42) -------------------------------------------------------------------
+
+
+def test_all_five_references_exist_and_skill_md_names_them():
+    assert sorted(docs()) == sorted(["SKILL.md", *LINE_CAPS])
+    named = set(re.findall(r"`references/([a-z-]+\.md)`", docs()["SKILL.md"]))
+    assert named == set(LINE_CAPS)
+
+
+def test_the_docs_name_only_files_that_exist():
+    known = {*LINE_CAPS, "SKILL.md", "research.md"}
+    for name, text in docs().items():
+        for mention in re.findall(r"`(?:[a-z/]+/)?([A-Za-z-]+\.md)`", text):
+            assert mention in known, f"{name} names {mention}"
+
+
+def test_every_gated_rule_is_anchored_or_has_a_recipe():
+    """AC-18 as a whole: a rule at warning or error level has its recipe in check.md, and
+    every anchor in any doc points at a rule that check.md or its advisories explain."""
+    recipes = set(re.findall(r"^### (.+)$", section(read("check.md"), "Recipes"), re.MULTILINE))
+    advisories = set(re.findall(r"`([a-z-]+)`", section(read("check.md"), "Advisories")))
+    assert recipes == set(GATED)
+    for name, text in docs().items():
+        for rule in ANCHOR.findall(text):
+            assert rule in recipes | advisories, f"{name}: {rule} has no recipe"
+    assert recipes | (advisories & set(RULES)) == set(RULES)
