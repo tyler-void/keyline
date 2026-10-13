@@ -21,7 +21,8 @@ deck.save("deck.pptx", author="Tyler")
 ```
 
 Run it with `kl.py run build_deck.py`. One `next()` per brief slide, in order. Every verb
-returns the slide, so calls chain.
+returns the slide, so calls chain. When the pen refuses, `kl.py run` prints one line,
+such as `build_deck.py:7: DoesNotFit: text needs 6 lines, region holds 3`, and exits 1.
 
 ## The deck
 
@@ -38,7 +39,9 @@ is one evidence file or a list. Use `add()` with it. Such a deck has no spine, a
 ### `next(variant=None)`
 
 The next brief slide: its role, headline and notes are already applied. It refuses when
-the brief has no more slides, and on a deck that has used `add()`.
+the brief has no more slides, and on a deck that has used `add()`. If the headline does
+not fit its title, the refusal names the slide: "slide 10 (close): headline needs 3
+lines, region holds 2". Shorten that headline in the brief.
 
 ### `add(role, headline, notes=None, variant=None)`
 

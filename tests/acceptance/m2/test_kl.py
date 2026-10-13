@@ -5,6 +5,7 @@ is the keyline CLI, exit code included; `kl.py run SCRIPT.py [ARGS]` runs a buil
 as `__main__` with `sys.argv` set."""
 
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -68,6 +69,30 @@ def test_run_builds_a_deck_with_the_pen(tmp_path):
     proc = kl("run", script, tmp_path / "deck.pptx")
     assert proc.returncode == 0, proc.stderr
     assert (tmp_path / "deck.pptx").stat().st_size > 10_000
+
+
+def test_run_prints_a_refusal_as_one_line(tmp_path):
+    """When the pen refuses, `run` prints the script's line and the refusal, and exits 1;
+    an error of the script's own keeps its traceback."""
+    pytest.importorskip("pptx")
+    script = tmp_path / "build.py"
+    script.write_text(
+        "from keyline.pen import Deck\n"
+        "d = Deck(pack='swiss', mode='presented', voice='neutral')\n"
+        "s = d.add('evidence', 'A headline')\n"
+        "s.text('word ' * 400)\n",
+        encoding="utf-8",
+    )
+    proc = kl("run", script)
+    assert proc.returncode == 1
+    (line,) = proc.stderr.splitlines()
+    assert re.fullmatch(
+        r"kl\.py: build\.py:4: DoesNotFit: text needs \d+ lines, region holds \d+.*", line
+    )
+    script.write_text("raise ValueError('the script itself is wrong')\n", encoding="utf-8")
+    proc = kl("run", script)
+    assert proc.returncode == 1 and "Traceback" in proc.stderr
+    assert proc.stderr.rstrip().endswith("ValueError: the script itself is wrong")
 
 
 def test_run_needs_a_script(tmp_path):

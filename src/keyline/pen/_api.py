@@ -228,7 +228,10 @@ class Deck:
         if index >= len(self._brief.slides):
             raise PenError(f"the brief has {len(self._brief.slides)} slides; no slide {index + 1}")
         s = self._brief.slides[index]
-        builder = self.add(s.role, s.headline, s.notes or None, variant)
+        try:
+            builder = self.add(s.role, s.headline, s.notes or None, variant)
+        except (DoesNotFit, PenError) as exc:  # the headline is the brief's: say which slide
+            raise type(exc)(f"slide {index + 1} ({s.role}): {exc}") from None
         builder._brief_slide = s
         return builder
 
