@@ -2257,3 +2257,252 @@ O. **Criterion (f) was not asked for.** It makes `measure_lo` fail when a versio
   in, drop the 26.8.0.3 entry from `breaks.json`: 26.8.1.1 supersedes it on this machine.
 - **Q-61 · G-1's text box in `night`.** B-28 says G-1 passed but does not state this
   check (Q-33). *Proposal:* Tyler confirms it in one line, and it is recorded here.
+
+---
+
+# Report B · the skill (in progress)
+
+- **Phase:** B, tasks T-33 … T-49 of [`tasks.md`](tasks.md), as revised by audit 07 and
+  B-28.
+- **Branch:** `002-skill-pack`, from `b3e6ab1` (the B-27 prelude) to `d5c90f9`; this
+  section's commit follows.
+- **Status:**
+  - **Done:** T-33 … T-45, T-48 and T-50. AC-17, AC-18, AC-19, AC-20 and AC-23 pass.
+  - **Waiting for Tyler:** T-46 (the demo, in a fresh session) and T-47 (the surfaces).
+    AC-21 passes for `product.toml`; its deck tests skip until the demo exists. AC-22 is
+    manual.
+  - **Then:** this report is completed (T-49), and G-2 follows.
+- **A rehearsal** of the skill's loop on BonsaiHub, from the packaged zip, found four
+  things to fix before the real demo. They are fixed; see *The rehearsal* below.
+
+## Reproduce (Phase B)
+
+```sh
+python -m pip install -e '.[dev]'
+pytest -q                          # 1347 passed, 11 skipped here (LibreOffice 26.8.1.1, OfficeCLI, all six twins)
+python tools/gen_docs.py --check   # the skill's generated tables are current
+python tools/build_skill.py        # dist/keyline.zip
+python tools/ngram_overlap.py skill docs
+```
+
+The gate ran at `f793a0e`: 1343 passed and 11 skipped; 1222 passed and 132 skipped on an
+empty PATH; 1258 passed and 96 skipped on a CI-like PATH. The M1 baseline shows no
+differences. `d5c90f9` adds the demo tool's 4 tests, run in the same three ways. The 11
+skips are AC-21's deck tests, which wait for the demo.
+
+## AC-17 · SKILL.md · PASS
+
+```
+$ pytest -q tests/acceptance/m2/test_ac17_skill_md.py
+9 passed
+```
+
+- **Frontmatter:** `name: keyline`, matching the folder and the name pattern; a
+  185-character description; `license: Apache-2.0`; a 241-character compatibility line.
+- **Body:** 128 lines of at most 200. No `${`, no `` !` ``, no absolute path.
+- **Audit 07 §4.4:**
+  - it says how to find the skill folder on each surface;
+  - each of the 18 tokens `doctor` can print has an action;
+  - without python-pptx and without network it routes to "check a deck" and says why;
+  - the voice step is step 4 of the loop, a step of its own.
+
+## AC-18 · Docs integrity · PASS
+
+```
+$ pytest -q tests/acceptance/m2/test_ac18_docs.py tests/acceptance/m2/test_gen_docs.py
+34 passed
+$ python tools/gen_docs.py --check; echo $?
+0
+```
+
+- **Anchors:** every `<!-- rule:ID -->` resolves to a registry id.
+- **`anti-tells.md`:** the 27 rows of Appendix A, plus `one-look-for-everything`. Every
+  enforcement is valid: `rule:` and `brief:` ids are registry ids of the right kind,
+  and `backlog:` ids are in §13 or B-8.16.
+- **`pen.md`:** all 15 public verbs, each heading naming every parameter. Its example
+  script is built by a test, and the result passes `check --brief`.
+- **`check.md`:** 31 recipes, one per rule at warning or error level, each under its own
+  heading; the pen's refusals; the known limits.
+- **`brief.md`:** every field with its test. Its two examples load as a valid brief.
+- **Generated tables** (`tools/gen_docs.py`, seven): the type scale, the budgets, the
+  roles, the layouts, the title capacities, the numeral set's excluded characters and
+  the per-twin coverage.
+- **Line caps** (audit 07 §4.9): craft-floor 96 of 110, anti-tells 48 of 60, brief 207
+  of 210, pen 204 of 220, check 264 of 290.
+
+## AC-19 · Package · PASS
+
+```
+$ python tools/build_skill.py
+dist/keyline.zip (955 KiB)
+$ pytest -q tests/acceptance/m2/test_ac19_package.py
+4 passed
+```
+
+- Two builds are byte-identical.
+- One top folder, `keyline/`, with `SKILL.md`, `references/`, `scripts/`,
+  `lib/keyline/`, `LICENSE` and `NOTICE`. `lib/keyline` equals `src/keyline` file for
+  file, without caches.
+- The zip is under 3 MB.
+
+## AC-20 · Sandbox smoke · PASS
+
+```
+$ pytest -q -rP tests/acceptance/m2/test_ac20_sandbox.py
+AC-20 sandbox: python-pptx, lxml, Pillow = 1.0.2 6.1.3 12.3.0
+4 passed
+```
+
+- A fresh venv with only lxml, Pillow and python-pptx, pinned to 1.0.2 by
+  `constraints.txt`. keyline is not installed there.
+- The zip is unpacked outside the repository; `PYTHONPATH` is scrubbed.
+- `kl.py doctor` exits 0 and prints "python-pptx 1.0.2".
+- `kl.py run` imports keyline from the skill's `lib/`.
+- The three specimens build from a copy of the `fixtures/packs/` layout, and
+  `kl.py check` exits 0 on each with its brief.
+- Without network the test skips locally and fails in CI.
+
+## AC-21 · BonsaiHub · PARTLY (waits for T-46)
+
+```
+$ pytest -q -rs tests/acceptance/m2/test_ac21_bonsaihub.py
+1 passed, 11 skipped
+```
+
+- **`product.toml` matches its hash:** PASS.
+- **The deck checks** skip while no demo file exists. They were tried on the rehearsal
+  demo: all pass except the G-2a record, which the real demo adds.
+
+### What Tyler runs for T-46
+
+The decks must come from a fresh Claude Code session, in a folder outside this checkout
+(audit 07 §4.7). `tools/demo.py` prepares that folder: the skill unpacked from the zip,
+`product.toml` where the prompts expect it, and a venv with lxml, Pillow, python-pptx
+1.0.2 and pypdfium2, without keyline.
+
+```sh
+# 1. in the keyline checkout
+git pull
+python tools/build_skill.py
+python tools/demo.py setup ~/keyline-demo     # any empty folder outside the checkout
+
+# 2. the fresh session
+cd ~/keyline-demo && source .venv/bin/activate && claude
+```
+
+In that session:
+
+1. Send **P-1** word for word (spec §10):
+
+   > Use the keyline skill. Make the demo-day pitch deck for BonsaiHub from
+   > examples/bonsaihub/product.toml (audience `demo-day`). It will be presented live.
+   > Work in examples/bonsaihub/ and name the files pitch.brief.toml, build_pitch.py and
+   > pitch.pptx. Put the render in render/pitch/. Pass author="Tyler" when saving. If you
+   > need numbers that product.toml lacks, put them in pitch.evidence.toml with a
+   > source. Never edit product.toml.
+
+2. When the skill shows the spine, approve it or ask for changes. That approval is
+   **G-2a** for the pitch.
+3. Send **P-2**, which is P-1 with the spec's substitutions:
+
+   > Use the keyline skill. Make the Q4 pre-read for the BonsaiHub team from
+   > examples/bonsaihub/product.toml (audience `team-preread`). They will read it on
+   > their own. Work in examples/bonsaihub/ and name the files preread.brief.toml,
+   > build_preread.py and preread.pptx. Put the render in render/preread/. Pass
+   > author="Tyler" when saving. If you need numbers that product.toml lacks, put them
+   > in preread.evidence.toml with a source. Never edit product.toml.
+
+4. Approve its spine: **G-2a** for the pre-read.
+
+Then, back in the checkout:
+
+```sh
+python tools/demo.py record ~/keyline-demo    # paste its output into this session
+```
+
+This session then copies the outputs into `examples/bonsaihub/` with
+`tools/demo.py collect`, records G-2a and the hashes here, and runs AC-21. It builds
+none of the files and edits none (plan Q-58 as ruled).
+
+## AC-22 · Surfaces · NOT RUN (T-47, manual)
+
+P-3 is: "Use the keyline skill to make a 6-slide deck for BonsaiHub's demo day from this
+file. It will be presented live."
+
+- **(a) claude.ai:** upload `dist/keyline.zip` under Customize → Skills, attach
+  `examples/bonsaihub/product.toml`, send P-3.
+- **(b) Claude Code:** unzip `dist/keyline.zip` into your skills folder, start a session
+  in an empty folder that holds `product.toml`, send P-3.
+- **(c) Claude desktop:** optional.
+
+For each, record the `doctor` output, whether a preview was rendered, the last `check`
+exit code, and the deck. Read the deck's slide text for a name before it is committed
+(audit 07 §4.8): the agent on claude.ai knows the account holder's name. The decks go
+under `examples/bonsaihub/surfaces/`.
+
+## AC-23 · Hygiene and CI · PASS
+
+```
+$ pytest -q tests/acceptance/test_ac12_hygiene.py tests/acceptance/m2/test_ngram_overlap.py
+11 passed
+$ python tools/ngram_overlap.py skill docs
+14 shared sequences of 8 words between skill and docs
+```
+
+- **Identity:** commit authors and trailers follow D-014.
+- **Decks keyline ships or shows** (under `examples/`, `skill/` and the bundled packs)
+  have a creator and a lastModifiedBy from an allow-list.
+- **Text under `skill/` and `examples/`** has no other e-mail address or handle.
+- **`NOTICE`** carries every fit table's source.
+- **No copied text.** The skill's docs were written from the spec, `docs/research.md`
+  and keyline's own code. I did not open the anthropics/skills repository or any other
+  skill's text while writing them. `tools/ngram_overlap.py` is there for the auditor to
+  run against a clone. Run on `skill/` and `docs/`, it finds only the three research
+  headings `anti-tells.md` cites.
+- **CI** runs on 3.11 and 3.13 with the font packages, ruff, `gen_docs.py --check` and
+  the suite.
+
+## The rehearsal
+
+Before handing T-46 to Tyler, I ran the skill's loop myself on BonsaiHub, from
+`dist/keyline.zip` unpacked in a scratch folder, to find problems first. Its files are
+not committed and are not the demo.
+
+- **Result:** a 10-slide pitch and a 5-slide pre-read, each with an inline voice drawn
+  from `[product.world]`. Both pass `kl.py brief` and `kl.py check --brief` with exit 0.
+- **Found and fixed:**
+  1. **A headline inside the word limit can be too wide for its title.** Two of ten
+     were refused at build, after the spine would have been approved. `SKILL.md` now
+     checks headlines against their titles before it shows the spine (`f793a0e`).
+  2. **The refusal did not say which slide.** `next()` now names it (`66b7af5`).
+  3. **The refusal sat under a 20-line traceback.** `kl.py run` now prints one line
+     with the script's line (`66b7af5`).
+  4. **Nothing said how much a title holds.** `brief.md` has a generated table: a
+     presented cover or close title holds 2 lines of 18 to 25 characters (`f793a0e`).
+- **Not fixed, a question:** see Q-62.
+
+## Deviations (Phase B)
+
+P. **`next()` and `kl.py run` changed after the rehearsal.**
+   - Spec said: §6.1 and §8.1 do not describe how a refusal is worded.
+   - Implemented: `next()` prefixes a refused headline with its slide, and `kl.py run`
+     prints a keyline refusal as one line.
+   - Because: the skill has to know which headline to shorten.
+
+Q. **T-35 and T-39 share `brief.md`.** T-35 committed its voice section; T-39 added the
+   rest around it.
+
+R. **A seventh generated table, `titles`.** Q-57 as ruled lists the type scale, the
+   budgets, the numeral characters and the coverage. `roles`, `layouts` and `titles`
+   are added, because the docs would otherwise restate pack data by hand.
+
+S. **`tools/demo.py`** is not in the tasks. It sets up the folder for the fresh session
+   and prints the record audit 07 §4.7 asks for, so the demo's setup is one command.
+
+## Open questions (Phase B)
+
+- **Q-62 · `brief` cannot tell that a headline will not fit.** It counts words; only the
+  pen measures. Today the skill runs a build skeleton to find out. *Proposal:* in spec
+  003, `keyline brief` runs the fit on each headline and reports a finding, which adds
+  a registry entry.
+- **Q-60 and Q-61** (from the prelude) are still open.

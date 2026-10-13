@@ -77,3 +77,7 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
   - `tools/gen_docs.py` generates the docs' tables from the thresholds, the pack and the
     fit tables; `--check` runs in CI.
   - `tools/ngram_overlap.py` counts the word sequences two folders share.
+  - `tools/build_skill.py` packages the skill as `dist/keyline.zip`, byte-identical on
+    every build; `constraints.txt` pins python-pptx to 1.0.2.
+  - `kl.py run` prints a pen refusal as one line, and a refused headline names its slide.
+  - `tools/demo.py` sets up and records the BonsaiHub demo.

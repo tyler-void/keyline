@@ -44,6 +44,9 @@
 - **The B-27 prelude is in** (2026-10-13, report "Phase B prelude: B-27"). LibreOffice on
   Tyler's machine is now 26.8.1.1; the measurements name it. Two new questions, Q-60 and
   Q-61, are below.
+- **Phase B, T-33 … T-45, T-48 and T-50 are in** (2026-10-13, report B, in progress). T-46
+  (the demo, in a fresh session) and T-47 (the surfaces) are Tyler's. One new question,
+  Q-62, is below.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -903,6 +906,15 @@ Each has a proposal. Neither blocks Phase B.
 61. **Q-61 · G-1's text box in `night`.** B-28 records that G-1 passed, without the
     result of typing into a new text box on the `night` specimen (Q-33). *Proposal:*
     Tyler confirms it in one line, and the report records it.
+
+### Report B question (2026-10-13, report B)
+
+62. **Q-62 · `brief` cannot tell that a headline will not fit.** `keyline brief` counts a
+    headline's words; only the pen measures it against its title. In the rehearsal, two
+    of ten headlines inside the word limit were refused at build, after the spine would
+    have been approved. Today the skill runs a build skeleton before it shows the spine
+    (`SKILL.md`, step 5). *Proposal:* in spec 003, `keyline brief` runs the fit on each
+    headline and reports a finding. That adds a registry entry, so it is not done here.
 
 47. **Q-47 · AC-13(b)'s left edge** (report A2). A line that starts with a glyph whose
     left side bearing is negative puts ink left of the region box (2.7 px measured, bold
