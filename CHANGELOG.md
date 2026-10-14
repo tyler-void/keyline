@@ -81,3 +81,5 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
     every build; `constraints.txt` pins python-pptx to 1.0.2.
   - `kl.py run` prints a pen refusal as one line, and a refused headline names its slide.
   - `tools/demo.py` sets up and records the BonsaiHub demo.
+  - `tools/measure_lo.py` probes the characters no twin has in an installed font that
+    has them (FX-36).

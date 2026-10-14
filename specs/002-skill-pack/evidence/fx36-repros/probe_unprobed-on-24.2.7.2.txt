@@ -1,0 +1,69 @@
+
+line breaks at a space (B-27 item 3): "nnn nnn nnn <token> mmm", regular 48 pt, LibreOffice 24.2.7.2 420(Build:2)
+  per character: the space before it, then the space after it; each with the character
+  alone and attached to "uuu", as <space fits>/<no room>. K: kept in at least one
+  family (LibreOffice refused the break); b: breaks; -: not probed, or the probe fit
+              before: alone  attached    after: alone  attached
+  U+2023 ‣              b/b       b/b             b/b       b/b
+  U+2024 ․              b/b       -/b             b/b       b/b
+  U+2025 ‥              b/b       -/b             b/b       b/b
+  U+2027 ‧              b/b       -/b             b/b       b/b
+  U+2031 ‱              b/b       b/b             b/b       b/b
+  U+2035 ‵              b/b       b/b             b/b       b/b
+  U+2036 ‶              b/b       b/b             b/b       b/b
+  U+2037 ‷              b/b       b/b             b/b       b/b
+  U+2038 ‸              b/b       b/b             b/b       b/b
+  U+203B ※              b/b       b/b             b/b       b/b
+  U+203F ‿              b/b       b/b             b/b       b/b
+  U+2040 ⁀              b/b       b/b             b/b       b/b
+  U+2041 ⁁              b/b       b/b             b/b       b/b
+  U+2042 ⁂              b/b       b/b             b/b       b/b
+  U+2043 ⁃              b/b       b/b             b/b       b/b
+  U+2045 ⁅              b/b       b/b             K/b       K/b
+  U+2046 ⁆              K/b       K/b             b/b       b/b
+  U+2047 ⁇              b/b       -/b             b/b       b/b
+  U+2048 ⁈              b/b       -/b             b/b       b/b
+  U+2049 ⁉              b/b       -/b             b/b       b/b
+  U+204A ⁊              b/b       b/b             b/b       b/b
+  U+204B ⁋              b/b       b/b             b/b       b/b
+  U+204C ⁌              b/b       b/b             b/b       b/b
+  U+204D ⁍              b/b       b/b             b/b       b/b
+  U+204E ⁎              b/b       b/b             b/b       b/b
+  U+204F ⁏              b/b       b/b             b/b       b/b
+  U+2050 ⁐              b/b       b/b             b/b       b/b
+  U+2051 ⁑              b/b       b/b             b/b       b/b
+  U+2053 ⁓              b/b       b/b             b/b       b/b
+  U+2054 ⁔              b/b       b/b             b/b       b/b
+  U+2055 ⁕              b/b       b/b             b/b       b/b
+  U+2056 ⁖              b/b       -/b             b/b       b/b
+  U+2057 ⁗              b/b       b/b             b/b       b/b
+  U+2058 ⁘              b/b       -/b             b/b       b/b
+  U+2059 ⁙              b/b       -/b             b/b       b/b
+  U+205A ⁚              b/b       -/b             b/b       b/b
+  U+205B ⁛              b/b       -/b             b/b       b/b
+  U+205C ⁜              b/b       b/b             b/b       b/b
+  U+205D ⁝              b/b       -/b             b/b       b/b
+  U+2061                -/-       b/b             -/-       b/b
+  U+2062                -/-       b/b             -/-       b/b
+  U+2063                -/-       b/b             -/-       b/b
+  U+2064                -/-       b/b             -/-       b/b
+  U+2066                -/-       b/b             -/-       b/b
+  U+2067                -/-       b/b             -/-       b/b
+  U+2068                -/-       b/b             -/-       b/b
+  U+2069                -/-       b/b             -/-       b/b
+  U+20B6 ₶              b/b       b/b             b/b       b/b
+  U+20B7 ₷              b/b       b/b             b/b       b/b
+  U+20BB ₻              b/b       b/b             b/b       b/b
+  U+20BE ₾              b/b       b/b             b/b       b/b
+  U+0028 (              b/b       b/b             K/b       K/b
+  U+0029 )              K/b       K/b             b/b       b/b
+  U+0025 %              b/b       b/b             b/b       b/b
+  U+0021 !              K/b       -/b             b/b       b/b
+  U+2044 ⁄              K/b       K/b             b/b       b/b
+  U+005B [              b/b       b/b             K/b       K/b
+  U+2019 ’              b/b       b/b             b/b       b/b
+  the families disagree on:
+  nothing
+  no break before (4): U+2046 U+0029 U+0021 U+2044
+  no break after (3): U+2045 U+0028 U+005B
+  probed: 58 characters in 816 probes; in no twin, not probed (1): U+20C0

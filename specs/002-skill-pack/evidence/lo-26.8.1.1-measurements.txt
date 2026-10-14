@@ -1,6 +1,6 @@
 # LibreOffice measurements for spec 002 amendments B-7, B-21, B-22, B-25 and B-27
 version: LibreOffice 26.8.1.1 680(Build:1)
-date: 2026-10-13  keyline 0.1.0  Linux-7.2.9-zen1-1-zen-x86_64-with-glibc2.44
+date: 2026-10-15  keyline 0.1.0  Linux-7.2.9-zen1-1-zen-x86_64-with-glibc2.44
 note: expected LibreOffice 26.8.0.3; this run used LibreOffice 26.8.1.1 680(Build:1)
 
 fc-match (probes name the portable family; fontconfig picks the twin):
@@ -1056,7 +1056,11 @@ line breaks at a space (B-27 item 3): "nnn nnn nnn <token> mmm", regular 48 pt, 
   U+2020 †              b/b       b/b             b/b       b/b
   U+2021 ‡              b/b       b/b             b/b       b/b
   U+2022 •              b/b       b/b             b/b       b/b
+  U+2023 ‣              b/b       b/b             b/b       b/b
+  U+2024 ․              b/b       -/b             b/b       b/b
+  U+2025 ‥              b/b       -/b             b/b       b/b
   U+2026 …              b/b       -/b             b/b       b/b
+  U+2027 ‧              b/b       -/b             b/b       b/b
   U+202A                -/-       b/b             -/-       b/b
   U+202B                -/-       b/b             -/-       b/b
   U+202C                -/-       b/b             -/-       b/b
@@ -1064,17 +1068,60 @@ line breaks at a space (B-27 item 3): "nnn nnn nnn <token> mmm", regular 48 pt, 
   U+202E                -/-       b/b             -/-       b/b
   U+202F                -/-       b/b             -/-       b/b
   U+2030 ‰              b/b       b/b             b/b       b/b
+  U+2031 ‱              b/b       b/b             b/b       b/b
   U+2032 ′              b/b       b/b             b/b       b/b
   U+2033 ″              b/b       b/b             b/b       b/b
   U+2034 ‴              b/b       b/b             b/b       b/b
+  U+2035 ‵              b/b       b/b             b/b       b/b
+  U+2036 ‶              b/b       b/b             b/b       b/b
+  U+2037 ‷              b/b       b/b             b/b       b/b
+  U+2038 ‸              b/b       b/b             b/b       b/b
   U+2039 ‹              b/b       b/b             b/b       b/b
   U+203A ›              b/b       b/b             b/b       b/b
+  U+203B ※              b/b       b/b             b/b       b/b
   U+203C ‼              b/b       -/b             b/b       b/b
   U+203D ‽              b/b       -/b             b/b       b/b
   U+203E ‾              b/b       b/b             b/b       b/b
+  U+203F ‿              b/b       b/b             b/b       b/b
+  U+2040 ⁀              b/b       b/b             b/b       b/b
+  U+2041 ⁁              b/b       b/b             b/b       b/b
+  U+2042 ⁂              b/b       b/b             b/b       b/b
+  U+2043 ⁃              b/b       b/b             b/b       b/b
   U+2044 ⁄              K/b       K/b             b/b       b/b
+  U+2045 ⁅              b/b       b/b             K/b       K/b
+  U+2046 ⁆              K/b       -/b             b/b       b/b
+  U+2047 ⁇              b/b       -/b             b/b       b/b
+  U+2048 ⁈              b/b       -/b             b/b       b/b
+  U+2049 ⁉              b/b       -/b             b/b       b/b
+  U+204A ⁊              b/b       b/b             b/b       b/b
+  U+204B ⁋              b/b       b/b             b/b       b/b
+  U+204C ⁌              b/b       b/b             b/b       b/b
+  U+204D ⁍              b/b       b/b             b/b       b/b
+  U+204E ⁎              b/b       b/b             b/b       b/b
+  U+204F ⁏              b/b       b/b             b/b       b/b
+  U+2050 ⁐              b/b       b/b             b/b       b/b
+  U+2051 ⁑              b/b       b/b             b/b       b/b
   U+2052 ⁒              b/b       b/b             b/b       b/b
+  U+2053 ⁓              b/b       b/b             b/b       b/b
+  U+2054 ⁔              b/b       b/b             b/b       b/b
+  U+2055 ⁕              b/b       b/b             b/b       b/b
+  U+2056 ⁖              b/b       -/b             b/b       b/b
+  U+2057 ⁗              b/b       b/b             b/b       b/b
+  U+2058 ⁘              b/b       -/b             b/b       b/b
+  U+2059 ⁙              b/b       -/b             b/b       b/b
+  U+205A ⁚              b/b       -/b             b/b       b/b
+  U+205B ⁛              b/b       -/b             b/b       b/b
+  U+205C ⁜              b/b       b/b             b/b       b/b
+  U+205D ⁝              b/b       -/b             b/b       b/b
   U+205E ⁞              b/b       -/b             b/b       b/b
+  U+2061                -/-       b/b             -/-       b/b
+  U+2062                -/-       b/b             -/-       b/b
+  U+2063                -/-       b/b             -/-       b/b
+  U+2064                -/-       b/b             -/-       b/b
+  U+2066                -/-       b/b             -/-       b/b
+  U+2067                -/-       b/b             -/-       b/b
+  U+2068                -/-       b/b             -/-       b/b
+  U+2069                -/-       b/b             -/-       b/b
   U+206A                -/-       b/b             -/-       b/b
   U+206B                -/-       b/b             -/-       b/b
   U+206C                -/-       b/b             -/-       b/b
@@ -1103,18 +1150,24 @@ line breaks at a space (B-27 item 3): "nnn nnn nnn <token> mmm", regular 48 pt, 
   U+20B3 ₳              b/b       b/b             b/b       b/b
   U+20B4 ₴              b/b       b/b             b/b       b/b
   U+20B5 ₵              b/b       b/b             b/b       b/b
+  U+20B6 ₶              b/b       b/b             b/b       b/b
+  U+20B7 ₷              b/b       b/b             b/b       b/b
   U+20B8 ₸              b/b       b/b             b/b       b/b
   U+20B9 ₹              b/b       b/b             b/b       b/b
   U+20BA ₺              b/b       b/b             b/b       b/b
+  U+20BB ₻              b/b       b/b             b/b       b/b
   U+20BC ₼              b/b       b/b             b/b       b/b
   U+20BD ₽              b/b       b/b             b/b       b/b
+  U+20BE ₾              b/b       b/b             b/b       b/b
   U+20BF ₿              b/b       b/b             b/b       b/b
+  U+20C0 ⃀              b/b       b/b             b/b       b/b
   U+2212 −              b/b       b/b             b/b       b/b
   the families disagree on:
   U+002F before attached, space fits: kept only in Courier New
-  no break before (11): U+0021 U+0029 U+002C U+002E U+002F U+003A U+003B U+003F U+005D U+007D U+2044
-  no break after (7): U+0028 U+005B U+007B U+00A1 U+00BF U+201A U+201E
-  probed: 150 characters in 5936 probes; in no twin, not probed (52): U+2023 U+2024 U+2025 U+2027 U+2031 U+2035 U+2036 U+2037 U+2038 U+203B U+203F U+2040 U+2041 U+2042 U+2043 U+2045 U+2046 U+2047 U+2048 U+2049 U+204A U+204B U+204C U+204D U+204E U+204F U+2050 U+2051 U+2053 U+2054 U+2055 U+2056 U+2057 U+2058 U+2059 U+205A U+205B U+205C U+205D U+2061 U+2062 U+2063 U+2064 U+2066 U+2067 U+2068 U+2069 U+20B6 U+20B7 U+20BB U+20BE U+20C0
+  no break before (12): U+0021 U+0029 U+002C U+002E U+002F U+003A U+003B U+003F U+005D U+007D U+2044 U+2046
+  no break after (8): U+0028 U+005B U+007B U+00A1 U+00BF U+201A U+201E U+2045
+  no twin has these; probed in Noto Sans (52): U+2023 U+2024 U+2025 U+2027 U+2031 U+2035 U+2036 U+2037 U+2038 U+203B U+203F U+2040 U+2041 U+2042 U+2043 U+2045 U+2046 U+2047 U+2048 U+2049 U+204A U+204B U+204C U+204D U+204E U+204F U+2050 U+2051 U+2053 U+2054 U+2055 U+2056 U+2057 U+2058 U+2059 U+205A U+205B U+205C U+205D U+2061 U+2062 U+2063 U+2064 U+2066 U+2067 U+2068 U+2069 U+20B6 U+20B7 U+20BB U+20BE U+20C0
+  probed: 202 characters in 6320 probes; in no installed font, not probed (0): 
 
 line breaks before the fullwidth closers, bold Arial 48 pt (informational), LibreOffice 26.8.1.1 680(Build:1):
   U+FF01 ！  space fits: kept with the word    |  space does not fit: breaks
@@ -1134,4 +1187,4 @@ verdict (amendments B-22, B-25):
   (e) every cell line with fallback glyphs <= size x max(1.2, hhea, missing_line_em) + cell allowance: 72 probes, widest 1.2036 em: HOLDS
 
 verdict (amendment B-27):
-  (f) every character this version will not break before or after is in the estimator's sets: 11 before, 7 after: HOLDS
+  (f) every character this version will not break before or after is in the estimator's sets: 12 before, 8 after: HOLDS

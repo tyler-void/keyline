@@ -50,6 +50,10 @@
 - **The auditor's Phase B checkpoint** (at `3566cb4`, 2026-10-13): accepted, re-run on
   LibreOffice 24.2.7.2. It rules Q-60, Q-61 and Q-62, marked below. T-46 and T-47 go
   ahead once the Q-60 change has landed.
+- **The auditor's checkpoint at `f523a1a`** (2026-10-15): accepted. It adds FX-36
+  (low): `measure_lo.py` probes the 52 characters of the measured set that no twin has
+  in an installed font that has them. Its correction to Q-60 is marked below. No
+  character stays unprobed on every version, so there is no Q-63.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -905,8 +909,13 @@ Each has a proposal. Neither blocks Phase B.
 - **Q-60: accepted.** The auditor's 24.2.7.2 output with the full probe is committed as
   `evidence/lo-24.2.7.2-measurements.txt`, and `breaks.json` is regenerated: the
   24.2.7.2 entry is the full probe, and the 26.8.0.3 entry is dropped. The union loses
-  U+0025, U+00BB, U+2019, U+201D and U+2030 (no break before) and U+2045 (no break
-  after), since both full probes break there.
+  U+0025, U+00BB, U+2019, U+201D and U+2030 (no break before), since both full probes
+  break there.
+  - **Correction (the auditor's checkpoint at `f523a1a`, FX-36):** the union also lost
+    U+2045 (no break after), but U+2045 was not probed, not measured as breaking: no
+    twin has it, and the probe skipped such characters. FX-36 probes them in an
+    installed font. Both versions keep U+2045 with the word after (and U+2046 with the
+    word before), so the union has them back.
 - **Q-61: closed.** "Tyler, 2026-10-13: text typed into a new text box is readable on
   night, and on the section slide." It is recorded under G-1 in `report.md`.
 

@@ -39,7 +39,9 @@ What it measures:
   after). Each is set in two boxes: one where the space at the break still fits on the
   line, and one where it does not. "kept" means LibreOffice refused the break and carried
   the word before the space down; the no-break-before and no-break-after sets are the
-  characters kept in any probe;
+  characters kept in any probe. A character no twin has is probed in an installed font
+  that has it (`fc-list`), and the output names that font (FX-36); one no installed font
+  has is listed as not probed;
 - informational: the one-line threshold of three bold 14 pt labels, scanned 0.980× …
   1.010× in 0.0005 steps (T-20's first run); and, per fullwidth closer of B-25 item 5
   (outside the measured set), whether LibreOffice carries a full line's last word down
@@ -149,12 +151,20 @@ _fonts: dict = {}
 
 
 def _font(family: str, weight: str):
-    """(cmap, hmtx, units per em, maximum advance) of the twin fontconfig picks."""
+    """(cmap, hmtx, units per em, maximum advance) of the face fontconfig picks for the
+    family: the twin for a portable family; any installed family for FX-36's probes (a
+    face of a collection by its index)."""
     from fontTools.ttLib import TTFont
 
     if (family, weight) not in _fonts:
         style = "Bold" if weight == "bold" else "Regular"
-        font = TTFont(fc_match(f"{family}:style={style}", "%{file}"))
+        path = fc_match(f"{family}:style={style}", "%{file}")
+        index = fc_match(f"{family}:style={style}", "%{index}")
+        font = (
+            TTFont(path, fontNumber=int(index or 0))
+            if path.lower().endswith((".ttc", ".otc"))
+            else TTFont(path)
+        )
         hmtx = font["hmtx"]
         widest = max(advance for advance, _ in hmtx.metrics.values())
         _fonts[family, weight] = (font.getBestCmap(), hmtx, font["head"].unitsPerEm, widest)
@@ -406,7 +416,35 @@ def break_chars() -> list[str]:
     return [c for c in MEASURED if unicodedata.category(c)[0] != "L" and c not in SPACES]
 
 
-def build_breaks(family: str):
+def fallback_fonts(chars) -> tuple[dict[str, list[str]], list[str]]:
+    """FX-36: the installed fonts to probe characters no twin has, as {family: its
+    characters}, and the characters no installed font has. A font has a character when
+    `fc-list ':charset=<hex>'` lists its family and the regular face that fc-match picks
+    for that family maps the character. The family that has the most of the characters
+    left is taken first, ties by name, so the choice is the same on every run."""
+    have: dict[str, list[str]] = {}
+    for ch in chars:
+        out = subprocess.run(
+            ["fc-list", f":charset={ord(ch):x}", "family"], capture_output=True, text=True
+        ).stdout
+        names = sorted({line.split(",")[0].strip() for line in out.splitlines() if line.strip()})
+        have[ch] = [
+            n for n in names if fc_match(n, "%{family}") == n and ord(ch) in _font(n, "regular")[0]
+        ]
+    left = [c for c in chars if have[c]]
+    picked: dict[str, list[str]] = {}
+    while left:
+        counts: dict[str, int] = {}
+        for c in left:
+            for name in have[c]:
+                counts[name] = counts.get(name, 0) + 1
+        best = min(counts, key=lambda name: (-counts[name], name))
+        picked[best] = [c for c in left if best in have[c]]
+        left = [c for c in left if best not in have[c]]
+    return picked, [c for c in chars if not have[c]]
+
+
+def build_breaks(family: str, chars: list[str] | None = None):
     """One deck of line-break probes for a family (B-27 item 3). Per probe: (character,
     side, form, room). A probe is left out when the twin lacks the character, when the
     character draws nothing and would stand alone, or when its box cannot be told from
@@ -420,7 +458,7 @@ def build_breaks(family: str):
         return estimate(family, "regular", text, BREAK_SIZE)[0]
 
     first, space = w(BREAK_FIRST), w(" ")
-    for ch in break_chars():
+    for ch in break_chars() if chars is None else chars:
         if ord(ch) not in cmap:
             continue
         tokens = {("before", "attached"): ch + BREAK_PAD, ("after", "attached"): BREAK_PAD + ch}
@@ -550,7 +588,9 @@ def read_pages(pdf: Path):
     return pages
 
 
-def break_report(decks: dict, pages: dict, version: str) -> tuple[list[str], dict[str, list]]:
+def break_report(
+    decks: dict, pages: dict, version: str, outside: dict[str, list[str]] | None = None
+) -> tuple[list[str], dict[str, list]]:
     """The line-break section (B-27 item 3): a row per character, the probes on which the
     families disagree, and the two sets; and those sets, per side."""
     results: dict[str, dict[tuple[str, str, str], dict[str, str]]] = {}
@@ -608,10 +648,15 @@ def break_report(decks: dict, pages: dict, version: str) -> tuple[list[str], dic
             )
         ]
         out.append(f"  no break {side} ({len(kept)}): " + " ".join(f"U+{ord(c):04X}" for c in kept))
+    for font, chars in (outside or {}).items():  # FX-36: what no twin has
+        out.append(
+            f"  no twin has these; probed in {font} ({len(chars)}): "
+            + " ".join(f"U+{ord(c):04X}" for c in chars)
+        )
     missing = [c for c in break_chars() if c not in results]
     out.append(
-        f"  probed: {len(results)} characters in {count} probes; in no twin, not probed "
-        f"({len(missing)}): " + " ".join(f"U+{ord(c):04X}" for c in missing)
+        f"  probed: {len(results)} characters in {count} probes; in no installed font, not "
+        f"probed ({len(missing)}): " + " ".join(f"U+{ord(c):04X}" for c in missing)
     )
     return out, sets
 
@@ -649,6 +694,12 @@ def main(argv: list[str]) -> int:
     cellfb_bytes, cellfb_probes = build_cell_fallback(families)
     lb13_bytes, lb13_probes = build_lb13()
     break_decks = {family: build_breaks(family) for family, _twin in families}
+    twin_maps = [_font(family, "regular")[0] for family, _twin in families]
+    outside, _no_font = fallback_fonts(
+        [c for c in break_chars() if not any(ord(c) in cmap for cmap in twin_maps)]
+    )
+    for font, chars in outside.items():  # FX-36: probed in an installed font that has them
+        break_decks[font] = build_breaks(font, chars)
     break_pages = {}
     with tempfile.TemporaryDirectory(prefix="keyline-measure-") as tmp:
         tmp_dir = Path(tmp)
@@ -846,7 +897,7 @@ def main(argv: list[str]) -> int:
     out.append(f"  widest fallback advance: {widest:.4f} em")
 
     # ---- line breaks at a space, per character (B-27 item 3) ---------------------------
-    break_lines, break_sets = break_report(break_decks, break_pages, version)
+    break_lines, break_sets = break_report(break_decks, break_pages, version, outside)
     out += break_lines
 
     # ---- informational: the fullwidth closers of B-25 item 5 ----------------------------

@@ -42,7 +42,7 @@ def test_break_units_keep_closing_punctuation_with_the_word_before():
     assert break_units("( opens") == ["( opens"]  # B-25 item 5: kept with what follows
     for ch in NO_BREAK_BEFORE:
         assert break_units(f"a {ch} b") == [f"a {ch}", "b"]
-    assert set(NO_BREAK_BEFORE) == set(LB13 + BY_VERSION)
+    assert set(NO_BREAK_BEFORE) == set(LB13 + BY_VERSION + NO_TWIN)
     for ch in NEVER_KEPT:  # LibreOffice breaks before these, and so does the estimator
         assert break_units(f"a {ch} b") == ["a", ch, "b"]
 
@@ -79,6 +79,7 @@ def test_the_audit_headlines_are_refused(text):
 LB13 = ")]},.:;!?/" + chr(0x2044) + FULLWIDTH_CLOSERS
 NEVER_KEPT = "%" + "".join(map(chr, (0x2030, 0xBB, 0x201D, 0x2019)))  # no version keeps them
 BY_VERSION = "\\"  # 24.2.7.2 keeps it, 26.8.1.1 does not (audit 07 FX-33)
+NO_TWIN = chr(0x2046)  # kept when the space fits, in a font that has it (FX-36)
 
 
 def full_line_case(setting, box_pt, ch, seed, space_fits):
@@ -138,7 +139,7 @@ def test_libreoffice_never_sets_more_lines_than_the_estimator(space_fits, tmp_pa
         at = max(i for i, c in enumerate(glyphs) if c[0] == ch)
         assert glyphs[at - 1][0] == last_word[-1]
         kept = abs(glyphs[at - 1][2] - glyphs[at][2]) < pitch / 2
-        if ch not in BY_VERSION:
+        if ch not in BY_VERSION + NO_TWIN:  # the headline's twin lacks U+2046
             assert kept == (space_fits and ch in LB13), (ch, "kept" if kept else "broke before")
 
 

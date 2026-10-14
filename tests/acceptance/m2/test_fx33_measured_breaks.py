@@ -40,6 +40,8 @@ DATA = json.loads(BREAKS.read_text(encoding="utf-8"))
 BACKSLASH, FRACTION_SLASH = chr(0x5C), chr(0x2044)
 KEPT_BEFORE = ")]},.:;!?/" + FRACTION_SLASH  # kept with the word before, on both versions
 KEPT_AFTER = "([{" + "".join(map(chr, (0xA1, 0xBF, 0x201A, 0x201E)))  # with the word after
+QUILL_LEFT, QUILL_RIGHT = chr(0x2045), chr(0x2046)  # no twin has them; probed since FX-36
+NOT_PROBED = re.compile(r"in no (?:twin|installed font), not probed \(\d+\):(.*)$", re.MULTILINE)
 
 
 def tool(name):
@@ -66,35 +68,37 @@ def test_the_sets_are_the_union_over_the_versions():
     assert set(NO_BREAK_AFTER) == set(map(chr, DATA["no_break_after"]))
     assert set(NO_BREAK_BEFORE) - set(FULLWIDTH_CLOSERS) <= set(MEASURED)
     assert set(NO_BREAK_AFTER) <= set(MEASURED)
-    assert set(NO_BREAK_BEFORE) - set(FULLWIDTH_CLOSERS) == {*KEPT_BEFORE, BACKSLASH}
-    assert set(NO_BREAK_AFTER) == set(KEPT_AFTER)
+    assert set(NO_BREAK_BEFORE) - set(FULLWIDTH_CLOSERS) == {*KEPT_BEFORE, BACKSLASH, QUILL_RIGHT}
+    assert set(NO_BREAK_AFTER) == {*KEPT_AFTER, QUILL_LEFT}
 
 
 def test_each_entry_is_what_its_output_measured():
     """Both versions keep eleven characters with the word before, U+2044 among them, and
     seven with the word after. 24.2.7.2 also keeps the backslash; 26.8.1.1 breaks before
-    it."""
+    it. 26.8.1.1's output, since FX-36, also probes the characters no twin has: it keeps
+    U+2046 with the word before and U+2045 with the word after. 24.2.7.2's output
+    predates FX-36; the auditor re-runs it at the Phase B audit."""
     for version in DATA["versions"]:
         text = (ROOT / version["source"]).read_text(encoding="utf-8")
         assert f"version: {version['version']}\n" in text
         for side in ("before", "after"):
             (line,) = re.findall(rf"^  no break {side} \(\d+\):(.*)$", text, re.MULTILINE)
             assert version[f"no_break_{side}"] == sorted(int(cp[2:], 16) for cp in line.split())
-        assert {chr(c) for c in version["no_break_after"]} == set(KEPT_AFTER)
+        old = "24.2.7.2" in version["version"]
+        after = {chr(c) for c in version["no_break_after"]}
+        assert after == set(KEPT_AFTER) | (set() if old else {QUILL_LEFT}), version["version"]
         before = {chr(c) for c in version["no_break_before"]}
-        extra = {BACKSLASH} if "24.2.7.2" in version["version"] else set()
+        extra = {BACKSLASH} if old else {QUILL_RIGHT}
         assert before == set(KEPT_BEFORE) | extra, version["version"]
 
 
 def test_neither_version_keeps_the_characters_that_were_only_listed():
-    """B-22 item 4 listed % and U+2030, U+00BB, U+201D, U+2019, and B-25 item 5 covered
-    U+2045 as an opener. No probe on either version kept any of them, so the estimator
-    breaks there too."""
+    """B-22 item 4 listed % and U+2030, U+00BB, U+201D, U+2019. No probe on either
+    version kept any of them, so the estimator breaks there too. (U+2045, which B-25
+    item 5 also covered, is kept: FX-36 probed it.)"""
     for ch in "%" + "".join(map(chr, (0x2030, 0xBB, 0x201D, 0x2019))):
         assert ch not in NO_BREAK_BEFORE
         assert break_units(f"a {ch} b") == ["a", ch, "b"]
-    quill = chr(0x2045)  # in the measured set, in no twin: the probe has no result for it
-    assert not opens(quill) and break_units(f"a {quill} b") == ["a", quill, "b"]
 
 
 def test_the_probe_covers_every_non_letter_of_the_measured_set():
@@ -109,10 +113,32 @@ def test_the_probe_covers_every_non_letter_of_the_measured_set():
         rows = {
             int(cp, 16) for cp in re.findall(r"^  U\+([0-9A-F]{4,5}) .*[Kb-]/[Kb-]$", section, re.M)
         }
-        (unprobed,) = re.findall(r"in no twin, not probed \(\d+\):(.*)$", section, re.MULTILINE)
+        (unprobed,) = NOT_PROBED.findall(section)
         missing = {int(cp[2:], 16) for cp in unprobed.split()}
         assert rows | missing == set(map(ord, chars)) and not rows & missing
-        assert len(rows) == 150, version["version"]
+        assert len(rows) == (150 if "24.2.7.2" in version["version"] else 202)
+
+
+def test_every_character_is_probed_on_some_version():
+    """FX-36: every non-letter character of the measured set is probed on at least one
+    version, except characters no installed font has. 26.8.1.1 probes all 202: the 52 no
+    twin has are set in an installed font that has them, and the output names it."""
+    chars = set(map(ord, tool("measure_lo").break_chars()))
+    probed, no_font = set(), None
+    for version in DATA["versions"]:
+        text = (ROOT / version["source"]).read_text(encoding="utf-8")
+        start = text.index("line breaks at a space (B-27 item 3)")
+        section = text[start : text.index("\n\n", start)]
+        probed |= {
+            int(cp, 16) for cp in re.findall(r"^  U\+([0-9A-F]{4,5}) .*[Kb-]/[Kb-]$", section, re.M)
+        }
+        if "in no installed font" in section:  # an output with FX-36's probe
+            (line,) = NOT_PROBED.findall(section)
+            found = {int(cp[2:], 16) for cp in line.split()}
+            no_font = found if no_font is None else no_font & found
+            assert re.search(r"no twin has these; probed in [A-Z][\w ]+ \(\d+\):", section)
+    assert no_font is not None, "no output has FX-36's probe"
+    assert chars - probed == no_font == set()
 
 
 def test_the_outcome_of_a_probe():
