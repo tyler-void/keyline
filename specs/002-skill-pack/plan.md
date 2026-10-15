@@ -54,6 +54,16 @@
   (low): `measure_lo.py` probes the 52 characters of the measured set that no twin has
   in an installed font that has them. Its correction to Q-60 is marked below. No
   character stays unprobed on every version, so there is no Q-63.
+- **T-46 run 1, and B-29** (Tyler, 2026-10-15). Run 1 of the demo (zip `1cb44f99…`) is
+  recorded in the report and not collected: the fresh session skipped the spine
+  approval in both decks, so G-2a did not happen, and the pre-read had 9 slides. B-29:
+  - the approval step stops unconditionally (FX-37);
+  - P-1 and P-2 state §10's slide ranges;
+  - this session may run T-46 and T-47's Claude Code surface headless (`claude -p`),
+    under the protocol in the report. G-2a stays Tyler's: each spine goes to him
+    verbatim, and his reply goes back verbatim.
+
+  The auditor accepted FX-36 at `432ca4a`.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a`.
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".

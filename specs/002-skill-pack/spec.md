@@ -1711,3 +1711,16 @@ must contain at least these rows.
     moves to spec 003, which rebuilds the same briefs and evidence with an expressive
     Pitch system and motion, and compares the two.
   - The Swiss demo decks are kept unchanged as spec 003's baseline.
+- **B-29 (2026-10-15, Tyler after T-46 run 1).**
+  1. Run 1 of the demo (dist/keyline.zip 1cb44f99...) is recorded and not committed. The
+     fresh session skipped the spine approval in both decks, so G-2a did not happen,
+     and the pre-read had 9 slides, outside §10's 4 to 8.
+  2. The skill's approval step stops unconditionally. It shows the spine and ends its
+     turn; it goes on without approval only when the user has said so in the
+     conversation, and then says so in its report (FX-37).
+  3. §10's slide ranges are stated in the prompts, as P-3 states its length. P-1 ends
+     with "Keep it to 8 to 12 slides." and P-2 with "Keep it to 4 to 8 slides."
+     AC-21's ranges are unchanged.
+  4. This session may run T-46 and T-47's Claude Code surface in headless mode
+     (`claude -p`), under the protocol recorded in report.md. G-2a stays Tyler's: each
+     spine goes to him verbatim, and his reply goes back verbatim.

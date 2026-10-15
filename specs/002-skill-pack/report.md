@@ -2613,3 +2613,97 @@ FX-36 (low). The repro is in [`evidence/fx36-repros/`](evidence/fx36-repros/).
     for U+2046, which its headline's twin lacks.
 - **Q-60's line in `plan.md`** is corrected: U+2045 was not probed, not measured as
   breaking.
+
+## Checkpoint (the auditor, at `432ca4a`) · FX-36 accepted
+
+- **The auditor's results:** `test_fx36`, `test_fx33` and `test_fx27` re-run on 24.2.7.2,
+  17 passed. Its rebuild of `dist/keyline.zip` at `432ca4a` has the SHA-256
+  `1cb44f99…a4c452c1`, which is the zip of the demo's run 1. The full re-check is part
+  of the Phase B audit.
+- **CI failed at `432ca4a`,** on both Pythons, in one test:
+
+  ```
+  E       AssertionError: assert (27 == 52)
+  tests/acceptance/m2/test_fx36_unprobed.py:59: AssertionError
+  1 failed, 1253 passed, 110 skipped
+  ```
+
+  - **Cause:** the runner's fontconfig resolves the portable families to other fonts,
+    which have more of the characters, so only 27 fall outside them. The 52 are the
+    characters the twins lack. My CI-like PATH run hides programs, not fonts, so it
+    passed here.
+  - **Fix (`9816baf`):** the test skips unless every portable family resolves to its
+    twin. The check is split out of `_lo.unready` as `_lo.untwinned`. With a stand-in
+    `fc-match` that answers DejaVu Sans, as on the runner:
+
+    ```
+    SKIPPED [1] tests/acceptance/m2/test_fx36_unprobed.py:56: the twins: Arial resolves to DejaVu Sans, not its twin Liberation Sans
+    ```
+
+## T-46 run 1 · recorded, not collected (B-29 item 1)
+
+Tyler ran the demo on 2026-10-15, in a fresh interactive session in `~/keyline-demo`, with
+the zip built at `432ca4a`. The transcript stays outside the repository, because it holds
+local paths. The model it names is `claude-opus-5-5`.
+
+```
+$ python tools/demo.py record ~/keyline-demo      # the home folder is shortened to ~ here
+- working directory: `~/keyline-demo`
+- skill: `~/keyline-demo/.claude/skills/keyline`
+- `dist/keyline.zip` SHA-256: `1cb44f994f4ba483914d22d1d7c456716c832b85244e4c6abcccc2a8a4c452c1`
+- `keyline` imports from: `~/keyline-demo/.claude/skills/keyline/lib/keyline/__init__.py`
+- files the session wrote:
+  - `examples/bonsaihub/build_pitch.py` `e5125632475fe9eccad1ca6e77505e9ba3563e01f3eae8fb331ba5de376ed804`
+  - `examples/bonsaihub/build_preread.py` `17046d7c2ad89c4a81899201d6f02daaf69286c454c52a88f3b6f3e575e5c0f4`
+  - `examples/bonsaihub/pitch.brief.toml` `e5e65933a6b95ab0c686645169b5cec16c106fc10c0cfd5c537957ecfe5df29b`
+  - `examples/bonsaihub/pitch.pptx` `e08151018d42e8524afaf038ae656e78b872d41f298f145485446028407c3090`
+  - `examples/bonsaihub/preread.brief.toml` `c69d8fc61e1ae5914f8d61ab5cc8295cafde8eacca0df51660a57d8c620544ba`
+  - `examples/bonsaihub/preread.evidence.toml` `29a4f2d2ac742031dd9a342c47da7d29049add46017054047dafd6c85b85577d`
+  - `examples/bonsaihub/preread.pptx` `72373ab59a86f25b883271003ef2eb005d5295b635444ebf547a3d8677610bf8`
+  - `examples/bonsaihub/render/pitch/contact.png` `091624fbf5abef0b2f6f8e225852c5be7d2ba50c600e95b3bd159dd81e43e2b4`
+  - `examples/bonsaihub/render/pitch/slide-01.png` `2a968ffffe555f3458f52e954586bb1c7b728b74528562f8513845ddadd9e44f`
+  - `examples/bonsaihub/render/pitch/slide-02.png` `545b91b9f3458c1f17a78f683d3469a59ce9d29ad1198ee06d3a8f5640791415`
+  - `examples/bonsaihub/render/pitch/slide-03.png` `20fca2fd2e43893bc894dd5759ccbd31c278281d2db4bfc5d92ffc20324fadec`
+  - `examples/bonsaihub/render/pitch/slide-04.png` `c114ef722d8f7f9d21cf554849dbcb4d3cb8307080026dec56dd8399d6adc23c`
+  - `examples/bonsaihub/render/pitch/slide-05.png` `d0685bc4e854823fced7e34d9f8e403bb6f35fb9e1a9e4c22136b757ccead3d6`
+  - `examples/bonsaihub/render/pitch/slide-06.png` `7d4f42c67581ec2497c04141b77333557e82bc4c6490273808a779ffdaf7f5f8`
+  - `examples/bonsaihub/render/pitch/slide-07.png` `f1f45525f9e111bd228775ed9d6c0308280fd8f5dd8dadeb2b423a059b190488`
+  - `examples/bonsaihub/render/pitch/slide-08.png` `07c3eaccddf704640078173c951fbc23e484f8719a19a786ac84ff1579464457`
+  - `examples/bonsaihub/render/pitch/slide-09.png` `9165aacf95ef078e039cce617cd8d3d1fadbb00cf7986bbba534305bcb70800f`
+  - `examples/bonsaihub/render/pitch/slide-10.png` `392a474df365677694fb20147d77e23f24f7d2a553a823323724fefac0a5b6fb`
+  - `examples/bonsaihub/render/preread/contact.png` `4a44cdf7e002396b89db57c5ea35e240920b41fc9df4857b4c45e4f5c041d0d9`
+  - `examples/bonsaihub/render/preread/slide-01.png` `3c82700128c91e0bf0c4311a7568e7c95f888b5bbabcc7f51a510afcc2d08f5f`
+  - `examples/bonsaihub/render/preread/slide-02.png` `edb65a842ee879199004897cbef382358aa6816253fac2b82625ff91ca1e8c0f`
+  - `examples/bonsaihub/render/preread/slide-03.png` `dd4a7367c3102180fa125557e4ff62b7ebac187945054bae7c71d8f67bea5004`
+  - `examples/bonsaihub/render/preread/slide-04.png` `ea3849c68be725e2c488c34ea1a02b1570019b419f9c94f626418a4b49da0675`
+  - `examples/bonsaihub/render/preread/slide-05.png` `a8620e4204bbd33ffcc9e84492e5632582a3623d4f8df625498ce5a8b07f808e`
+  - `examples/bonsaihub/render/preread/slide-06.png` `6d5256ef8ec738c1ca1f786089ec2f1358a40953e37c01bd578e9c9d7243bd84`
+  - `examples/bonsaihub/render/preread/slide-07.png` `b7479fa6f602fb2495e73da68ec5a893016ff769d479cb910ab4711ac4137926`
+  - `examples/bonsaihub/render/preread/slide-08.png` `5ec1a05e4041d85ba1f7b95185e74b81604187a7290ed6771f2ab3b0f275eedf`
+  - `examples/bonsaihub/render/preread/slide-09.png` `710711200a0d82088ca3c42e08960425f67458522df15c22278d928fc755b9e7`
+```
+
+I re-hashed the 28 files in `~/keyline-demo`; all match the record.
+
+- **Not collected.** The auditor found two failures in the transcript:
+  1. **G-2a did not happen.** In both decks the session went on to build without
+     stopping at the spine:
+     - the pitch: "Spine passes both checks. The request was complete as given, so I'm
+       going ahead without stopping for spine approval. Building the slides now."
+     - the pre-read: "Both checks pass. I'm going ahead without stopping for spine
+       approval, as with the pitch."
+
+     `SKILL.md` step 6 ("If the user is present, wait … If they are not, go on") let it
+     decide that. Spec §10 says Tyler approves each spine before the build. FX-37 fixes
+     the step (B-29 item 2).
+  2. **AC-21 would fail.** `preread.pptx` has 9 slides; §10 says 4 to 8. P-2 never
+     stated the range. B-29 item 3 adds it to each prompt.
+- **Left as it is.** `~/keyline-demo` is unchanged, and none of its files is committed.
+- **A known inconsistency in the fixture.**
+  - `product.toml` says Slow Match unlocks "only after a full season of visits", but
+    its `days_to_first_match` is 41 days.
+  - The auditor confirms it is an error in the fixture, not a planted test.
+    `product.toml` stays frozen (§10: its hash).
+  - Run 1 handled it as constitution VI asks. It left the file unchanged and named the
+    conflict in the pre-read's slide 7 headline: "Open question: the median match
+    arrives in 41 days, before a full season of visits".
