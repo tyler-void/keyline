@@ -27,6 +27,12 @@ def unready(families=("Arial",)) -> str | None:
         import pypdfium2  # noqa: F401
     except ImportError:
         return "pypdfium2 is not installed"
+    return untwinned(families)
+
+
+def untwinned(families) -> str | None:
+    """Why these families do not resolve to their metric twins through fontconfig here,
+    or None."""
     if shutil.which("fc-match") is None:
         return "fc-match is not installed"
     for family in families:

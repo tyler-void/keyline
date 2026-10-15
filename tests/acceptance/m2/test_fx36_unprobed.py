@@ -23,6 +23,8 @@ QUILL_LEFT, QUILL_RIGHT = chr(0x2045), chr(0x2046)  # ⁅ ⁆
 REFERENCE_MARK, ASTERISKS = chr(0x203B), chr(0x2042)  # two of the 50 that break
 FAMILIES = [family for family, _twin in load_config().portable_fonts]
 needs_fonts = pytest.mark.skipif(shutil.which("fc-list") is None, reason="fc-list is not installed")
+TWINS = _lo.untwinned(FAMILIES)  # the 52 are the characters the twins lack
+needs_twins = pytest.mark.skipif(TWINS is not None, reason=f"the twins: {TWINS}")
 
 
 @pytest.fixture(scope="module")
@@ -52,6 +54,7 @@ def test_the_estimator_keeps_the_quills_with_their_words():
 
 
 @needs_fonts
+@needs_twins
 def test_each_character_no_twin_has_gets_an_installed_font(measure_lo):
     """The choice is fixed: the family that has the most of the characters left first,
     ties by name; each picked face maps its characters, and none is a portable family."""
