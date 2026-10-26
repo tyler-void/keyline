@@ -88,8 +88,10 @@ token.
    and one bare `deck.next()` per slide, and run it with `kl.py run`. A refusal names
    the slide; shorten that headline in the brief (the table in `references/brief.md`
    says how much a title holds). When both pass, show the user the spine.
-6. **Approval.** If the user is present, wait until they approve the spine. If they are
-   not, go on and say that you did.
+6. **Approval.** Show the user the spine, then stop: end your turn and wait for
+   their reply. Build only after they approve it. Skip this stop only when the user
+   has told you, in this conversation, not to wait; then say in the report that the
+   spine was not approved.
 7. **Build.** Read `references/craft-floor.md`, then `references/pen.md`. Give each
    `deck.next()` its verbs, end with `deck.save`, and run the script again:
    `kl.py run build_<deck>.py`.

@@ -3,7 +3,8 @@ frontmatter follows the agentskills.io specification with claude.ai's stricter l
 the body has at most 200 lines, no `${` substitution, no shell injection and no absolute
 path; it says how to find the skill's folder, gives every token `doctor` can print an
 action, routes to "check a deck" when python-pptx cannot be installed, and has the voice
-step as a step of its own (B-8.15)."""
+step as a step of its own (B-8.15). Its approval step stops for the user's reply (B-29
+item 2, FX-37)."""
 
 import re
 
@@ -108,6 +109,21 @@ def test_the_loop_has_the_voice_step_as_its_own_step():
     spine = loop[loop.index("5. **Spine.**") : loop.index("6. **Approval.**")]
     assert "every headline fits its title" in spine and "bare `deck.next()`" in spine
     assert "kl.py run" in spine and "names\n   the slide" in spine
+
+
+def test_the_approval_step_stops_for_the_user():
+    """FX-37: run 1 of the demo went on without approval because the step let the session
+    decide that no user was present. It now always ends the turn, unless the user said
+    not to wait."""
+    loop = section("The loop")
+    approval = " ".join(loop[loop.index("6. **Approval.**") : loop.index("7. **Build.**")].split())
+    assert approval == (
+        "6. **Approval.** Show the user the spine, then stop: end your turn and wait for "
+        "their reply. Build only after they approve it. Skip this stop only when the user "
+        "has told you, in this conversation, not to wait; then say in the report that the "
+        "spine was not approved."
+    )
+    assert "present" not in approval and "go on" not in approval
 
 
 def test_priority_and_report():

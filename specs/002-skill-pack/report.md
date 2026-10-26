@@ -2375,6 +2375,9 @@ $ pytest -q -rs tests/acceptance/m2/test_ac21_bonsaihub.py
 
 ### What Tyler runs for T-46
 
+Run 1 followed these steps (see "T-46 run 1" below). Under B-29 item 4, run 2 runs
+headless, under the protocol at the end of this report.
+
 The decks must come from a fresh Claude Code session, in a folder outside this checkout
 (audit 07 §4.7). `tools/demo.py` prepares that folder: the skill unpacked from the zip,
 `product.toml` where the prompts expect it, and a venv with lxml, Pillow, python-pptx
@@ -2392,25 +2395,26 @@ cd ~/keyline-demo && source .venv/bin/activate && claude
 
 In that session:
 
-1. Send **P-1** word for word (spec §10):
+1. Send **P-1** word for word (spec §10, with B-29 item 3's last sentence):
 
    > Use the keyline skill. Make the demo-day pitch deck for BonsaiHub from
    > examples/bonsaihub/product.toml (audience `demo-day`). It will be presented live.
    > Work in examples/bonsaihub/ and name the files pitch.brief.toml, build_pitch.py and
    > pitch.pptx. Put the render in render/pitch/. Pass author="Tyler" when saving. If you
    > need numbers that product.toml lacks, put them in pitch.evidence.toml with a
-   > source. Never edit product.toml.
+   > source. Never edit product.toml. Keep it to 8 to 12 slides.
 
 2. When the skill shows the spine, approve it or ask for changes. That approval is
    **G-2a** for the pitch.
-3. Send **P-2**, which is P-1 with the spec's substitutions:
+3. Send **P-2**, which is P-1 with the spec's substitutions and B-29 item 3's range:
 
    > Use the keyline skill. Make the Q4 pre-read for the BonsaiHub team from
    > examples/bonsaihub/product.toml (audience `team-preread`). They will read it on
    > their own. Work in examples/bonsaihub/ and name the files preread.brief.toml,
    > build_preread.py and preread.pptx. Put the render in render/preread/. Pass
    > author="Tyler" when saving. If you need numbers that product.toml lacks, put them
-   > in preread.evidence.toml with a source. Never edit product.toml.
+   > in preread.evidence.toml with a source. Never edit product.toml. Keep it to 4 to 8
+   > slides.
 
 4. Approve its spine: **G-2a** for the pre-read.
 
@@ -2707,3 +2711,85 @@ I re-hashed the 28 files in `~/keyline-demo`; all match the record.
   - Run 1 handled it as constitution VI asks. It left the file unchanged and named the
     conflict in the pre-read's slide 7 headline: "Open question: the median match
     arrives in 41 days, before a full season of visits".
+
+## FX-37 · The approval step stops for the user (B-29 item 2)
+
+- **`SKILL.md` step 6** now reads:
+
+  > 6. **Approval.** Show the user the spine, then stop: end your turn and wait for
+  >    their reply. Build only after they approve it. Skip this stop only when the user
+  >    has told you, in this conversation, not to wait; then say in the report that the
+  >    spine was not approved.
+
+- **The test:** `test_ac17_skill_md.py::test_the_approval_step_stops_for_the_user`
+  compares the step's text. With the old step restored, it fails:
+
+  ```
+  $ pytest -q tests/acceptance/m2/test_ac17_skill_md.py
+  10 passed
+  $ git stash -- skill/keyline/SKILL.md && pytest -q tests/acceptance/m2/test_ac17_skill_md.py; git stash pop
+  1 failed, 9 passed
+  ```
+
+- **P-1 and P-2** in "What Tyler runs for T-46" end with B-29 item 3's sentence: "Keep it
+  to 8 to 12 slides." and "Keep it to 4 to 8 slides."
+- **`dist/keyline.zip`** is rebuilt from this commit:
+
+  ```
+  $ python tools/build_skill.py && sha256sum dist/keyline.zip
+  1ec25c6bedd1de3cad0a04c9cbc3eac47044448a731a09e36d847bcb51d2db4c  dist/keyline.zip
+  ```
+
+  A second build gives the same bytes. Run 2 uses this zip.
+
+## T-46 run 2 and T-47's Claude Code surface · the headless protocol (B-29 item 4)
+
+This session runs the fresh session as a subprocess, `claude -p`. G-2a stays Tyler's.
+
+1. **Setup.** Run `python tools/demo.py setup ~/keyline-demo-2`. Before it, check:
+   - `PYTHONPATH` is empty;
+   - neither `~/.claude/skills` nor `~/.claude/CLAUDE.md` holds keyline.
+2. **The environment.**
+   - The subprocess starts in `~/keyline-demo-2`, with its `.venv/bin` first on PATH.
+   - It does not inherit this session's `CLAUDE*` variables (`CLAUDECODE`, the session
+     id, `CLAUDE_CODE_CHILD_SESSION`, `CLAUDE_EFFORT` and the rest). They would mark it
+     as this session's child, so they are removed with `env -u`. The rest of the
+     environment is the user's.
+3. **Each turn** runs this command:
+
+   ```sh
+   claude -p "<P-1, verbatim>" --output-format stream-json --verbose \
+     --permission-mode acceptEdits --allowedTools "Bash,Read,Write,Edit,Glob,Grep,Skill" \
+     --disallowedTools "AskUserQuestion,WebFetch,WebSearch"
+   ```
+
+   - The flag names were checked with `claude --help`, on Claude Code 2.1.295.
+   - The command uses no `--bare`, `--append-system-prompt`, `--system-prompt` or
+     `--model`.
+   - P-1 and P-2 are those above, as B-29 item 3 words them.
+4. **Logs.** Each turn's stream goes to `~/keyline-demo-2-logs/`, outside the demo
+   folder. The report records each file's SHA-256 and the model named in its
+   `system`/`init` event.
+5. **The spine stop.**
+   - When a turn ends with the spine, this session stops and shows Tyler the spine
+     exactly as the subprocess printed it, then waits.
+   - Tyler's reply goes back verbatim, with the same flags, from the same folder:
+     `claude -p "<Tyler's reply>" --resume <session_id>`.
+   - This session never approves for him, and adds no words to a prompt or a reply.
+6. **Failure.** If a turn builds a deck without stopping at its spine, run 2 has
+   failed. This session stops and reports; it does not retry on its own.
+7. **P-2** goes into the same session with `--resume`, as in run 1, with the same spine
+   stop.
+8. **Hands off.** This session writes, edits and runs nothing in `~/keyline-demo-2`
+   except `tools/demo.py`.
+9. **Afterwards:**
+   - run `demo.py record` and show the output to Tyler;
+   - run `demo.py collect`;
+   - record G-2a here, with Tyler's verbatim replies and the hashes;
+   - run AC-21 and the gate;
+   - commit "docs: BonsaiHub demo (fresh session, run 2)".
+
+**T-47, the Claude Code surface,** follows the same protocol in `~/keyline-p3`
+(`demo.py setup`). It uses P-3 plus the sentence "The file is
+examples/bonsaihub/product.toml.", in place of an attachment. That is a deviation, and
+it is recorded with the run. claude.ai stays with Tyler.

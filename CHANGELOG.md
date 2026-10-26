@@ -83,3 +83,5 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
   - `tools/demo.py` sets up and records the BonsaiHub demo.
   - `tools/measure_lo.py` probes the characters no twin has in an installed font that
     has them (FX-36).
+  - The skill's approval step ends its turn and waits for the user's approval of the
+    spine (FX-37).
