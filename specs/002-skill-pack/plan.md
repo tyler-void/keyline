@@ -77,6 +77,9 @@
 - **T-46 run 2 is in** (2026-10-30). A fresh headless session built both demo decks from
   `dist/keyline.zip` `bf40df0f…`. It stopped at each spine, and Tyler approved both
   (G-2a). AC-21 passes. The decks are in `examples/bonsaihub/`.
+- **The reference study for spec 003 is in** (2026-10-30, `docs/reference-study.md`):
+  seven repositories, read but not run, the ten best ideas mapped to run 1's six causes,
+  and a spike plan for three routes. It stops here for the auditor, who drafts spec 003.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a` (now `7c2d3cd`).
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
