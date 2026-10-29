@@ -1,0 +1,105 @@
+schema = 1
+mode = "presented"
+pack = "swiss"
+evidence = ["product.toml"]
+
+[direction]
+audience = "Angel investors at a demo day: five minutes, a projector, no handout"
+decision = "Book a second meeting about the $1.2M seed round"
+thesis = "Making every match wait a full season is why BonsaiHub adoptions last"
+own_world = ["copper training wire", "akadama soil", "unglazed stoneware pot", "moss", "concave pruning shears"]
+motif = "A visit: a right swipe asks a tree for one, Slow Match needs a season of them, and the close asks the room for a second"
+
+[voice.fonts]
+display = "Georgia"
+text = "Calibri"
+
+[voice.palette]
+paper = "E6E7E3"
+ink = "1E2422"
+muted = "545A55"
+hairline = "B87333"
+accent = "3E6B2C"
+accent_on_ink = "A9CB86"
+
+[voice.why]
+paper = "the dry grey of an unglazed stoneware pot"
+ink = "the forged black steel of concave pruning shears"
+muted = "akadama soil gone grey-green after a season in the pot"
+hairline = "copper training wire, the one thin line on a tree"
+accent = "moss on the soil surface, the sign a tree has settled"
+accent_on_ink = "the same moss, catching light against dark steel"
+
+[[slides]]
+role = "cover"
+headline = "BonsaiHub"
+reads = ["a dating app for bonsai trees", "every match starts with a visit"]
+notes = "BonsaiHub is a dating app for bonsai trees and the people patient enough to keep them. Every match starts with a visit. Hold that word: I will come back to it."
+
+[[slides]]
+role = "statement"
+headline = "A bonsai outlives the impulse that buys it"
+reads = ["the median tree on BonsaiHub is 38 years old", "an impulse does not last that long"]
+evidence = ["median_tree_age"]
+notes = "The median tree on BonsaiHub is 38 years old. People buy bonsai on a whim, at a garden centre, on a Saturday. The tree needs someone for decades. That gap is the problem we solve."
+
+[[slides]]
+role = "evidence"
+headline = "Swipe right on a 212-year-old juniper"
+reads = ["a profile shows the tree from its front", "its age, what it likes, its dealbreakers", "a right swipe asks for a visit"]
+evidence = ["profile_itoigawa_age"]
+notes = "Meet Itoigawa. Shimpaku juniper, collected from the wild, the oldest tree on BonsaiHub. Every profile shows the tree from its front, the side it was styled to be seen from, with its age and its care needs. Swipe right and you are not matched. You are asking for a visit."
+
+[[slides]]
+role = "evidence"
+headline = "Four features, built for decades, not seconds"
+reads = ["Swipe the front, Slow Match, The Hub, Wire Check", "each one rewards the patient keeper"]
+notes = "Four features. Swipe the front, which you just saw. Slow Match, which I will come to. The Hub: shamelessly beautiful close-ups of roots, bark and deadwood. And Wire Check, which reminds keepers to take training wire off before it cuts into the bark."
+
+[[slides]]
+role = "statement"
+headline = "No match before a full season of visits"
+reads = ["Slow Match unlocks a match only after a season", "the wait is the product"]
+notes = "This is the bet. Slow Match unlocks a match only after a full season of visits. Nobody adopts a juniper on impulse. Every other app is built to make matching faster. We made it slower, on purpose."
+
+[[slides]]
+role = "evidence"
+headline = "Slow adoptions almost never get reversed"
+reads = ["0.4% of adoptions are reversed", "the keeper already knows the tree"]
+evidence = ["adoptions_reversed"]
+notes = "Here is what the wait buys. Four in a thousand adoptions are reversed. By the time a keeper takes a tree home, they have visited it for a season. They know its front, its roots, its dealbreakers."
+
+[[slides]]
+role = "evidence"
+headline = "Seven in ten keepers stay past their first season"
+reads = ["71% of keepers are still active after 90 days", "about one season of visits"]
+evidence = ["retention_90d"]
+notes = "And keepers stay. Seventy-one percent are still active after ninety days, which is about one season. Patience is not a cost to our users. It is why they come back."
+
+[[slides]]
+role = "evidence"
+headline = "Active keepers grew every month since April"
+reads = ["active keepers rose every month, April to September", "3,180 active keepers in September"]
+evidence = ["keepers_by_month"]
+notes = "Growth. From 410 active keepers in April to 3,180 in September, up every single month."
+
+[[slides]]
+role = "evidence"
+headline = "12,400 trees are already waiting for a keeper"
+reads = ["12,400 trees on the waitlist", "supply is here; keepers are the constraint"]
+evidence = ["waitlist_trees"]
+notes = "The trees are already here. 12,400 of them are on the waitlist. What we need is more keepers to visit them."
+
+[[slides]]
+role = "evidence"
+headline = "Revenue starts with Seasonal Boost at $4.99 a month"
+reads = ["Seasonal Boost costs $4.99 a month", "revenue starts here"]
+evidence = ["premium_price"]
+notes = "We make money with Seasonal Boost, at $4.99 a month. Pricing and the plan behind it are for the second meeting."
+
+[[slides]]
+role = "close"
+headline = "Ask us for a second visit"
+reads = ["we are raising a $1.2M seed round", "Slow Match pilots in Da Lat and Kyoto next"]
+evidence = ["seed_round"]
+notes = "On BonsaiHub, nothing serious happens after one visit. So here is our ask. We are raising a $1.2M seed round, and next we take Slow Match to Da Lat and Kyoto. If that is your kind of patience, ask us for a second visit."

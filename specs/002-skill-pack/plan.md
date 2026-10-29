@@ -74,6 +74,9 @@
   (D-021), keeps B-28 (run 2 goes ahead, no change to the Swiss pack), and asks for a
   reference study for spec 003. Two failures that depend on the environment, seen on
   LibreOffice 24.2, are fixed in the Phase B round (report).
+- **T-46 run 2 is in** (2026-10-30). A fresh headless session built both demo decks from
+  `dist/keyline.zip` `bf40df0f…`. It stopped at each spine, and Tyler approved both
+  (G-2a). AC-21 passes. The decks are in `examples/bonsaihub/`.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a` (now `7c2d3cd`).
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".

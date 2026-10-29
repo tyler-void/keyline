@@ -4,6 +4,7 @@ extend-exclude = [
   "prototype",
   "fixtures/foreign/stress/src",  # audit 02 scripts, kept close to verbatim
   "specs/*/evidence",             # auditor evidence (e.g. spec 002's numbers_ref.py), never edited
+  "examples/bonsaihub/build_*.py",  # written by the demo's fresh session, recorded by hash, never edited (T-46)
 ]
 
 [lint]

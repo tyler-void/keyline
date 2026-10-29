@@ -85,3 +85,5 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
     has them (FX-36).
   - The skill's approval step ends its turn and waits for the user's approval of the
     spine (FX-37).
+  - The BonsaiHub demo: a pitch and a pre-read, built from `dist/keyline.zip` by a fresh
+    session that stopped for Tyler's approval of each spine (T-46, run 2).

@@ -2362,16 +2362,20 @@ AC-20 sandbox: python-pptx, lxml, Pillow = 1.0.2 6.1.3 12.3.0
   `kl.py check` exits 0 on each with its brief.
 - Without network the test skips locally and fails in CI.
 
-## AC-21 · BonsaiHub · PARTLY (waits for T-46)
+## AC-21 · BonsaiHub · PASS (T-46 run 2)
 
 ```
 $ pytest -q -rs tests/acceptance/m2/test_ac21_bonsaihub.py
-1 passed, 11 skipped
+12 passed
 ```
 
 - **`product.toml` matches its hash:** PASS.
-- **The deck checks** skip while no demo file exists. They were tried on the rehearsal
-  demo: all pass except the G-2a record, which the real demo adds.
+- **The deck checks** run on run 2's decks, collected into `examples/bonsaihub/`: every
+  demo file is committed; both briefs pass `kl.py brief` and carry an inline voice; both
+  decks pass `kl.py check --brief` with exit 0; two builds equal each other and the
+  committed deck; the disclosure is present, and the slide counts are within §10 (11
+  and 7). G-2a is recorded in "T-46 run 2" below.
+- Before run 2, these checks skipped while no demo file existed (1 passed, 11 skipped).
 
 ### What Tyler runs for T-46
 
@@ -2502,6 +2506,13 @@ R. **A seventh generated table, `titles`.** Q-57 as ruled lists the type scale, 
 
 S. **`tools/demo.py`** is not in the tasks. It sets up the folder for the fresh session
    and prints the record audit 07 §4.7 asks for, so the demo's setup is one command.
+
+T. **`ruff.toml` excludes the demo's build scripts** (`examples/bonsaihub/build_*.py`).
+   - Spec said: CI runs `ruff check .` and `ruff format --check .` over the repository.
+   - Implemented: the two scripts run 2's fresh session wrote are excluded, as the
+     auditor's evidence already is.
+   - Because: they have lines over 100 characters, and T-46 forbids editing them. Their
+     hashes are recorded, and any edit needs a fresh-session re-run.
 
 ## Open questions (Phase B)
 
@@ -2905,3 +2916,105 @@ My reading of that contact sheet, offered as the causes spec 003 has to close:
 
 B-28 already places the look in spec 003. In spec 002, G-2 judges correctness, and the
 Swiss demo decks are kept as spec 003's baseline.
+
+## T-46 run 2 · collected, G-2a recorded (2026-10-30)
+
+Run 2 followed the headless protocol above (B-29 item 4), from `b30dff4`.
+
+- **Before setup:** `PYTHONPATH` empty; no `~/.claude/CLAUDE.md`; no folder or `SKILL.md`
+  named keyline under `~/.claude/skills`.
+- **Setup:** `python tools/demo.py setup ~/keyline-demo-2`, with `dist/keyline.zip`
+  `bf40df0f…b9c6ce` built at `b30dff4`.
+- **Each turn:** `claude -p` (Claude Code 2.1.295) with the protocol's flags, started in
+  `~/keyline-demo-2` with its `.venv/bin` first on PATH. These variables of this session
+  were removed: `CLAUDECODE`, `CLAUDE_CODE_CHILD_SESSION`, `CLAUDE_CODE_ENTRYPOINT`,
+  `CLAUDE_CODE_EXECPATH`, `CLAUDE_CODE_MESSAGING_SOCKET`, `CLAUDE_CODE_MESSAGING_TOKEN`,
+  `CLAUDE_CODE_SESSION_ATTENDED`, `CLAUDE_CODE_SESSION_ID`, `CLAUDE_EFFORT` and
+  `CLAUDE_PID`. `VIRTUAL_ENV` pointed at the demo's venv, as `source .venv/bin/activate`
+  does in run 1.
+- **One session for all four turns:** `dfe1a98b-82d5-4723-8f20-1617010669a7`. Every
+  `system`/`init` event names the model `claude-opus-5-5`, the folder `~/keyline-demo-2`
+  and the permission mode `acceptEdits`, and lists the `keyline` skill. Each turn exited
+  0 with an empty stderr.
+
+| Turn | Input, verbatim | Log in `~/keyline-demo-2-logs/` | SHA-256 | Time | It ended |
+|---|---|---|---|---|---|
+| 1 | P-1 (above) | `turn1-p1.jsonl` | `3f774e1af5fffca942103c15501b55252ac4bd4ff1dc94d35fc2ec53cd13a3ad` | 3 min 38 s | at the pitch's spine, with no deck |
+| 2 | "approved, build it as is" | `turn2-reply1.jsonl` | `bdb7bd0083bfe6998bdf6fd22f18344c7045be7c86866698288ad8317e298794` | 1 min 27 s | with `pitch.pptx` built and `check` exit 0 |
+| 3 | P-2 (above) | `turn3-p2.jsonl` | `e7dd445200430078826cd6bac751d11e58f91d5ab7e4c01ab535c0368290a02e` | 1 min 29 s | at the pre-read's spine, with no deck |
+| 4 | "approved, build it as is" | `turn4-reply2.jsonl` | `ce980f8d03bd278de020dde9e49fd3cc1805d81f121401d74e43bdffa5afc66e` | 1 min 13 s | with `preread.pptx` built and `check` exit 0 |
+
+The logs stay outside the repository, because they hold local paths.
+
+### G-2a
+
+Each spine went to Tyler exactly as the session printed it, and each reply went back
+word for word.
+
+- **The pitch** (2026-10-30, after turn 1): 11 slides, `kl.py brief` 0 findings, every
+  headline fits its title. Direction: angel investors at demo day; the decision, a second
+  meeting about the $1.2M seed round; the thesis, that a season-long wait is why
+  adoptions last; the motif, a visit. Voice: Georgia and Calibri, stoneware grey,
+  pruning-shear black, copper-wire rules, moss accent.
+  - **Tyler:** "approved, build it as is"
+- **The pre-read** (2026-10-30, after turn 3): 7 slides, `kl.py brief` 0 findings, every
+  headline fits its title. Direction: the BonsaiHub team, reading alone before the Q4
+  meeting; the decision, Slow Match in Da Lat and Kyoto before any new feature; the
+  motif, a season. The pitch's voice.
+  - **Tyler:** "approved, build it as is"
+- **The approved headlines are the committed briefs' headlines,** slide for slide
+  (`examples/bonsaihub/pitch.brief.toml`, `preread.brief.toml`).
+- **What the session raised at each spine,** and left open after the build:
+  - the fixture's inconsistency (a "full season of visits" against a 41-day median
+    wait). The session left the 41 days out of both decks;
+  - Seasonal Boost has a price but no description;
+  - the pre-read's retention claim is a correlation, since `product.toml` has no
+    comparison without Slow Match;
+  - the Hub has no number.
+
+### The record
+
+```
+$ python tools/demo.py record ~/keyline-demo-2      # the home folder is shortened to ~ here
+- working directory: `~/keyline-demo-2`
+- skill: `~/keyline-demo-2/.claude/skills/keyline`
+- `dist/keyline.zip` SHA-256: `bf40df0f55858a0c998bbb405249382b97f0748fa0cb917b60c2688da3b9c6ce`
+- `keyline` imports from: `~/keyline-demo-2/.claude/skills/keyline/lib/keyline/__init__.py`
+- files the session wrote:
+  - `examples/bonsaihub/build_pitch.py` `2d03d0a0fd21af5e0e8c75ebf4e33ae7bbafef1e87ae1f7fcf49506499700e78`
+  - `examples/bonsaihub/build_preread.py` `db3525b087859c01d4e1c39494034fc7370c5047775ea52c19169bb2c1e2d49e`
+  - `examples/bonsaihub/pitch.brief.toml` `9bdd4d38a1578ec96cddc5d902cb7d098502ef6ed3b5fc2459706c0246419aca`
+  - `examples/bonsaihub/pitch.pptx` `88c075546b98665e461e232b4b541d18a76880b2bb79fb76ab26db96fc5a0727`
+  - `examples/bonsaihub/preread.brief.toml` `574cb19d4b2e7bc286827d48a01a8448062477aa6c549e136f0e6ad365164380`
+  - `examples/bonsaihub/preread.pptx` `66086ceb4c918a4224709d7759d21b933d5b131fed4ac65550059d996d84838c`
+  - `examples/bonsaihub/render/pitch/contact.png` `c2557824b3e6d5d2e89f18edbc301da1ca3362aa9ae2dcabdf9dacb2075fd6cb`
+  - `examples/bonsaihub/render/pitch/slide-01.png` `ab5c19551ee62b12aa4e04435ada86f4a92c1a54abd0153dd1abb29f51f3a638`
+  - `examples/bonsaihub/render/pitch/slide-02.png` `07561c6bf47069da4cdfb3561bb514b57a6736e2bfaf36a1da4b0fbfccdd0ab5`
+  - `examples/bonsaihub/render/pitch/slide-03.png` `34c238d90c55515864c0b92361b1996776f14caadff43b7a908ba1ce641719d4`
+  - `examples/bonsaihub/render/pitch/slide-04.png` `c3f8cb1ea790e562b79cf7d0cfbd52bd6765b1070018805fe7b5340afa12b50d`
+  - `examples/bonsaihub/render/pitch/slide-05.png` `884422a40e29f6a2ccdb11151c1115991291742fc7180db1404602a58b9cbf02`
+  - `examples/bonsaihub/render/pitch/slide-06.png` `9df36c5a9b7793138ab195584910957759f1adb50d713b4e549bfb6d8efe671d`
+  - `examples/bonsaihub/render/pitch/slide-07.png` `0e86a99b0e760c15c1712093d0ee16604f92cfdc6da74b03728d55a0342244b8`
+  - `examples/bonsaihub/render/pitch/slide-08.png` `b4774ab80f8a7b83e3dc9fb20d8464eddfef7e6cda0f12382300aef86b007822`
+  - `examples/bonsaihub/render/pitch/slide-09.png` `eb408dac2eb4a4122ad5b5ce1c705a6936715188e9287fdcd6cd7cf2bb0384a8`
+  - `examples/bonsaihub/render/pitch/slide-10.png` `f2d31e85748616170dd7b8959af0313b3f7062c7b8d55515e9c6de8c2d8432e2`
+  - `examples/bonsaihub/render/pitch/slide-11.png` `97c276e37b29fcb506ee72adeb1a94fc8e5c2e57196eafe08d15c9c93c2c47e9`
+  - `examples/bonsaihub/render/preread/contact.png` `917a6a62b6cf888060110bd67ea418ef72081959606f77cb21f2b12e5805766d`
+  - `examples/bonsaihub/render/preread/slide-01.png` `98a1011d4cc9ebfd069197602cbeaaac347ca83acebc6680acf2086b205a1f55`
+  - `examples/bonsaihub/render/preread/slide-02.png` `b0a9faf3bd708d376521a5b0aec57ece0307efabb6ce5c4cbb57d60fdaa21e3b`
+  - `examples/bonsaihub/render/preread/slide-03.png` `9ac1940d18bf3b5845cbf7b9e28c847096ed131d588af850ce05eebd50b9ad57`
+  - `examples/bonsaihub/render/preread/slide-04.png` `07383db76707dfa9fb80d69935e80a487a7417068bac3e6b6c60142b355db3a7`
+  - `examples/bonsaihub/render/preread/slide-05.png` `970d178152270b1085febc2932f6f601fccea64aa09c933d4e605f54d07aed15`
+  - `examples/bonsaihub/render/preread/slide-06.png` `84234d42087648e246f9d7a864d95fd5ae9e726c802f05fa18151e57f61f4f47`
+  - `examples/bonsaihub/render/preread/slide-07.png` `352d66e37b4ab33440f9b0cc8058202e646dcde0763a57365b4a870f74467e61`
+```
+
+- **`demo.py collect`** copied these 26 files into `examples/bonsaihub/`. Each copy has
+  the SHA-256 the record lists, and nothing else was copied.
+- No file the session wrote names anyone but Tyler or holds a local path. Both decks
+  have creator and last-modified-by `Tyler`.
+- This session wrote, edited and ran nothing in `~/keyline-demo-2` except
+  `tools/demo.py`.
+- **Lint:** the two build scripts fail CI's `ruff check .` on line length. They are not
+  edited; `ruff.toml` excludes them (deviation T).
+- **AC-21** passes (above), and so does the hygiene test.
