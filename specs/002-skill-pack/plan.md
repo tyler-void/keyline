@@ -69,6 +69,11 @@
   commit, now `fe60fd9` (`322e706` before it was amended to drop five files). The hashes
   cited before the move are mapped in `docs/commit-map.md`. One new question, Q-63, is
   below.
+- **The auditor's checkpoint at `322e706`** (2026-10-29): it agrees with the status. It
+  has the snapshot amended to drop the files that hold the old work e-mail, rules Q-63
+  (D-021), keeps B-28 (run 2 goes ahead, no change to the Swiss pack), and asks for a
+  reference study for spec 003. Two failures that depend on the environment, seen on
+  LibreOffice 24.2, are fixed in the Phase B round (report).
 - **Branch:** `002-skill-pack`, from `main` at `678c69a` (now `7c2d3cd`).
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".
@@ -958,6 +963,10 @@ Each has a proposal. Neither blocks Phase B.
     headline and reports a finding. That adds a registry entry, so it is not done here.
 
 ### The move question (2026-10-29, report "The move to tyler-void")
+
+**Ruling (the auditor's checkpoint at `322e706`, 2026-10-29; Tyler: accepted):**
+- **Q-63: accepted.** D-021 records the move and the history rewrite: the date, the new
+  identity and the commit map. D-014 is not edited again.
 
 63. **Q-63 · D-014 and the move.** D-014 says "There is no history rewrite and no repo
     recreation". The move to `tyler-void/keyline` on 2026-10-26 rewrote every commit

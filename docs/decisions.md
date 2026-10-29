@@ -119,3 +119,14 @@ Append-only. To change a decision, add a new entry that supersedes the old one.
   - Why: a single fixed look becomes a tell at scale. Web design shows this with the
     "Claude look". Diversity has to come from each deck's subject, not from a catalog
     or chance.
+- **D-021 · The move to tyler-void (Tyler, 2026-10-29).** On 2026-10-26 the repository
+  moved to `github.com/tyler-void/keyline`, and its history was rewritten.
+  - Every commit's author and committer is D-014's identity, `Tyler
+    <code@tyler-void.dev>`. Every hash changed, and CI history starts again in the new
+    repository.
+  - `docs/commit-map.md` maps the hashes cited before the move to the commits now.
+  - On 2026-10-30 the snapshot commit `322e706` was amended to `fe60fd9`, to drop files
+    that held the old work e-mail, and `002-skill-pack` was force-pushed. The map has
+    that row too.
+  - D-014 stays as written. Its "no history rewrite and no repo recreation" held until
+    this move; this decision records the change (plan Q-63).

@@ -2852,7 +2852,56 @@ identity, `Tyler <code@tyler-void.dev>`, so every hash changed.
   ```
 
   CI passed on `322e706`.
-- **Q-63, open:** D-014 says "There is no history rewrite and no repo recreation". The
-  move did both. *Proposal:* a new decision records the move, the rewrite, and
-  `docs/commit-map.md` as the key to the hashes cited before it. `decisions.md` is
-  append-only, so D-014 stays as written (plan, §9).
+- **Q-63** (ruled at the checkpoint below): D-014 says "There is no history rewrite and
+  no repo recreation". The move did both. *Proposal:* a new decision records the move,
+  the rewrite, and `docs/commit-map.md` as the key to the hashes cited before it.
+  `decisions.md` is append-only, so D-014 stays as written (plan, §9).
+
+## Checkpoint (the auditor, at `322e706`) · status agreed
+
+The auditor agrees with the status table at `322e706`. Its items, in its order:
+
+1. **Privacy.** The audit zips the snapshot committed hold the old work e-mail. The
+   snapshot is amended without them and the branch force-pushed (see "The move to
+   tyler-void" above, which has the scan).
+   - The auditor's steps assumed origin at `322e706`. It was at `2f2b3d8`, which had
+     removed the files at the tip only. So `2f2b3d8` was re-applied on the amended
+     snapshot, and the lease was `002-skill-pack:2f2b3d8`.
+2. **Q-63: accepted.** D-021 in `docs/decisions.md` records the move. D-014 is not
+   edited again.
+3. **Tyler's verdict on the look** is recorded below, as input for spec 003. B-28 stands:
+   run 2 goes ahead, headless, under the protocol above, and the Swiss pack does not
+   change.
+4. **A reference study for spec 003** (`docs/reference-study.md`), research only, done
+   during run 2's spine waits or after it.
+5. **For the Phase B round, not now:** two failures that depend on the environment,
+   seen on the auditor's LibreOffice 24.2.
+   - `test_fixture_repro` compares PNG bytes, which differ under zlib-ng. It should
+     compare decoded pixels.
+   - `test_fx17` asserts the glyph order for U+2046, a character no twin has, set in a
+     fallback font. It should skip that assertion for `NO_TWIN` and keep the line count.
+
+## Tyler's verdict on the look (2026-10-29) · input for spec 003
+
+> also the current keyline style looks bad :)
+> looks like boomer word 2003 era :)
+
+It came after Tyler saw run 1's pitch. That deck is not committed; its contact sheet is
+`render/pitch/contact.png` in run 1's record (SHA-256 `091624fb…`).
+
+My reading of that contact sheet, offered as the causes spec 003 has to close:
+
+1. **The fonts.** A heavy Georgia-like serif for headlines over an Arial-like sans, the
+   Office pairing of the early 2000s. Fonts are not embedded, so a voice can only use
+   families with installed metric twins (D-020's `portable_fonts`), in practice the
+   Office core fonts. This is the largest single cause.
+2. **One slide, ten times.** Headline top left, a rule under it, one big number, a
+   short paragraph to its right, and the same flat grey ground on every slide. No dark
+   slide, no full-bleed slide, no change of pace.
+3. **The rule under each title** reads as Word's heading with a bottom border.
+4. **The lower half of most slides is empty.** The content hugs the top.
+5. **The chart** looks like a spreadsheet default: gridlines, grey bars, one in colour.
+6. **No pictures,** in a deck about bonsai trees.
+
+B-28 already places the look in spec 003. In spec 002, G-2 judges correctness, and the
+Swiss demo decks are kept as spec 003's baseline.
