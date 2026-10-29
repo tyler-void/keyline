@@ -2712,7 +2712,7 @@ I re-hashed the 28 files in `~/keyline-demo`; all match the record.
     conflict in the pre-read's slide 7 headline: "Open question: the median match
     arrives in 41 days, before a full season of visits".
 
-## FX-37 · The approval step stops for the user (B-29 item 2)
+## FX-37 · The approval step stops for the user (B-29 item 2) · `fe60fd9`
 
 - **`SKILL.md` step 6** now reads:
 
@@ -2733,14 +2733,15 @@ I re-hashed the 28 files in `~/keyline-demo`; all match the record.
 
 - **P-1 and P-2** in "What Tyler runs for T-46" end with B-29 item 3's sentence: "Keep it
   to 8 to 12 slides." and "Keep it to 4 to 8 slides."
-- **`dist/keyline.zip`** is rebuilt from this commit:
+- **`dist/keyline.zip`** was rebuilt from the FX-37 tree, before the move:
 
   ```
   $ python tools/build_skill.py && sha256sum dist/keyline.zip
   1ec25c6bedd1de3cad0a04c9cbc3eac47044448a731a09e36d847bcb51d2db4c  dist/keyline.zip
   ```
 
-  A second build gives the same bytes. Run 2 uses this zip.
+  A second build gave the same bytes. The move changed the zip; run 2 uses the zip at
+  `fe60fd9` (see "The move to tyler-void" below).
 
 ## T-46 run 2 and T-47's Claude Code surface · the headless protocol (B-29 item 4)
 
@@ -2793,3 +2794,65 @@ This session runs the fresh session as a subprocess, `claude -p`. G-2a stays Tyl
 (`demo.py setup`). It uses P-3 plus the sentence "The file is
 examples/bonsaihub/product.toml.", in place of an attachment. That is a deviation, and
 it is recorded with the run. claude.ai stays with Tyler.
+
+## The move to tyler-void (2026-10-26)
+
+The repository moved to `tyler-void/keyline`. Every commit was rewritten to D-014's
+identity, `Tyler <code@tyler-void.dev>`, so every hash changed.
+
+- **The hashes in this report** and the other docs written before the move no longer
+  resolve.
+  - [`docs/commit-map.md`](../../docs/commit-map.md) maps each cited hash to its commit
+    now: 115 rows, and one hash (`4b991fa`, in spec 001's report) undetermined.
+  - The CI runs cited before the move belonged to the old repository and are not in the
+    new one.
+- **FX-37 landed in the snapshot,** "Snapshot of the working tree before the move", not in
+  a commit of its own. The snapshot was `322e706`; it is now `fe60fd9` (next item).
+- **Five files that stay untracked** were committed with the snapshot:
+  `HANDOFF-A1fix2.md`, `audit05.zip`, `audit06.zip`, `audit07.zip` and
+  `fx36-repros.zip`. The three audit zips hold the old work e-mail.
+  - On the auditor's instruction (2026-10-29), the snapshot is amended without them,
+    `322e706` → `fe60fd9`, and the branch is force-pushed. No commit on `002-skill-pack`
+    holds them now. The local copies stay, listed in `.git/info/exclude`.
+  - An earlier push of this commit, `2f2b3d8`, had removed them at the tip only, which
+    left them in the public history. It is replaced by this one, with the same tree
+    except for this text.
+  - **The check:** a scan of every blob and every commit reachable from the new head,
+    with zip and pptx members, PDF streams and PNG text chunks unpacked, finds neither
+    the old work e-mail nor the old handle. On the old head, the same scan finds the
+    e-mail in the three audit notes inside the zips, and nothing else:
+
+    ```
+    old head (2f2b3d8): 1281 blobs and 182 commits scanned; 3 hits
+      audit05.zip!audit-05-a2.md, audit06.zip!audit-06-a2fix.md, audit07.zip!audit-07-b-plan.md
+    new head:           1276 blobs and 182 commits scanned; 0 hits
+    ```
+
+    The scan script stays outside the repository, because it holds the patterns.
+  - `322e706` stays readable on GitHub by its hash until GitHub collects it, for example
+    from the page of the CI run that tested it.
+- **`dist/keyline.zip` changed with the move.** `keyline/NOTICE` in it now names
+  tyler-void:
+
+  ```
+  $ git switch 002-skill-pack && python tools/build_skill.py && sha256sum dist/keyline.zip
+  bf40df0f55858a0c998bbb405249382b97f0748fa0cb917b60c2688da3b9c6ce  dist/keyline.zip
+  ```
+
+  Run 2 uses the zip built at its head.
+- **The gate at `322e706`,** whose tree is `fe60fd9`'s plus the five files, on
+  LibreOffice 26.8.1.1:
+
+  ```
+  $ pytest -q                                   1354 passed, 11 skipped
+  $ env PATH= python -m pytest -q               1231 passed, 134 skipped
+  $ env PATH=<CI-like> python -m pytest -q      1268 passed, 97 skipped
+  $ python tools/m1_baseline.py                 baseline: no differences
+  $ python tools/gen_docs.py --check            exit 0
+  ```
+
+  CI passed on `322e706`.
+- **Q-63, open:** D-014 says "There is no history rewrite and no repo recreation". The
+  move did both. *Proposal:* a new decision records the move, the rewrite, and
+  `docs/commit-map.md` as the key to the hashes cited before it. `decisions.md` is
+  append-only, so D-014 stays as written (plan, §9).
