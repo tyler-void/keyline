@@ -87,3 +87,4 @@ All notable changes are recorded here. Format: [Keep a Changelog](https://keepac
     spine (FX-37).
   - The BonsaiHub demo: a pitch and a pre-read, built from `dist/keyline.zip` by a fresh
     session that stopped for Tyler's approval of each spine (T-46, run 2).
+  - The Claude Code surface deck (T-47), built headless from `dist/keyline.zip` with P-3.

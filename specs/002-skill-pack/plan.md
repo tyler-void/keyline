@@ -80,6 +80,10 @@
 - **The reference study for spec 003 is in** (2026-10-30, `docs/reference-study.md`):
   seven repositories, read but not run, the ten best ideas mapped to run 1's six causes,
   and a spike plan for three routes. It stops here for the auditor, who drafts spec 003.
+- **The auditor's checkpoint at `0356e58`** (2026-10-31): accepted. D-022 records that
+  citations may name third-party repositories. T-47's Claude Code surface ran headless;
+  Report B (T-49) is complete. **Stopped** for G-2 and the Phase B audit; the spike for
+  spec 003 comes after.
 - **Branch:** `002-skill-pack`, from `main` at `678c69a` (now `7c2d3cd`).
 - **Decisions:** D-015 … D-019 are recorded in `docs/decisions.md` (commit `bb27a9b`);
   D-020 (B-8) supersedes D-017's "Arial only".

@@ -2432,7 +2432,7 @@ This session then copies the outputs into `examples/bonsaihub/` with
 `tools/demo.py collect`, records G-2a and the hashes here, and runs AC-21. It builds
 none of the files and edits none (plan Q-58 as ruled).
 
-## AC-22 · Surfaces · NOT RUN (T-47, manual)
+## AC-22 · Surfaces · (b) Claude Code PASS; (a) claude.ai waits for Tyler; (c) not run
 
 P-3 is: "Use the keyline skill to make a 6-slide deck for BonsaiHub's demo day from this
 file. It will be presented live."
@@ -2447,6 +2447,79 @@ For each, record the `doctor` output, whether a preview was rendered, the last `
 exit code, and the deck. Read the deck's slide text for a name before it is committed
 (audit 07 §4.8): the agent on claude.ai knows the account holder's name. The decks go
 under `examples/bonsaihub/surfaces/`.
+
+### (b) Claude Code · PASS (T-47, 2026-10-31, headless)
+
+Run under the headless protocol (B-29 item 4), from `0356e58` with `dist/keyline.zip`
+`bf40df0f…b9c6ce`, in `~/keyline-p3` (`demo.py setup`). The checks before setup were
+the same as run 2's, with the same results. Deviations U and V apply.
+
+- **The prompt:** P-3, then "The file is examples/bonsaihub/product.toml." in place of an
+  attachment:
+
+  > Use the keyline skill to make a 6-slide deck for BonsaiHub's demo day from this
+  > file. It will be presented live. The file is examples/bonsaihub/product.toml.
+
+- **One session for both turns:** `646487bd-cae9-456b-abf7-c008537cdc7a`, model
+  `claude-opus-5-5`, permission mode `acceptEdits`, the keyline skill listed. Each turn
+  exited 0 with an empty stderr.
+
+  | Turn | Input, verbatim | Log in `~/keyline-p3-logs/` | SHA-256 | Time | It ended |
+  |---|---|---|---|---|---|
+  | 1 | the prompt above | `turn1-p3.jsonl` | `1dfd9393c4bc539b50bf50012114030db3bfbc4a0a046823d7e60746c2788769` | 2 min 30 s | at the spine (6 slides), with no deck |
+  | 2 | Tyler's reply, below | `turn2-reply1.jsonl` | `46d2ef953fd8fc8cdda8fbffe102781413d406e09209df7bc1b9098947ce649c` | 54 s | with the deck built and `check` exit 0 |
+
+- **The spine went to Tyler verbatim.** Its slide 5 put the 41-day median wait beside
+  slide 3's "a match takes a season". Tyler's reply, passed back word for word:
+  > Approved, with one change: take the 41-day median wait off slide 5, because it
+  > contradicts slide 3's "a match takes a season". Keep 71% and 0.4%, and make the
+  > headline say that keepers who wait stay, not that the wait is why.
+
+  The session changed slide 5's headline to "Keepers who wait for a match stay",
+  removed the 41 days from the slide and its notes, and changed the brief's thesis to
+  match. Then it built. An approval with a change is an approval, so it did not show
+  the spine again.
+- **`doctor`** (turn 1, `kl.py doctor`), every line OK: `PYTHON_OK` 3.11.16, `LXML_OK`
+  6.1.3, `PILLOW_OK` 13.0.0, `PPTX_OK` 1.0.2, `RENDER_LIBREOFFICE`, `RASTER_PDFIUM`,
+  `VALIDATE_OFFICECLI`, and `FONT_OK` for the six portable families, each resolved to its
+  twin.
+- **The preview** was rendered with LibreOffice 26.8.1.1 and rasterized with pypdfium2:
+  six slides and a contact sheet. OfficeCLI validated the schema.
+- **The last `check`:** exit 0, 0 findings. Run here on the committed copy, it also exits 0.
+- **The deck:** `examples/bonsaihub/surfaces/claude-code/bonsaihub_demo_day.pptx`, SHA-256
+  `e78974116e5c12528c06c30da5e68ec78f138979eedbb10fcba8bc7210fdbcee`.
+  - 6 slides, presented mode, the Swiss pack, and a voice drawn from bonsai materials:
+    Georgia and Arial, a deadwood-grey ground, stoneware text, copper rules and a moss
+    accent.
+  - The disclosure is on the cover; the creator and last-modified-by are empty.
+  - Its slide text and notes, read before the commit, name no one.
+  - Only the deck is committed, as AC-22 asks. The session's brief, build script and
+    preview are in the record below.
+- **The record:**
+
+  ```
+  $ python tools/demo.py record ~/keyline-p3      # the home folder is shortened to ~ here
+  - working directory: `~/keyline-p3`
+  - skill: `~/keyline-p3/.claude/skills/keyline`
+  - `dist/keyline.zip` SHA-256: `bf40df0f55858a0c998bbb405249382b97f0748fa0cb917b60c2688da3b9c6ce`
+  - `keyline` imports from: `~/keyline-p3/.claude/skills/keyline/lib/keyline/__init__.py`
+  - files the session wrote:
+    - `bonsaihub_demo_day/bonsaihub_demo_day.brief.toml` `dc799c4eab3ca7fd5c2bcac015f1d9aecab9eacde23845fccef8dbedacef5e00`
+    - `bonsaihub_demo_day/bonsaihub_demo_day.pptx` `e78974116e5c12528c06c30da5e68ec78f138979eedbb10fcba8bc7210fdbcee`
+    - `bonsaihub_demo_day/build_bonsaihub_demo_day.py` `b0cb3a0a12750875e7c5877247ceb4e936d578f9d77b0326b8d96851e7efaf22`
+    - `bonsaihub_demo_day/preview/contact.png` `3b0a8af422ce36b24c9e9df1bc81434c72b6b10d867c9d24056f02c5be23cfa4`
+    - `bonsaihub_demo_day/preview/slide-01.png` `6207dca9e7f9341988b76d06e5a2b01ffb2c2dc458a31ff6ea944a725bcf585b`
+    - `bonsaihub_demo_day/preview/slide-02.png` `f64edb19f7b9b384bc9d914be2c1c8f52550737314de53c847ae3d9dcc2db10a`
+    - `bonsaihub_demo_day/preview/slide-03.png` `575387011d798675fbac34dbde85b9315b15418f8a4b0c65dee5a1499f288f68`
+    - `bonsaihub_demo_day/preview/slide-04.png` `edb10f07ecd936537624420bd37b69e4cc8663b098fa11089aa09d2ece89709c`
+    - `bonsaihub_demo_day/preview/slide-05.png` `55c0a948a64e8237893f46ce5ed4666b67f7520032e5f5a977fe140390e89975`
+    - `bonsaihub_demo_day/preview/slide-06.png` `8877031abea575c842229209f6e84526c9bac5b1e76adda07a4fabbd2ffdd523`
+  ```
+
+### (a) claude.ai · waits for Tyler
+
+Tyler runs it (upload `dist/keyline.zip`, attach `product.toml`, send P-3). His result
+is recorded here when he sends it.
 
 ## AC-23 · Hygiene and CI · PASS
 
@@ -2514,6 +2587,20 @@ T. **`ruff.toml` excludes the demo's build scripts** (`examples/bonsaihub/build_
    - Because: they have lines over 100 characters, and T-46 forbids editing them. Their
      hashes are recorded, and any edit needs a fresh-session re-run.
 
+U. **P-3 on the Claude Code surface names the file.**
+   - Spec said: AC-22 attaches `product.toml` and sends P-3.
+   - Implemented: P-3 followed by "The file is examples/bonsaihub/product.toml.".
+   - Because: a headless Claude Code session has no attachment; the auditor asked for
+     this sentence in its place.
+
+V. **The skill sits in the run's folder, not in `~/.claude/skills/`.**
+   - Spec said: AC-22 (b) installs the skill into `~/.claude/skills/`.
+   - Implemented: `demo.py setup` unpacks it into `~/keyline-p3/.claude/skills/keyline`,
+     a project skill.
+   - Because: the protocol requires that no keyline skill is in `~/.claude/skills`, so
+     that the run sees only the zip under test. Claude Code loads project skills the same
+     way: the session's init event lists `keyline`.
+
 ## Open questions (Phase B)
 
 - **Q-62 · `brief` cannot tell that a headline will not fit.** It counts words; only the
@@ -2521,6 +2608,15 @@ T. **`ruff.toml` excludes the demo's build scripts** (`examples/bonsaihub/build_
   003, `keyline brief` runs the fit on each headline and reports a finding, which adds
   a registry entry. **Ruled at the checkpoint below: accepted, deferred to spec 003.**
 - **Q-60 and Q-61** (from the prelude) are ruled at the checkpoint below.
+- **For G-2 (Tyler judges both; the auditor's notes at `0356e58`):**
+  - **Pre-read slide 5** says "We have 3,180 active keepers: almost four waiting trees
+    for each one." That is a number derived in prose (12,400 / 3,180 = 3.9; the
+    arithmetic is right) with no evidence entry.
+  - **Pitch slide 7** says "Ninety days is about one season." It equates the 90-day
+    retention window with a season.
+  - Both touch the fixture's known inconsistency (a "full season of visits" against a
+    41-day median wait), which Tyler ruled on for the Claude Code surface deck: no 41
+    days beside "a season".
 
 ## Checkpoint (the auditor, at `3566cb4`) · accepted
 
@@ -3018,3 +3114,36 @@ $ python tools/demo.py record ~/keyline-demo-2      # the home folder is shorten
 - **Lint:** the two build scripts fail CI's `ruff check .` on line length. They are not
   edited; `ruff.toml` excludes them (deviation T).
 - **AC-21** passes (above), and so does the hygiene test.
+
+## Report B (T-49, 2026-10-31) · ready for G-2 and the Phase B audit
+
+Each criterion re-run at the commit that holds this section (LibreOffice 26.8.1.1,
+OfficeCLI, all six twins). The sections above hold the detail.
+
+| Criterion | Command | Output | Verdict |
+|---|---|---|---|
+| AC-17 · SKILL.md | `pytest -q tests/acceptance/m2/test_ac17_skill_md.py` | 10 passed | PASS |
+| AC-18 · Docs integrity | `pytest -q tests/acceptance/m2/test_ac18_docs.py tests/acceptance/m2/test_gen_docs.py`; `python tools/gen_docs.py --check` | 34 passed; exit 0 | PASS |
+| AC-19 · Package | `python tools/build_skill.py`; `pytest -q tests/acceptance/m2/test_ac19_package.py` | `bf40df0f…b9c6ce`, the same on a second build; 4 passed | PASS |
+| AC-20 · Sandbox smoke | `pytest -q tests/acceptance/m2/test_ac20_sandbox.py` | 4 passed | PASS |
+| AC-21 · BonsaiHub | `pytest -q tests/acceptance/m2/test_ac21_bonsaihub.py` | 12 passed | PASS (run 2; G-2a recorded) |
+| AC-22 · Surfaces | see AC-22 | (b) Claude Code: `check` exit 0, deck committed; (a) claude.ai: waits for Tyler; (c) desktop: optional, not run | PARTLY |
+| AC-23 · Hygiene and CI | `pytest -q tests/acceptance/test_ac12_hygiene.py tests/acceptance/m2/test_ngram_overlap.py`; `python tools/ngram_overlap.py skill docs` | 11 passed; 14 shared sequences, the research headings `anti-tells.md` cites, as before | PASS |
+
+- **Deviations:** P to V, in "Deviations (Phase B)". T (the demo's build scripts
+  excluded from ruff), U (P-3 names the file) and V (the skill as a project skill) are
+  new since the checkpoint at `3566cb4`.
+- **Open questions:** in "Open questions (Phase B)": Q-62 (deferred to spec 003), and the
+  auditor's two notes for G-2.
+- **Not done in Phase B, by plan:**
+  - AC-22 (a), claude.ai, which is Tyler's;
+  - the two fixes for tests that depend on the environment, for the Phase B round:
+    `test_fixture_repro` compares PNG bytes (it should compare decoded pixels), and
+    `test_fx17` asserts a glyph order for U+2046 (it should skip that for `NO_TWIN`).
+- **Next, after the stop:** the spike for spec 003 (approved), as
+  `docs/reference-study.md` plans it with the auditor's additions, recorded in
+  `docs/spike-003.md`.
+
+**STOP** for G-2 (Tyler, as B-28 scopes it: whether both demo decks are correct and
+tailored to their briefs: the spine, the voice drawn from `[product.world]`, the
+disclosure) and for the Phase B audit.
