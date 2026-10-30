@@ -130,3 +130,10 @@ Append-only. To change a decision, add a new entry that supersedes the old one.
     that row too.
   - D-014 stays as written. Its "no history rewrite and no repo recreation" held until
     this move; this decision records the change (plan Q-63).
+- **D-022 · Citations of third-party repositories (Tyler, 2026-10-31).** A clarification
+  of the identity rule (`CLAUDE.md`, D-014), not a change to the constitution.
+  - A citation may give a third-party repository's slug or URL (`owner/repo`), as
+    `docs/reference-study.md` and `docs/research.md` do.
+  - Prose names no third-party person.
+  - The identity rule is about Tyler: the project's own people appear only as Tyler or
+    tyler-void.
